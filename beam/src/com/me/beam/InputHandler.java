@@ -7,7 +7,10 @@ public class InputHandler {
 	public GameEngine.GameState handleInput(Board b, GameEngine.GameState state){
 		
 		if (Gdx.input.isTouched()){
-			Tile t = b.getTileAtPosition(Gdx.input.getX(), Gdx.input.getY());
+			
+			int yPos = Gdx.graphics.getHeight() - Gdx.input.getY() - 1;
+			
+			Tile t = b.getTileAtPosition(Gdx.input.getX(), yPos);
 			if (t != null){
 				System.out.println("In tile " + t.getXCoord() + ", " + t.getYCoord());
 			}

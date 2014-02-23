@@ -2,16 +2,40 @@ package com.me.beam;
 
 public class Laser {
 	
-	int xStart;
-	int yStart;
+	private int xStart;
+	private int yStart;
 	
-	int xFinish;
-	int yFinish;
+	private int xFinish;
+	private int yFinish;
 	
-	GameEngine.Color color = GameEngine.Color.NONE;
+	private GameEngine.Color color = GameEngine.Color.NONE;
 	
-	public Laser(){
-		
+	public Laser(int xStart, int yStart, int xFinish, int yFinish, GameEngine.Color color){
+		this.xStart = xStart;
+		this.yStart = yStart;
+		this.xFinish = xFinish;
+		this.yFinish = yFinish;
+		this.color = color;
+	}
+	
+	public int getXStart(){
+		return xStart;
+	}
+	
+	public int getXFinish(){
+		return xFinish;
+	}
+	
+	public int getYStart(){
+		return yStart;
+	}
+	
+	public int getYFinish(){
+		return yFinish;
+	}
+	
+	public GameEngine.Color getColor(){
+		return color;
 	}
 
 }
