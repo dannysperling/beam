@@ -1,5 +1,8 @@
 package com.me.beam;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 
@@ -8,6 +11,9 @@ public class GameEngine implements ApplicationListener {
 	private Board b;
 	private DrawGame dg;
 	private InputHandler inputHandler;
+	
+	public static Piece movingPiece = null;
+	public static List<Tile> movePath = new ArrayList<Tile>();
 	
 	public enum GameState {
 		PAUSED, WAITING, DECIDING, MOVING
@@ -37,7 +43,7 @@ public class GameEngine implements ApplicationListener {
 
 	@Override
 	public void render() {
-		inputHandler.handleInput(b, state);
+		state = inputHandler.handleInput(b, state);
 		dg.draw(b, state);
 	}
 
