@@ -30,6 +30,10 @@ public class Tile {
 		return goal;
 	}
 	
+	public void setGoal(GameEngine.Color goal){
+		this.goal = goal;
+	}
+	
 	public boolean hasPainter(){
 		return painter != GameEngine.Color.NONE;
 	}
@@ -38,11 +42,23 @@ public class Tile {
 		return painter;
 	}
 	
+	public void setPainter(GameEngine.Color painter){
+		this.painter = painter;
+	}
+	
 	public boolean hasGlass(){
 		return hasGlass;
 	}
 	
+	public void setGlass(boolean hasGlass){
+		this.hasGlass = hasGlass;
+	}
+	
 	public boolean hasWall(){
 		return hasWall;
+	}
+	
+	public void setWall(boolean hasWall){
+		this.hasWall = hasWall;
 	}
 }
