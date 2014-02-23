@@ -1,6 +1,7 @@
 package com.me.beam;
 
 import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Gdx;
 
 public class GameEngine implements ApplicationListener {
 	// Simple Objects for now
@@ -15,6 +16,10 @@ public class GameEngine implements ApplicationListener {
 	public enum Color {
 		RED, BLUE, GREEN, NONE
 	}
+	
+	public static final float topBarSize = 0.15f;
+	public static final float botBarSize = 0.20f;
+	public static final float sideEmptySize = 0.02f;
 	
 	private GameState state = GameState.PAUSED;
 	
