@@ -8,10 +8,12 @@ public class Main {
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		cfg.title = "beam";
 		cfg.useGL20 = false;
-		cfg.width = 480;
-		cfg.height = 320;
+
+		cfg.width = 360;
+		cfg.height = 640;
+
 		cfg.foregroundFPS = 60;
-		
+
 		new LwjglApplication(new GameEngine(), cfg);
 	}
 }
