@@ -12,11 +12,15 @@ public class GameEngine implements ApplicationListener {
 		PAUSED, WAITING, DECIDING, MOVING
 	}
 	
+	public enum Color {
+		RED, BLUE, GREEN, NONE
+	}
+	
 	private GameState state = GameState.PAUSED;
 	
 	@Override
 	public void create() {		
-		b = new Board();
+		b = new Board(1,1);
 		dg = new DrawGame();
 		inputHandler = new InputHandler();
 	}
