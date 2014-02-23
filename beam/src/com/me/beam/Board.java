@@ -1,5 +1,8 @@
 package com.me.beam;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.badlogic.gdx.Gdx;
 
 public class Board {
@@ -16,12 +19,16 @@ public class Board {
 	private int width;
 	private int height;
 	
-	public Board(int width, int height) {
-		this.width = width;
-		this.height = height;
+	public Board(int numHorTiles, int numVertTiles) {
+		this.width = numHorTiles;
+		this.height = numVertTiles;
 		
 		tiles = new Tile[width][height];
 		pieces = new Piece[width][height];
+		
+		pieces[2][2] = new Piece(2, 2, GameEngine.Color.RED);
+		pieces[1][4] = new Piece(1, 4, GameEngine.Color.GREEN);
+		pieces[8][6] = new Piece(8, 6, GameEngine.Color.BLUE);
 		
 		for (int i = 0; i < width; i++){
 			for (int j = 0; j < height; j++){
@@ -55,12 +62,16 @@ public class Board {
 		return botLeftY;
 	}
 	
-	public int getWidth(){
+	public int getNumHorizontalTiles(){
 		return width;
 	}
 
-	public int getHeight(){
+	public int getNumVerticalTiles(){
 		return height;
+	}
+	
+	public int getTileSize(){
+		return tileSize;
 	}
 	
 	public Tile getTileAtPosition(int x, int y){
@@ -75,6 +86,18 @@ public class Board {
 	
 	public Piece getPieceOnTile(Tile t){
 		return pieces[t.getXCoord()][t.getYCoord()];
+	}
+	
+	public List<Piece> getAllPieces(){
+		List<Piece> result = new ArrayList<Piece>();
+		for (Piece[] subarray: pieces) {
+		    for (Piece p: subarray) {
+		        if(p != null){
+		        	result.add(p);
+		        }
+		    }
+		}
+		return result;
 	}
 
 }

@@ -2,6 +2,7 @@ package com.me.beam;
 
 public class Piece {
 
+	//These are in terms of grid squares!
 	private int xCoord;
 	private int yCoord;
 	
