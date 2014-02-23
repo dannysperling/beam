@@ -24,16 +24,21 @@ public class DrawGame {
 		TextureRegion region = new TextureRegion(pieceTexture, 0, 0, 256, 256);
 		
 		pieceSprite = new Sprite(region);
-		pieceSprite.setScale(0.125f);
-		pieceSprite.setPosition(0, 50);
-		pieceSprite.setColor(Color.RED);
+		
 	}
 	
 	public void draw(Board b, GameEngine.GameState state){
-		Gdx.gl.glClearColor(0, 1, 1, 1);
+		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
 		batch.begin();
+		pieceSprite.setSize(64, 64);
+		pieceSprite.setPosition(0, 0);
+		pieceSprite.setColor(Color.GREEN);
+		pieceSprite.draw(batch);
+		pieceSprite.setSize(128, 128);
+		pieceSprite.setPosition(50, 50);
+		pieceSprite.setColor(Color.RED);
 		pieceSprite.draw(batch);
 		batch.end();
 	}
