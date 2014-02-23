@@ -10,8 +10,8 @@ public class Board {
 	
 	private int tileSize;
 	
-	private int topLeftX;
-	private int topLeftY;
+	private int botLeftX;
+	private int botLeftY;
 	
 	private int width;
 	private int height;
@@ -37,22 +37,22 @@ public class Board {
 		
 		if (maxWidth < maxHeight){
 			tileSize = maxWidth;
-			topLeftX = (int) (Gdx.graphics.getWidth() * GameEngine.sideEmptySize);
-			topLeftY = (int) (Gdx.graphics.getHeight() * GameEngine.topBarSize + (screenHeight - (tileSize * height))/2);
+			botLeftX = (int) (Gdx.graphics.getWidth() * GameEngine.sideEmptySize);
+			botLeftY = (int) (Gdx.graphics.getHeight() * GameEngine.botBarSize + (screenHeight - (tileSize * height))/2);
 		} else {
 			tileSize = maxHeight;
-			topLeftX = (int) (Gdx.graphics.getWidth() * GameEngine.sideEmptySize + (screenWidth - (tileSize * width))/2);
-			topLeftY = (int) (Gdx.graphics.getHeight() * GameEngine.topBarSize);
+			botLeftX = (int) (Gdx.graphics.getWidth() * GameEngine.sideEmptySize + (screenWidth - (tileSize * width))/2);
+			botLeftY = (int) (Gdx.graphics.getHeight() * GameEngine.botBarSize);
 		}
 		
 	}
 	
-	public int getTopLeftX(){
-		return topLeftX;
+	public int getBotLeftX(){
+		return botLeftX;
 	}
 	
-	public int getTopLeftY(){
-		return topLeftY;
+	public int getBotLeftY(){
+		return botLeftY;
 	}
 	
 	public int getWidth(){
@@ -65,12 +65,12 @@ public class Board {
 	
 	public Tile getTileAtPosition(int x, int y){
 		
-		if (x < topLeftX || x >= topLeftX + tileSize * width ||
-			y < topLeftY || y >= topLeftY + tileSize * height){
+		if (x < botLeftX || x >= botLeftX + tileSize * width ||
+			y < botLeftY || y >= botLeftY + tileSize * height){
 			return null;
 		}
 		
-		return tiles[(x - topLeftX) / tileSize][(y - topLeftY) / tileSize];
+		return tiles[(x - botLeftX) / tileSize][(y - botLeftY) / tileSize];
 	}
 	
 	public Piece getPieceOnTile(Tile t){
