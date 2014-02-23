@@ -70,7 +70,7 @@ public class Board {
 			return null;
 		}
 		
-		return tiles[x % tileSize][y % tileSize];
+		return tiles[(x - topLeftX) / tileSize][(y - topLeftY) / tileSize];
 	}
 	
 	public Piece getPieceOnTile(Tile t){
