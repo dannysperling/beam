@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.Gdx;
 
 public class GameEngine implements ApplicationListener {
 	// Simple Objects for now
@@ -31,7 +30,7 @@ public class GameEngine implements ApplicationListener {
 	
 	@Override
 	public void create() {		
-		b = new Board(10,22);
+		b = new Board(5,6);
 		dg = new DrawGame();
 		inputHandler = new InputHandler();
 	}
