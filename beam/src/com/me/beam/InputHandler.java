@@ -22,14 +22,12 @@ public class InputHandler {
 		}	
 		
 		if(state == GameEngine.GameState.DECIDING) {
-			//System.out.println("move path size = " + GameEngine.movePath.size());
 			if (Gdx.input.isTouched() && b.getTileAtClickPosition(getX(), getY()) != null) {
 				Tile t = b.getTileAtClickPosition(getX(), getY());
 				if(isValidMove(b, t)) {
 					int i = GameEngine.movePath.indexOf(t);
 					if(i == -1) {
 						GameEngine.movePath.add(t);
-						System.out.println("Adding tile " + t.getXCoord() + ", " + t.getYCoord());
 					}
 					else{
 						GameEngine.movePath = GameEngine.movePath.subList(0, i + 1);
