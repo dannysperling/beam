@@ -16,7 +16,7 @@ public class GameEngine implements ApplicationListener {
 	public static List<Tile> movePath = new ArrayList<Tile>();
 	
 	public enum GameState {
-		PAUSED, WAITING, DECIDING, MOVING
+		PAUSED, IDLE, DECIDING, MOVING
 	}
 	
 	public enum Color {
