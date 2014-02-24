@@ -6,8 +6,7 @@ public class Tile {
 	
 	private GameEngine.Color goal = GameEngine.Color.NONE;
 	private GameEngine.Color painter = GameEngine.Color.NONE;
-	private boolean hasGlass = false;
-	private boolean hasWall = false;
+	public boolean isGlass = false;
 	
 	public Tile(int x, int y){
 		xCoord = x;
@@ -45,20 +44,5 @@ public class Tile {
 	public void setPainter(GameEngine.Color painter){
 		this.painter = painter;
 	}
-	
-	public boolean hasGlass(){
-		return hasGlass;
-	}
-	
-	public void setGlass(boolean hasGlass){
-		this.hasGlass = hasGlass;
-	}
-	
-	public boolean hasWall(){
-		return hasWall;
-	}
-	
-	public void setWall(boolean hasWall){
-		this.hasWall = hasWall;
-	}
+
 }
