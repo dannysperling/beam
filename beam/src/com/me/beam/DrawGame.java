@@ -111,6 +111,25 @@ public class DrawGame {
 			pieceSprite.draw(batch);
 		}
 		batch.end();
+		
+		//Draw Lasers
+		List<Laser> lasers = b.lasers;
+		shapes.begin(ShapeType.Filled);
+		for(Laser l : lasers){
+			switch(l.getColor()){
+			case RED: shapes.setColor(new Color(1, 0, 0, 1)); break;
+			case BLUE: shapes.setColor(new Color(0, 0, 1, 1)); break;
+			case GREEN: shapes.setColor(new Color(0, 1, 0, 1)); break;
+			default: shapes.setColor(new Color(0,0,0,0)); break;
+			}
+			if(l.getXStart() == l.getXFinish()){
+				shapes.rect(bx + (l.getXStart() + 0.45f) * tilesize , by + (l.getYStart() + 0.45f) * tilesize, 0.1f * tilesize, (l.getYFinish() - l.getYStart()) * tilesize);
+			} else {
+				shapes.rect(bx + (l.getXStart() + 0.45f) * tilesize , by + (l.getYStart() + 0.45f) * tilesize,  (l.getXFinish() - l.getXStart()) * tilesize, 0.1f * tilesize);	
+			}
+		}
+		shapes.end();
+		
 	}
 	
 	public void dispose(){
