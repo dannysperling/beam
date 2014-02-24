@@ -109,6 +109,8 @@ public class GameEngine implements ApplicationListener {
 
 				//Remove previous lasers
 				removeLasersFromPiece(movingPiece);
+				
+				b.move(movingPiece, movePath.get(0));
 
 				//Check for piece destroyed
 				if (!checkIfPieceDestroyed(movingPiece)){
