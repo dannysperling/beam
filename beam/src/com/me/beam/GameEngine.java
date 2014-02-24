@@ -101,7 +101,6 @@ public class GameEngine implements ApplicationListener {
 			if (timeSpentOnTile < timeOnTileBeforeMove){
 				timeSpentOnTile++;
 			} else {
-				System.out.println("Making a move with " + (movePath.size() - 1) + " remaining");
 				//Reset time on tile
 				timeSpentOnTile = 0;
 
@@ -110,9 +109,6 @@ public class GameEngine implements ApplicationListener {
 
 				//Remove previous lasers
 				removeLasersFromPiece(movingPiece);
-
-				//Move to the next tile
-				System.out.println(b.move(movingPiece, movePath.get(0)));
 
 				//Check for piece destroyed
 				if (!checkIfPieceDestroyed(movingPiece)){
