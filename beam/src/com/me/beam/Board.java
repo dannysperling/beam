@@ -29,10 +29,6 @@ public class Board {
 		tiles = new Tile[width][height];
 		pieces = new Piece[width][height];
 		
-		pieces[2][2] = new Piece(2, 2, GameEngine.Color.RED);
-		pieces[1][4] = new Piece(1, 4, GameEngine.Color.GREEN);
-		pieces[8][6] = new Piece(8, 6, GameEngine.Color.BLUE);
-		
 		for (int i = 0; i < width; i++){
 			for (int j = 0; j < height; j++){
 				tiles[i][j] = new Tile(i, j);
@@ -182,6 +178,18 @@ public class Board {
 		    for (Piece p: subarray) {
 		        if(p != null){
 		        	result.add(p);
+		        }
+		    }
+		}
+		return result;
+	}
+	
+	public List<Tile> getAllTiles(){
+		List<Tile> result = new ArrayList<Tile>();
+		for (Tile[] subarray: tiles) {
+		    for (Tile t: subarray) {
+		        if(t != null){
+		        	result.add(t);
 		        }
 		    }
 		}

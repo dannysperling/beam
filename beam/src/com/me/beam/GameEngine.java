@@ -35,7 +35,7 @@ public class GameEngine implements ApplicationListener {
 
 	@Override
 	public void create() {		
-		b = new Board(10,12);
+		b = new Board(5,6);
 		dg = new DrawGame();
 		inputHandler = new InputHandler();
 	}
