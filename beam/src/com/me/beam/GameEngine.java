@@ -35,13 +35,50 @@ public class GameEngine implements ApplicationListener {
 
 	@Override
 	public void create() {		
-		b = new Board(5,6);
-		b.put(new Piece(0, 0, Color.RED));
-		b.put(new Piece(0, 4, Color.BLUE));
-		b.put(new Piece(4, 0, Color.RED));
-		b.put(new Piece(4, 4, Color.BLUE));
-		b.setGlass(2, 2, true);
-		b.setPainter(3, 3, Color.GREEN);
+		
+		// 12 Move Game
+		b = new Board(7,7);
+		
+		b.put(new Piece(0, 0, Color.GREEN));
+		b.put(new Piece(0, 6, Color.GREEN));
+		b.put(new Piece(6, 0, Color.GREEN));
+		b.put(new Piece(6, 6, Color.GREEN));
+		
+		b.put(new Piece(2, 2, Color.RED));
+		b.put(new Piece(2, 4, Color.RED));
+		b.put(new Piece(4, 2, Color.RED));
+		b.put(new Piece(4, 4, Color.RED));
+//		
+//		b.put(new Piece(1, 3, Color.BLUE));
+//		b.put(new Piece(3, 1, Color.BLUE));
+//		b.put(new Piece(3, 3, Color.BLUE));
+//		b.put(new Piece(3, 5, Color.BLUE));
+//		b.put(new Piece(5, 3, Color.BLUE));
+//		
+//		b.setGlass(1, 0, true);
+//		b.setGlass(1, 2, true);
+//		b.setGlass(1, 4, true);
+//		b.setGlass(1, 6, true);
+//		
+//		b.setGlass(2, 1, true);
+//		b.setGlass(2, 5, true);
+//		
+//		b.setGlass(3, 0, true);
+//		b.setGlass(3, 6, true);
+//		
+//		b.setGlass(4, 1, true);
+//		b.setGlass(4, 5, true);
+//		
+//		b.setGlass(5, 0, true);
+//		b.setGlass(5, 2, true);
+//		b.setGlass(5, 4, true);
+//		b.setGlass(5, 6, true);
+//		
+//		b.setGoal(1, 1, Color.RED);
+//		b.setGoal(1, 5, Color.RED);
+//		b.setGoal(5, 5, Color.RED);
+//		b.setGoal(5, 1, Color.RED);
+		
 		dg = new DrawGame();
 		inputHandler = new InputHandler();
 
@@ -90,6 +127,7 @@ public class GameEngine implements ApplicationListener {
 						List<Piece> destroyed = formLasersFromPieceAndDestroy(movingPiece);
 						for (Piece p : destroyed){
 							b.removePiece(p);
+							removeLasersFromPiece(p);
 						}
 
 					} else {
@@ -126,7 +164,7 @@ public class GameEngine implements ApplicationListener {
 	public void initializeLasers(){
 		for (Piece p1 : b.getAllPieces()){
 			for (Piece p2 : b.getAllPieces()){
-				if (!p1.equals(p2) && p1.getColor() == p2.getColor() && p1.getXCoord() == p2.getXCoord() || p1.getYCoord() == p2.getYCoord()){
+				if (!p1.equals(p2) && p1.getColor() == p2.getColor() && (p1.getXCoord() == p2.getXCoord() || p1.getYCoord() == p2.getYCoord())){
 					int xStart = Math.min(p1.getXCoord(), p2.getXCoord());
 					int xFinish = Math.max(p1.getXCoord(), p2.getXCoord());
 					int yStart = Math.min(p1.getYCoord(), p2.getYCoord());
@@ -287,7 +325,7 @@ public class GameEngine implements ApplicationListener {
 		xPos = p.getXCoord();
 		yPos = p.getYCoord() - 1;
 
-		//Slide to the left
+		//Slide down
 		for (; botSameColor == null && yPos >= 0; yPos--){
 			Piece possible = b.getPieceOnTile(b.getTileAtBoardPosition(xPos, yPos));
 
@@ -310,7 +348,7 @@ public class GameEngine implements ApplicationListener {
 
 		yPos = p.getYCoord() + 1;
 
-		//Slide to the right
+		//Slide up
 		for (; topSameColor == null && yPos < b.getNumVerticalTiles(); yPos++){
 
 			Piece possible = b.getPieceOnTile(b.getTileAtBoardPosition(xPos, yPos));
