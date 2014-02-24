@@ -11,6 +11,7 @@ public class Laser {
 	private GameEngine.Color color = GameEngine.Color.NONE;
 	
 	//xStart <= xFinish, yStart <= yFinish
+	//Actually yStart >= yFinish, not sure why....
 	public Laser(int xStart, int yStart, int xFinish, int yFinish, GameEngine.Color color){
 		this.xStart = xStart;
 		this.yStart = yStart;
