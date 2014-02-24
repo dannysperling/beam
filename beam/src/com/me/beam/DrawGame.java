@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.MathUtils;
 
 public class DrawGame {
 	private SpriteBatch batch;
@@ -38,17 +37,64 @@ public class DrawGame {
 		int tilesize = b.getTileSize();
 		Gdx.gl.glClearColor(.1f, .1f, .1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		List<Piece> pieces = b.getAllPieces();
+		List<Tile> tiles = b.getAllTiles();
 		
+		//Draw the basic grid
 		shapes.begin(ShapeType.Line);
+		shapes.setColor(Color.WHITE);
 		for(int i = 0; i <= b.getNumHorizontalTiles(); i++){
 			shapes.line(bx + (i * tilesize), by, bx + (i * tilesize), by + (b.getNumVerticalTiles() * tilesize));
 		}
 		for(int i = 0; i <= b.getNumVerticalTiles(); i++){
 			shapes.line(bx, by + (i * tilesize), bx + (b.getNumHorizontalTiles() * tilesize), by + (i * tilesize));
 		}
-		List<Piece> pieces = b.getAllPieces();
-		
 		shapes.end();
+		
+		//Draw the tiles
+		shapes.begin(ShapeType.Line);
+		for(Tile t: tiles){
+			if(t.hasGlass()){
+				int glassX = bx + (t.getXCoord() * tilesize);
+				int glassY = by + (t.getYCoord() * tilesize);
+				shapes.line(glassX, glassY + (0.25f * tilesize), glassX + (0.25f * tilesize), glassY);
+				shapes.line(glassX, glassY + (0.5f * tilesize), glassX + (0.5f * tilesize), glassY);
+				shapes.line(glassX, glassY + (0.75f * tilesize), glassX + (0.75f * tilesize), glassY);
+				shapes.line(glassX, glassY + tilesize, glassX + tilesize, glassY);
+				shapes.line(glassX + (0.25f * tilesize), glassY + tilesize, glassX + tilesize, glassY + (0.25f * tilesize));
+				shapes.line(glassX + (0.5f * tilesize), glassY + tilesize, glassX + tilesize, glassY + (0.5f * tilesize));
+				shapes.line(glassX + (0.75f * tilesize), glassY + tilesize, glassX + tilesize, glassY + (0.75f * tilesize));
+			}
+			if(t.hasGoal()){
+				int goalX = bx + (t.getXCoord() * tilesize);
+				int goalY = by + (t.getYCoord() * tilesize);
+				switch(t.getGoalColor()){
+				case RED: shapes.setColor(Color.RED); break;
+				case BLUE: shapes.setColor(Color.BLUE); break;
+				case GREEN: shapes.setColor(Color.GREEN); break;
+				default: shapes.setColor(new Color(0,0,0,0)); break;
+				}
+				shapes.rect(goalX + (0.05f * tilesize), goalY + (0.05f * tilesize), 0.9f * tilesize,  0.9f * tilesize);
+			}
+		}
+		shapes.end();
+		shapes.begin(ShapeType.Filled);
+		for(Tile t: tiles){
+			if(t.hasPainter()){
+				int paintX = bx + (t.getXCoord() * tilesize);
+				int paintY = by + (t.getYCoord() * tilesize);
+				switch(t.getPainterColor()){
+				case RED: shapes.setColor(new Color(.3f, 0, 0, 1)); break;
+				case BLUE: shapes.setColor(new Color(0, 0, .3f, 1)); break;
+				case GREEN: shapes.setColor(new Color(0, .3f, 0, 1)); break;
+				default: shapes.setColor(new Color(0,0,0,0)); break;
+				}
+				shapes.rect(paintX + (0.05f * tilesize), paintY + (0.05f * tilesize), 0.9f * tilesize,  0.9f * tilesize);
+			}
+		}
+		shapes.end();
+		
+		//Draw the pieces
 		batch.begin();
 		pieceSprite.setSize(tilesize, tilesize);
 		for(Piece p : pieces){
