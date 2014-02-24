@@ -15,7 +15,7 @@ public class GameEngine implements ApplicationListener {
 	public static List<Tile> movePath = new ArrayList<Tile>();
 
 	//Animation constants in ticks
-	private static final int timeOnTileBeforeMove = 30;
+	private static final int timeOnTileBeforeMove = 15;
 
 	private int timeSpentOnTile = 0;
 
@@ -39,8 +39,13 @@ public class GameEngine implements ApplicationListener {
 		b.put(new Piece(0, 0, Color.RED));
 		b.put(new Piece(0, 4, Color.BLUE));
 		b.put(new Piece(4, 0, Color.RED));
+		b.put(new Piece(4, 4, Color.BLUE));
+		b.setGlass(2, 2, true);
+		b.setPainter(3, 3, Color.GREEN);
 		dg = new DrawGame();
 		inputHandler = new InputHandler();
+		
+		initializeLasers();
 	}
 
 	@Override
@@ -116,6 +121,23 @@ public class GameEngine implements ApplicationListener {
 
 		//Draw the game
 		dg.draw(b, state);
+	}
+	
+	public void initializeLasers(){
+		for (Piece p1 : b.getAllPieces()){
+			for (Piece p2 : b.getAllPieces()){
+				if (!p1.equals(p2) && p1.getColor() == p2.getColor() && p1.getXCoord() == p2.getXCoord() || p1.getYCoord() == p2.getYCoord()){
+					int xStart = Math.min(p1.getXCoord(), p2.getXCoord());
+					int xFinish = Math.max(p1.getXCoord(), p2.getXCoord());
+					int yStart = Math.min(p1.getYCoord(), p2.getYCoord());
+					int yFinish = Math.max(p1.getYCoord(), p2.getYCoord());
+					Laser l = new Laser(xStart, yStart, xFinish, yFinish, p1.getColor());
+					
+					if (!b.lasers.contains(l))
+						b.lasers.add(l);
+				}
+			}
+		}
 	}
 
 	public void paintPiece(Piece p){
