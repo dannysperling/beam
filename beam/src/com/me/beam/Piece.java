@@ -1,7 +1,5 @@
 package com.me.beam;
 
-import com.me.beam.GameEngine.Color;
-
 public class Piece {
 
 	//These are in terms of grid squares!

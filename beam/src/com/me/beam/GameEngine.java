@@ -48,36 +48,36 @@ public class GameEngine implements ApplicationListener {
 		b.put(new Piece(2, 4, Color.RED));
 		b.put(new Piece(4, 2, Color.RED));
 		b.put(new Piece(4, 4, Color.RED));
-//		
-//		b.put(new Piece(1, 3, Color.BLUE));
-//		b.put(new Piece(3, 1, Color.BLUE));
-//		b.put(new Piece(3, 3, Color.BLUE));
-//		b.put(new Piece(3, 5, Color.BLUE));
-//		b.put(new Piece(5, 3, Color.BLUE));
-//		
-//		b.setGlass(1, 0, true);
-//		b.setGlass(1, 2, true);
-//		b.setGlass(1, 4, true);
-//		b.setGlass(1, 6, true);
-//		
-//		b.setGlass(2, 1, true);
-//		b.setGlass(2, 5, true);
-//		
-//		b.setGlass(3, 0, true);
-//		b.setGlass(3, 6, true);
-//		
-//		b.setGlass(4, 1, true);
-//		b.setGlass(4, 5, true);
-//		
-//		b.setGlass(5, 0, true);
-//		b.setGlass(5, 2, true);
-//		b.setGlass(5, 4, true);
-//		b.setGlass(5, 6, true);
-//		
-//		b.setGoal(1, 1, Color.RED);
-//		b.setGoal(1, 5, Color.RED);
-//		b.setGoal(5, 5, Color.RED);
-//		b.setGoal(5, 1, Color.RED);
+		
+		b.put(new Piece(1, 3, Color.BLUE));
+		b.put(new Piece(3, 1, Color.BLUE));
+		b.put(new Piece(3, 3, Color.BLUE));
+		b.put(new Piece(3, 5, Color.BLUE));
+		b.put(new Piece(5, 3, Color.BLUE));
+		
+		b.setGlass(1, 0, true);
+		b.setGlass(1, 2, true);
+		b.setGlass(1, 4, true);
+		b.setGlass(1, 6, true);
+		
+		b.setGlass(2, 1, true);
+		b.setGlass(2, 5, true);
+		
+		b.setGlass(3, 0, true);
+		b.setGlass(3, 6, true);
+		
+		b.setGlass(4, 1, true);
+		b.setGlass(4, 5, true);
+		
+		b.setGlass(5, 0, true);
+		b.setGlass(5, 2, true);
+		b.setGlass(5, 4, true);
+		b.setGlass(5, 6, true);
+		
+		b.setGoal(1, 1, Color.RED);
+		b.setGoal(1, 5, Color.RED);
+		b.setGoal(5, 5, Color.RED);
+		b.setGoal(5, 1, Color.RED);
 		
 		dg = new DrawGame();
 		inputHandler = new InputHandler();
