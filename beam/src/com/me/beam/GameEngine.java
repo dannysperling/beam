@@ -14,9 +14,14 @@ public class GameEngine implements ApplicationListener {
 	
 	public static Piece movingPiece = null;
 	public static List<Tile> movePath = new ArrayList<Tile>();
+
+	//Animation constants in ticks
+	private static final int timeOnTileBeforeMove = 60;
+	
+	private int timeSpentOnTile = 0;
 	
 	public enum GameState {
-		PAUSED, WAITING, DECIDING, MOVING
+		PAUSED, IDLE, DECIDING, MOVING
 	}
 	
 	public enum Color {
@@ -43,7 +48,50 @@ public class GameEngine implements ApplicationListener {
 
 	@Override
 	public void render() {
+		//Get input from the user
 		state = inputHandler.handleInput(b, state);
+		
+		//Do things if we're moving
+		if (state == GameState.MOVING){
+			//Check to see if we actually move yet
+			if (timeSpentOnTile < timeOnTileBeforeMove){
+				timeSpentOnTile++;
+			} else {
+				//Reset time on tile
+				timeSpentOnTile = 0;
+				
+				//Get rid of the place we were
+				movePath.remove(0);
+				
+				//Remove previous lasers
+				
+				//Actually move!
+				if (movePath.size() > 0){
+					
+					//Move to the next tile
+					//board.move(movingPiece, movePath.get(0));
+					
+					//Check for destruction
+					
+					//Get painted
+					
+					//Check for destruction
+					
+					//Form new lasers
+					
+					//Check for destruction
+					
+				} else {
+					state = GameState.IDLE;
+				}
+			}
+		} //else if (state == GameState.DECIDING){
+			//For now, do nothing if the state is deciding. There's nothing to do
+		//} //else if (state == GameState.IDLE){
+			//For now, do nothing if the state is idle. There's nothing to do
+		//}
+		
+		//Draw the game
 		dg.draw(b, state);
 	}
 
