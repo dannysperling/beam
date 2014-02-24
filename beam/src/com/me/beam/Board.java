@@ -11,6 +11,8 @@ public class Board {
 	private Tile[][] tiles;
 
 	private Piece[][] pieces;
+	
+	public List<Laser> lasers = new ArrayList<Laser>();
 
 	private int tileSize;
 
@@ -155,6 +157,7 @@ public class Board {
 		return tileSize;
 	}
 	
+	//rename to getTileAtClickPosition
 	public Tile getTileAtPosition(int x, int y){
 		
 		if (x < botLeftX || x >= botLeftX + tileSize * width ||
@@ -163,6 +166,10 @@ public class Board {
 		}
 
 		return tiles[(x - botLeftX) / tileSize][(y - botLeftY) / tileSize];
+	}
+	
+	public Tile getTileAtBoardPosition(int x, int y){
+		return tiles[x][y];
 	}
 
 	public Piece getPieceOnTile(Tile t) {
