@@ -1,5 +1,7 @@
 package com.me.beam;
 
+import com.me.beam.GameEngine.Color;
+
 public class Piece {
 
 	//These are in terms of grid squares!
@@ -13,6 +15,14 @@ public class Piece {
 		this.yCoord = yCoord;
 		
 		this.color = color;
+	}
+	
+	@Override
+	public boolean equals(Object other){
+		if (!(other instanceof Piece))
+			return false;
+		Piece p2 = (Piece) other;
+		return (this.xCoord == p2.xCoord) &&  (this.yCoord == p2.yCoord) && (this.color == p2.color);
 	}
 	
 	public int getXCoord(){
