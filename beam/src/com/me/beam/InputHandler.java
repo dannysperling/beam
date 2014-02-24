@@ -26,6 +26,7 @@ public class InputHandler {
 				Tile t = b.getTileAtPosition(getX(), getY());
 				if(isValidMove(b, t)) {
 					GameEngine.movePath.add(t);
+					System.out.println("Adding tile " + t.getXCoord() + ", " + t.getYCoord());
 					return GameEngine.GameState.DECIDING;
 				}
 			}
@@ -51,7 +52,7 @@ public class InputHandler {
 	}
 	
 	public boolean isValidMove(Board b, Tile t) {
-		if((t.isGlass == false) && (b.getPieceOnTile(t) != null)) {
+		if((t.isGlass == false) && (b.getPieceOnTile(t) == null)) {
 			if(adjacentMove(t)) {
 				return true;
 			}
@@ -60,14 +61,14 @@ public class InputHandler {
 	}
 	
 	public boolean adjacentMove(Tile t) {
-		Tile s = GameEngine.movePath.get(GameEngine.movePath.size());
-		if(s.getYCoord() == t.getXCoord()) {
+		Tile s = GameEngine.movePath.get(GameEngine.movePath.size() - 1);
+		if(s.getYCoord() == t.getYCoord()) {
 			if((s.getXCoord() == t.getXCoord() + 1) || (s.getXCoord() == t.getXCoord() - 1)) {
 				return true;
 			}
 		}
-		if(s.getXCoord() == t.getYCoord()) {
-			if((s.getYCoord() == t.getXCoord() + 1) || (s.getYCoord() == t.getYCoord() - 1)) {
+		if(s.getXCoord() == t.getXCoord()) {
+			if((s.getYCoord() == t.getYCoord() + 1) || (s.getYCoord() == t.getYCoord() - 1)) {
 				return true;
 			}
 		}

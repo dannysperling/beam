@@ -115,6 +115,8 @@ public class Board {
 		if (canMove(p.getXCoord(), p.getYCoord(),t.getXCoord(),t.getYCoord())){
 			pieces[p.getXCoord()][p.getYCoord()] = null;
 			pieces[t.getXCoord()][t.getYCoord()] = p;
+			p.setXCoord(t.getXCoord());
+			p.setYCoord(t.getYCoord());
 			return true;
 		} else {
 			return false;
@@ -126,9 +128,9 @@ public class Board {
 	 */
 	public boolean canMove(int x1, int y1, int x2, int y2){
 		boolean ret = true;
-		ret &= Math.abs(x1-x2)==0 | Math.abs(y2-y1)==0;
-		ret &= !tiles[x2][x1].isGlass;
-		ret &= pieces[x2][x1] == null;
+		ret &= (Math.abs(x1-x2)==1 & y1==y2) | (Math.abs(y2-y1)==1 & x1==x2);
+		ret &= !tiles[x2][y2].isGlass;
+		ret &= pieces[x2][y2] == null;
 		return ret;
 	}
 

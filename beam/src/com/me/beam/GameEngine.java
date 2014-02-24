@@ -15,7 +15,7 @@ public class GameEngine implements ApplicationListener {
 	public static List<Tile> movePath = new ArrayList<Tile>();
 
 	//Animation constants in ticks
-	private static final int timeOnTileBeforeMove = 60;
+	private static final int timeOnTileBeforeMove = 30;
 
 	private int timeSpentOnTile = 0;
 
@@ -31,11 +31,14 @@ public class GameEngine implements ApplicationListener {
 	public static final float botBarSize = 0.20f;
 	public static final float sideEmptySize = 0.02f;
 
-	private GameState state = GameState.PAUSED;
+	private GameState state = GameState.IDLE;
 
 	@Override
 	public void create() {		
 		b = new Board(5,6);
+		b.put(new Piece(0, 0, Color.RED));
+		b.put(new Piece(0, 4, Color.BLUE));
+		b.put(new Piece(4, 0, Color.RED));
 		dg = new DrawGame();
 		inputHandler = new InputHandler();
 	}
@@ -56,6 +59,7 @@ public class GameEngine implements ApplicationListener {
 			if (timeSpentOnTile < timeOnTileBeforeMove){
 				timeSpentOnTile++;
 			} else {
+				System.out.println("Making a move with " + (movePath.size() - 1) + " remaining");
 				//Reset time on tile
 				timeSpentOnTile = 0;
 
@@ -69,7 +73,7 @@ public class GameEngine implements ApplicationListener {
 				if (movePath.size() > 0){
 
 					//Move to the next tile
-					b.move(movingPiece, movePath.get(0));
+					System.out.println(b.move(movingPiece, movePath.get(0)));
 
 					//Check for piece destroyed
 					if (!checkIfPieceDestroyed(movingPiece)){
@@ -81,7 +85,10 @@ public class GameEngine implements ApplicationListener {
 						if (!checkIfPieceDestroyed(movingPiece)){
 
 							//Form new lasers and cause destruction
-							formLasersFromPieceAndDestroy(movingPiece);
+							List<Piece> destroyed = formLasersFromPieceAndDestroy(movingPiece);
+							for (Piece p : destroyed){
+								b.removePiece(p);
+							}
 
 						} else {
 							b.removePiece(movingPiece);
