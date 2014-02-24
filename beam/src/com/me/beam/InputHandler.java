@@ -51,7 +51,7 @@ public class InputHandler {
 	}
 	
 	public boolean isValidMove(Board b, Tile t) {
-		if((!t.hasGlass()) && (b.getPieceOnTile(t) != null)) {
+		if((t.isGlass == false) && (b.getPieceOnTile(t) != null)) {
 			if(adjacentMove(t)) {
 				return true;
 			}
