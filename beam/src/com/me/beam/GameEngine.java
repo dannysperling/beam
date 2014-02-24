@@ -44,7 +44,7 @@ public class GameEngine implements ApplicationListener {
 		b.setPainter(3, 3, Color.GREEN);
 		dg = new DrawGame();
 		inputHandler = new InputHandler();
-		
+
 		initializeLasers();
 	}
 
@@ -74,32 +74,22 @@ public class GameEngine implements ApplicationListener {
 				//Remove previous lasers
 				removeLasersFromPiece(movingPiece);
 
-				//Actually move!
-				if (movePath.size() > 0){
+				//Move to the next tile
+				System.out.println(b.move(movingPiece, movePath.get(0)));
 
-					//Move to the next tile
-					System.out.println(b.move(movingPiece, movePath.get(0)));
+				//Check for piece destroyed
+				if (!checkIfPieceDestroyed(movingPiece)){
+
+					//Get painted
+					paintPiece(movingPiece);
 
 					//Check for piece destroyed
 					if (!checkIfPieceDestroyed(movingPiece)){
 
-						//Get painted
-						paintPiece(movingPiece);
-
-						//Check for piece destroyed
-						if (!checkIfPieceDestroyed(movingPiece)){
-
-							//Form new lasers and cause destruction
-							List<Piece> destroyed = formLasersFromPieceAndDestroy(movingPiece);
-							for (Piece p : destroyed){
-								b.removePiece(p);
-							}
-
-						} else {
-							b.removePiece(movingPiece);
-							movingPiece = null;
-							movePath.clear();
-							state = GameState.IDLE;
+						//Form new lasers and cause destruction
+						List<Piece> destroyed = formLasersFromPieceAndDestroy(movingPiece);
+						for (Piece p : destroyed){
+							b.removePiece(p);
 						}
 
 					} else {
@@ -110,9 +100,19 @@ public class GameEngine implements ApplicationListener {
 					}
 
 				} else {
+					b.removePiece(movingPiece);
+					movingPiece = null;
+					movePath.clear();
 					state = GameState.IDLE;
 				}
-			}
+
+				//No lockout after move
+				if (movePath.size() == 1){
+					movePath.clear();
+					state = GameState.IDLE;
+				}
+			} 
+
 		} //else if (state == GameState.DECIDING){
 		//For now, do nothing if the state is deciding. There's nothing to do
 		//} //else if (state == GameState.IDLE){
@@ -122,7 +122,7 @@ public class GameEngine implements ApplicationListener {
 		//Draw the game
 		dg.draw(b, state);
 	}
-	
+
 	public void initializeLasers(){
 		for (Piece p1 : b.getAllPieces()){
 			for (Piece p2 : b.getAllPieces()){
@@ -132,7 +132,7 @@ public class GameEngine implements ApplicationListener {
 					int yStart = Math.min(p1.getYCoord(), p2.getYCoord());
 					int yFinish = Math.max(p1.getYCoord(), p2.getYCoord());
 					Laser l = new Laser(xStart, yStart, xFinish, yFinish, p1.getColor());
-					
+
 					if (!b.lasers.contains(l))
 						b.lasers.add(l);
 				}
@@ -280,7 +280,7 @@ public class GameEngine implements ApplicationListener {
 		possibleDestroy.clear();
 
 		//Now do vertical!
-		
+
 		//Check for bot pieces
 		Tile botSameColor = null;
 
