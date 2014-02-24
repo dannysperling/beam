@@ -155,8 +155,7 @@ public class Board {
 		return tileSize;
 	}
 	
-	//rename to getTileAtClickPosition
-	public Tile getTileAtPosition(int x, int y){
+	public Tile getTileAtClickPosition(int x, int y){
 		
 		if (x < botLeftX || x >= botLeftX + tileSize * width ||
 			y < botLeftY || y >= botLeftY + tileSize * height){

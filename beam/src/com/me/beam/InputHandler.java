@@ -7,8 +7,8 @@ public class InputHandler {
 	public GameEngine.GameState handleInput(Board b, GameEngine.GameState state){
 		
 		if(state == GameEngine.GameState.IDLE) {
-			if (Gdx.input.isTouched()){
-				Tile t = b.getTileAtPosition(getX(), getY());
+			if (Gdx.input.isTouched() && b.getTileAtClickPosition(getX(), getY()) != null){
+				Tile t = b.getTileAtClickPosition(getX(), getY());
 				Piece piece = b.getPieceOnTile(t);
 				if (piece != null) {
 					GameEngine.movingPiece = piece;
@@ -22,8 +22,8 @@ public class InputHandler {
 		}	
 		
 		if(state == GameEngine.GameState.DECIDING) {
-			if (Gdx.input.isTouched()) {
-				Tile t = b.getTileAtPosition(getX(), getY());
+			if (Gdx.input.isTouched() && b.getTileAtClickPosition(getX(), getY()) != null) {
+				Tile t = b.getTileAtClickPosition(getX(), getY());
 				if(isValidMove(b, t)) {
 					GameEngine.movePath.add(t);
 					System.out.println("Adding tile " + t.getXCoord() + ", " + t.getYCoord());
