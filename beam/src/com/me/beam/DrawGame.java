@@ -54,7 +54,7 @@ public class DrawGame {
 		//Draw the tiles
 		shapes.begin(ShapeType.Line);
 		for(Tile t: tiles){
-			if(t.hasGlass()){
+			if(t.isGlass){
 				int glassX = bx + (t.getXCoord() * tilesize);
 				int glassY = by + (t.getYCoord() * tilesize);
 				shapes.line(glassX, glassY + (0.25f * tilesize), glassX + (0.25f * tilesize), glassY);
