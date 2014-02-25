@@ -19,12 +19,20 @@ public class Board {
 	private Piece[][] pieces;
 	
 	public List<Laser> lasers = new ArrayList<Laser>();
+	
+	public int id; //ID in its levels file
+	public int par; //Optimal solution
+	
+	private boolean hasBeamGoal = false; //Needs n beams of some color to complete
+	private Color goalColor; //color of beams need to win
+	private int goalNum; //Number of beams needed to win
 
 	private int tileSize;
 
 	private int botLeftX;
 	private int botLeftY;
 
+	//In tiles:
 	private int width;
 	private int height;
 
@@ -59,6 +67,14 @@ public class Board {
 		}
 
 	}
+	
+	public Board (Tile[][] t, Piece[][] p, int id, int par){
+		this(t.length,t[0].length);
+		this.tiles = t;
+		this.pieces = p;
+		this.id = id;
+		this.par = par;
+	}
 
 	/**
 	 * Sets tile (X,Y) to have a goal of colour c. Returns the previous goal
@@ -81,6 +97,12 @@ public class Board {
 		Color ret = tiles[x][y].getPainterColor();
 		tiles[x][y].setPainter(c);
 		return ret;
+	}
+	
+	public void setBeamGoal(Color c, int n){
+		hasBeamGoal = true;
+		this.goalColor = c;
+		this.goalNum = n;
 	}
 	
 	/**

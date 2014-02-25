@@ -10,12 +10,13 @@ public class GameEngine implements ApplicationListener {
 	private Board b;
 	private DrawGame dg;
 	private InputHandler inputHandler;
+	private LevelLoader levelLoader;
 
 	public static Piece movingPiece = null;
 	public static List<Tile> movePath = new ArrayList<Tile>();
 
 	//Animation constants in ticks
-	private static final int timeOnTileBeforeMove = 15;
+	private static final int timeOnTileBeforeMove = 7;
 
 	private int timeSpentOnTile = 0;
 
@@ -24,7 +25,15 @@ public class GameEngine implements ApplicationListener {
 	}
 
 	public enum Color {
-		RED, BLUE, GREEN, NONE
+		RED, BLUE, GREEN, NONE;
+		public static Color lookup(int i){
+			switch(i){
+			case 1 : return Color.RED;
+			case 2 : return Color.BLUE;
+			case 3 : return Color.GREEN;
+			default: return Color.NONE;
+			}
+		}
 	}
 
 	public static final float topBarSize = 0.15f;
@@ -36,54 +45,61 @@ public class GameEngine implements ApplicationListener {
 	@Override
 	public void create() {		
 		
-		// 12 Move Game
-		b = new Board(7,7);
-		
-		b.put(new Piece(0, 0, Color.GREEN));
-		b.put(new Piece(0, 6, Color.GREEN));
-		b.put(new Piece(6, 0, Color.GREEN));
-		b.put(new Piece(6, 6, Color.GREEN));
-		
-		b.put(new Piece(2, 2, Color.RED));
-		b.put(new Piece(2, 4, Color.RED));
-		b.put(new Piece(4, 2, Color.RED));
-		b.put(new Piece(4, 4, Color.RED));
-		
-		b.put(new Piece(1, 3, Color.BLUE));
-		b.put(new Piece(3, 1, Color.BLUE));
-		b.put(new Piece(3, 3, Color.BLUE));
-		b.put(new Piece(3, 5, Color.BLUE));
-		b.put(new Piece(5, 3, Color.BLUE));
-		
-		b.setGlass(1, 0, true);
-		b.setGlass(1, 2, true);
-		b.setGlass(1, 4, true);
-		b.setGlass(1, 6, true);
-		
-		b.setGlass(2, 1, true);
-		b.setGlass(2, 5, true);
-		
-		b.setGlass(3, 0, true);
-		b.setGlass(3, 6, true);
-		
-		b.setGlass(4, 1, true);
-		b.setGlass(4, 5, true);
-		
-		b.setGlass(5, 0, true);
-		b.setGlass(5, 2, true);
-		b.setGlass(5, 4, true);
-		b.setGlass(5, 6, true);
-		
-		b.setGoal(1, 1, Color.RED);
-		b.setGoal(1, 5, Color.RED);
-		b.setGoal(5, 5, Color.RED);
-		b.setGoal(5, 1, Color.RED);
+		//setHardCodedLevel();
+		levelLoader = new LevelLoader("data/levels/levels.xml");
+		b = levelLoader.getLevel(0);
 		
 		dg = new DrawGame();
 		inputHandler = new InputHandler();
 
 		initializeLasers();
 	}
+	
+	private void setHardCodedLevel(){
+		// 12 Move Game
+				b = new Board(7,7);
+				
+				b.put(new Piece(0, 0, Color.GREEN));
+				b.put(new Piece(0, 6, Color.GREEN));
+				b.put(new Piece(6, 0, Color.GREEN));
+				b.put(new Piece(6, 6, Color.GREEN));
+				
+				b.put(new Piece(2, 2, Color.RED));
+				b.put(new Piece(2, 4, Color.RED));
+				b.put(new Piece(4, 2, Color.RED));
+				b.put(new Piece(4, 4, Color.RED));
+				
+				b.put(new Piece(1, 3, Color.BLUE));
+				b.put(new Piece(3, 1, Color.BLUE));
+				b.put(new Piece(3, 3, Color.BLUE));
+				b.put(new Piece(3, 5, Color.BLUE));
+				b.put(new Piece(5, 3, Color.BLUE));
+				
+				b.setGlass(1, 0, true);
+				b.setGlass(1, 2, true);
+				b.setGlass(1, 4, true);
+				b.setGlass(1, 6, true);
+				
+				b.setGlass(2, 1, true);
+				b.setGlass(2, 5, true);
+				
+				b.setGlass(3, 0, true);
+				b.setGlass(3, 6, true);
+				
+				b.setGlass(4, 1, true);
+				b.setGlass(4, 5, true);
+				
+				b.setGlass(5, 0, true);
+				b.setGlass(5, 2, true);
+				b.setGlass(5, 4, true);
+				b.setGlass(5, 6, true);
+				
+				b.setGoal(1, 1, Color.RED);
+				b.setGoal(1, 5, Color.RED);
+				b.setGoal(5, 5, Color.RED);
+				b.setGoal(5, 1, Color.RED);
+	}
+
 
 	@Override
 	public void dispose() {
