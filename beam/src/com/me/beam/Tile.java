@@ -13,6 +13,7 @@ public class Tile {
 		yCoord = y;
 	}
 	
+	
 	public int getXCoord(){
 		return xCoord;
 	}

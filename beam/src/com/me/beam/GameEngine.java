@@ -24,7 +24,15 @@ public class GameEngine implements ApplicationListener {
 	}
 
 	public enum Color {
-		RED, BLUE, GREEN, NONE
+		RED, BLUE, GREEN, NONE;
+		public static Color lookup(int i){
+			switch(i){
+			case 1 : return Color.RED;
+			case 2 : return Color.BLUE;
+			case 3 : return Color.GREEN;
+			default: return Color.NONE;
+			}
+		}
 	}
 
 	public static final float topBarSize = 0.15f;
