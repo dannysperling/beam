@@ -3,17 +3,17 @@
 2,e,e,e,2
 e,1,e,1,e
 e,e,painter_1,e,2
-e,1,e,1,
+e,1,e,1,e
 2,e,e,e,2
 </level>
 
 <level id=1 par=12>
 3,glass,e,glass,e,glass,3
-e,goal_1,glass,2,glass,goal_1,
-e,glass,1,e,1,glass,
-e,2,e,2,e,2,
-e,glass,1,,1,glass,
-e,goal_1,glass,2,glass,goal_1,
+e,goal_1,glass,2,glass,goal_1,e
+e,glass,1,e,1,glass,e
+e,2,e,2,e,2,e
+e,glass,1,e,1,glass,e
+e,goal_1,glass,2,glass,goal_1,e
 3,glass,e,glass,e,glass,3
 </level>
 
