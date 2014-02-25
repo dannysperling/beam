@@ -23,7 +23,7 @@ e,goal_3:3,e
 1:goal_2,e,2:goal_1
 </level>
 
-<level id=3 par=5>
+<level id=3 par=4>
 goal_3,e,e,glass
 e,1,2,glass
 2,e,e,2
