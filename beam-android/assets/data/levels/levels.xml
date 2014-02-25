@@ -1,0 +1,24 @@
+<level id=0 par=5>
+<beamGoal color=1 count=12/>
+2,e,e,e,2
+e,1,e,1,e
+e,e,painter_1,e,2
+e,1,e,1,e
+2,e,e,e,2
+</level>
+
+<level id=1 par=12>
+3,glass,e,glass,e,glass,3
+e,goal_1,glass,2,glass,goal_1,e
+e,glass,1,e,1,glass,e
+e,2,e,2,e,2,e
+e,glass,1,e,1,glass,e
+e,goal_1,glass,2,glass,goal_1,e
+3,glass,e,glass,e,glass,3
+</level>
+
+<level id=2 par=8>
+2:goal_1,e,goal_2:1
+e,goal_3:3,e
+1:goal_2,e,2:goal_1
+</level>
