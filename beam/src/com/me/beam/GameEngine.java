@@ -34,6 +34,15 @@ public class GameEngine implements ApplicationListener {
 			default: return Color.NONE;
 			}
 		}
+
+		public int toIndex() {
+			int i = 0;
+			while(true){
+				if (Color.lookup(i) == this)
+					return i;
+				i++;
+			}
+		}
 	}
 
 	public static final float topBarSize = 0.15f;
