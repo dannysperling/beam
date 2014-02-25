@@ -84,7 +84,7 @@ public class LevelLoader implements Iterable<Board> {
 				return null;
 			for (int x = 0; x < width; x++) {
 				String cell = cols[x];
-				Tile t = new Tile(x, y);
+				Tile t = new Tile(x, height-1-y);
 				Piece p = null;
 				String[] contents = cell.split(":");
 				for (String s : contents) {
@@ -102,12 +102,11 @@ public class LevelLoader implements Iterable<Board> {
 						t.setPainter(Color.lookup(Integer.parseInt(s
 								.substring("painter_".length()))));
 					} else {
-						debug("("+x+","+y+") = "+s);
-						p = new Piece(x, y, Color.lookup(Integer.parseInt(s)));
+						p = new Piece(x, height-1-y, Color.lookup(Integer.parseInt(s)));
 					}
 				}
-				tiles[x][y] = t;
-				pieces[x][y] = p;
+				tiles[x][height-1-y] = t;
+				pieces[x][height-1-y] = p;
 			}
 		}
 		int id = Integer.parseInt(match.group("id"));

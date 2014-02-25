@@ -22,3 +22,11 @@ e,goal_1,glass,2,glass,goal_1,e
 e,goal_3:3,e
 1:goal_2,e,2:goal_1
 </level>
+
+<level id=3 par=5>
+goal_3,e,e,glass
+e,1,2,glass
+2,e,e,2
+glass,e,2,1
+glass,1,e,3
+</level>level>

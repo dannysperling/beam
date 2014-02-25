@@ -47,7 +47,7 @@ public class GameEngine implements ApplicationListener {
 		
 		//setHardCodedLevel();
 		levelLoader = new LevelLoader("data/levels/levels.xml");
-		b = levelLoader.getLevel(0);
+		b = levelLoader.getLevel(3);
 		
 		dg = new DrawGame();
 		inputHandler = new InputHandler();
