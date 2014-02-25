@@ -16,7 +16,7 @@ public class GameEngine implements ApplicationListener {
 	public static List<Tile> movePath = new ArrayList<Tile>();
 
 	//Animation constants in ticks
-	private static final int timeOnTileBeforeMove = 15;
+	private static final int timeOnTileBeforeMove = 7;
 
 	private int timeSpentOnTile = 0;
 
