@@ -38,7 +38,7 @@ public class InputHandler {
 						} else {
 							GameEngine.movePath = GameEngine.movePath.subList(
 									0, i + 1);
-						}
+						} 
 						/*If the proposed move isn't legal, change nothing*/
 						return GameEngine.GameState.DECIDING;
 					}
