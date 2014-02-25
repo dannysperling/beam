@@ -10,6 +10,7 @@ public class GameEngine implements ApplicationListener {
 	private Board b;
 	private DrawGame dg;
 	private InputHandler inputHandler;
+	private LevelLoader levelLoader;
 
 	public static Piece movingPiece = null;
 	public static List<Tile> movePath = new ArrayList<Tile>();
@@ -45,7 +46,8 @@ public class GameEngine implements ApplicationListener {
 	public void create() {		
 		
 		//setHardCodedLevel();
-		testLoadLevel();
+		levelLoader = new LevelLoader("data/levels/levels.xml");
+		b = levelLoader.getLevel(0);
 		
 		dg = new DrawGame();
 		inputHandler = new InputHandler();
@@ -97,11 +99,7 @@ public class GameEngine implements ApplicationListener {
 				b.setGoal(5, 5, Color.RED);
 				b.setGoal(5, 1, Color.RED);
 	}
-	
-	public void testLoadLevel(){
-		LevelLoader ll = new LevelLoader("data/levels/levels.xml");
-		b = ll.getLevel(2);
-	}
+
 
 	@Override
 	public void dispose() {

@@ -61,6 +61,7 @@ public class LevelLoader implements Iterable<Board> {
 		return b;
 	}
 
+	//Abandon hope, all ye who try and read this
 	private Board buildBoard(String spec) {
 		Pattern pat = Pattern.compile(LEVEL_REGEX, Pattern.UNIX_LINES);
 		Matcher match = pat.matcher(spec);
