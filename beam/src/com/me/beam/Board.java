@@ -1,13 +1,19 @@
 package com.me.beam;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
 import com.me.beam.GameEngine.Color;
 
 public class Board {
-
+	
+	private EnumMap<GameEngine.Color, Integer> laserList = new EnumMap<GameEngine.Color, Integer>(Color.class);
+	
+	private List<Tile> goalTiles = new ArrayList<Tile>();
+	
 	private Tile[][] tiles;
 
 	private Piece[][] pieces;
@@ -60,6 +66,7 @@ public class Board {
 	 * 
 	 */
 	public Color setGoal(int x, int y, Color c) {
+		goalTiles.add(new Tile(x, y));
 		Color ret = tiles[x][y].getGoalColor();
 		tiles[x][y].setGoal(c);
 		return ret;
