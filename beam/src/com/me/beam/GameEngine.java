@@ -20,7 +20,7 @@ public class GameEngine implements ApplicationListener {
 	// Animation constants in ticks
 	private static final int timeOnTileBeforeMove = 7;
 
-	private int timeSpentOnTile = 0;
+	private static int timeSpentOnTile = 0;
 
 	public enum GameState {
 		PAUSED, IDLE, DECIDING, MOVING
@@ -498,6 +498,14 @@ public class GameEngine implements ApplicationListener {
 		}
 
 		return false;
+	}
+	
+	public static int getTicksPerTile(){
+		return timeOnTileBeforeMove;
+	}
+	
+	public static int getTimeOnThisTile(){
+		return timeSpentOnTile;
 	}
 
 	@Override

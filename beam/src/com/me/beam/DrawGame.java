@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.me.beam.GameEngine.GameState;
 
 public class DrawGame {
 	private SpriteBatch batch;
@@ -102,18 +103,20 @@ public class DrawGame {
 		for(int i = 0; i < path.size(); i++){
 			int pointX = path.get(i).getXCoord();
 			int pointY = path.get(i).getYCoord();
-			shapes.rect(bx + ((pointX + .4f) * tilesize), by + ((pointY + .4f) * tilesize), .2f * tilesize, .2f * tilesize);
-			if(i != path.size()-1){
-				int nextX = path.get(i+1).getXCoord();
-				int nextY = path.get(i+1).getYCoord();
-				if(pointX == nextX){
-					int originY = Math.min(pointY, nextY);
-					int endY = Math.max(pointY, nextY);
-					shapes.rect(bx + ((pointX + .4f) * tilesize), by + ((originY + .4f) * tilesize), .2f * tilesize, (endY - originY) * tilesize);
-				} else {
-					int originX = Math.min(pointX, nextX);
-					int endX = Math.max(pointX, nextX);
-					shapes.rect(bx + ((originX + .4f) * tilesize), by + ((pointY + .4f) * tilesize), (endX - originX) * tilesize, .2f * tilesize);
+			if(state != GameState.MOVING || i > 0){
+				shapes.rect(bx + ((pointX + .4f) * tilesize), by + ((pointY + .4f) * tilesize), .2f * tilesize, .2f * tilesize);
+				if(i != path.size()-1){
+					int nextX = path.get(i+1).getXCoord();
+					int nextY = path.get(i+1).getYCoord();
+					if(pointX == nextX){
+						int originY = Math.min(pointY, nextY);
+						int endY = Math.max(pointY, nextY);
+						shapes.rect(bx + ((pointX + .4f) * tilesize), by + ((originY + .4f) * tilesize), .2f * tilesize, (endY - originY) * tilesize);
+					} else {
+						int originX = Math.min(pointX, nextX);
+						int endX = Math.max(pointX, nextX);
+						shapes.rect(bx + ((originX + .4f) * tilesize), by + ((pointY + .4f) * tilesize), (endX - originX) * tilesize, .2f * tilesize);
+					}
 				}
 			}
 		}
@@ -137,6 +140,7 @@ public class DrawGame {
 		shapes.end();
 		
 		//Draw the pieces
+		path = GameEngine.movePath;
 		batch.begin();
 		pieceSprite.setSize(tilesize, tilesize);
 		for(Piece p : pieces){
@@ -150,6 +154,12 @@ public class DrawGame {
 				pieceSprite.setColor(new Color(0,0,0,0));
 			}
 			pieceSprite.setPosition(bx + (p.getXCoord() * tilesize), by + (p.getYCoord() * tilesize));
+			if(path.size() > 1 && p.getXCoord() == GameEngine.movingPiece.getXCoord() && p.getYCoord() == GameEngine.movingPiece.getYCoord()){
+				float animateTime = ((float)(GameEngine.getTimeOnThisTile()))/(GameEngine.getTicksPerTile());
+				float animateX = (path.get(1).getXCoord() - p.getXCoord()) * tilesize * animateTime;
+				float animateY = (path.get(1).getYCoord() - p.getYCoord()) * tilesize * animateTime;
+				pieceSprite.translate(animateX, animateY);
+			}
 			pieceSprite.draw(batch);
 		}
 		batch.end();
