@@ -12,25 +12,26 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.me.beam.GameEngine.GameState;
 
 public class DrawGame {
 	private SpriteBatch batch;
 	private Texture pieceTexture;
 	private Sprite pieceSprite;
 	private ShapeRenderer shapes;
-	
+
 	public DrawGame(){
 		batch = new SpriteBatch();
-		
+
 		pieceTexture = new Texture(Gdx.files.internal("data/piece.png"));
 		pieceTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		
+
 		TextureRegion region = new TextureRegion(pieceTexture, 0, 0, 256, 256);
-		
+
 		pieceSprite = new Sprite(region);
 		shapes = new ShapeRenderer();
 	}
-	
+
 	public void draw(Board b, GameEngine.GameState state){
 		int bx = b.getBotLeftX();
 		int by = b.getBotLeftY();
@@ -39,7 +40,7 @@ public class DrawGame {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		List<Piece> pieces = b.getAllPieces();
 		List<Tile> tiles = b.getAllTiles();
-		
+
 		//Draw the basic grid
 		shapes.begin(ShapeType.Line);
 		shapes.setColor(Color.WHITE);
@@ -50,7 +51,7 @@ public class DrawGame {
 			shapes.line(bx, by + (i * tilesize), bx + (b.getNumHorizontalTiles() * tilesize), by + (i * tilesize));
 		}
 		shapes.end();
-		
+
 		//Draw the tiles
 		shapes.begin(ShapeType.Line);
 		for(Tile t: tiles){
@@ -97,22 +98,32 @@ public class DrawGame {
 
 		//Draw Paths 
 		List<Tile> path = GameEngine.movePath;
+		float animateTime = ((float)(GameEngine.getTimeOnThisTile()))/(GameEngine.getTicksPerTile());
 		shapes.begin(ShapeType.Filled);
 		shapes.setColor(new Color(.9f, .9f, .2f, 1f));
 		for(int i = 0; i < path.size(); i++){
 			int pointX = path.get(i).getXCoord();
 			int pointY = path.get(i).getYCoord();
-			shapes.rect(bx + ((pointX + .4f) * tilesize), by + ((pointY + .4f) * tilesize), .2f * tilesize, .2f * tilesize);
+			if(state != GameState.MOVING || i > 0){
+				shapes.rect(bx + ((pointX + .4f) * tilesize), by + ((pointY + .4f) * tilesize), .2f * tilesize, .2f * tilesize);
+			}
 			if(i != path.size()-1){
+				float shiftX = 0;
+				float shiftY = 0;
+				if(i == 0 && path.size() > 1 && state == GameState.MOVING)
+				{
+					shiftX = (path.get(1).getXCoord() - GameEngine.movingPiece.getXCoord()) * animateTime;
+					shiftY = (path.get(1).getYCoord() - GameEngine.movingPiece.getYCoord()) * animateTime;
+				}
 				int nextX = path.get(i+1).getXCoord();
 				int nextY = path.get(i+1).getYCoord();
 				if(pointX == nextX){
-					int originY = Math.min(pointY, nextY);
-					int endY = Math.max(pointY, nextY);
+					float originY = Math.min(pointY + shiftY, nextY);
+					float endY = Math.max(pointY + shiftY, nextY);
 					shapes.rect(bx + ((pointX + .4f) * tilesize), by + ((originY + .4f) * tilesize), .2f * tilesize, (endY - originY) * tilesize);
 				} else {
-					int originX = Math.min(pointX, nextX);
-					int endX = Math.max(pointX, nextX);
+					float originX = Math.min(pointX + shiftX, nextX);
+					float endX = Math.max(pointX + shiftX, nextX);
 					shapes.rect(bx + ((originX + .4f) * tilesize), by + ((pointY + .4f) * tilesize), (endX - originX) * tilesize, .2f * tilesize);
 				}
 			}
@@ -135,8 +146,9 @@ public class DrawGame {
 			}
 		}
 		shapes.end();
-		
+
 		//Draw the pieces
+		path = GameEngine.movePath;
 		batch.begin();
 		pieceSprite.setSize(tilesize, tilesize);
 		for(Piece p : pieces){
@@ -150,10 +162,15 @@ public class DrawGame {
 				pieceSprite.setColor(new Color(0,0,0,0));
 			}
 			pieceSprite.setPosition(bx + (p.getXCoord() * tilesize), by + (p.getYCoord() * tilesize));
+			if(path.size() > 1 && p.getXCoord() == GameEngine.movingPiece.getXCoord() && p.getYCoord() == GameEngine.movingPiece.getYCoord()){
+				float animateX = (path.get(1).getXCoord() - GameEngine.movingPiece.getXCoord()) * tilesize * animateTime;
+				float animateY = (path.get(1).getYCoord() - GameEngine.movingPiece.getYCoord()) * tilesize * animateTime;
+				pieceSprite.translate(animateX, animateY);
+			}
 			pieceSprite.draw(batch);
 		}
 		batch.end();
-		
+
 		//Draw Lasers
 		List<Laser> lasers = b.lasers;
 		shapes.begin(ShapeType.Filled);
@@ -171,11 +188,11 @@ public class DrawGame {
 			}
 		}
 		shapes.end();
-		
-		
+
+
 
 	}
-	
+
 	public void dispose(){
 		batch.dispose();
 		pieceTexture.dispose();

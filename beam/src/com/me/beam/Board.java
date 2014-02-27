@@ -307,6 +307,16 @@ public class Board {
 		}
 		return ret;
 	}
+	
+	//find out if theres a beam at a piece
+	public boolean isPiecePartOfBeam(Piece p){
+		for(Laser l : lasers){
+			if((l.getXStart() == p.getXCoord() && l.getYStart() == p.getYCoord()) || (l.getXFinish() == p.getXCoord() && l.getYFinish() == p.getYCoord())){
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * Takes an existing board, leaving metadata (par, id, beamGoal) untouched
