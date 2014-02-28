@@ -15,7 +15,7 @@ public class GameEngine implements ApplicationListener {
 	
 	private int moveCounter = 0;
 	
-	public static final int LEVEL_IN = 3;
+	public static final int LEVEL_IN = 4;
 	
 	public static Piece movingPiece = null;
 	public static List<Tile> movePath = new ArrayList<Tile>();

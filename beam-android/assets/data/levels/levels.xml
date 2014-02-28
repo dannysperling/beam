@@ -29,4 +29,13 @@ e,1,2,glass
 2,e,e,2
 glass,e,2,1
 glass,1,e,3
-</level>level>
+</level>
+
+<level id=4 par=6>
+<beamGoal color=1 count=0/>
+<beamGoal color=2 count=0/>
+1,e,e,1
+e,2,2,e
+e,2,2,e
+1,e,e,1
+</level>
