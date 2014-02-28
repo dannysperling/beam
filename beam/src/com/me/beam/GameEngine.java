@@ -579,6 +579,7 @@ public class GameEngine implements ApplicationListener {
 		return false;
 	}
 	
+	//TODO: Remove hardcoding.  It's here for one specific reason and will be gone tomorrow.
 	private boolean isWon() {
 		goalsMet = 0;
 		for(Tile t: b.goalTiles) {
@@ -591,6 +592,10 @@ public class GameEngine implements ApplicationListener {
 		ArrayList<Integer> currentLasers = new ArrayList<Integer>();
 		int tempCount = 0;
 		
+		for(int i = 0; i < 10; i++) {
+			currentLasers.set(i, 0);
+		}
+		
 		for(Laser l: b.lasers) {
 			tempCount = currentLasers.get(l.getColor().toIndex());
 			currentLasers.set(l.getColor().toIndex(), tempCount + 1);
@@ -599,7 +604,6 @@ public class GameEngine implements ApplicationListener {
 		boolean lasersFinished = true;
 		
 		TwoTuple<Color, Integer> current;
-		int color;
 		
 		for(int i = 0; i < b.beamGoals.size(); i++) {
 			current = b.beamGoals.get(i);
