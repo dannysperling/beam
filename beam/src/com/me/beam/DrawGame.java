@@ -216,6 +216,21 @@ public class DrawGame {
 		
 		batch.end();
 
+		//Drawing progress towards level objectives
+		//TODO: Update when laser identification isn't stupid
+		batch.begin();
+		String toPrint;
+		if(b.beamGoals.isEmpty()){
+			 toPrint = b.getNumGoalsFilled() + " out of " + b.goalTiles.size() + " goals filled.";
+		} else {
+			toPrint = "MEH";
+			//toPrint =  + " out of " +  + " lasers.";
+		}
+		tb = font.getBounds(toPrint);
+		
+		font.draw(batch, toPrint, (width - tb.width)/2, height*(1 - GameEngine.topBarSize + .1f));
+		
+		batch.end();
 	}
 
 	public void dispose(){

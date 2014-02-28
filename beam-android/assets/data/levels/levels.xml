@@ -94,7 +94,7 @@ glass,e,glass
 goal_1,1,1:goal_1
 </level>
 
-<level id=13 par=5>
+<level id=16 par=5>
 <beamGoal color=2 count=8/>
 glass,glass,1,glass,1
 glass,glass,glass,glass,glass
@@ -122,7 +122,7 @@ e,goal_1,glass,2,glass,goal_1,e
 3,glass,e,glass,e,glass,3
 </level>
 
-<level id=16 par=14>
+<level id=13 par=14>
 2,glass,e,2:goal_1
 e,goal_2,1:goal_2,glass
 glass,1:goal_2,1:goal_2,e

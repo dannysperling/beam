@@ -75,6 +75,14 @@ public class Board {
 		this.pieces = p;
 		this.id = id;
 		this.par = par;
+		
+		for(int i = 0; i < t.length; i++) {
+			for(int j = 0; j < t[i].length; j++) {
+				if(this.tiles[i][j].hasGoal()) {
+					goalTiles.add(this.tiles[i][j]);
+				}
+			}
+		}
 	}
 
 	/**
@@ -82,7 +90,7 @@ public class Board {
 	 * colour. Suppying valid coordinates is YOUR PROBLEM NOT MINE.
 	 * 
 	 */
-	public Color setGoal(int x, int y, Color c) {
+	/*public Color setGoal(int x, int y, Color c) {
 		System.out.println("Board class setgoal called");
 		goalTiles.add(new Tile(x, y));
 		Color ret = tiles[x][y].getGoalColor();
@@ -95,12 +103,13 @@ public class Board {
 	 * colour. Suppying valid coordinates is YOUR PROBLEM NOT MINE.
 	 * 
 	 */
+	/*
 	public Color setPainter(int x, int y, Color c) {
 		System.out.println("Board class setpainter called");
 		Color ret = tiles[x][y].getPainterColor();
 		tiles[x][y].setPainter(c);
 		return ret;
-	}
+	}*/
 
 	public void addBeamGoal(Color c, int n) {
 		beamGoals.add(new TwoTuple<Color,Integer>(c,n));
@@ -206,6 +215,20 @@ public class Board {
 
 	public Piece getPieceOnTile(Tile t) {
 		return pieces[t.getXCoord()][t.getYCoord()];
+	}
+	
+	public boolean isGoalMet(Tile t) {
+		return getPieceOnTile(t) != null && getPieceOnTile(t).getColor() == t.getGoalColor();
+	}
+	
+	public int getNumGoalsFilled() {
+		int goalsFilled = 0;
+		for(Tile t: goalTiles) {
+			if(isGoalMet(t)) {
+				goalsFilled++;
+			}
+		}
+		return goalsFilled;
 	}
 
 	public List<Piece> getAllPieces() {

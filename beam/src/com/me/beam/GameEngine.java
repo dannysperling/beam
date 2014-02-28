@@ -587,7 +587,7 @@ public class GameEngine implements ApplicationListener {
 	
 	//TODO: Remove hardcoding.  It's here for one specific reason and will be gone tomorrow.
 	private boolean isWon() {
-		if (this.getNumGoalsFilled() != b.goalTiles.size()) {
+		if (b.getNumGoalsFilled() != b.goalTiles.size()) {
 			return false;
 		}
 		
@@ -613,16 +613,6 @@ public class GameEngine implements ApplicationListener {
 			}
 		}
 		return true;
-	}
-
-	private int getNumGoalsFilled() {
-		int goalsFilled = 0;
-		for(Tile t: b.goalTiles) {
-			if(b.getPieceOnTile(t).getColor() == t.getGoalColor()) {
-				goalsFilled++;
-			}
-		}
-		return goalsFilled;
 	}
 
 	public static int getTicksPerTile(){
