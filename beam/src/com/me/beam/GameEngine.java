@@ -594,8 +594,12 @@ public class GameEngine implements ApplicationListener {
 				goalsMet++;
 			}
 		}
+		if (goalsMet != b.goalTiles.size()) {
+			// The goal tiles were not all filled.
+			return false;
+		}
 		
-		//The TwoTuple makes sense, but it's a sin.  I'll kill this tomorrow.
+		//TODO: The TwoTuple makes sense, but it's a sin.  I'll kill this tomorrow.
 		ArrayList<Integer> currentLasers = new ArrayList<Integer>();
 		int tempCount = 0;
 		
@@ -607,19 +611,16 @@ public class GameEngine implements ApplicationListener {
 			tempCount = currentLasers.get(l.getColor().toIndex());
 			currentLasers.set(l.getColor().toIndex(), tempCount + 1);
 		}
-		
-		boolean lasersFinished = true;
-		
+
 		TwoTuple<Color, Integer> current;
-		
 		for(int i = 0; i < b.beamGoals.size(); i++) {
 			current = b.beamGoals.get(i);
 			if(current.second.intValue() != currentLasers.get(current.first.toIndex())) {
-				lasersFinished = false;
+				// The lasers condition is not met.
+				return false;
 			}
 		}
-		
-		return (goalsMet == b.goalTiles.size() && lasersFinished);
+		return true;
 	}
 
 	public static int getTicksPerTile(){
