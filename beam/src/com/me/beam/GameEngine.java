@@ -34,7 +34,7 @@ public class GameEngine implements ApplicationListener {
 	}
 
 	public enum ButtonPress {
-		UNDO, RESET, REDO, NONE
+		UNDO, RESET, REDO, NONE, WON //Note: WON should not exist in non-proto version
 	}
 
 	public enum Color {
@@ -88,13 +88,20 @@ public class GameEngine implements ApplicationListener {
 	public void render() {
 		boolean pushedButton = false;
 
-		if (state != GameState.DECIDING && state != GameState.WON){
+		if (state != GameState.DECIDING/* && state != GameState.WON*/){
 			ButtonPress button = inputHandler.checkForButtonPress();
 
-			if (button != ButtonPress.NONE){
+			if (button != ButtonPress.NONE && button != ButtonPress.WON){
 				System.out.println(button);
 				pushedButton = true;
 				handleButtonPress(button);
+			}
+			
+			// Increase level. Should be done elsewhere in non-proto version
+			if (state == GameState.WON && button == ButtonPress.WON){
+				currentLevel = Math.min(currentLevel + 1, NUM_LEVELS);
+				loadLevel(currentLevel);
+				pushedButton = true;
 			}
 		}
 
