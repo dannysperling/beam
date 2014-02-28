@@ -587,6 +587,8 @@ public class GameEngine implements ApplicationListener {
 				goalsMet++;
 			}
 		}
+		System.out.println("Number of goals " + b.goalTiles.size());
+		System.out.println("Goals " + (goalsMet == b.goalTiles.size()));
 		if (goalsMet != b.goalTiles.size()) {
 			// The goal tiles were not all filled.
 			return false;
