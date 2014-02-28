@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+
 import com.badlogic.gdx.Gdx;
 import com.me.beam.GameEngine.Color;
 
@@ -90,7 +91,7 @@ public class Board {
 	public Set<Color> getBeamObjectiveSet() {
 		return beamObjectives.keySet();
 	}
-
+	
 	public int getBeamObjectiveCount(Color c) {
 		return beamObjectives.get(c);
 	}
