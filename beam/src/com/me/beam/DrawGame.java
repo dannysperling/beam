@@ -305,27 +305,16 @@ public class DrawGame {
 					+ " goals filled.";
 		} else {
 			int beamObjective = 0;
-			int beamColor = 0;
+			int curLaserCount = 0;
+			GameEngine.Color beamColor = GameEngine.Color.NONE;
+
 			for (TwoTuple<GameEngine.Color, Integer> tuple : b.beamGoals) {
 				beamObjective += tuple.second;
-				beamColor = tuple.first.toIndex();
+				beamColor = tuple.first;
+				curLaserCount += b.getLaserCount(beamColor);
 			}
 
-			ArrayList<Integer> currentLasers = new ArrayList<Integer>();
-			int tempCount = 0;
-
-			for (int i = 0; i < 10; i++) {
-				currentLasers.add(0);
-			}
-
-			for (Laser l : b.lasers) {
-				tempCount = currentLasers.get(l.getColor().toIndex());
-				currentLasers.set(l.getColor().toIndex(), tempCount + 1);
-			}
-
-			int currLaserCount = currentLasers.get(beamColor);
-
-			toPrint = currLaserCount + " out of " + beamObjective + " lasers.";
+			toPrint = curLaserCount + " out of " + beamObjective + " lasers.";
 		}
 
 		tb = font.getBounds(toPrint);
