@@ -138,7 +138,7 @@ public class GameEngine implements ApplicationListener {
 							boardStack.add(moveCounter,(b.encodePieces()));
 
 							//Remove the old future
-							boardStack.removeAll(boardStack.subList(moveCounter + 1, boardStack.size()));
+							boardStack = boardStack.subList(0, moveCounter + 1);
 						}
 					}
 				}
@@ -158,7 +158,7 @@ public class GameEngine implements ApplicationListener {
 			break;
 		case RESET:
 			moveCounter = 0;
-			boardStack.removeAll(boardStack.subList(moveCounter + 1, boardStack.size()));
+			boardStack = boardStack.subList(0, 1);
 			break;
 		case REDO:
 			//Make sure there's a move to go to
