@@ -13,6 +13,9 @@ public class GameEngine implements ApplicationListener {
 	private InputHandler inputHandler;
 	private LevelLoader levelLoader;
 	
+	private int goalsMet = 0;
+	private int lasersMade = 0;
+	
 	private int moveCounter = 0;
 	
 	public static final int LEVEL_IN = 3;
@@ -205,6 +208,15 @@ public class GameEngine implements ApplicationListener {
 			piecesDestroyed = true;
 		}
 		
+		goalsMet = 0;
+		for(Tile t: b.goalTiles) {
+			if(b.getPieceOnTile(t).getColor() == t.getGoalColor()) {
+				goalsMet++;
+			}
+		}
+		
+		lasersMade = 0;
+		
 		return piecesDestroyed;
 	}
 
@@ -229,7 +241,7 @@ public class GameEngine implements ApplicationListener {
 			}
 		}
 	}
-
+	
 	// Simple method to paint a piece
 	public void paintPiece(Piece p) {
 

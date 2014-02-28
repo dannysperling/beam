@@ -11,16 +11,17 @@ import com.me.beam.GameEngine.Color;
 
 public class Board {
 
-	private EnumMap<GameEngine.Color, Integer> laserList = new EnumMap<GameEngine.Color, Integer>(
-			Color.class);
-
-	private List<Tile> goalTiles = new ArrayList<Tile>();
-
 	private Tile[][] tiles;
 
 	private Piece[][] pieces;
 
 	public List<Laser> lasers = new ArrayList<Laser>();
+	
+	public EnumMap<GameEngine.Color, Integer> laserList = new EnumMap<GameEngine.Color, Integer>(
+			Color.class);
+
+	public List<Tile> goalTiles = new ArrayList<Tile>();
+
 
 	public int id; // ID in its levels file
 	public int par; // Optimal solution
