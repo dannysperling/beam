@@ -15,7 +15,7 @@ public class GameEngine implements ApplicationListener {
 
 	private static int moveCounter = 0;
 
-	private int currentLevel = 8;
+	private int currentLevel = 0;
 	public static final int NUM_LEVELS = 17;
 
 
