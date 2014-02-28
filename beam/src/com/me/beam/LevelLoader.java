@@ -13,9 +13,15 @@ public class LevelLoader implements Iterable<Board> {
 	public static final boolean DEBUG_MODE = true;
 	private String file;
 	private ArrayList<Integer> ids = new ArrayList<Integer>();
-	private String LEVEL_REGEX = "(<level id=(?<id>\\d+) par=(?<par>\\d+)>)[\\s]+"
-			+ "(<beamGoal color=(?<goalColor>\\d+) count=(?<goalNumber>\\d+)/>)?[\\s]+"
-			+ "(?<board>(.*\\n)+)" + "(</level>)";
+	private String LEVEL_REGEX = "(<level id=(\\d+) par=(\\d+)>)[\\s]+"
+			+ "(<beamGoal color=(\\d+) count=(\\d+)/>)?[\\s]+"
+			+ "((.*\\n)+?)" + "(</level>)";
+	//Regex groups because named capture isn't supported on Android
+	private static final int IDgroup = 2;
+	private static final int PARgroup = 3;
+	private static final int GOAL_COLORgroup = 5;
+	private static final int GOAL_COUNTgroup = 6;
+	private static final int BOARDgroup = 7;
 
 	/**
 	 * Create a LeveLoader for the given file. Any FileNotFound or IO exceptions
@@ -70,7 +76,7 @@ public class LevelLoader implements Iterable<Board> {
 			return null;
 		}
 		// Board ret = new Board();
-		String tileSpec = match.group("board");
+		String tileSpec = match.group(BOARDgroup);
 		String[] rows = tileSpec.split("\\n");
 		int height = rows.length;
 		int width = rows[0].split(",").length;
@@ -109,14 +115,14 @@ public class LevelLoader implements Iterable<Board> {
 				pieces[x][height-1-y] = p;
 			}
 		}
-		int id = Integer.parseInt(match.group("id"));
-		int par = Integer.parseInt(match.group("par"));
+		int id = Integer.parseInt(match.group(IDgroup));
+		int par = Integer.parseInt(match.group(PARgroup));
 		Board b = new Board(tiles, pieces, id, par);
-		boolean hasBeamGoal = match.group("goalColor") != null;
+		boolean hasBeamGoal = match.group(GOAL_COLORgroup) != null;
 		if (hasBeamGoal) {
 			debug("Has beam goals? - " + hasBeamGoal);
-			Color gc = Color.lookup(Integer.parseInt(match.group("goalColor")));
-			int gn = Integer.parseInt(match.group("goalNumber"));
+			Color gc = Color.lookup(Integer.parseInt(match.group(GOAL_COLORgroup)));
+			int gn = Integer.parseInt(match.group(GOAL_COUNTgroup));
 			b.setBeamGoal(gc, gn);
 		}
 		return b;
