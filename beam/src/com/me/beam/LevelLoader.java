@@ -13,15 +13,12 @@ public class LevelLoader implements Iterable<Board> {
 	public static final boolean DEBUG_MODE = true;
 	private String file;
 	private ArrayList<Integer> ids = new ArrayList<Integer>();
-	private String LEVEL_REGEX = "(<level id=(\\d+) par=(\\d+)>)[\\s]+"
-			+ "(<beamGoal color=(\\d+) count=(\\d+)/>)?[\\s]+"
+	private String FULL_LEVEL_REGEX = "(<level id=(\\d+) par=(\\d+)>)[\\s]+"
+			+ "(<beamGoal color=(\\d+) count=(\\d+)/>)*[\\s]+"
 			+ "((.*\\n)+?)" + "(</level>)";
 	//Regex groups because named capture isn't supported on Android
 	private static final int IDgroup = 2;
 	private static final int PARgroup = 3;
-	private static final int GOAL_COLORgroup = 5;
-	private static final int GOAL_COUNTgroup = 6;
-	private static final int BOARDgroup = 7;
 
 	/**
 	 * Create a LeveLoader for the given file. Any FileNotFound or IO exceptions
@@ -69,14 +66,14 @@ public class LevelLoader implements Iterable<Board> {
 
 	//Abandon hope, all ye who try and read this
 	private Board buildBoard(String spec) {
-		Pattern pat = Pattern.compile(LEVEL_REGEX, Pattern.UNIX_LINES);
+		Pattern pat = Pattern.compile(FULL_LEVEL_REGEX, Pattern.UNIX_LINES);
 		Matcher match = pat.matcher(spec);
 		if (!match.matches()) {
 			debug("Regex doesn't match");
 			return null;
 		}
 		// Board ret = new Board();
-		String tileSpec = match.group(BOARDgroup);
+		String tileSpec = extractBoard(match.group());
 		String[] rows = tileSpec.split("\\n");
 		int height = rows.length;
 		int width = rows[0].split(",").length;
@@ -118,14 +115,27 @@ public class LevelLoader implements Iterable<Board> {
 		int id = Integer.parseInt(match.group(IDgroup));
 		int par = Integer.parseInt(match.group(PARgroup));
 		Board b = new Board(tiles, pieces, id, par);
-		boolean hasBeamGoal = match.group(GOAL_COLORgroup) != null;
-		if (hasBeamGoal) {
-			debug("Has beam goals? - " + hasBeamGoal);
-			Color gc = Color.lookup(Integer.parseInt(match.group(GOAL_COLORgroup)));
-			int gn = Integer.parseInt(match.group(GOAL_COUNTgroup));
-			b.setBeamGoal(gc, gn);
-		}
+		processBeamGoals(b,match.group());
 		return b;
+	}
+
+	private void processBeamGoals(Board b, String group) {
+		Pattern pat = Pattern.compile("<beamGoal\\s*color=(\\d+)\\s*count=(\\d+)/>");
+		Matcher mat = pat.matcher(group);
+		while (mat.find()){
+			Color colour = Color.lookup(Integer.parseInt(mat.group(1)));
+			int count = Integer.parseInt(mat.group(2));
+			b.addBeamGoal(colour, count);
+		}
+		
+	}
+
+	private String extractBoard(String group) {
+		Pattern pat = Pattern.compile(">\\s*\\n([^><]*?)</l",Pattern.UNIX_LINES);
+		Matcher mat = pat.matcher(group);
+		mat.find();
+		debug("Extracted board:\n"+mat.group(1));
+		return mat.group(1);
 	}
 
 	private String findLevelByID(int id) {

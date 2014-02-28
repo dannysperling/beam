@@ -25,10 +25,7 @@ public class Board {
 	public int id; // ID in its levels file
 	public int par; // Optimal solution
 
-	private boolean hasBeamGoal = false; // Needs n beams of some color to
-											// complete
-	private Color goalColor; // color of beams need to win
-	private int goalNum; // Number of beams needed to win
+	private ArrayList<TwoTuple<Color,Integer>> beamGoals = new ArrayList<TwoTuple<Color,Integer>>();
 
 	private int tileSize;
 
@@ -102,10 +99,8 @@ public class Board {
 		return ret;
 	}
 
-	public void setBeamGoal(Color c, int n) {
-		hasBeamGoal = true;
-		this.goalColor = c;
-		this.goalNum = n;
+	public void addBeamGoal(Color c, int n) {
+		beamGoals.add(new TwoTuple<Color,Integer>(c,n));
 	}
 
 	/**
