@@ -2,9 +2,8 @@ package com.me.beam;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
 import com.me.beam.GameEngine.Color;
@@ -22,8 +21,9 @@ public class Board {
 	public int id; // ID in its levels file
 	public int par; // Optimal solution
 
-	public ArrayList<TwoTuple<Color, Integer>> beamGoals = new ArrayList<TwoTuple<Color, Integer>>();
-
+	//public ArrayList<TwoTuple<Color, Integer>> beamGoals = new ArrayList<TwoTuple<Color, Integer>>();
+	public HashMap<Color, Integer> beamGoals = new HashMap<Color,Integer>();
+	
 	private int tileSize;
 
 	private int botLeftX;
@@ -102,7 +102,7 @@ public class Board {
 	 */
 
 	public void addBeamGoal(Color c, int n) {
-		beamGoals.add(new TwoTuple<Color, Integer>(c, n));
+		beamGoals.put(c,n);
 	}
 
 	/**

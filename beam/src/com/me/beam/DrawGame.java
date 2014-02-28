@@ -308,9 +308,9 @@ public class DrawGame {
 			int curLaserCount = 0;
 			GameEngine.Color beamColor = GameEngine.Color.NONE;
 
-			for (TwoTuple<GameEngine.Color, Integer> tuple : b.beamGoals) {
-				beamObjective += tuple.second;
-				beamColor = tuple.first;
+			for (GameEngine.Color c : b.beamGoals.keySet()) {
+				beamObjective += b.beamGoals.get(c);
+				beamColor = c;
 				curLaserCount += b.getLaserCount(beamColor);
 			}
 

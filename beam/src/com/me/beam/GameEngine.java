@@ -598,8 +598,8 @@ public class GameEngine implements ApplicationListener {
 
 		// TODO: The TwoTuple makes sense, but it's a sin. I'll kill this
 		// tomorrow.
-		for (TwoTuple<Color, Integer> target : b.beamGoals) {
-			if (target.second.intValue() != b.getLaserCount(target.first)) {
+		for (Color colour : b.beamGoals.keySet()) {
+			if (b.beamGoals.get(colour) != b.getLaserCount(colour)) {
 				return false;
 			}
 		}
