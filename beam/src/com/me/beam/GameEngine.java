@@ -12,25 +12,27 @@ public class GameEngine implements ApplicationListener {
 	private DrawGame dg;
 	private InputHandler inputHandler;
 	private LevelLoader levelLoader;
-	
+
 	private int moveCounter = 0;
-	
-	public static final int LEVEL_IN = 4;
-	
+
+	private int currentLevel = 0;
+	public static final int NUM_LEVELS = 17;
+
+
 	public static Piece movingPiece = null;
 	public static List<Tile> movePath = new ArrayList<Tile>();
-	
+
 	private static List<Collection<Short>> boardStack = new ArrayList<Collection<Short>>();
 
 	// Animation constants in ticks
 	private static final int timeOnTileBeforeMove = 7;
 
 	private static int timeSpentOnTile = 0;
-	
+
 	public enum GameState {
 		PAUSED, IDLE, DECIDING, MOVING, DESTROYED, WON
 	}
-	
+
 	public enum ButtonPress {
 		UNDO, RESET, REDO, NONE
 	}
@@ -71,12 +73,10 @@ public class GameEngine implements ApplicationListener {
 	public void create() {
 
 		levelLoader = new LevelLoader("data/levels/levels.xml");
-		loadLevel(LEVEL_IN);
+		loadLevel(currentLevel);
 
 		dg = new DrawGame();
 		inputHandler = new InputHandler();
-
-		initializeLasers();
 	}
 
 	@Override
@@ -86,75 +86,129 @@ public class GameEngine implements ApplicationListener {
 
 	@Override
 	public void render() {
-		
-		ButtonPress button = inputHandler.checkForButtonPress();
-		
-		if (button != ButtonPress.NONE){
-			System.out.println(button);
+		boolean pushedButton = false;
+
+		if (state != GameState.DECIDING && state != GameState.WON){
+			ButtonPress button = inputHandler.checkForButtonPress();
+
+			if (button != ButtonPress.NONE){
+				System.out.println(button);
+				pushedButton = true;
+				handleButtonPress(button);
+			}
 		}
-		
-		// Get input from the user
-		state = inputHandler.handleInput(b, state);
 
-		// Do things if we're moving
-		if (state == GameState.MOVING) {
-			// Check to see if we actually move yet
-			if (timeSpentOnTile < timeOnTileBeforeMove) {
-				timeSpentOnTile++;
-			} else {
-				
-				// Move the piece
-				movePiece();
-				
-				// Update the board state
-				boolean pieceDestroyed = updateBoardState();
+		//Only check for game in this case
+		if (!pushedButton){
+			// Get input from the user
+			GameState pastState = state;
+			state = inputHandler.handleInput(b, state);
 
-				// No lockout after move
-				if (movePath.size() == 1 || pieceDestroyed) {
-					movingPiece = null;
-					movePath.clear();
-					
-					//See which state to transition to
-					if (pieceDestroyed){
-						state = GameState.DESTROYED;
-					} else {
-						state = GameState.IDLE;
-					}
-				}
+			//Increment the moves when appropriate
+			if (pastState == GameState.DECIDING && state == GameState.MOVING){
+				moveCounter++;
+				System.out.println(moveCounter);
 			}
 
-		} // else if (state == GameState.DECIDING){
-			// For now, do nothing if the state is deciding. There's nothing to
-			// do
-			// } //else if (state == GameState.IDLE){
-			// For now, do nothing if the state is idle. There's nothing to do
-			// }
+			// Do things if we're moving
+			if (state == GameState.MOVING) {
+				// Check to see if we actually move yet
+				if (timeSpentOnTile < timeOnTileBeforeMove) {
+					timeSpentOnTile++;
+				} else {
+
+					// Move the piece
+					movePiece();
+
+					// Update the board state
+					boolean pieceDestroyed = updateBoardState();
+
+					// No lockout after move
+					if (movePath.size() == 1 || pieceDestroyed) {
+						movingPiece = null;
+						movePath.clear();
+
+						//See which state to transition to
+						if (pieceDestroyed){
+							state = GameState.DESTROYED;
+						} else {
+							//Made a move
+							state = GameState.IDLE;
+
+							//Push the move onto the stack
+							boardStack.add(moveCounter,(b.encodePieces()));
+
+							//Remove the old future
+							boardStack = boardStack.subList(0, moveCounter + 1);
+						}
+					}
+				}
+			} 
+		}
 
 		// Draw the game
 		dg.draw(b, state);
 	}
-	
+
+	private void handleButtonPress(ButtonPress button) {
+
+		//Do things depending on which button was pressed
+		switch(button){
+		case UNDO:
+			moveCounter = Math.max(moveCounter - 1, 0);
+			break;
+		case RESET:
+			moveCounter = 0;
+			boardStack = boardStack.subList(0, 1);
+			break;
+		case REDO:
+			//Make sure there's a move to go to
+			if (boardStack.size() > moveCounter + 1){
+				moveCounter++;
+			} else {
+				//DON'T DO ANYTHING IF THERE'S NOTHING TO REDO
+				return;
+			}
+			break;
+		default: //Shouldn't occur
+			break;
+		}
+
+		//Reset things 
+		b.resetPieces(boardStack.get(moveCounter));
+		movingPiece = null;
+		movePath.clear();
+		timeSpentOnTile = 0;
+		initializeLasers();
+		state = GameState.IDLE;
+	}
+
 	//Loads a level, and handles initializations
 	public void loadLevel(int levelNumber){
-		
+
 		//Load the world
-		b = levelLoader.getLevel(LEVEL_IN);
-		
+		b = levelLoader.getLevel(levelNumber);
+
 		//Clean out all the inits
 		movingPiece = null;
 		movePath.clear();
-		
+
 		//Clear the board stack
 		boardStack.clear();
 		boardStack.add(b.encodePieces());
-		
+
+		//Set up the state and move counter
 		state = GameState.IDLE;
 		moveCounter = 0;
+
+		//Initialize the lasers
+		initializeLasers();
+
 	}
-	
+
 	//Moves a piece, and handles changes
 	public void movePiece(){
-		
+
 		// Reset time on tile
 		timeSpentOnTile = 0;
 
@@ -163,18 +217,18 @@ public class GameEngine implements ApplicationListener {
 
 		// Remove previous lasers
 		removeLasersFromPiece(movingPiece);
-		
+
 		// Tell the board to move the piece
 		b.move(movingPiece, movePath.get(0));
-		
+
 	}
-	
+
 	//Updates the board after the piece has been moved
 	public boolean updateBoardState(){
 		// Check for piece destroyed
-		
+
 		boolean piecesDestroyed = false;
-		
+
 		if (!checkIfPieceDestroyed(movingPiece)) {
 
 			// Get painted
@@ -189,7 +243,7 @@ public class GameEngine implements ApplicationListener {
 					b.removePiece(p);
 					removeLasersFromPiece(p);
 				}
-				
+
 				//Indicate that a piece was destroyed
 				if (!destroyed.isEmpty()){
 					piecesDestroyed = true;
@@ -204,18 +258,19 @@ public class GameEngine implements ApplicationListener {
 			b.removePiece(movingPiece);
 			piecesDestroyed = true;
 		}
-		
+
 		return piecesDestroyed;
 	}
 
 	// Add all lasers to the board
 	public void initializeLasers() {
+		b.lasers.clear();
 		for (Piece p1 : b.getAllPieces()) {
 			for (Piece p2 : b.getAllPieces()) {
 				if (!p1.equals(p2)
 						&& p1.getColor() == p2.getColor()
 						&& (p1.getXCoord() == p2.getXCoord() || p1.getYCoord() == p2
-								.getYCoord())) {
+						.getYCoord())) {
 					int xStart = Math.min(p1.getXCoord(), p2.getXCoord());
 					int xFinish = Math.max(p1.getXCoord(), p2.getXCoord());
 					int yStart = Math.min(p1.getYCoord(), p2.getYCoord());
@@ -519,11 +574,11 @@ public class GameEngine implements ApplicationListener {
 
 		return false;
 	}
-	
+
 	public static int getTicksPerTile(){
 		return timeOnTileBeforeMove;
 	}
-	
+
 	public static int getTimeOnThisTile(){
 		return timeSpentOnTile;
 	}
