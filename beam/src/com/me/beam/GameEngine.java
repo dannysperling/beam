@@ -13,7 +13,7 @@ public class GameEngine implements ApplicationListener {
 	private InputHandler inputHandler;
 	private LevelLoader levelLoader;
 
-	private int moveCounter = 0;
+	private static int moveCounter = 0;
 
 	private int currentLevel = 8;
 	public static final int NUM_LEVELS = 17;
@@ -621,6 +621,10 @@ public class GameEngine implements ApplicationListener {
 
 	public static int getTimeOnThisTile(){
 		return timeSpentOnTile;
+	}
+	
+	public static int getMoveCount(){
+		return moveCounter;
 	}
 
 	@Override
