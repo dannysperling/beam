@@ -26,7 +26,7 @@ public class Board {
 	public int id; // ID in its levels file
 	public int par; // Optimal solution
 
-	private ArrayList<TwoTuple<Color,Integer>> beamGoals = new ArrayList<TwoTuple<Color,Integer>>();
+	public ArrayList<TwoTuple<Color,Integer>> beamGoals = new ArrayList<TwoTuple<Color,Integer>>();
 
 	private int tileSize;
 

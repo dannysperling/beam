@@ -12,14 +12,8 @@ public class GameEngine implements ApplicationListener {
 	private DrawGame dg;
 	private InputHandler inputHandler;
 	private LevelLoader levelLoader;
-<<<<<<< HEAD
-	
-	private int goalsMet = 0;
-	private int lasersMade = 0;
-	
-=======
 
->>>>>>> b9553c0bd3af39a27ff7db188bb7473f3fc5f363
+	private int goalsMet = 0;
 	private int moveCounter = 0;
 
 	private int currentLevel = 0;
@@ -147,6 +141,10 @@ public class GameEngine implements ApplicationListener {
 
 							//Remove the old future
 							boardStack = boardStack.subList(0, moveCounter + 1);
+							
+							if(isWon()) {
+								state = GameState.WON;
+							}
 						}
 					}
 				}
@@ -265,20 +263,6 @@ public class GameEngine implements ApplicationListener {
 			b.removePiece(movingPiece);
 			piecesDestroyed = true;
 		}
-<<<<<<< HEAD
-		
-		goalsMet = 0;
-		for(Tile t: b.goalTiles) {
-			if(b.getPieceOnTile(t).getColor() == t.getGoalColor()) {
-				goalsMet++;
-			}
-		}
-		
-		lasersMade = 0;
-		
-=======
-
->>>>>>> b9553c0bd3af39a27ff7db188bb7473f3fc5f363
 		return piecesDestroyed;
 	}
 
@@ -593,6 +577,38 @@ public class GameEngine implements ApplicationListener {
 		}
 
 		return false;
+	}
+	
+	private boolean isWon() {
+		goalsMet = 0;
+		for(Tile t: b.goalTiles) {
+			if(b.getPieceOnTile(t).getColor() == t.getGoalColor()) {
+				goalsMet++;
+			}
+		}
+		
+		//The TwoTuple makes sense, but it's a sin.  I'll kill this tomorrow.
+		ArrayList<Integer> currentLasers = new ArrayList<Integer>();
+		int tempCount = 0;
+		
+		for(Laser l: b.lasers) {
+			tempCount = currentLasers.get(l.getColor().toIndex());
+			currentLasers.set(l.getColor().toIndex(), tempCount + 1);
+		}
+		
+		boolean lasersFinished = true;
+		
+		TwoTuple<Color, Integer> current;
+		int color;
+		
+		for(int i = 0; i < b.beamGoals.size(); i++) {
+			current = b.beamGoals.get(i);
+			if(current.second.intValue() != currentLasers.get(current.first.toIndex())) {
+				lasersFinished = false;
+			}
+		}
+		
+		return (goalsMet == b.goalTiles.size() && lasersFinished);
 	}
 
 	public static int getTicksPerTile(){
