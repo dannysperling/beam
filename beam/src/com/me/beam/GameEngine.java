@@ -593,7 +593,7 @@ public class GameEngine implements ApplicationListener {
 		int tempCount = 0;
 		
 		for(int i = 0; i < 10; i++) {
-			currentLasers.set(i, 0);
+			currentLasers.add(0);
 		}
 		
 		for(Laser l: b.lasers) {
