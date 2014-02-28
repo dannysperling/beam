@@ -42,6 +42,13 @@ public class DrawGame {
 		int by = b.getBotLeftY();
 		int tilesize = b.getTileSize();
 		Gdx.gl.glClearColor(.1f, .1f, .1f, 1);
+		if(state == GameState.DESTROYED){
+			Gdx.gl.glClearColor(.5f, 0, 0, 1);
+		}
+		if(state == GameState.WON){
+			Gdx.gl.glClearColor(0, 0.3f, 0, 1);
+		}
+			
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		List<Piece> pieces = b.getAllPieces();
 		List<Tile> tiles = b.getAllTiles();
@@ -193,7 +200,7 @@ public class DrawGame {
 			}
 		}
 		shapes.end();
-		
+				
 		//Draw the buttons
 		batch.begin();
 		font.setColor(Color.WHITE);
