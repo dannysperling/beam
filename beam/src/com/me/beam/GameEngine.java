@@ -1,6 +1,7 @@
 package com.me.beam;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.badlogic.gdx.ApplicationListener;
@@ -12,18 +13,26 @@ public class GameEngine implements ApplicationListener {
 	private InputHandler inputHandler;
 	private LevelLoader levelLoader;
 	
+	private int moveCounter = 0;
+	
 	public static final int LEVEL_IN = 3;
-
+	
 	public static Piece movingPiece = null;
 	public static List<Tile> movePath = new ArrayList<Tile>();
+	
+	private static List<Collection<Short>> boardStack = new ArrayList<Collection<Short>>();
 
 	// Animation constants in ticks
 	private static final int timeOnTileBeforeMove = 7;
 
 	private static int timeSpentOnTile = 0;
-
+	
 	public enum GameState {
-		PAUSED, IDLE, DECIDING, MOVING
+		PAUSED, IDLE, DECIDING, MOVING, DESTROYED, WON
+	}
+	
+	public enum ButtonPress {
+		UNDO, RESET, REDO, NONE
 	}
 
 	public enum Color {
@@ -51,8 +60,9 @@ public class GameEngine implements ApplicationListener {
 		}
 	}
 
-	public static final float topBarSize = 0.15f;
-	public static final float botBarSize = 0.20f;
+	//Measured in terms of percentage of screen
+	public static final float topBarSize = 0.22f;
+	public static final float botBarSize = 0.13f;
 	public static final float sideEmptySize = 0.02f;
 
 	private GameState state = GameState.IDLE;
@@ -60,9 +70,8 @@ public class GameEngine implements ApplicationListener {
 	@Override
 	public void create() {
 
-		// setHardCodedLevel();
 		levelLoader = new LevelLoader("data/levels/levels.xml");
-		b = levelLoader.getLevel(LEVEL_IN);
+		loadLevel(LEVEL_IN);
 
 		dg = new DrawGame();
 		inputHandler = new InputHandler();
@@ -77,6 +86,13 @@ public class GameEngine implements ApplicationListener {
 
 	@Override
 	public void render() {
+		
+		ButtonPress button = inputHandler.checkForButtonPress();
+		
+		if (button != ButtonPress.NONE){
+			System.out.println(button);
+		}
+		
 		// Get input from the user
 		state = inputHandler.handleInput(b, state);
 
@@ -86,51 +102,24 @@ public class GameEngine implements ApplicationListener {
 			if (timeSpentOnTile < timeOnTileBeforeMove) {
 				timeSpentOnTile++;
 			} else {
-				// Reset time on tile
-				timeSpentOnTile = 0;
-
-				// Get rid of the place we were
-				movePath.remove(0);
-
-				// Remove previous lasers
-				removeLasersFromPiece(movingPiece);
-
-				b.move(movingPiece, movePath.get(0));
-
-				// Check for piece destroyed
-				if (!checkIfPieceDestroyed(movingPiece)) {
-
-					// Get painted
-					paintPiece(movingPiece);
-
-					// Check for piece destroyed
-					if (!checkIfPieceDestroyed(movingPiece)) {
-
-						// Form new lasers and cause destruction
-						List<Piece> destroyed = formLasersFromPieceAndDestroy(movingPiece);
-						for (Piece p : destroyed) {
-							b.removePiece(p);
-							removeLasersFromPiece(p);
-						}
-
-					} else {
-						b.removePiece(movingPiece);
-						movingPiece = null;
-						movePath.clear();
-						state = GameState.IDLE;
-					}
-
-				} else {
-					b.removePiece(movingPiece);
-					movingPiece = null;
-					movePath.clear();
-					state = GameState.IDLE;
-				}
+				
+				// Move the piece
+				movePiece();
+				
+				// Update the board state
+				boolean pieceDestroyed = updateBoardState();
 
 				// No lockout after move
-				if (movePath.size() == 1) {
+				if (movePath.size() == 1 || pieceDestroyed) {
+					movingPiece = null;
 					movePath.clear();
-					state = GameState.IDLE;
+					
+					//See which state to transition to
+					if (pieceDestroyed){
+						state = GameState.DESTROYED;
+					} else {
+						state = GameState.IDLE;
+					}
 				}
 			}
 
@@ -144,7 +133,82 @@ public class GameEngine implements ApplicationListener {
 		// Draw the game
 		dg.draw(b, state);
 	}
+	
+	//Loads a level, and handles initializations
+	public void loadLevel(int levelNumber){
+		
+		//Load the world
+		b = levelLoader.getLevel(LEVEL_IN);
+		
+		//Clean out all the inits
+		movingPiece = null;
+		movePath.clear();
+		
+		//Clear the board stack
+		boardStack.clear();
+		boardStack.add(b.encodePieces());
+		
+		state = GameState.IDLE;
+		moveCounter = 0;
+	}
+	
+	//Moves a piece, and handles changes
+	public void movePiece(){
+		
+		// Reset time on tile
+		timeSpentOnTile = 0;
 
+		// Get rid of the place we were
+		movePath.remove(0);
+
+		// Remove previous lasers
+		removeLasersFromPiece(movingPiece);
+		
+		// Tell the board to move the piece
+		b.move(movingPiece, movePath.get(0));
+		
+	}
+	
+	//Updates the board after the piece has been moved
+	public boolean updateBoardState(){
+		// Check for piece destroyed
+		
+		boolean piecesDestroyed = false;
+		
+		if (!checkIfPieceDestroyed(movingPiece)) {
+
+			// Get painted
+			paintPiece(movingPiece);
+
+			// Check for piece destroyed
+			if (!checkIfPieceDestroyed(movingPiece)) {
+
+				// Form new lasers and cause destruction
+				List<Piece> destroyed = formLasersFromPieceAndDestroy(movingPiece);
+				for (Piece p : destroyed) {
+					b.removePiece(p);
+					removeLasersFromPiece(p);
+				}
+				
+				//Indicate that a piece was destroyed
+				if (!destroyed.isEmpty()){
+					piecesDestroyed = true;
+				}
+
+			} else {
+				b.removePiece(movingPiece);
+				piecesDestroyed = true;
+			}
+
+		} else {
+			b.removePiece(movingPiece);
+			piecesDestroyed = true;
+		}
+		
+		return piecesDestroyed;
+	}
+
+	// Add all lasers to the board
 	public void initializeLasers() {
 		for (Piece p1 : b.getAllPieces()) {
 			for (Piece p2 : b.getAllPieces()) {
@@ -166,6 +230,7 @@ public class GameEngine implements ApplicationListener {
 		}
 	}
 
+	// Simple method to paint a piece
 	public void paintPiece(Piece p) {
 
 		// Is there a painter?
