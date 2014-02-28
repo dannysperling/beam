@@ -1,12 +1,15 @@
 package com.me.beam;
 
 import com.badlogic.gdx.Gdx;
+import com.me.beam.GameEngine.GameState;
 
 public class InputHandler {
 
 	private GameEngine.ButtonPress buttonDown = GameEngine.ButtonPress.NONE;
 	private int lastX = -1;
 	private int lastY = -1;
+	
+	private boolean gameWonPressed = false;
 
 	public GameEngine.GameState handleInput(Board b, GameEngine.GameState state) {
 
@@ -79,6 +82,10 @@ public class InputHandler {
 			//Look for new button press
 			if (buttonDown == GameEngine.ButtonPress.NONE && lastX == -1){
 				buttonDown = Menu.containingButtonOfPixel(xPress, yPress);
+				
+				if (buttonDown == GameEngine.ButtonPress.NONE){
+					gameWonPressed = true;
+				}
 			}
 			lastX = xPress;
 			lastY = yPress;
@@ -93,6 +100,10 @@ public class InputHandler {
 				if (returnedButton != buttonDown){
 					returnedButton = GameEngine.ButtonPress.NONE;
 				}
+			} 
+			// HACK HERE TO GET GAME WINNING HAPPENING ON TOUCH
+			else if (lastX != -1 && gameWonPressed){
+				returnedButton = GameEngine.ButtonPress.WON;
 			} else {
 				returnedButton = GameEngine.ButtonPress.NONE;
 			}

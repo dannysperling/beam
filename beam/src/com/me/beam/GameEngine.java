@@ -34,7 +34,7 @@ public class GameEngine implements ApplicationListener {
 	}
 
 	public enum ButtonPress {
-		UNDO, RESET, REDO, NONE
+		UNDO, RESET, REDO, NONE, WON //Note: WON should not exist in non-proto version
 	}
 
 	public enum Color {
@@ -88,13 +88,20 @@ public class GameEngine implements ApplicationListener {
 	public void render() {
 		boolean pushedButton = false;
 
-		if (state != GameState.DECIDING && state != GameState.WON){
+		if (state != GameState.DECIDING/* && state != GameState.WON*/){
 			ButtonPress button = inputHandler.checkForButtonPress();
 
-			if (button != ButtonPress.NONE){
+			if (button != ButtonPress.NONE && button != ButtonPress.WON){
 				System.out.println(button);
 				pushedButton = true;
 				handleButtonPress(button);
+			}
+			
+			// Increase level. Should be done elsewhere in non-proto version
+			if (state == GameState.WON && button == ButtonPress.WON){
+				currentLevel = Math.min(currentLevel + 1, NUM_LEVELS);
+				loadLevel(currentLevel);
+				pushedButton = true;
 			}
 		}
 
@@ -140,6 +147,10 @@ public class GameEngine implements ApplicationListener {
 
 							//Remove the old future
 							boardStack = boardStack.subList(0, moveCounter + 1);
+							
+							if(isWon()) {
+								state = GameState.WON;
+							}
 						}
 					}
 				}
@@ -258,7 +269,6 @@ public class GameEngine implements ApplicationListener {
 			b.removePiece(movingPiece);
 			piecesDestroyed = true;
 		}
-
 		return piecesDestroyed;
 	}
 
@@ -284,7 +294,7 @@ public class GameEngine implements ApplicationListener {
 			}
 		}
 	}
-
+	
 	// Simple method to paint a piece
 	public void paintPiece(Piece p) {
 
@@ -573,6 +583,46 @@ public class GameEngine implements ApplicationListener {
 		}
 
 		return false;
+	}
+	
+	//TODO: Remove hardcoding.  It's here for one specific reason and will be gone tomorrow.
+	private boolean isWon() {
+		if (this.getNumGoalsFilled() != b.goalTiles.size()) {
+			return false;
+		}
+		
+		//TODO: The TwoTuple makes sense, but it's a sin.  I'll kill this tomorrow.
+		ArrayList<Integer> currentLasers = new ArrayList<Integer>();
+		int tempCount = 0;
+		
+		for(int i = 0; i < 10; i++) {
+			currentLasers.add(0);
+		}
+		
+		for(Laser l: b.lasers) {
+			tempCount = currentLasers.get(l.getColor().toIndex());
+			currentLasers.set(l.getColor().toIndex(), tempCount + 1);
+		}
+
+		TwoTuple<Color, Integer> current;
+		for(int i = 0; i < b.beamGoals.size(); i++) {
+			current = b.beamGoals.get(i);
+			if(current.second.intValue() != currentLasers.get(current.first.toIndex())) {
+				// The lasers condition is not met.
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private int getNumGoalsFilled() {
+		int goalsFilled = 0;
+		for(Tile t: b.goalTiles) {
+			if(b.getPieceOnTile(t).getColor() == t.getGoalColor()) {
+				goalsFilled++;
+			}
+		}
+		return goalsFilled;
 	}
 
 	public static int getTicksPerTile(){
