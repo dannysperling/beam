@@ -13,7 +13,6 @@ public class GameEngine implements ApplicationListener {
 	private InputHandler inputHandler;
 	private LevelLoader levelLoader;
 
-	private int goalsMet = 0;
 	private int moveCounter = 0;
 
 	private int currentLevel = 0;
@@ -581,16 +580,7 @@ public class GameEngine implements ApplicationListener {
 	
 	//TODO: Remove hardcoding.  It's here for one specific reason and will be gone tomorrow.
 	private boolean isWon() {
-		goalsMet = 0;
-		for(Tile t: b.goalTiles) {
-			if(b.getPieceOnTile(t).getColor() == t.getGoalColor()) {
-				goalsMet++;
-			}
-		}
-		System.out.println("Number of goals " + b.goalTiles.size());
-		System.out.println("Goals " + (goalsMet == b.goalTiles.size()));
-		if (goalsMet != b.goalTiles.size()) {
-			// The goal tiles were not all filled.
+		if (this.getNumGoalsFilled() != b.goalTiles.size()) {
 			return false;
 		}
 		
@@ -616,6 +606,16 @@ public class GameEngine implements ApplicationListener {
 			}
 		}
 		return true;
+	}
+
+	private int getNumGoalsFilled() {
+		int goalsFilled = 0;
+		for(Tile t: b.goalTiles) {
+			if(b.getPieceOnTile(t).getColor() == t.getGoalColor()) {
+				goalsFilled++;
+			}
+		}
+		return goalsFilled;
 	}
 
 	public static int getTicksPerTile(){
