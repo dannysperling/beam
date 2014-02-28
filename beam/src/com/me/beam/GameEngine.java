@@ -18,7 +18,6 @@ public class GameEngine implements ApplicationListener {
 	private int currentLevel = 8;
 	public static final int NUM_LEVELS = 17;
 
-
 	public static Piece movingPiece = null;
 	public static List<Tile> movePath = new ArrayList<Tile>();
 
@@ -34,7 +33,8 @@ public class GameEngine implements ApplicationListener {
 	}
 
 	public enum ButtonPress {
-		UNDO, RESET, REDO, NONE, WON //Note: WON should not exist in non-proto version
+		UNDO, RESET, REDO, NONE, WON // Note: WON should not exist in non-proto
+										// version
 	}
 
 	public enum Color {
@@ -62,7 +62,7 @@ public class GameEngine implements ApplicationListener {
 		}
 	}
 
-	//Measured in terms of percentage of screen
+	// Measured in terms of percentage of screen
 	public static final float topBarSize = 0.22f;
 	public static final float botBarSize = 0.13f;
 	public static final float sideEmptySize = 0.02f;
@@ -88,31 +88,31 @@ public class GameEngine implements ApplicationListener {
 	public void render() {
 		boolean pushedButton = false;
 
-		if (state != GameState.DECIDING/* && state != GameState.WON*/){
+		if (state != GameState.DECIDING/* && state != GameState.WON */) {
 			ButtonPress button = inputHandler.checkForButtonPress();
 
-			if (button != ButtonPress.NONE && button != ButtonPress.WON){
+			if (button != ButtonPress.NONE && button != ButtonPress.WON) {
 				System.out.println(button);
 				pushedButton = true;
 				handleButtonPress(button);
 			}
-			
+
 			// Increase level. Should be done elsewhere in non-proto version
-			if (state == GameState.WON && button == ButtonPress.WON){
+			if (state == GameState.WON && button == ButtonPress.WON) {
 				currentLevel = Math.min(currentLevel + 1, NUM_LEVELS);
 				loadLevel(currentLevel);
 				pushedButton = true;
 			}
 		}
 
-		//Only check for game in this case
-		if (!pushedButton){
+		// Only check for game in this case
+		if (!pushedButton) {
 			// Get input from the user
 			GameState pastState = state;
 			state = inputHandler.handleInput(b, state);
 
-			//Increment the moves when appropriate
-			if (pastState == GameState.DECIDING && state == GameState.MOVING){
+			// Increment the moves when appropriate
+			if (pastState == GameState.DECIDING && state == GameState.MOVING) {
 				moveCounter++;
 				System.out.println(moveCounter);
 			}
@@ -135,26 +135,26 @@ public class GameEngine implements ApplicationListener {
 						movingPiece = null;
 						movePath.clear();
 
-						//See which state to transition to
-						if (pieceDestroyed){
+						// See which state to transition to
+						if (pieceDestroyed) {
 							state = GameState.DESTROYED;
 						} else {
-							//Made a move
+							// Made a move
 							state = GameState.IDLE;
 
-							//Push the move onto the stack
-							boardStack.add(moveCounter,(b.encodePieces()));
+							// Push the move onto the stack
+							boardStack.add(moveCounter, (b.encodePieces()));
 
-							//Remove the old future
+							// Remove the old future
 							boardStack = boardStack.subList(0, moveCounter + 1);
-							
-							if(isWon()) {
+
+							if (isWon()) {
 								state = GameState.WON;
 							}
 						}
 					}
 				}
-			} 
+			}
 		}
 
 		// Draw the game
@@ -163,8 +163,8 @@ public class GameEngine implements ApplicationListener {
 
 	private void handleButtonPress(ButtonPress button) {
 
-		//Do things depending on which button was pressed
-		switch(button){
+		// Do things depending on which button was pressed
+		switch (button) {
 		case UNDO:
 			moveCounter = Math.max(moveCounter - 1, 0);
 			break;
@@ -173,19 +173,19 @@ public class GameEngine implements ApplicationListener {
 			boardStack = boardStack.subList(0, 1);
 			break;
 		case REDO:
-			//Make sure there's a move to go to
-			if (boardStack.size() > moveCounter + 1){
+			// Make sure there's a move to go to
+			if (boardStack.size() > moveCounter + 1) {
 				moveCounter++;
 			} else {
-				//DON'T DO ANYTHING IF THERE'S NOTHING TO REDO
+				// DON'T DO ANYTHING IF THERE'S NOTHING TO REDO
 				return;
 			}
 			break;
-		default: //Shouldn't occur
+		default: // Shouldn't occur
 			break;
 		}
 
-		//Reset things 
+		// Reset things
 		b.resetPieces(boardStack.get(moveCounter));
 		movingPiece = null;
 		movePath.clear();
@@ -194,31 +194,31 @@ public class GameEngine implements ApplicationListener {
 		state = GameState.IDLE;
 	}
 
-	//Loads a level, and handles initializations
-	public void loadLevel(int levelNumber){
+	// Loads a level, and handles initializations
+	public void loadLevel(int levelNumber) {
 
-		//Load the world
+		// Load the world
 		b = levelLoader.getLevel(levelNumber);
 
-		//Clean out all the inits
+		// Clean out all the inits
 		movingPiece = null;
 		movePath.clear();
 
-		//Clear the board stack
+		// Clear the board stack
 		boardStack.clear();
 		boardStack.add(b.encodePieces());
 
-		//Set up the state and move counter
+		// Set up the state and move counter
 		state = GameState.IDLE;
 		moveCounter = 0;
 
-		//Initialize the lasers
+		// Initialize the lasers
 		initializeLasers();
 
 	}
 
-	//Moves a piece, and handles changes
-	public void movePiece(){
+	// Moves a piece, and handles changes
+	public void movePiece() {
 
 		// Reset time on tile
 		timeSpentOnTile = 0;
@@ -234,8 +234,8 @@ public class GameEngine implements ApplicationListener {
 
 	}
 
-	//Updates the board after the piece has been moved
-	public boolean updateBoardState(){
+	// Updates the board after the piece has been moved
+	public boolean updateBoardState() {
 		// Check for piece destroyed
 
 		boolean piecesDestroyed = false;
@@ -255,8 +255,8 @@ public class GameEngine implements ApplicationListener {
 					removeLasersFromPiece(p);
 				}
 
-				//Indicate that a piece was destroyed
-				if (!destroyed.isEmpty()){
+				// Indicate that a piece was destroyed
+				if (!destroyed.isEmpty()) {
 					piecesDestroyed = true;
 				}
 
@@ -280,7 +280,7 @@ public class GameEngine implements ApplicationListener {
 				if (!p1.equals(p2)
 						&& p1.getColor() == p2.getColor()
 						&& (p1.getXCoord() == p2.getXCoord() || p1.getYCoord() == p2
-						.getYCoord())) {
+								.getYCoord())) {
 					int xStart = Math.min(p1.getXCoord(), p2.getXCoord());
 					int xFinish = Math.max(p1.getXCoord(), p2.getXCoord());
 					int yStart = Math.min(p1.getYCoord(), p2.getYCoord());
@@ -294,7 +294,7 @@ public class GameEngine implements ApplicationListener {
 			}
 		}
 	}
-	
+
 	// Simple method to paint a piece
 	public void paintPiece(Piece p) {
 
@@ -584,46 +584,34 @@ public class GameEngine implements ApplicationListener {
 
 		return false;
 	}
-	
-	//TODO: Remove hardcoding.  It's here for one specific reason and will be gone tomorrow.
+
+	// TODO: Remove hardcoding. It's here for one specific reason and will be
+	// gone tomorrow.
 	private boolean isWon() {
 		if (b.getNumGoalsFilled() != b.goalTiles.size()) {
 			return false;
 		}
-		
-		//TODO: The TwoTuple makes sense, but it's a sin.  I'll kill this tomorrow.
-		ArrayList<Integer> currentLasers = new ArrayList<Integer>();
-		int tempCount = 0;
-		
-		for(int i = 0; i < 10; i++) {
-			currentLasers.add(0);
-		}
-		
-		for(Laser l: b.lasers) {
-			tempCount = currentLasers.get(l.getColor().toIndex());
-			currentLasers.set(l.getColor().toIndex(), tempCount + 1);
-		}
 
-		TwoTuple<Color, Integer> current;
-		for(int i = 0; i < b.beamGoals.size(); i++) {
-			current = b.beamGoals.get(i);
-			if(current.second.intValue() != currentLasers.get(current.first.toIndex())) {
-				// The lasers condition is not met.
+		// TODO: The TwoTuple makes sense, but it's a sin. I'll kill this
+		// tomorrow.
+		for (TwoTuple<Color, Integer> target : b.beamGoals) {
+			if (target.second.intValue() != b.getLaserCount(target.first)) {
 				return false;
 			}
 		}
+
 		return true;
 	}
 
-	public static int getTicksPerTile(){
+	public static int getTicksPerTile() {
 		return timeOnTileBeforeMove;
 	}
 
-	public static int getTimeOnThisTile(){
+	public static int getTimeOnThisTile() {
 		return timeSpentOnTile;
 	}
-	
-	public static int getMoveCount(){
+
+	public static int getMoveCount() {
 		return moveCounter;
 	}
 

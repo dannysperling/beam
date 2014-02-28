@@ -16,17 +16,13 @@ public class Board {
 	private Piece[][] pieces;
 
 	public List<Laser> lasers = new ArrayList<Laser>();
-	
-	public EnumMap<GameEngine.Color, Integer> laserList = new EnumMap<GameEngine.Color, Integer>(
-			Color.class);
 
 	public List<Tile> goalTiles = new ArrayList<Tile>();
-
 
 	public int id; // ID in its levels file
 	public int par; // Optimal solution
 
-	public ArrayList<TwoTuple<Color,Integer>> beamGoals = new ArrayList<TwoTuple<Color,Integer>>();
+	public ArrayList<TwoTuple<Color, Integer>> beamGoals = new ArrayList<TwoTuple<Color, Integer>>();
 
 	private int tileSize;
 
@@ -75,10 +71,10 @@ public class Board {
 		this.pieces = p;
 		this.id = id;
 		this.par = par;
-		
-		for(int i = 0; i < t.length; i++) {
-			for(int j = 0; j < t[i].length; j++) {
-				if(this.tiles[i][j].hasGoal()) {
+
+		for (int i = 0; i < t.length; i++) {
+			for (int j = 0; j < t[i].length; j++) {
+				if (this.tiles[i][j].hasGoal()) {
 					goalTiles.add(this.tiles[i][j]);
 				}
 			}
@@ -90,29 +86,23 @@ public class Board {
 	 * colour. Suppying valid coordinates is YOUR PROBLEM NOT MINE.
 	 * 
 	 */
-	/*public Color setGoal(int x, int y, Color c) {
-		System.out.println("Board class setgoal called");
-		goalTiles.add(new Tile(x, y));
-		Color ret = tiles[x][y].getGoalColor();
-		tiles[x][y].setGoal(c);
-		return ret;
-	}
-
-	/**
-	 * Sets tile (X,Y) to have a goal of colour c. Returns the previous goal
-	 * colour. Suppying valid coordinates is YOUR PROBLEM NOT MINE.
+	/*
+	 * public Color setGoal(int x, int y, Color c) {
+	 * System.out.println("Board class setgoal called"); goalTiles.add(new
+	 * Tile(x, y)); Color ret = tiles[x][y].getGoalColor();
+	 * tiles[x][y].setGoal(c); return ret; }
 	 * 
+	 * /** Sets tile (X,Y) to have a goal of colour c. Returns the previous goal
+	 * colour. Suppying valid coordinates is YOUR PROBLEM NOT MINE.
 	 */
 	/*
-	public Color setPainter(int x, int y, Color c) {
-		System.out.println("Board class setpainter called");
-		Color ret = tiles[x][y].getPainterColor();
-		tiles[x][y].setPainter(c);
-		return ret;
-	}*/
+	 * public Color setPainter(int x, int y, Color c) {
+	 * System.out.println("Board class setpainter called"); Color ret =
+	 * tiles[x][y].getPainterColor(); tiles[x][y].setPainter(c); return ret; }
+	 */
 
 	public void addBeamGoal(Color c, int n) {
-		beamGoals.add(new TwoTuple<Color,Integer>(c,n));
+		beamGoals.add(new TwoTuple<Color, Integer>(c, n));
 	}
 
 	/**
@@ -216,19 +206,30 @@ public class Board {
 	public Piece getPieceOnTile(Tile t) {
 		return pieces[t.getXCoord()][t.getYCoord()];
 	}
-	
+
 	public boolean isGoalMet(Tile t) {
-		return getPieceOnTile(t) != null && getPieceOnTile(t).getColor() == t.getGoalColor();
+		return getPieceOnTile(t) != null
+				&& getPieceOnTile(t).getColor() == t.getGoalColor();
 	}
-	
+
 	public int getNumGoalsFilled() {
 		int goalsFilled = 0;
-		for(Tile t: goalTiles) {
-			if(isGoalMet(t)) {
+		for (Tile t : goalTiles) {
+			if (isGoalMet(t)) {
 				goalsFilled++;
 			}
 		}
 		return goalsFilled;
+	}
+
+	public int getLaserCount(GameEngine.Color C) {
+		int store = 0;
+		for (Laser l : lasers) {
+			if (l.getColor() == C) {
+				store++;
+			}
+		}
+		return store;
 	}
 
 	public List<Piece> getAllPieces() {
@@ -279,8 +280,7 @@ public class Board {
 	/**
 	 * Reverts the piece array to match a different state specified by the
 	 * shorts in the provided list, presumably and output
-	 * ofBoard.encodePieces(). 
-	 * Returns false if the encoding is not well formed
+	 * ofBoard.encodePieces(). Returns false if the encoding is not well formed
 	 */
 	public boolean resetPieces(Collection<Short> pieceList) {
 		try {
@@ -328,11 +328,14 @@ public class Board {
 		}
 		return ret;
 	}
-	
-	//find out if theres a beam at a piece
-	public boolean isPiecePartOfBeam(Piece p){
-		for(Laser l : lasers){
-			if((l.getXStart() == p.getXCoord() && l.getYStart() == p.getYCoord()) || (l.getXFinish() == p.getXCoord() && l.getYFinish() == p.getYCoord())){
+
+	// find out if theres a beam at a piece
+	public boolean isPiecePartOfBeam(Piece p) {
+		for (Laser l : lasers) {
+			if ((l.getXStart() == p.getXCoord() && l.getYStart() == p
+					.getYCoord())
+					|| (l.getXFinish() == p.getXCoord() && l.getYFinish() == p
+							.getYCoord())) {
 				return true;
 			}
 		}
