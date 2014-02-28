@@ -41,14 +41,15 @@ public class DrawGame {
 		int bx = b.getBotLeftX();
 		int by = b.getBotLeftY();
 		int tilesize = b.getTileSize();
-		Gdx.gl.glClearColor(.1f, .1f, .1f, 1);
+		Color curBG = new Color(.1f, .1f, .1f, 1);
 		if(state == GameState.DESTROYED){
-			Gdx.gl.glClearColor(.5f, 0, 0, 1);
+			curBG = new Color(.5f, 0, 0, 1);
 		}
 		if(state == GameState.WON){
-			Gdx.gl.glClearColor(0, 0.3f, 0, 1);
+			curBG = new Color(0, 0.3f, 0, 1);
 		}
-			
+		Gdx.gl.glClearColor(curBG.r, curBG.g, curBG.b, 1);
+
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		List<Piece> pieces = b.getAllPieces();
 		List<Tile> tiles = b.getAllTiles();
@@ -56,6 +57,7 @@ public class DrawGame {
 		//Draw the basic grid
 		shapes.begin(ShapeType.Line);
 		shapes.setColor(Color.WHITE);
+		Gdx.gl.glLineWidth(1);
 		for(int i = 0; i <= b.getNumHorizontalTiles(); i++){
 			shapes.line(bx + (i * tilesize), by, bx + (i * tilesize), by + (b.getNumVerticalTiles() * tilesize));
 		}
@@ -79,6 +81,10 @@ public class DrawGame {
 				shapes.line(glassX + (0.5f * tilesize), glassY + tilesize, glassX + tilesize, glassY + (0.5f * tilesize));
 				shapes.line(glassX + (0.75f * tilesize), glassY + tilesize, glassX + tilesize, glassY + (0.75f * tilesize));
 			}
+		}
+		shapes.end();
+		shapes.begin(ShapeType.Filled);
+		for(Tile t: tiles){
 			if(t.hasGoal()){
 				int goalX = bx + (t.getXCoord() * tilesize);
 				int goalY = by + (t.getYCoord() * tilesize);
@@ -89,6 +95,8 @@ public class DrawGame {
 				default: shapes.setColor(new Color(0,0,0,0)); break;
 				}
 				shapes.rect(goalX + (0.05f * tilesize), goalY + (0.05f * tilesize), 0.9f * tilesize,  0.9f * tilesize);
+				shapes.setColor(curBG);
+				shapes.rect(goalX + (0.15f * tilesize), goalY + (0.15f * tilesize), 0.7f * tilesize,  0.7f * tilesize);
 			}
 		}
 		shapes.end();
