@@ -98,7 +98,7 @@ public class DrawGame {
 
 		//Draw Paths 
 		List<Tile> path = GameEngine.movePath;
-		float animateTime = ((float)(GameEngine.getTimeOnThisTile()))/(GameEngine.getTicksPerTile());
+		float animateTime = 0;//((float)(GameEngine.getTimeOnThisTile()))/(GameEngine.getTicksPerTile());
 		shapes.begin(ShapeType.Filled);
 		shapes.setColor(new Color(.9f, .9f, .2f, 1f));
 		for(int i = 0; i < path.size(); i++){
