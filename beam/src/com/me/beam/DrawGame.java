@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -19,12 +21,15 @@ public class DrawGame {
 	private Texture pieceTexture;
 	private Sprite pieceSprite;
 	private ShapeRenderer shapes;
+	private BitmapFont font;
 
 	public DrawGame(){
 		batch = new SpriteBatch();
 
 		pieceTexture = new Texture(Gdx.files.internal("data/piece.png"));
 		pieceTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		
+		font = new BitmapFont();
 
 		TextureRegion region = new TextureRegion(pieceTexture, 0, 0, 256, 256);
 
@@ -188,8 +193,21 @@ public class DrawGame {
 			}
 		}
 		shapes.end();
-
-
+		
+		//Draw the buttons
+		batch.begin();
+		font.setColor(Color.WHITE);
+		
+		int width = Gdx.graphics.getWidth();
+		int height = Gdx.graphics.getHeight();
+		TextBounds tb = font.getBounds("UNDO");
+		
+		float textHeight = height * Menu.buttonBotY + (Menu.buttonHeight * height + tb.height)/2;
+		font.draw(batch, "UNDO", Menu.undoButtonLeftX * width + (Menu.undoButtonWidth * width - tb.width)/2, textHeight);
+		font.draw(batch, "RESET", Menu.resetButtonLeftX * width + (Menu.resetButtonWidth * width - tb.width)/2, textHeight);
+		font.draw(batch, "REDO", Menu.redoButtonLeftX * width + (Menu.redoButtonWidth * width - tb.width)/2, textHeight);
+		
+		batch.end();
 
 	}
 

@@ -5,8 +5,8 @@ import com.badlogic.gdx.Gdx;
 public class Menu {
 
 	//Measured in terms of percentage of screen
-	static final float buttonBotY = GameEngine.botBarSize*0.1f;
-	static final float buttonHeight = GameEngine.botBarSize*0.8f;
+	static final float buttonBotY = GameEngine.botBarSize*0.2f;
+	static final float buttonHeight = GameEngine.botBarSize*0.7f;
 
 	//Undo first
 	static final float undoButtonLeftX = 0.02f;
