@@ -71,9 +71,9 @@ e,goal_3:3,e
 1:goal_2,e,2:goal_1
 </level>
 
-The next level is unfinished.
 <level id=10 par=6>
 <beamGoal color=1 count=0/>
+<beamGoal color=2 count=0/>
 1,e,e,1
 e,2,2,e
 e,2,2,e
@@ -128,3 +128,4 @@ e,goal_2,1:goal_2,glass
 glass,1:goal_2,1:goal_2,e
 2:goal_1,e,glass,2:goal_1
 </level>
+
