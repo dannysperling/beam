@@ -83,6 +83,7 @@ public class Board {
 	 * 
 	 */
 	public Color setGoal(int x, int y, Color c) {
+		System.out.println("Board class setgoal called");
 		goalTiles.add(new Tile(x, y));
 		Color ret = tiles[x][y].getGoalColor();
 		tiles[x][y].setGoal(c);
@@ -95,6 +96,7 @@ public class Board {
 	 * 
 	 */
 	public Color setPainter(int x, int y, Color c) {
+		System.out.println("Board class setpainter called");
 		Color ret = tiles[x][y].getPainterColor();
 		tiles[x][y].setPainter(c);
 		return ret;

@@ -99,8 +99,10 @@ public class LevelLoader implements Iterable<Board> {
 						break;
 					}
 					if (s.startsWith("goal_")) {
+						System.out.println("Goal found");
 						t.setGoal(Color.lookup(Integer.parseInt(s
 								.substring("goal_".length()))));
+						System.out.println("Goal was found");
 					} else if (s.startsWith("painter_")) {
 						t.setPainter(Color.lookup(Integer.parseInt(s
 								.substring("painter_".length()))));
