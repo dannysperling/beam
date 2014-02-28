@@ -144,3 +144,12 @@ e,glass,2,glass,e
 e,2,glass,1,e
 3:goal_1,e,e,e,3:goal_2
 </level>
+
+<level id=19 par=14>
+glass,3,e,3,glass
+glass,e,e,e,glass
+1,e,glass,e,1
+goal_2,glass,1,glass,2
+glass,2,2,2,glass
+3,e,e,e,3
+</level>
