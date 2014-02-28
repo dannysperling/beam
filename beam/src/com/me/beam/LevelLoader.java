@@ -152,7 +152,6 @@ public class LevelLoader implements Iterable<Board> {
 			}
 		}
 		return null;
-
 	}
 
 	private void debug(String s) {

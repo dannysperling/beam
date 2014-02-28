@@ -7,6 +7,9 @@ import java.util.List;
 import com.badlogic.gdx.ApplicationListener;
 
 public class GameEngine implements ApplicationListener {
+	// Enter the levelID you want to play here:
+	private int currentLevel = 0;
+
 	// Simple Objects for now
 	private Board b;
 	private DrawGame dg;
@@ -15,13 +18,8 @@ public class GameEngine implements ApplicationListener {
 
 	private static int moveCounter = 0;
 
-	private int currentLevel = 0;
-	public static final int NUM_LEVELS = 18;
-
-
 	public static Piece movingPiece = null;
 	public static List<Tile> movePath = new ArrayList<Tile>();
-
 	private static List<Collection<Short>> boardStack = new ArrayList<Collection<Short>>();
 
 	// Animation constants in ticks
@@ -99,7 +97,7 @@ public class GameEngine implements ApplicationListener {
 			
 			// Increase level. Should be done elsewhere in non-proto version
 			if (state == GameState.WON && button == ButtonPress.WON){
-				currentLevel = Math.min(currentLevel + 1, NUM_LEVELS);
+				currentLevel++;
 				loadLevel(currentLevel);
 				pushedButton = true;
 			}
@@ -199,6 +197,11 @@ public class GameEngine implements ApplicationListener {
 
 		//Load the world
 		b = levelLoader.getLevel(levelNumber);
+		if (b == null) {
+			//TODO: fail correctly when the game is out of levels.
+			System.out.println("No further levels exist.");
+			System.exit(1);
+		}
 
 		//Clean out all the inits
 		movingPiece = null;

@@ -69,13 +69,13 @@ e,glass,2,glass
 3:goal_3,e,goal_1,e
 </level>
 
-<level id=9 par=7>
+<level id=10 par=7>
 2:goal_1,e,goal_2:1
 e,goal_3:3,e
 1:goal_2,e,2:goal_1
 </level>
 
-<level id=10 par=6>
+<level id=11 par=6>
 <beamGoal color=1 count=0/>
 <beamGoal color=2 count=0/>
 1,e,e,1
@@ -84,7 +84,7 @@ e,2,2,e
 1,e,e,1
 </level>
 
-<level id=11 par=7>
+<level id=12 par=7>
 <beamGoal color=1 count=12/>
 2,e,e,e,2
 e,1,e,1,e
@@ -93,14 +93,14 @@ e,1,e,1,e
 2,e,e,e,2
 </level>
 
-<level id=12 par=6>
+<level id=13 par=6>
 1:goal_1,1,goal_1
 2,e,2
 glass,e,glass
 goal_1,1,1:goal_1
 </level>
 
-<level id=13 par=5>
+<level id=14 par=5>
 <beamGoal color=2 count=8/>
 glass,glass,1,glass,1
 glass,glass,glass,glass,glass
@@ -109,7 +109,7 @@ glass,glass,glass,glass,glass
 2,glass,painter_2,2,painter_1
 </level>
 
-<level id=14 par=9>
+<level id=15 par=9>
 2,glass,e,e,2,3
 glass,glass,glass,e,glass,2
 e,2,e,1,glass,e
@@ -118,7 +118,7 @@ e,glass,glass,2,glass,2
 goal_3,1,e,e,2,glass
 </level>
 
-<level id=15 par=12>
+<level id=16 par=12>
 3,glass,e,glass,e,glass,3
 e,goal_1,glass,2,glass,goal_1,e
 e,glass,1,e,1,glass,e
@@ -128,10 +128,19 @@ e,goal_1,glass,2,glass,goal_1,e
 3,glass,e,glass,e,glass,3
 </level>
 
-<level id=16 par=14>
+<level id=17 par=14>
 2,glass,e,2:goal_1
 e,goal_2,1:goal_2,glass
 glass,1:goal_2,1:goal_2,e
 2:goal_1,e,glass,2:goal_1
 </level>
 
+<level id=18 par=50>
+3:goal_1,e,e,e,3:goal_2
+e,2,glass,1,e
+e,glass,1,glass,e
+e,glass,3,glass,e
+e,glass,2,glass,e
+e,2,glass,1,e
+3:goal_1,e,e,e,3:goal_2
+</level>
