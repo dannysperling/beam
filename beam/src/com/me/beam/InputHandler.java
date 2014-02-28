@@ -1,6 +1,7 @@
 package com.me.beam;
 
 import com.badlogic.gdx.Gdx;
+import com.me.beam.GameEngine.GameState;
 
 public class InputHandler {
 
@@ -94,7 +95,8 @@ public class InputHandler {
 					returnedButton = GameEngine.ButtonPress.NONE;
 				}
 			} else {
-				returnedButton = GameEngine.ButtonPress.NONE;
+				//returnedButton = GameEngine.ButtonPress.NONE;
+				returnedButton = GameEngine.ButtonPress.WON;
 			}
 			//Rest lastX and LastY
 			lastX = -1;
