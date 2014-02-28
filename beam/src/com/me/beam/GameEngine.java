@@ -97,7 +97,7 @@ public class GameEngine implements ApplicationListener {
 			}
 
 			// Increase level. Should be done elsewhere in non-proto version
-			if (state == GameState.WON && button == ButtonPress.WON){
+			if (state == GameState.WON && button == ButtonPress.WON) {
 				currentLevel++;
 				loadLevel(currentLevel);
 				pushedButton = true;
@@ -199,7 +199,7 @@ public class GameEngine implements ApplicationListener {
 		// Load the world
 		b = levelLoader.getLevel(levelNumber);
 		if (b == null) {
-			//TODO: fail correctly when the game is out of levels.
+			// TODO: fail correctly when the game is out of levels.
 			System.out.println("No further levels exist.");
 			System.exit(1);
 		}
@@ -589,21 +589,16 @@ public class GameEngine implements ApplicationListener {
 		return false;
 	}
 
-	// TODO: Remove hardcoding. It's here for one specific reason and will be
-	// gone tomorrow.
 	private boolean isWon() {
 		if (b.getNumGoalsFilled() != b.goalTiles.size()) {
 			return false;
 		}
 
-		// TODO: The TwoTuple makes sense, but it's a sin. I'll kill this
-		// tomorrow.
-		for (TwoTuple<Color, Integer> target : b.beamGoals) {
-			if (target.second.intValue() != b.getLaserCount(target.first)) {
+		for (Color c : b.getBeamObjectiveSet()) {
+			if (b.getLaserCount(c) != b.getBeamObjectiveCount(c)) {
 				return false;
 			}
 		}
-
 		return true;
 	}
 

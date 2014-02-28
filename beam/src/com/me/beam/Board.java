@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.badlogic.gdx.Gdx;
 import com.me.beam.GameEngine.Color;
@@ -22,7 +23,8 @@ public class Board {
 	public int id; // ID in its levels file
 	public int par; // Optimal solution
 
-	public ArrayList<TwoTuple<Color, Integer>> beamGoals = new ArrayList<TwoTuple<Color, Integer>>();
+	private EnumMap<Color, Integer> beamObjectives = new EnumMap<Color, Integer>(
+			Color.class);
 
 	private int tileSize;
 
@@ -81,28 +83,16 @@ public class Board {
 		}
 	}
 
-	/**
-	 * Sets tile (X,Y) to have a goal of colour c. Returns the previous goal
-	 * colour. Suppying valid coordinates is YOUR PROBLEM NOT MINE.
-	 * 
-	 */
-	/*
-	 * public Color setGoal(int x, int y, Color c) {
-	 * System.out.println("Board class setgoal called"); goalTiles.add(new
-	 * Tile(x, y)); Color ret = tiles[x][y].getGoalColor();
-	 * tiles[x][y].setGoal(c); return ret; }
-	 * 
-	 * /** Sets tile (X,Y) to have a goal of colour c. Returns the previous goal
-	 * colour. Suppying valid coordinates is YOUR PROBLEM NOT MINE.
-	 */
-	/*
-	 * public Color setPainter(int x, int y, Color c) {
-	 * System.out.println("Board class setpainter called"); Color ret =
-	 * tiles[x][y].getPainterColor(); tiles[x][y].setPainter(c); return ret; }
-	 */
+	public void addBeamObjective(Color c, int n) {
+		beamObjectives.put(c, n);
+	}
 
-	public void addBeamGoal(Color c, int n) {
-		beamGoals.add(new TwoTuple<Color, Integer>(c, n));
+	public Set<Color> getBeamObjectiveSet() {
+		return beamObjectives.keySet();
+	}
+
+	public int getBeamObjectiveCount(Color c) {
+		return beamObjectives.get(c);
 	}
 
 	/**

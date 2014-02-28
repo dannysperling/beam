@@ -297,23 +297,19 @@ public class DrawGame {
 		batch.end();
 
 		// Drawing progress towards level objectives
-		// TODO: Update when laser identification isn't stupid
 		batch.begin();
 		String toPrint;
-		if (b.beamGoals.isEmpty()) {
+		if (b.getBeamObjectiveSet().isEmpty()) {
 			toPrint = b.getNumGoalsFilled() + " out of " + b.goalTiles.size()
 					+ " goals filled.";
 		} else {
 			int beamObjective = 0;
 			int curLaserCount = 0;
-			GameEngine.Color beamColor = GameEngine.Color.NONE;
 
-			for (TwoTuple<GameEngine.Color, Integer> tuple : b.beamGoals) {
-				beamObjective += tuple.second;
-				beamColor = tuple.first;
-				curLaserCount += b.getLaserCount(beamColor);
+			for (GameEngine.Color c : b.getBeamObjectiveSet()) {
+				beamObjective += b.getBeamObjectiveCount(c);
+				curLaserCount += b.getLaserCount(c);
 			}
-
 			toPrint = curLaserCount + " out of " + beamObjective + " lasers.";
 		}
 

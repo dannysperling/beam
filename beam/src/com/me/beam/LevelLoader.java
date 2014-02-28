@@ -125,9 +125,9 @@ public class LevelLoader implements Iterable<Board> {
 		Pattern pat = Pattern.compile("<beamGoal\\s*color=(\\d+)\\s*count=(\\d+)/>");
 		Matcher mat = pat.matcher(group);
 		while (mat.find()){
-			Color colour = Color.lookup(Integer.parseInt(mat.group(1)));
+			Color color = Color.lookup(Integer.parseInt(mat.group(1)));
 			int count = Integer.parseInt(mat.group(2));
-			b.addBeamGoal(colour, count);
+			b.addBeamObjective(color, count);
 		}
 		
 	}
