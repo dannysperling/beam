@@ -154,7 +154,7 @@ glass,2,2,2,glass
 3,e,e,e,3
 </level>
 
-<level id=20 par=100>
+<level id=20 par=6>
 <beamGoal color=2 count=7/>
 glass,glass,1,glass,glass
 e,3,e,2,glass
