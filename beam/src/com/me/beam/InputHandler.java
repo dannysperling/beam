@@ -44,31 +44,25 @@ public class InputHandler {
 					Tile source = GameEngine.movePath.get(GameEngine.movePath
 							.size() - 1);
 					Tile destination = b.getTileAtClickPosition(getX(), getY());
+
+					// If the destination is on the path, short circuit the
+					// path.
+					int i = GameEngine.movePath.indexOf(destination);
+					if (i != -1) {
+						GameEngine.movePath = GameEngine.movePath.subList(0,
+								i + 1);
+						return GameEngine.GameState.DECIDING;
+					}
+
 					Tile intervening = findValidDiagonal(b, source, destination);
 					if (isValidMove(b, source, destination)) {
-						int i = GameEngine.movePath.indexOf(destination);
-						// If the current tile isn't on the path, add it.
-						// Otherwise, short circuit the path.
-						if (i == -1) {
-							GameEngine.movePath.add(destination);
-						} else {
-							GameEngine.movePath = GameEngine.movePath.subList(
-									0, i + 1);
-						}
-						/* If the proposed move isn't legal, change nothing */
-						return GameEngine.GameState.DECIDING;
+						GameEngine.movePath.add(destination);
 					} else if (intervening != null) {
-						int i = GameEngine.movePath.indexOf(destination);
-						// If the current tile isn't on the path, add it.
-						// Otherwise, short circuit the path.
-						if (i == -1) {
-							GameEngine.movePath.add(intervening);
-							GameEngine.movePath.add(destination);
-						} else {
-							GameEngine.movePath = GameEngine.movePath.subList(
-									0, i + 1);
-						}
+						GameEngine.movePath.add(intervening);
+						GameEngine.movePath.add(destination);
 					}
+					
+					return GameEngine.GameState.DECIDING;
 				}
 				/* If the proposed move is off the board, change nothing */
 				else {
