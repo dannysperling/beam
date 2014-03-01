@@ -128,7 +128,7 @@ e,goal_1,glass,2,glass,goal_1,e
 3,glass,e,glass,e,glass,3
 </level>
 
-<level id=17 par=14>
+<level id=17 par=13>
 2,glass,e,2:goal_1
 e,goal_2,1:goal_2,glass
 glass,1:goal_2,1:goal_2,e

@@ -8,7 +8,7 @@ import com.badlogic.gdx.ApplicationListener;
 
 public class GameEngine implements ApplicationListener {
 	// Enter the levelID you want to play here:
-	private int currentLevel = 0;
+	private int currentLevel = 17;
 
 	// Simple Objects for now
 	private Board b;
@@ -33,7 +33,7 @@ public class GameEngine implements ApplicationListener {
 
 	public enum ButtonPress {
 		UNDO, RESET, REDO, NONE, WON // Note: WON should not exist in non-proto
-										// version
+		// version
 	}
 
 	public enum Color {
@@ -190,7 +190,10 @@ public class GameEngine implements ApplicationListener {
 		movePath.clear();
 		timeSpentOnTile = 0;
 		initializeLasers();
-		state = GameState.IDLE;
+		if (isWon())
+			state = GameState.WON;
+		else 
+			state = GameState.IDLE;
 	}
 
 	// Loads a level, and handles initializations
@@ -281,19 +284,38 @@ public class GameEngine implements ApplicationListener {
 		b.lasers.clear();
 		for (Piece p1 : b.getAllPieces()) {
 			for (Piece p2 : b.getAllPieces()) {
-				if (!p1.equals(p2)
-						&& p1.getColor() == p2.getColor()
-						&& (p1.getXCoord() == p2.getXCoord() || p1.getYCoord() == p2
-								.getYCoord())) {
+				if (!p1.equals(p2) && p1.getColor() == p2.getColor()){
+					boolean laserFormed = true;
 					int xStart = Math.min(p1.getXCoord(), p2.getXCoord());
 					int xFinish = Math.max(p1.getXCoord(), p2.getXCoord());
 					int yStart = Math.min(p1.getYCoord(), p2.getYCoord());
 					int yFinish = Math.max(p1.getYCoord(), p2.getYCoord());
-					Laser l = new Laser(xStart, yStart, xFinish, yFinish,
-							p1.getColor());
-
-					if (!b.lasers.contains(l))
-						b.lasers.add(l);
+					
+					//Check for intermediary pieces
+					if (p1.getXCoord() == p2.getXCoord()){
+						for (int y = yStart + 1; y < yFinish; y++){
+							if (b.getPieceOnTile(b.getTileAtBoardPosition(xStart, y)) != null){
+								laserFormed = false;
+							}
+						}
+					} else if (p1.getYCoord() == p2.getYCoord()){
+						for (int x = xStart + 1; x < xFinish; x++){
+							if (b.getPieceOnTile(b.getTileAtBoardPosition(x, yStart)) != null){
+								laserFormed = false;
+							}
+						}
+					} 
+					//If not connected at all, no lasers
+					else {
+						laserFormed = false;
+					}
+					
+					if (laserFormed){
+						Laser l = new Laser(xStart, yStart, xFinish, yFinish, p1.getColor());
+	
+						if (!b.lasers.contains(l))
+							b.lasers.add(l);
+					}
 				}
 			}
 		}
