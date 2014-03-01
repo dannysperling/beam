@@ -135,7 +135,7 @@ glass,1:goal_2,1:goal_2,e
 2:goal_1,e,glass,2:goal_1
 </level>
 
-<level id=18 par=15>
+<level id=18 par=11>
 3:goal_1,e,e,e,3:goal_2
 e,2,glass,1,e
 e,glass,1,glass,e
