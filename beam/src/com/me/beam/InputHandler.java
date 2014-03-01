@@ -58,10 +58,17 @@ public class InputHandler {
 					if (isValidMove(b, source, destination)) {
 						GameEngine.movePath.add(destination);
 					} else if (intervening != null) {
-						GameEngine.movePath.add(intervening);
-						GameEngine.movePath.add(destination);
+						i = GameEngine.movePath.indexOf(intervening);
+						if (i != -1) {
+							GameEngine.movePath = GameEngine.movePath.subList(
+									0, i + 1);
+							GameEngine.movePath.add(destination);
+						} else {
+							GameEngine.movePath.add(intervening);
+							GameEngine.movePath.add(destination);
+						}
 					}
-					
+
 					return GameEngine.GameState.DECIDING;
 				}
 				/* If the proposed move is off the board, change nothing */
