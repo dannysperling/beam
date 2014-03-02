@@ -190,3 +190,13 @@ glass,e,2,3,e
 e,3,1,e,glass
 glass,glass,glass,e,e
 </level>
+
+<level id=24 par=4>
+<beamGoal color=1 count=2/>
+<beamGoal color=2 count=2/>
+1,glass,2,painter_1
+painter_2,e,glass,e
+3,glass,3,e
+painter_1,e,glass,e
+2,glass,1,painter_2
+</level>
