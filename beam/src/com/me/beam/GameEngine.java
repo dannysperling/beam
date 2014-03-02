@@ -8,7 +8,7 @@ import com.badlogic.gdx.ApplicationListener;
 
 public class GameEngine implements ApplicationListener {
 	// Enter the levelID you want to play here:
-	private int currentLevel = 0;
+	private int currentLevel = 21;
 
 	// Simple Objects for now
 	private Board b;
