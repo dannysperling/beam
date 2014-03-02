@@ -31,7 +31,6 @@ public class Tile {
 	}
 	
 	public void setGoal(GameEngine.Color goal){
-		System.out.println("Tile setGoal called");
 		this.goal = goal;
 	}
 	

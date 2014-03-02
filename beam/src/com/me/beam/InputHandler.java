@@ -48,7 +48,7 @@ public class InputHandler {
 					// If the destination is on the path, short circuit the
 					// path.
 					int i = GameEngine.movePath.indexOf(destination);
-					if (i != -1) {
+					if (i != -1 && i != GameEngine.movePath.size() - 1) {
 						GameEngine.movePath = GameEngine.movePath.subList(0,
 								i + 1);
 						return GameEngine.GameState.DECIDING;
