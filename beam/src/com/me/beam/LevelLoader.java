@@ -14,8 +14,8 @@ public class LevelLoader implements Iterable<Board> {
 	private String file;
 	private ArrayList<Integer> ids = new ArrayList<Integer>();
 	private String FULL_LEVEL_REGEX = "(<level id=(\\d+) par=(\\d+)>)[\\s]+"
-			+ "(<beamGoal color=(\\d+) count=(\\d+)/>)*[\\s]+"
-			+ "((.*\\n)+?)" + "(</level>)";
+			//+ "(<beamGoal color=(\\d+) count=(\\d+)/>)*[\\s]+"
+			+ "((.*\\n)+?)(</level>)";
 	//Regex groups because named capture isn't supported on Android
 	private static final int IDgroup = 2;
 	private static final int PARgroup = 3;
@@ -35,7 +35,7 @@ public class LevelLoader implements Iterable<Board> {
 	private void getIds() {
 		FileHandle fh = Gdx.files.internal(file);
 		String text = fh.readString();
-		Pattern pat = Pattern.compile("id=(\\d)");
+		Pattern pat = Pattern.compile("id=(\\d+)");
 		Matcher match = pat.matcher(text);
 		while (match.find()) {
 			ids.add(Integer.parseInt(match.group(1)));
@@ -67,7 +67,7 @@ public class LevelLoader implements Iterable<Board> {
 	//Abandon hope, all ye who try and read this
 	private Board buildBoard(String spec) {
 		Pattern pat = Pattern.compile(FULL_LEVEL_REGEX, Pattern.UNIX_LINES);
-		Matcher match = pat.matcher(spec);
+		Matcher match = pat.matcher(spec.trim());
 		if (!match.matches()) {
 			debug("Regex doesn't match");
 			return null;
