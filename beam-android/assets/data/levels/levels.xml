@@ -182,7 +182,7 @@ glass,2,1,e
 3,e,e,3
 </level>
 
-<level id=23 par=17>
+<level id=23 par=15>
 e,e,glass,glass,glass
 glass,e,2,3,e
 1:goal_3,glass,e,glass,1
