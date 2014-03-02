@@ -1,0 +1,16 @@
+<level id=1 par=6>
+3,e,e,3
+e,2,1,glass
+goal_1,glass,glass,goal_2
+glass,2,1,e
+3,e,e,3
+</level>
+
+<level id=2 par=12>
+e,e,glass,glass,glass
+glass,e,2,3,e
+1:goal_3,glass,e,glass,1
+2,glass,e,glass,2:goal_3
+e,3,1,e,glass
+glass,glass,glass,e,e
+</level>
