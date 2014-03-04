@@ -46,7 +46,6 @@ e,1,2,glass
 2,e,e,2
 glass,e,2,1
 glass,1,e,3
-<attribution name="" author="Mike" />
 </level>level>
 
 <level id=7 par=1>
@@ -61,7 +60,6 @@ e,goal_3,e
 glass,e
 1,e
 goal_2,painter_2
-<attribution name="" author="John" />
 </level>
 
 <level id=9 par=7>
@@ -69,7 +67,6 @@ e,glass,1,glass
 goal_2,1,glass,2
 e,glass,2,glass
 3:goal_3,e,goal_1,e
-<attribution name="" author="Danny" />
 </level>
 
 <level id=10 par=7>
@@ -85,7 +82,6 @@ e,goal_3:3,e
 e,2,2,e
 e,2,2,e
 1,e,e,1
-<attribution name="Beamless I" author="Ryan" />
 </level>
 
 <level id=12 par=7>
@@ -95,7 +91,6 @@ e,1,e,1,e
 e,e,painter_1,e,2
 e,1,e,1,e
 2,e,e,e,2
-<attribution name="Redbox" author="Ryan" />
 </level>
 
 <level id=13 par=6>
@@ -103,7 +98,6 @@ e,1,e,1,e
 2,e,2
 glass,e,glass
 goal_1,1,1:goal_1
-<attribution name="Jelly Donut" author="Ryan" />
 </level>
 
 <level id=14 par=5>
@@ -113,7 +107,6 @@ glass,glass,glass,glass,glass
 2,glass,painter_1,1,painter_1
 2,glass,2,e,1
 2,glass,painter_2,2,painter_1
-<attribution name="Nightlight" author="Ryan" />
 </level>
 
 <level id=15 par=9>
@@ -123,7 +116,6 @@ e,2,e,1,glass,e
 e,glass,glass,2,glass,2
 2,glass,glass,e,glass,1
 goal_3,1,e,e,2,glass
-<attribution name="Snake Charmer" author="Ryan" />
 </level>
 
 <level id=16 par=12>
@@ -134,7 +126,6 @@ e,2,e,2,e,2,e
 e,glass,1,e,1,glass,e
 e,goal_1,glass,2,glass,goal_1,e
 3,glass,e,glass,e,glass,3
-<attribution name="Compartment" author="Ryan" />
 </level>
 
 <level id=17 par=13>
@@ -162,7 +153,6 @@ glass,e,e,e,glass
 goal_2,glass,1,glass,2
 glass,2,2,2,glass
 3,e,e,e,3
-<attribution name="Angry Frog" author="Ryan" />
 </level>
 
 <level id=20 par=6>
@@ -172,7 +162,6 @@ e,3,e,2,glass
 1,e,painter_2,e,1
 glass,2,e,3,e
 glass,glass,1,glass,glass
-<attribution name="Color Wheel" author="Ryan" />
 </level>
 
 <level id=21 par=8>
@@ -184,7 +173,6 @@ e,3,glass,3,e
 e,glass,2,glass,3
 e,3,glass,3,e
 e,painter_1,e,e,e
-<attribution name="Turnstile" author="Ryan" />
 </level>
 
 <level id=22 par=4>
@@ -195,7 +183,6 @@ painter_2,e,glass,e
 3,glass,3,e
 painter_1,e,glass,e
 2,glass,1,painter_2
-<attribution name="" author="Danny" />
 </level>
 
 <level id=23 par=6>
@@ -206,5 +193,12 @@ glass,e,e,3,glass
 glass,3,painter_1,e,glass
 2,glass,2,glass,2
 e,3,glass,3,e
-<attribution name="" author="Danny" />
+</level>
+
+<level id=24 par=100>
+<beamGoal color=3 count=0 />
+2,painter_1,painter_1,2
+painter_1,3,3,e
+painter_1,3,3,e
+2,e,e,1
 </level>
