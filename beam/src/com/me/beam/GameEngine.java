@@ -71,7 +71,7 @@ public class GameEngine implements ApplicationListener {
 	@Override
 	public void create() {
 
-		levelLoader = new LevelLoader("data/levels/levels.xml");
+		levelLoader = new LevelLoader("data/levels/levels.xml", "data/levels/levelOrder.txt");
 		loadLevel(currentLevel);
 
 		dg = new DrawGame();

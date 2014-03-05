@@ -20,20 +20,38 @@ public class LevelLoader implements Iterable<Board> {
 	private static final int IDgroup = 2;
 	private static final int PARgroup = 3;
 	private static final int PERFECTgroup = 4;
+	
+	private String fileOrder;
 
 	/**
 	 * Create a LeveLoader for the given file. Any FileNotFound or IO exceptions
 	 * are returned to the caller.
 	 * 
 	 * @param fn
-	 *            The path to the file
+	 *            The path to the level file
+	 * @param fon
+	 * 			  The path to the fileOrder file
 	 */
-	public LevelLoader(String fn) {
+	public LevelLoader(String fn, String fon) {
 		file = fn;
+		fileOrder = fon;
 		getIds();
 	}
 
 	private void getIds() {
+		FileHandle fh = Gdx.files.internal(fileOrder);
+		String text = fh.readString();
+		Pattern pat = Pattern.compile("(\\d+)");
+		Matcher match = pat.matcher(text);
+		while (match.find()) {
+			ids.add(Integer.parseInt(match.group(1)));
+		}
+		debug(ids.size() + " levels found:");
+		debug("\t" + ids.toString());
+	}
+	
+	//Old version
+	/*private void getIds() {
 		FileHandle fh = Gdx.files.internal(file);
 		String text = fh.readString();
 		Pattern pat = Pattern.compile("id=(\\d+)");
@@ -43,7 +61,7 @@ public class LevelLoader implements Iterable<Board> {
 		}
 		debug(ids.size() + " levels found:");
 		debug("\t" + ids.toString());
-	}
+	}*/
 
 	/**
 	 * Load the level from file with the given id
@@ -54,7 +72,16 @@ public class LevelLoader implements Iterable<Board> {
 	 */
 	public Board getLevel(int id) {
 		debug("Looking for level " + id);
-		String spec = findLevelByID(id);
+		
+		//Map the level to its new id
+		int mappedId;
+		try{
+			mappedId = ids.get(id);
+		} catch (IndexOutOfBoundsException e){
+			return null;
+		}
+		
+		String spec = findLevelByID(mappedId);
 		debug("Level spec: \n" + spec);
 		if (spec == null)
 			return null;
