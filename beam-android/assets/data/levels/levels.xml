@@ -1,5 +1,5 @@
 <level id=0 par=12 perfect=2>
-<attribution name="" author=""/>
+<attribution name="Beam 101" author="Johns"/>
 e,1,e
 2,e,2
 e,e,e
@@ -252,7 +252,7 @@ e,2,e,e,e
 3,e,e,3,1
 </level>
 
-<level id=27 par=32 perfect=19>
+<level id=27 par=32 perfect=18>
 <attribution name="" author="Mike"/>
 3,3,2,2
 glass,glass,e,glass
