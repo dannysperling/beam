@@ -7,7 +7,7 @@ e,goal_1,e
 </level>
 
 <level id=1 par=3 perfect=2>
-<attribution name="" author=""/>
+<attribution name="Building Beams" author="Danny?"/>
 <beamGoal color=1 count=4/>
 e,e,e,1
 e,e,1,e
@@ -23,7 +23,7 @@ glass,1:goal_2,glass
 </level>
 
 <level id=3 par=10 perfect=8>
-<attribution name="" author=""/>
+<attribution name="Simplicity Incarnate" author="Danny"/>
 goal_2,2,2,goal_2
 2,goal_1,goal_1,1
 2,goal_1,goal_1,1
@@ -31,14 +31,14 @@ goal_2,1,1,goal_2
 </level>
 
 <level id=4 par=6 perfect=4>
-<attribution name="" author=""/>
+<attribution name="Watch your step" author="Danny"/>
 2,e,e,1
 1,1,2,2
 goal_1,2,1,goal_2
 </level>
 
 <level id=5 par=7 perfect=4>
-<attribution name="" author=""/>
+<attribution name="Step in the goal" author="Danny?"/>
 glass,3,glass
 1,e,1
 glass,e,glass
@@ -47,7 +47,7 @@ glass,goal_3,glass
 </level>
 
 <level id=6 par=7 perfect=4>
-<attribution name="" author=""/>
+<attribution name="" author="Mike"/>
 goal_3,e,e,glass
 e,1,2,glass
 2,e,e,2
@@ -72,7 +72,7 @@ goal_2,painter_2
 </level>
 
 <level id=9 par=9 perfect=7>
-<attribution name="" author=""/>
+<attribution name="Trapped in Glass" author="Danny"/>
 e,glass,1,glass
 goal_2,1,glass,2
 e,glass,2,glass
@@ -197,7 +197,7 @@ e,painter_1,e,e,e
 </level>
 
 <level id=22 par=5 perfect=4>
-<attribution name="" author=""/>
+<attribution name="Reverse Symmetry" author="Danny"/>
 <beamGoal color=1 count=2/>
 <beamGoal color=2 count=2/>
 1,glass,2,painter_1
@@ -208,7 +208,7 @@ painter_1,e,glass,e
 </level>
 
 <level id=23 par=8 perfect=6>
-<attribution name="" author=""/>
+<attribution name="Beam Locks" author="Danny"/>
 <beamGoal color=1 count=4/>
 e,3,glass,3,e
 2,glass,2,glass,2
@@ -272,7 +272,7 @@ glass,1,2,2,glass
 glass,glass,e,glass,glass
 </level>
 
-<level id=29 par=2 perfect=1>
+<level id=30 par=2 perfect=1>
 <attribution name="S shaped move" author="John"/>
 glass,2,glass,3,glass
 glass,glass,glass,glass,glass
@@ -281,4 +281,14 @@ painter_2,e,e,painter_3,e
 e,painter_2,painter_3,e,e
 glass,glass,glass,glass,glass
 glass,2,glass,3,glass
+</level>
+
+<level id=29 par=20 perfect=15>
+<attribution name="" author="Mike">
+e,3,2,1,glass,goal_3
+e,2,1,glass,1,e
+2,1,glass,e,e,glass
+1,glass,1,2,glass,e
+glass,e,e,glass,1,e
+3,1,1,2,e,e
 </level>
