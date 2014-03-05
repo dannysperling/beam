@@ -1,6 +1,7 @@
 package com.me.beam;
 
 import com.badlogic.gdx.Gdx;
+import com.me.beam.GameEngine.GameState;
 
 public class InputHandler {
 
@@ -15,77 +16,82 @@ public class InputHandler {
 		/* Handles inputs starting from a level with no player input. */
 		if (state == GameEngine.GameState.IDLE
 				&& buttonDown == GameEngine.ButtonPress.NONE) {
-			if (Gdx.input.isTouched()
-					&& b.getTileAtClickPosition(getX(), getY()) != null) {
-				Tile t = b.getTileAtClickPosition(getX(), getY());
-				Piece piece = b.getPieceOnTile(t);
-				/*
-				 * Given a touch on the board and on a piece, read piece as
-				 * held.
-				 */
-				if (piece != null) {
-					GameEngine.movingPiece = piece;
-					GameEngine.movePath.add(t);
-					return GameEngine.GameState.DECIDING;
-					/* If the touch was anywhere else, don't change states */
-				} else {
-					return GameEngine.GameState.IDLE;
-				}
-			}
+			return selectPiece(b);
 		}
 
 		/* Handles input if the player is already touching a piece. */
 		if (state == GameEngine.GameState.DECIDING) {
-			// System.out.println("move path size = " +
-			// GameEngine.movePath.size());
 			if (Gdx.input.isTouched()) {
-				if (b.getTileAtClickPosition(getX(), getY()) != null) {
-					Tile source = GameEngine.movePath.get(GameEngine.movePath
-							.size() - 1);
-					Tile destination = b.getTileAtClickPosition(getX(), getY());
+				return setPath(b);
 
-					// If the destination is on the path, short circuit the
-					// path.
-					int i = GameEngine.movePath.indexOf(destination);
-					if (i != -1 && i != GameEngine.movePath.size() - 1) {
-						GameEngine.movePath = GameEngine.movePath.subList(0,
-								i + 1);
-						return GameEngine.GameState.DECIDING;
-					}
-
-					Tile intervening = findValidDiagonal(b, source, destination);
-					if (isValidMove(b, source, destination)) {
-						GameEngine.movePath.add(destination);
-					} else if (intervening != null) {
-						i = GameEngine.movePath.indexOf(intervening);
-						if (i != -1) {
-							GameEngine.movePath = GameEngine.movePath.subList(
-									0, i + 1);
-							GameEngine.movePath.add(destination);
-						} else {
-							GameEngine.movePath.add(intervening);
-							GameEngine.movePath.add(destination);
-						}
-					}
-
-					return GameEngine.GameState.DECIDING;
-				}
-				/* If the proposed move is off the board, change nothing */
-				else {
-					return GameEngine.GameState.DECIDING;
-				}
 			} else {
-				/* If they let go with moves queued, make them */
-				if (GameEngine.movePath.size() > 1) {
-					return GameEngine.GameState.MOVING;
-					/* If they let go without moves queued, idle */
-				} else {
-					GameEngine.movePath.clear();
-					return GameEngine.GameState.IDLE;
-				}
+				return onRelease();
+
 			}
 		}
 		return state;
+	}
+
+	private GameState onRelease() {
+		if (GameEngine.movePath.size() > 1) {
+			/* If they let go with moves queued, make them */
+			return GameEngine.GameState.MOVING;
+		} else {
+			/* If they let go without moves queued, idle */
+			GameEngine.movePath.clear();
+			return GameEngine.GameState.IDLE;
+		}
+	}
+
+	private GameState setPath(Board b) {
+		if (b.getTileAtClickPosition(getX(), getY()) != null) {
+			Tile source = GameEngine.movePath
+					.get(GameEngine.movePath.size() - 1);
+			Tile destination = b.getTileAtClickPosition(getX(), getY());
+
+			// If the destination is on the path, short circuit the
+			// path.
+			int i = GameEngine.movePath.indexOf(destination);
+			if (i != -1 && i != GameEngine.movePath.size() - 1) {
+				GameEngine.movePath = GameEngine.movePath.subList(0, i + 1);
+			}
+
+			Tile intervening = findValidDiagonal(b, source, destination);
+			if (isValidMove(b, source, destination)) {
+				GameEngine.movePath.add(destination);
+			} else if (intervening != null) {
+				i = GameEngine.movePath.indexOf(intervening);
+				if (i != -1) {
+					GameEngine.movePath = GameEngine.movePath.subList(0, i + 1);
+					GameEngine.movePath.add(destination);
+				} else {
+					GameEngine.movePath.add(intervening);
+					GameEngine.movePath.add(destination);
+				}
+			}
+		}
+		return GameEngine.GameState.DECIDING;
+	}
+
+	private GameState selectPiece(Board b) {
+		if (Gdx.input.isTouched()
+				&& b.getTileAtClickPosition(getX(), getY()) != null) {
+			Tile t = b.getTileAtClickPosition(getX(), getY());
+			Piece piece = b.getPieceOnTile(t);
+			/*
+			 * Given a touch on the board and on a piece, read piece as held.
+			 */
+			if (piece != null) {
+				GameEngine.movingPiece = piece;
+				GameEngine.movePath.add(t);
+				return GameEngine.GameState.DECIDING;
+				/* If the touch was anywhere else, don't change states */
+			} else {
+				return GameEngine.GameState.IDLE;
+			}
+		}
+		// If the player isn't touching the board, don't change states
+		return GameEngine.GameState.IDLE;
 	}
 
 	// Returns which button was pressed, or none
