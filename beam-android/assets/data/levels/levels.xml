@@ -270,3 +270,13 @@ e,1,painter_2,1,e
 glass,1,2,2,glass
 glass,glass,e,glass,glass
 </level>
+
+<level id=29 par=20 perfect=15>
+<attribution name="" author="Mike">
+e,3,2,1,glass,goal_3
+e,2,1,glass,1,e
+2,1,glass,e,e,glass
+1,glass,1,2,glass,e
+glass,e,e,glass,1,e
+3,1,1,2,e,e
+</level>
