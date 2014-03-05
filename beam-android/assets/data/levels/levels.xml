@@ -272,17 +272,6 @@ glass,1,2,2,glass
 glass,glass,e,glass,glass
 </level>
 
-<level id=30 par=2 perfect=1>
-<attribution name="S shaped move" author="John"/>
-glass,2,glass,3,glass
-glass,glass,glass,glass,glass
-painter_2,e,e,painter_3,e
-1,glass,e,glass,goal_3
-e,painter_2,painter_3,e,e
-glass,glass,glass,glass,glass
-glass,2,glass,3,glass
-</level>
-
 <level id=29 par=20 perfect=15>
 <attribution name="" author="Mike">
 e,3,2,1,glass,goal_3
@@ -310,4 +299,15 @@ goal_3:2,e,2,e
 e,1,e,1
 e,1,e,1
 2,e,2,3
+</level>
+
+<level id=32 par=2 perfect=1>
+<attribution name="S shaped move" author="John"/>
+glass,2,glass,3,glass
+glass,glass,glass,glass,glass
+painter_2,e,e,painter_3,e
+1,glass,e,glass,goal_3
+e,painter_2,painter_3,e,e
+glass,glass,glass,glass,glass
+glass,2,glass,3,glass
 </level>
