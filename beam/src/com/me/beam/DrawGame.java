@@ -3,6 +3,7 @@ package com.me.beam;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.me.beam.GameEngine.GameState;
@@ -21,7 +23,9 @@ public class DrawGame {
 	private Texture pieceTexture;
 	private Sprite pieceSprite;
 	private ShapeRenderer shapes;
-	private BitmapFont font;
+
+	BitmapFont buttonFont;
+	BitmapFont titleFont;
 
 	public DrawGame() {
 		batch = new SpriteBatch();
@@ -29,12 +33,17 @@ public class DrawGame {
 		pieceTexture = new Texture(Gdx.files.internal("data/piece.png"));
 		pieceTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
-		font = new BitmapFont();
-
 		TextureRegion region = new TextureRegion(pieceTexture, 0, 0, 256, 256);
 
 		pieceSprite = new Sprite(region);
 		shapes = new ShapeRenderer();
+	}
+	
+	public void initFonts(){
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("data/fonts/swanse.ttf"));
+		buttonFont = generator.generateFont(Gdx.graphics.getHeight() / 35);
+		titleFont = generator.generateFont(Gdx.graphics.getHeight() / 25);
+		generator.dispose();
 	}
 
 	public void draw(Board b, GameEngine.GameState state) {
@@ -278,19 +287,19 @@ public class DrawGame {
 
 		// Draw the buttons
 		batch.begin();
-		font.setColor(Color.WHITE);
+		buttonFont.setColor(Color.WHITE);
 
 		int width = Gdx.graphics.getWidth();
 		int height = Gdx.graphics.getHeight();
-		TextBounds tb = font.getBounds("UNDO");
+		TextBounds tb = buttonFont.getBounds("UNDO");
 
 		float textHeight = height * Menu.buttonBotY
 				+ (Menu.buttonHeight * height + tb.height) / 2;
-		font.draw(batch, "UNDO", Menu.undoButtonLeftX * width
+		buttonFont.draw(batch, "UNDO", Menu.undoButtonLeftX * width
 				+ (Menu.undoButtonWidth * width - tb.width) / 2, textHeight);
-		font.draw(batch, "RESET", Menu.resetButtonLeftX * width
+		buttonFont.draw(batch, "RESET", Menu.resetButtonLeftX * width
 				+ (Menu.resetButtonWidth * width - tb.width) / 2, textHeight);
-		font.draw(batch, "REDO", Menu.redoButtonLeftX * width
+		buttonFont.draw(batch, "REDO", Menu.redoButtonLeftX * width
 				+ (Menu.redoButtonWidth * width - tb.width) / 2, textHeight);
 
 		batch.end();
@@ -312,17 +321,17 @@ public class DrawGame {
 			toPrint = curLaserCount + " out of " + beamObjective + " lasers.";
 		}
 
-		tb = font.getBounds(toPrint);
+		tb = titleFont.getBounds(toPrint);
 
-		font.draw(batch, toPrint, (width - tb.width) / 2, height
+		titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
 				* (1 - GameEngine.topBarSize + .1f));
 
-		font.draw(batch, toPrint, (width - tb.width) / 2, height
+		titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
 				* (1 - GameEngine.topBarSize + .1f));
 
 		toPrint = "Moves: " + GameEngine.getMoveCount() + " Perfect: " + b.perfect;
-		tb = font.getBounds(toPrint);
-		font.draw(batch, toPrint, (width - tb.width) / 2, height
+		tb = titleFont.getBounds(toPrint);
+		titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
 				* (1 - GameEngine.topBarSize + .15f));
 		batch.end();
 	}

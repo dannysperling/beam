@@ -75,6 +75,7 @@ public class GameEngine implements ApplicationListener {
 		loadLevel(currentLevel);
 
 		dg = new DrawGame();
+		dg.initFonts();
 		inputHandler = new InputHandler();
 	}
 
@@ -646,5 +647,6 @@ public class GameEngine implements ApplicationListener {
 
 	@Override
 	public void resume() {
+		dg.initFonts();
 	}
 }
