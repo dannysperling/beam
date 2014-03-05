@@ -1,7 +1,6 @@
 package com.me.beam;
 
 import com.badlogic.gdx.Gdx;
-import com.me.beam.GameEngine.GameState;
 
 public class InputHandler {
 

@@ -1,6 +1,5 @@
 package com.me.beam;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
