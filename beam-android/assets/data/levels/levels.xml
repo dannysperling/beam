@@ -280,3 +280,22 @@ e,2,1,glass,1,e
 glass,e,e,glass,1,e
 3,1,1,2,e,e
 </level>
+
+<level id=30 par=25 perfect=18>
+<attribution name="" author="Mike">
+2,e,glass,2,glass,e,goal_2
+e,e,3,glass,3,e,e
+glass,3,e,e,e,3,glass
+1,glass,e,e,e,glass,1
+glass,3,e,e,e,3,glass
+e,e,3,glass,3,e,e
+goal_2,e,glass,2,glass,e,2  
+</level>
+
+<level id=31 par=6 perfect=5>
+<attribution name="" author="Mike">
+goal_3:2,e,2,e
+e,1,e,1
+e,1,e,1
+2,e,2,3
+</level>
