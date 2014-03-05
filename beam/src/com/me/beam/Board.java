@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 import com.badlogic.gdx.Gdx;
 import com.me.beam.GameEngine.Color;
 
@@ -22,7 +21,8 @@ public class Board {
 	public List<Tile> goalTiles = new ArrayList<Tile>();
 
 	public int id; // ID in its levels file
-	public int par; // Optimal solution
+	public int par; // Good solution
+	public int perfect; //Optimal solution
 
 	private EnumMap<Color, Integer> beamObjectives = new EnumMap<Color, Integer>(
 			Color.class);
@@ -68,11 +68,12 @@ public class Board {
 
 	}
 
-	public Board(Tile[][] t, Piece[][] p, int id, int par) {
+	public Board(Tile[][] t, Piece[][] p, int id, int perfect, int par) {
 		this(t.length, t[0].length);
 		this.tiles = t;
 		this.pieces = p;
 		this.id = id;
+		this.perfect = perfect;
 		this.par = par;
 
 		for (int i = 0; i < t.length; i++) {
@@ -91,7 +92,7 @@ public class Board {
 	public Set<Color> getBeamObjectiveSet() {
 		return beamObjectives.keySet();
 	}
-	
+
 	public int getBeamObjectiveCount(Color c) {
 		return beamObjectives.get(c);
 	}

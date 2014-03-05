@@ -321,7 +321,7 @@ public class DrawGame {
 		font.draw(batch, toPrint, (width - tb.width) / 2, height
 				* (1 - GameEngine.topBarSize + .1f));
 
-		toPrint = "Moves: " + GameEngine.getMoveCount() + " Par: " + b.par;
+		toPrint = "Moves: " + GameEngine.getMoveCount() + " Perfect: " + b.perfect;
 		tb = font.getBounds(toPrint);
 		font.draw(batch, toPrint, (width - tb.width) / 2, height
 				* (1 - GameEngine.topBarSize + .15f));

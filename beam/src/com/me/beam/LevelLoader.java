@@ -13,12 +13,13 @@ public class LevelLoader implements Iterable<Board> {
 	public static final boolean DEBUG_MODE = true;
 	private String file;
 	private ArrayList<Integer> ids = new ArrayList<Integer>();
-	private String FULL_LEVEL_REGEX = "(<level id=(\\d+) par=(\\d+)>)[\\s]+"
+	private String FULL_LEVEL_REGEX = "(<level id=(\\d+) par=(\\d+) perfect=(\\d+)>)[\\s]+"
 			//+ "(<beamGoal color=(\\d+) count=(\\d+)/>)*[\\s]+"
 			+ "((.*\\n)+?)(</level>)";
 	//Regex groups because named capture isn't supported on Android
 	private static final int IDgroup = 2;
 	private static final int PARgroup = 3;
+	private static final int PERFECTgroup = 4;
 
 	/**
 	 * Create a LeveLoader for the given file. Any FileNotFound or IO exceptions
@@ -113,8 +114,9 @@ public class LevelLoader implements Iterable<Board> {
 			}
 		}
 		int id = Integer.parseInt(match.group(IDgroup));
+		int perfect = Integer.parseInt(match.group(PERFECTgroup));
 		int par = Integer.parseInt(match.group(PARgroup));
-		Board b = new Board(tiles, pieces, id, par);
+		Board b = new Board(tiles, pieces, id, perfect, par);
 		processBeamGoals(b,match.group());
 		return b;
 	}

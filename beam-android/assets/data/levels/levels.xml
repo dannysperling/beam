@@ -1,11 +1,13 @@
-<level id=0 par=2>
+<level id=0 par=12 perfect=2>
+<attribution name="" author=""/>
 e,1,e
 2,e,2
 e,e,e
 e,goal_1,e
 </level>
 
-<level id=1 par=2>
+<level id=1 par=12 perfect=2>
+<attribution name="" author=""/>
 <beamGoal color=1 count=4/>
 e,e,e,1
 e,e,1,e
@@ -13,26 +15,30 @@ e,1,e,e
 1,e,e,e
 </level>
 
-<level id=2 par=3>
+<level id=2 par=12 perfect=3>
+<attribution name="" author=""/>
 e,1,e
 2,e,2
 glass,1:goal_2,glass
 </level>
 
-<level id=3 par=8>
+<level id=3 par=12 perfect=8>
+<attribution name="" author=""/>
 goal_2,2,2,goal_2
 2,goal_1,goal_1,1
 2,goal_1,goal_1,1
 goal_2,1,1,goal_2
 </level>
 
-<level id=4 par=4>
+<level id=4 par=12 perfect=4>
+<attribution name="" author=""/>
 2,e,e,1
 1,1,2,2
 goal_1,2,1,goal_2
 </level>
 
-<level id=5 par=4>
+<level id=5 par=12 perfect=4>
+<attribution name="" author=""/>
 glass,3,glass
 1,e,1
 glass,e,glass
@@ -40,7 +46,8 @@ glass,e,glass
 glass,goal_3,glass
 </level>
 
-<level id=6 par=4>
+<level id=6 par=12 perfect=4>
+<attribution name="" author=""/>
 goal_3,e,e,glass
 e,1,2,glass
 2,e,e,2
@@ -48,13 +55,15 @@ glass,e,2,1
 glass,1,e,3
 </level>level>
 
-<level id=7 par=1>
+<level id=7 par=12 perfect=1>
+<attribution name="" author=""/>
 e,painter_3,e
 e,2,e
 e,goal_3,e
 </level>
 
-<level id=8 par=2>
+<level id=8 par=12 perfect=2>
+<attribution name="" author=""/>
 2,e
 1,1
 glass,e
@@ -62,20 +71,23 @@ glass,e
 goal_2,painter_2
 </level>
 
-<level id=9 par=7>
+<level id=9 par=12 perfect=7>
+<attribution name="" author=""/>
 e,glass,1,glass
 goal_2,1,glass,2
 e,glass,2,glass
 3:goal_3,e,goal_1,e
 </level>
 
-<level id=10 par=7>
+<level id=10 par=12 perfect=7>
+<attribution name="" author=""/>
 2:goal_1,e,goal_2:1
 e,goal_3:3,e
 1:goal_2,e,2:goal_1
 </level>
 
-<level id=11 par=6>
+<level id=11 par=12 perfect=6>
+<attribution name="" author=""/>
 <beamGoal color=1 count=0/>
 <beamGoal color=2 count=0/>
 1,e,e,1
@@ -84,7 +96,8 @@ e,2,2,e
 1,e,e,1
 </level>
 
-<level id=12 par=7>
+<level id=12 par=12 perfect=7>
+<attribution name="" author=""/>
 <beamGoal color=1 count=12/>
 2,e,e,e,2
 e,1,e,1,e
@@ -93,14 +106,16 @@ e,1,e,1,e
 2,e,e,e,2
 </level>
 
-<level id=13 par=6>
+<level id=13 par=12 perfect=6>
+<attribution name="" author=""/>
 1:goal_1,1,goal_1
 2,e,2
 glass,e,glass
 goal_1,1,1:goal_1
 </level>
 
-<level id=14 par=5>
+<level id=14 par=12 perfect=5>
+<attribution name="" author=""/>
 <beamGoal color=2 count=8/>
 glass,glass,1,glass,1
 glass,glass,glass,glass,glass
@@ -109,7 +124,8 @@ glass,glass,glass,glass,glass
 2,glass,painter_2,2,painter_1
 </level>
 
-<level id=15 par=9>
+<level id=15 par=12 perfect=9>
+<attribution name="" author=""/>
 2,glass,e,e,2,3
 glass,glass,glass,e,glass,2
 e,2,e,1,glass,e
@@ -118,7 +134,8 @@ e,glass,glass,2,glass,2
 goal_3,1,e,e,2,glass
 </level>
 
-<level id=16 par=12>
+<level id=16 par=12 perfect=12>
+<attribution name="" author=""/>
 3,glass,e,glass,e,glass,3
 e,goal_1,glass,2,glass,goal_1,e
 e,glass,1,e,1,glass,e
@@ -128,14 +145,16 @@ e,goal_1,glass,2,glass,goal_1,e
 3,glass,e,glass,e,glass,3
 </level>
 
-<level id=17 par=13>
+<level id=17 par=21 perfect=13>
+<attribution name="" author=""/>
 2,glass,e,2:goal_1
 e,goal_2,1:goal_2,glass
 glass,1:goal_2,1:goal_2,e
 2:goal_1,e,glass,2:goal_1
 </level>
 
-<level id=18 par=11>
+<level id=18 par=12 perfect=11>
+<attribution name="" author=""/>
 3:goal_1,e,e,e,3:goal_2
 e,2,glass,1,e
 e,glass,1,glass,e
@@ -145,7 +164,8 @@ e,2,glass,1,e
 3:goal_1,e,e,e,3:goal_2
 </level>
 
-<level id=19 par=10>
+<level id=19 par=12 perfect=10>
+<attribution name="" author=""/>
 glass,3,e,3,glass
 glass,e,e,e,glass
 1,e,glass,e,1
@@ -154,7 +174,8 @@ glass,2,2,2,glass
 3,e,e,e,3
 </level>
 
-<level id=20 par=6>
+<level id=20 par=12 perfect=6>
+<attribution name="" author=""/>
 <beamGoal color=2 count=7/>
 glass,glass,1,glass,glass
 e,3,e,2,glass
@@ -163,7 +184,8 @@ glass,2,e,3,e
 glass,glass,1,glass,glass
 </level>
 
-<level id=21 par=8>
+<level id=21 par=12 perfect=8>
+<attribution name="" author=""/>
 <beamGoal color=1 count=4/>
 <beamGoal color=2 count=4/>
 e,e,e,painter_2,e
@@ -174,7 +196,8 @@ e,3,glass,3,e
 e,painter_1,e,e,e
 </level>
 
-<level id=22 par=4>
+<level id=22 par=12 perfect=4>
+<attribution name="" author=""/>
 <beamGoal color=1 count=2/>
 <beamGoal color=2 count=2/>
 1,glass,2,painter_1
@@ -184,7 +207,8 @@ painter_1,e,glass,e
 2,glass,1,painter_2
 </level>
 
-<level id=23 par=6>
+<level id=23 par=12 perfect=6>
+<attribution name="" author=""/>
 <beamGoal color=1 count=4/>
 e,3,glass,3,e
 2,glass,2,glass,2
