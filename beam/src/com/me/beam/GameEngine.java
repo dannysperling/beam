@@ -71,7 +71,7 @@ public class GameEngine implements ApplicationListener {
 	@Override
 	public void create() {
 
-		levelLoader = new LevelLoader("data/levels/levels.xml");
+		levelLoader = new LevelLoader("data/levels/levels.xml", "data/levels/levelOrder.txt");
 		loadLevel(currentLevel);
 
 		dg = new DrawGame();
@@ -148,7 +148,7 @@ public class GameEngine implements ApplicationListener {
 							// Remove the old future
 							boardStack = boardStack.subList(0, moveCounter + 1);
 
-							if (isWon()) {
+							if (b.isWon()) {
 								state = GameState.WON;
 							}
 						}
@@ -191,7 +191,7 @@ public class GameEngine implements ApplicationListener {
 		movePath.clear();
 		timeSpentOnTile = 0;
 		initializeLasers();
-		if (isWon())
+		if (b.isWon())
 			state = GameState.WON;
 		else 
 			state = GameState.IDLE;
@@ -610,19 +610,6 @@ public class GameEngine implements ApplicationListener {
 		}
 
 		return false;
-	}
-
-	private boolean isWon() {
-		if (b.getNumGoalsFilled() != b.goalTiles.size()) {
-			return false;
-		}
-
-		for (Color c : b.getBeamObjectiveSet()) {
-			if (b.getLaserCount(c) != b.getBeamObjectiveCount(c)) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	public static int getTicksPerTile() {

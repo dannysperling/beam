@@ -95,6 +95,10 @@ public class Board {
 	public int getBeamObjectiveCount(Color c) {
 		return beamObjectives.get(c);
 	}
+	
+	public Piece[][] getPieces() {
+		return pieces;
+	}
 
 	/**
 	 * Sets the tile at (X,Y) to either be or not be glass, according to the
@@ -133,7 +137,7 @@ public class Board {
 	 * This the thing that actually physically moves the piece, assuming you try
 	 * and move it to an adjacent empty non-glass tile.
 	 * 
-	 * @return Sucess or failure
+	 * @return Success or failure
 	 */
 	public boolean move(Piece p, Tile t) {
 		if (canMove(p.getXCoord(), p.getYCoord(), t.getXCoord(), t.getYCoord())) {
@@ -195,18 +199,30 @@ public class Board {
 	}
 
 	public Piece getPieceOnTile(Tile t) {
+		return getPieceOnTile(t, this.pieces);
+	}
+	
+	public Piece getPieceOnTile(Tile t, Piece[][] pieces) {
 		return pieces[t.getXCoord()][t.getYCoord()];
 	}
 
 	public boolean isGoalMet(Tile t) {
-		return getPieceOnTile(t) != null
-				&& getPieceOnTile(t).getColor() == t.getGoalColor();
+		return isGoalMet(t, this.pieces);
+	}
+	
+	public boolean isGoalMet(Tile t, Piece[][] pieces) {
+		return getPieceOnTile(t, pieces) != null
+				&& getPieceOnTile(t, pieces).getColor() == t.getGoalColor();
 	}
 
 	public int getNumGoalsFilled() {
+		return getNumGoalsFilled(this.pieces);
+	}
+	
+	public int getNumGoalsFilled(Piece[][] pieces) {
 		int goalsFilled = 0;
 		for (Tile t : goalTiles) {
-			if (isGoalMet(t)) {
+			if (isGoalMet(t, pieces)) {
 				goalsFilled++;
 			}
 		}
@@ -245,6 +261,23 @@ public class Board {
 			}
 		}
 		return result;
+	}
+	
+	public boolean isWon() {
+		return isWon(this.pieces);
+	}
+	
+	public boolean isWon(Piece[][] pieces) {
+		if (getNumGoalsFilled(pieces) != goalTiles.size()) {
+			return false;
+		}
+		//TODO: add support to solver for laser objective levels
+		for (Color c : getBeamObjectiveSet()) {
+			if (getLaserCount(c) != getBeamObjectiveCount(c)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
