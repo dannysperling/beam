@@ -1,5 +1,5 @@
 <level id=0 par=12 perfect=2>
-<attribution name="" author=""/>
+<attribution name="Beam 101" author="Johns"/>
 e,1,e
 2,e,2
 e,e,e
@@ -56,7 +56,7 @@ glass,1,e,3
 </level>level>
 
 <level id=7 par=12 perfect=1>
-<attribution name="" author=""/>
+<attribution name="Painters 101" author="John"/>
 e,painter_3,e
 e,2,e
 e,goal_3,e
@@ -229,6 +229,7 @@ painter_2,2,2,painter_1
 </level>
 
 <level id=25 par=7 perfect=4>
+<attribution name="" author="Mike"/>
 1,e,e,1,e,goal_3
 e,2,e,e,2,e
 e,e,1,e,e,1
@@ -238,6 +239,7 @@ e,2,e,e,2,e
 </level>
 
 <level id=26 par=11 perfect=11>
+<attribution name="" author="Mike"/>
 <beamGoal color=1 count=0/>
 <beamGoal color=2 count=0/>
 <beamGoal color=3 count=0/>
@@ -250,7 +252,8 @@ e,2,e,e,e
 3,e,e,3,1
 </level>
 
-<level id=27 par=32 perfect=32>
+<level id=27 par=32 perfect=18>
+<attribution name="" author="Mike"/>
 3,3,2,2
 glass,glass,e,glass
 glass,e,1,2
@@ -260,6 +263,7 @@ goal_2,goal_2,3,3:goal_2
 </level>
 
 <level id=28 par=100 perfect=100>
+<attribution name="" author="Mike"/>
 <beamGoal color=2 count=10/>
 glass,glass,e,glass,glass
 glass,2,2,1,glass
