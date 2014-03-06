@@ -36,6 +36,11 @@ public class Laser {
 		}
 	}
 	
+	@Override
+	public int hashCode(){
+		return 7*xStart + 13*yStart + 11*xFinish + 29*yFinish;
+	}
+	
 	public int getXStart(){
 		return xStart;
 	}

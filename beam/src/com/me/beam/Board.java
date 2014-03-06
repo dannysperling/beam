@@ -3,6 +3,7 @@ package com.me.beam;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -15,7 +16,7 @@ public class Board {
 
 	private Piece[][] pieces;
 
-	public List<Laser> lasers = new ArrayList<Laser>();
+	public Set<Laser> lasers = new HashSet<Laser>();
 
 	public List<Tile> goalTiles = new ArrayList<Tile>();
 

@@ -2,19 +2,22 @@ package com.me.beam;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.badlogic.gdx.ApplicationListener;
 
 public class GameEngine implements ApplicationListener {
 	// Enter the levelID you want to play here:
-	private int currentLevel = 0;
+	private int currentLevel = 22;
 
 	// Simple Objects for now
 	private Board b;
 	private DrawGame dg;
 	private InputHandler inputHandler;
 	private LevelLoader levelLoader;
+	private LevelOrderer levelOrderer;
 
 	private static int moveCounter = 0;
 
@@ -67,11 +70,18 @@ public class GameEngine implements ApplicationListener {
 	public static final float sideEmptySize = 0.02f;
 
 	private GameState state = GameState.IDLE;
+	
+	//Menu time
+	private boolean mainMenuShowing = true;
+	private Menu menu;
+	private DrawMenu dm;
 
 	@Override
 	public void create() {
 
-		levelLoader = new LevelLoader("data/levels/levels.xml", "data/levels/levelOrder.txt");
+		levelOrderer = new LevelOrderer("data/levels/levelOrder.txt");
+		levelLoader = new LevelLoader("data/levels/levels.xml", levelOrderer);
+
 		loadLevel(currentLevel);
 
 		dg = new DrawGame();
@@ -86,6 +96,14 @@ public class GameEngine implements ApplicationListener {
 
 	@Override
 	public void render() {
+		
+		//Handle the menu separately
+		if (mainMenuShowing){
+			
+			
+		}
+		
+		
 		boolean pushedButton = false;
 
 		if (state != GameState.DECIDING/* && state != GameState.WON */) {
@@ -284,40 +302,9 @@ public class GameEngine implements ApplicationListener {
 	public void initializeLasers() {
 		b.lasers.clear();
 		for (Piece p1 : b.getAllPieces()) {
-			for (Piece p2 : b.getAllPieces()) {
-				if (!p1.equals(p2) && p1.getColor() == p2.getColor()){
-					boolean laserFormed = true;
-					int xStart = Math.min(p1.getXCoord(), p2.getXCoord());
-					int xFinish = Math.max(p1.getXCoord(), p2.getXCoord());
-					int yStart = Math.min(p1.getYCoord(), p2.getYCoord());
-					int yFinish = Math.max(p1.getYCoord(), p2.getYCoord());
-					
-					//Check for intermediary pieces
-					if (p1.getXCoord() == p2.getXCoord()){
-						for (int y = yStart + 1; y < yFinish; y++){
-							if (b.getPieceOnTile(b.getTileAtBoardPosition(xStart, y)) != null){
-								laserFormed = false;
-							}
-						}
-					} else if (p1.getYCoord() == p2.getYCoord()){
-						for (int x = xStart + 1; x < xFinish; x++){
-							if (b.getPieceOnTile(b.getTileAtBoardPosition(x, yStart)) != null){
-								laserFormed = false;
-							}
-						}
-					} 
-					//If not connected at all, no lasers
-					else {
-						laserFormed = false;
-					}
-					
-					if (laserFormed){
-						Laser l = new Laser(xStart, yStart, xFinish, yFinish, p1.getColor());
-	
-						if (!b.lasers.contains(l))
-							b.lasers.add(l);
-					}
-				}
+			List<Piece> destroyed = formLasersFromPieceAndDestroy(p1);
+			if (!destroyed.isEmpty()){
+				System.out.println("OH GOD WHY WHAT ARE YOU DOING YOU HEATHEN!\nTHIS WOULD BE BEEPING IF I COULD MAKE IT.");
 			}
 		}
 	}
@@ -336,7 +323,7 @@ public class GameEngine implements ApplicationListener {
 
 	// Removes all lasers connected to the current piece
 	public void removeLasersFromPiece(Piece p) {
-		List<Laser> survivingLasers = new ArrayList<Laser>();
+		Set<Laser> survivingLasers = new HashSet<Laser>();
 
 		Tile leftTile = null;
 		Tile topTile = null;

@@ -1,18 +1,14 @@
 package com.me.beam;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.regex.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.me.beam.GameEngine.Color;
 
-public class LevelLoader implements Iterable<Board> {
+public class LevelLoader {
 	public static final boolean DEBUG_MODE = true;
 	private String file;
-	private ArrayList<Integer> ids = new ArrayList<Integer>();
 	private String FULL_LEVEL_REGEX = "(<level id=(\\d+) par=(\\d+) perfect=(\\d+)>)[\\s]+"
 			//+ "(<beamGoal color=(\\d+) count=(\\d+)/>)*[\\s]+"
 			+ "((.*\\n)+?)(</level>)";
@@ -21,7 +17,7 @@ public class LevelLoader implements Iterable<Board> {
 	private static final int PARgroup = 3;
 	private static final int PERFECTgroup = 4;
 	
-	private String fileOrder;
+	private LevelOrderer orderer;
 
 	/**
 	 * Create a LeveLoader for the given file. Any FileNotFound or IO exceptions
@@ -32,56 +28,24 @@ public class LevelLoader implements Iterable<Board> {
 	 * @param fon
 	 * 			  The path to the fileOrder file
 	 */
-	public LevelLoader(String fn, String fon) {
+	public LevelLoader(String fn, LevelOrderer levelOrderer) {
 		file = fn;
-		fileOrder = fon;
-		getIds();
-	}
-
-	private void getIds() {
-		FileHandle fh = Gdx.files.internal(fileOrder);
-		String text = fh.readString();
-		Pattern pat = Pattern.compile("(\\d+)");
-		Matcher match = pat.matcher(text);
-		while (match.find()) {
-			ids.add(Integer.parseInt(match.group(1)));
-		}
-		debug(ids.size() + " levels found:");
-		debug("\t" + ids.toString());
+		orderer = levelOrderer;
 	}
 	
-	//Old version
-	/*private void getIds() {
-		FileHandle fh = Gdx.files.internal(file);
-		String text = fh.readString();
-		Pattern pat = Pattern.compile("id=(\\d+)");
-		Matcher match = pat.matcher(text);
-		while (match.find()) {
-			ids.add(Integer.parseInt(match.group(1)));
-		}
-		debug(ids.size() + " levels found:");
-		debug("\t" + ids.toString());
-	}*/
-
 	/**
 	 * Load the level from file with the given id
 	 * 
-	 * @param id
-	 *            Must be a valid id in the file
+	 * @param ordinal
+	 *            Must be a valid ordinal in the file
 	 * @return null if id was not found or level was malformed.
 	 */
-	public Board getLevel(int id) {
+	public Board getLevel(int ordinal) {
+		
+		int id = orderer.getUniqueId(ordinal);
 		debug("Looking for level " + id);
 		
-		//Map the level to its new id
-		int mappedId;
-		try{
-			mappedId = ids.get(id);
-		} catch (IndexOutOfBoundsException e){
-			return null;
-		}
-		
-		String spec = findLevelByID(mappedId);
+		String spec = findLevelByID(id);
 		debug("Level spec: \n" + spec);
 		if (spec == null)
 			return null;
@@ -185,48 +149,6 @@ public class LevelLoader implements Iterable<Board> {
 		if (!DEBUG_MODE)
 			return;
 		System.out.println(s);
-	}
-
-	/**
-	 * Snazzy! You can use: for(Board b : LevelLoader) to load all of the levels
-	 * in a file. Pretty sweet, eh?
-	 */
-	public Iterator<Board> iterator() {
-		return new LevelFileIterator(this);
-	}
-
-	public class LevelFileIterator implements Iterator<Board> {
-		private int index = 0;
-		private LevelLoader ll;
-
-		public LevelFileIterator(LevelLoader l) {
-			ll = l;
-		}
-
-		public boolean hasNext() {
-			for (Integer i : ll.ids) {
-				if (i >= index)
-					return true;
-			}
-			return false;
-		}
-
-		public Board next() {
-			if (!hasNext())
-				throw new NoSuchElementException();
-			while (!ll.ids.contains(index)) {
-				++index;
-			}
-			Board ret = ll.getLevel(index);
-			index++;
-			return ret;
-		}
-
-		public void remove() {
-			throw new UnsupportedOperationException(
-					"Why on earth do you want to delete a level?");
-
-		}
 	}
 
 }

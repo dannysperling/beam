@@ -46,4 +46,8 @@ public class Menu {
 		// Not in one of the buttons
 		return GameEngine.ButtonPress.NONE;
 	}
+	
+	public Menu(){
+		
+	}
 }

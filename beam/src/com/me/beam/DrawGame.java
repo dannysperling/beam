@@ -1,6 +1,7 @@
 package com.me.beam;
 
 import java.util.List;
+import java.util.Set;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -253,7 +254,7 @@ public class DrawGame {
 		batch.end();
 
 		// Draw Lasers
-		List<Laser> lasers = b.lasers;
+		Set<Laser> lasers = b.lasers;
 		shapes.begin(ShapeType.Filled);
 		for (Laser l : lasers) {
 			switch (l.getColor()) {
