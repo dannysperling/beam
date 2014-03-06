@@ -283,7 +283,7 @@ glass,e,e,glass,1,e
 </level>
 
 <level id=30 par=25 perfect=18>
-<attribution name="" author="Mike">
+<attribution name="Danny's option" author="Mike">
 2,e,glass,2,glass,e,goal_2
 e,e,3,glass,3,e,e
 glass,3,e,e,e,3,glass
@@ -310,4 +310,15 @@ painter_2,e,e,painter_3,e
 e,painter_2,painter_3,e,e
 glass,glass,glass,glass,glass
 glass,2,glass,3,glass
+</level>
+
+<level id=33 par=18 perfect=15>
+<attribution name="Mike's option" author="Mike"/>
+glass,glass,glass,2,glass,e,goal_1
+glass,e,3,glass,3,e,e
+glass,3,e,e,e,3,glass
+1,glass,e,e,e,glass,1
+glass,3,e,e,e,3,glass
+e,e,3,glass,3,e,1
+goal_2,e,glass,2,glass,2,e
 </level>
