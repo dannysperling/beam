@@ -17,6 +17,7 @@ public class GameEngine implements ApplicationListener {
 	private DrawGame dg;
 	private InputHandler inputHandler;
 	private LevelLoader levelLoader;
+	private GameProgress progress;
 	private LevelOrderer levelOrderer;
 
 	private static int moveCounter = 0;
@@ -81,10 +82,11 @@ public class GameEngine implements ApplicationListener {
 
 		levelOrderer = new LevelOrderer("data/levels/levelOrder.txt");
 		levelLoader = new LevelLoader("data/levels/levels.xml", levelOrderer);
+		progress = new GameProgress(levelOrderer);
 
 		loadLevel(currentLevel);
 
-		dg = new DrawGame();
+		dg = new DrawGame(progress);
 		dg.initFonts();
 		inputHandler = new InputHandler();
 	}
@@ -168,6 +170,12 @@ public class GameEngine implements ApplicationListener {
 
 							if (b.isWon()) {
 								state = GameState.WON;
+								
+								//TODO: Currently temporary
+								boolean improved = progress.setLevelScore(currentLevel, moveCounter, 1);
+								if (improved){
+									System.out.println("New record on level " + currentLevel + ": " + moveCounter + " moves!");
+								}
 							}
 						}
 					}
@@ -176,7 +184,7 @@ public class GameEngine implements ApplicationListener {
 		}
 
 		// Draw the game
-		dg.draw(b, state);
+		dg.draw(b, state, currentLevel);
 	}
 
 	private void handleButtonPress(ButtonPress button) {
@@ -240,7 +248,13 @@ public class GameEngine implements ApplicationListener {
 
 		// Initialize the lasers
 		initializeLasers();
-
+		
+		//TODO: Currently for debugging purposes
+		//Get the score
+		int pastMoves = progress.getLevelMoves(levelNumber);
+		System.out.println("Past moves on this level: " + pastMoves);
+		int stars = progress.getLevelStars(levelNumber);
+		System.out.println("Stars on this level: " + stars);
 	}
 
 	// Moves a piece, and handles changes

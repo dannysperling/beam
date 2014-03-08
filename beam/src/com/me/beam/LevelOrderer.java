@@ -1,7 +1,9 @@
 package com.me.beam;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -29,5 +31,20 @@ public class LevelOrderer {
 		if (ordinal >= 0 && ordinal < mapping.size())
 			return mapping.get(ordinal);
 		return 0;
+	}
+	
+	public int getNumLevels(){
+		return mapping.size();
+	}
+	
+	//Get the map in reverse for purposes of populating save game file
+	public Map<Integer,Integer> getInverseMapping(){
+		Map<Integer,Integer> inverseMap = new HashMap<Integer,Integer>();
+		
+		for (int i = 0; i < mapping.size(); i++){
+			inverseMap.put(mapping.get(i), i);
+		}
+		
+		return inverseMap;
 	}
 }

@@ -24,29 +24,35 @@ public class DrawGame {
 	private Sprite pieceSprite;
 	private ShapeRenderer shapes;
 
+	private GameProgress gameProgress;
+
 	BitmapFont buttonFont;
 	BitmapFont titleFont;
+	BitmapFont titleFontNoBest;
 
-	public DrawGame() {
+	public DrawGame(GameProgress gp) {
 		batch = new SpriteBatch();
 
 		pieceTexture = new Texture(Gdx.files.internal("data/piece.png"));
 		pieceTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+
+		gameProgress = gp;
 
 		TextureRegion region = new TextureRegion(pieceTexture, 0, 0, 256, 256);
 
 		pieceSprite = new Sprite(region);
 		shapes = new ShapeRenderer();
 	}
-	
+
 	public void initFonts(){
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("data/fonts/swanse.ttf"));
 		buttonFont = generator.generateFont(Gdx.graphics.getHeight() / 35);
-		titleFont = generator.generateFont(Gdx.graphics.getHeight() / 25);
+		titleFont = generator.generateFont(Gdx.graphics.getHeight() / 28);
+		titleFontNoBest = generator.generateFont(Gdx.graphics.getHeight() / 25);
 		generator.dispose();
 	}
 
-	public void draw(Board b, GameEngine.GameState state) {
+	public void draw(Board b, GameEngine.GameState state, int currentLevel) {
 		int bx = b.getBotLeftX();
 		int by = b.getBotLeftY();
 		int tilesize = b.getTileSize();
@@ -74,7 +80,7 @@ public class DrawGame {
 		for (int i = 0; i <= b.getNumVerticalTiles(); i++) {
 			shapes.line(bx, by + (i * tilesize),
 					bx + (b.getNumHorizontalTiles() * tilesize), by
-							+ (i * tilesize));
+					+ (i * tilesize));
 		}
 		shapes.end();
 
@@ -275,7 +281,7 @@ public class DrawGame {
 				shapes.rect(bx + (l.getXStart() + 0.45f) * tilesize,
 						by + (l.getYStart() + 0.45f) * tilesize,
 						0.1f * tilesize, (l.getYFinish() - l.getYStart())
-								* tilesize);
+						* tilesize);
 			} else {
 				shapes.rect(bx + (l.getXStart() + 0.45f) * tilesize,
 						by + (l.getYStart() + 0.45f) * tilesize,
@@ -307,6 +313,8 @@ public class DrawGame {
 		// Drawing progress towards level objectives
 		batch.begin();
 		String toPrint;
+		int moves = gameProgress.getLevelMoves(currentLevel);
+
 		if (b.getBeamObjectiveSet().isEmpty()) {
 			toPrint = b.getNumGoalsFilled() + " out of " + b.goalTiles.size()
 					+ " goals filled.";
@@ -321,18 +329,36 @@ public class DrawGame {
 			toPrint = curLaserCount + " out of " + beamObjective + " lasers.";
 		}
 
-		tb = titleFont.getBounds(toPrint);
-
-		titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
-				* (1 - GameEngine.topBarSize + .1f));
-
-		titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
-				* (1 - GameEngine.topBarSize + .1f));
+		//Draw differently if the level has been completed
+		if (moves != -1){
+			tb = titleFont.getBounds(toPrint);
+			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
+					* (1 - GameEngine.topBarSize*0.75f));
+		} else {
+			tb = titleFontNoBest.getBounds(toPrint);
+			titleFontNoBest.draw(batch, toPrint, (width - tb.width) / 2, height
+					* (1 - GameEngine.topBarSize*0.64f));
+		}
 
 		toPrint = "Moves: " + GameEngine.getMoveCount() + " Perfect: " + b.perfect;
-		tb = titleFont.getBounds(toPrint);
-		titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
-				* (1 - GameEngine.topBarSize + .15f));
+		
+		if (moves != -1){
+			tb = titleFont.getBounds(toPrint);
+			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
+					* (1 - GameEngine.topBarSize*0.3f));
+		} else {
+			tb = titleFontNoBest.getBounds(toPrint);
+			titleFontNoBest.draw(batch, toPrint, (width - tb.width) / 2, height
+					* (1 - GameEngine.topBarSize*0.36f));
+		}
+
+		if (moves != -1){
+			toPrint = "Your Best: " + moves;
+			tb = titleFont.getBounds(toPrint);
+
+			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
+					* (1 - GameEngine.topBarSize*0.525f));
+		}
 		batch.end();
 	}
 
