@@ -29,6 +29,7 @@ public class DrawGame {
 	BitmapFont buttonFont;
 	BitmapFont titleFont;
 	BitmapFont titleFontNoBest;
+	BitmapFont menuButtonFont;
 
 	public DrawGame(GameProgress gp) {
 		batch = new SpriteBatch();
@@ -49,6 +50,7 @@ public class DrawGame {
 		buttonFont = generator.generateFont(Gdx.graphics.getHeight() / 35);
 		titleFont = generator.generateFont(Gdx.graphics.getHeight() / 28);
 		titleFontNoBest = generator.generateFont(Gdx.graphics.getHeight() / 25);
+		menuButtonFont = generator.generateFont(Gdx.graphics.getHeight() / 45);
 		generator.dispose();
 	}
 
@@ -303,11 +305,18 @@ public class DrawGame {
 				+ (Menu.buttonHeight * height + tb.height) / 2;
 		buttonFont.draw(batch, "UNDO", Menu.undoButtonLeftX * width
 				+ (Menu.undoButtonWidth * width - tb.width) / 2, textHeight);
-		buttonFont.draw(batch, "RESET", Menu.resetButtonLeftX * width
-				+ (Menu.resetButtonWidth * width - tb.width) / 2, textHeight);
 		buttonFont.draw(batch, "REDO", Menu.redoButtonLeftX * width
 				+ (Menu.redoButtonWidth * width - tb.width) / 2, textHeight);
-
+		tb = buttonFont.getBounds("RESET");
+		buttonFont.draw(batch, "RESET", Menu.resetButtonLeftX * width
+				+ (Menu.resetButtonWidth * width - tb.width) / 2, textHeight);
+		
+		menuButtonFont.setColor(Color.WHITE);
+		tb = menuButtonFont.getBounds("MENU");
+		textHeight = height * Menu.menuButtonBotY
+				+ (Menu.menuButtonHeight * height + tb.height) / 2;
+		menuButtonFont.draw(batch, "MENU", Menu.menuButtonLeftX * width
+				+ (Menu.menuButtonWidth * width - tb.width) / 2, textHeight);
 		batch.end();
 
 		// Drawing progress towards level objectives
@@ -330,6 +339,8 @@ public class DrawGame {
 		}
 
 		//Draw differently if the level has been completed
+		titleFont.setColor(Color.WHITE);
+		titleFontNoBest.setColor(Color.WHITE);
 		if (moves != -1){
 			tb = titleFont.getBounds(toPrint);
 			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
@@ -365,6 +376,10 @@ public class DrawGame {
 	public void dispose() {
 		batch.dispose();
 		pieceTexture.dispose();
+		titleFont.dispose();
+		titleFontNoBest.dispose();
+		buttonFont.dispose();
+		menuButtonFont.dispose();
 	}
 
 }
