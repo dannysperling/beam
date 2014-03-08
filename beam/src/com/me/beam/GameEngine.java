@@ -36,8 +36,7 @@ public class GameEngine implements ApplicationListener {
 	}
 
 	public enum ButtonPress {
-		UNDO, RESET, REDO, NONE, WON // Note: WON should not exist in non-proto
-		// version
+		UNDO, RESET, REDO, MENU, NONE, WON // Note: WON should not exist in non-proto version
 	}
 
 	public enum Color {
@@ -71,7 +70,7 @@ public class GameEngine implements ApplicationListener {
 	public static final float sideEmptySize = 0.02f;
 
 	private GameState state = GameState.IDLE;
-	
+
 	//Menu time
 	private boolean mainMenuShowing = true;
 	private Menu menu;
@@ -87,6 +86,8 @@ public class GameEngine implements ApplicationListener {
 		loadLevel(currentLevel);
 
 		dg = new DrawGame(progress);
+		menu = new Menu(levelOrderer.getNumLevels(), progress);
+		dm = new DrawMenu(menu);
 		dg.initFonts();
 		inputHandler = new InputHandler();
 	}
@@ -98,29 +99,47 @@ public class GameEngine implements ApplicationListener {
 
 	@Override
 	public void render() {
-		
+
 		//Handle the menu separately
 		if (mainMenuShowing){
+
+			int selected = inputHandler.handleMainMenuInput(menu);
 			
-			
+			//Picked a level
+			if (selected != -1){
+				//Only reset if different level
+				mainMenuShowing = false;
+				if (selected != currentLevel){
+					currentLevel = selected;
+					loadLevel(currentLevel);
+				}
+			}
+
+			dm.draw();
+			return;
 		}
-		
-		
+
+
 		boolean pushedButton = false;
 
 		if (state != GameState.DECIDING/* && state != GameState.WON */) {
 			ButtonPress button = inputHandler.checkForButtonPress();
 
-			if (button != ButtonPress.NONE && button != ButtonPress.WON) {
+			if (button == ButtonPress.REDO || button == ButtonPress.RESET || button == ButtonPress.UNDO) {
 				System.out.println(button);
 				pushedButton = true;
 				handleButtonPress(button);
 			}
 
 			// Increase level. Should be done elsewhere in non-proto version
-			if (state == GameState.WON && button == ButtonPress.WON) {
+			else if (state == GameState.WON && button == ButtonPress.WON) {
 				currentLevel++;
 				loadLevel(currentLevel);
+				pushedButton = true;
+			}
+			
+			else if (button == ButtonPress.MENU){
+				mainMenuShowing = true;
 				pushedButton = true;
 			}
 		}
@@ -166,13 +185,23 @@ public class GameEngine implements ApplicationListener {
 							boardStack.add(moveCounter, (b.encodePieces()));
 
 							// Remove the old future
-							boardStack = boardStack.subList(0, moveCounter + 1);
+							List<Collection<Short>> newStack = new ArrayList<Collection<Short>>();
+							for (int i = 0; i < moveCounter+1; i++)
+								newStack.add(boardStack.get(i));
+							boardStack = newStack; 
 
 							if (b.isWon()) {
 								state = GameState.WON;
-								
-								//TODO: Currently temporary
-								boolean improved = progress.setLevelScore(currentLevel, moveCounter, 1);
+
+								int numStars = 1;
+								if (moveCounter <= b.perfect){
+									numStars = 3;
+								} else if (moveCounter <= b.par){
+									numStars = 2;
+								}
+								boolean improved = progress.setLevelScore(currentLevel, moveCounter, numStars);
+
+								//TODO: Currently temporary. Should pop-up win menu
 								if (improved){
 									System.out.println("New record on level " + currentLevel + ": " + moveCounter + " moves!");
 								}
@@ -196,7 +225,9 @@ public class GameEngine implements ApplicationListener {
 			break;
 		case RESET:
 			moveCounter = 0;
-			boardStack = boardStack.subList(0, 1);
+			List<Collection<Short>> newStack = new ArrayList<Collection<Short>>();
+			newStack.add(boardStack.get(0));
+			boardStack = newStack;
 			break;
 		case REDO:
 			// Make sure there's a move to go to
@@ -248,13 +279,6 @@ public class GameEngine implements ApplicationListener {
 
 		// Initialize the lasers
 		initializeLasers();
-		
-		//TODO: Currently for debugging purposes
-		//Get the score
-		int pastMoves = progress.getLevelMoves(levelNumber);
-		System.out.println("Past moves on this level: " + pastMoves);
-		int stars = progress.getLevelStars(levelNumber);
-		System.out.println("Stars on this level: " + stars);
 	}
 
 	// Moves a piece, and handles changes
@@ -636,5 +660,6 @@ public class GameEngine implements ApplicationListener {
 	@Override
 	public void resume() {
 		dg.initFonts();
+		dm.initFonts();
 	}
 }

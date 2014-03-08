@@ -19,6 +19,12 @@ public class Menu {
 	//Then redo
 	static final float redoButtonLeftX = 0.67f;
 	static final float redoButtonWidth = 0.31f;
+	
+	//Menu button: Top Left corner
+	static final float menuButtonBotY = 1 - GameEngine.topBarSize*0.25f;
+	static final float menuButtonLeftX = 0.02f;
+	static final float menuButtonWidth = 0.15f;
+	static final float menuButtonHeight = GameEngine.topBarSize*0.2f;
 
 	//Get which button a pixel is inside of
 	public static GameEngine.ButtonPress containingButtonOfPixel(int x, int y){
@@ -42,12 +48,81 @@ public class Menu {
 				return GameEngine.ButtonPress.REDO;
 			}
 		}
+		
+		else if (y > menuButtonBotY * height && y < (menuButtonBotY + menuButtonHeight) * height){
+			//Go to menu
+			if (x > menuButtonLeftX * width && x < (menuButtonLeftX + menuButtonWidth) * width){
+				return GameEngine.ButtonPress.MENU;
+			}
+		}
 
 		// Not in one of the buttons
 		return GameEngine.ButtonPress.NONE;
 	}
 	
-	public Menu(){
+	static final float menuItemHeight = 0.15f;
+	
+	//This indicates how far down the menu has been scrolled. 0 indicates none at
+	//all; the first few levels should be showing. The max value of scrollDownAmount
+	//is menuItemHeight*numLevels*screenHeight - screenHeight;
+	private int scrollAmount = 0;
+	private int numLevels;
+	private GameProgress progress;
+	
+	public Menu(int numLevels, GameProgress progress){
+		this.numLevels = numLevels;
+		this.progress = progress;
+	}
+	
+	//Returns true if able to scroll entirely; false otherwise (hit end)
+	//scrollDownAmount is positive if scrolling down (to higher levels), 
+	//negative for up
+	public boolean scroll(int scrollDownAmount){
 		
+		scrollAmount += scrollDownAmount;
+		
+		int maxHeight = (int) (Gdx.graphics.getHeight()*(menuItemHeight*numLevels - 1));
+		if (scrollAmount > maxHeight){
+			scrollAmount = maxHeight;
+			return false;
+		} else if (scrollAmount < 0){
+			scrollAmount = 0;
+			return false;
+		}
+		
+		return true;
+	}
+	
+	//Allows draw code to know which levels are on screen
+	public int getScrollAmount(){
+		return scrollAmount;
+	}
+	
+	//Allow some read-through to the game progress
+	public int getLevelMoves(int ordinal){
+		return progress.getLevelMoves(ordinal);
+	}
+	
+	public int getLevelStars(int ordinal){
+		return progress.getLevelStars(ordinal);
+	}
+	
+	public boolean isUnlocked(int ordinal){
+		return progress.isUnlocked(ordinal);
+	}
+	//Returns the ordinal of the selected level, or -1 if selected level is locked.
+	public int getSelectedLevel(int screenYPos){
+		int levelOrdinal = getLevelAtPosition(screenYPos);
+		if (progress.isUnlocked(levelOrdinal)){
+			return levelOrdinal;
+		} else {
+			return -1;
+		}
+	}
+	
+	//Returns the ordinal of the level at the given position, INCLUDING LOCKED levels
+	public int getLevelAtPosition(int screenYPos){
+		int selectedY = scrollAmount - screenYPos + Gdx.graphics.getHeight();
+		return (int) (selectedY / (Gdx.graphics.getHeight() * menuItemHeight));
 	}
 }

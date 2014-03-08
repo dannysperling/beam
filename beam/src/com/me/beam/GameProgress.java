@@ -20,6 +20,8 @@ public class GameProgress {
 	private int playMusic;
 	private int playFX;
 	
+	private int highestUnlockedLevel;
+	
 	private LevelOrderer levelOrderer;
 
 	public GameProgress(LevelOrderer levelOrderer){
@@ -44,6 +46,9 @@ public class GameProgress {
 			uniqueIds[i] = -1;
 		}
 		
+		//Only the first level is unlocked at first
+		highestUnlockedLevel = 0;
+		
 		load();
 	}
 	
@@ -55,9 +60,17 @@ public class GameProgress {
 			stars[ordinal] = levelStars;
 			setXmlTag(ordinal);
 			save();
+			
+			//Always unlock 3 into the future for getting correct
+			highestUnlockedLevel = Math.max(highestUnlockedLevel, ordinal + 3);
+			
 			return true;
 		}
 		return false;
+	}
+	
+	public boolean isUnlocked(int ordinal){
+		return (ordinal <= highestUnlockedLevel);
 	}
 	
 	//Returns the number of moves done on this level, or -1 if not completed
@@ -107,6 +120,7 @@ public class GameProgress {
 			scores[ordinal] = Integer.parseInt(mat.group(2));
 			stars[ordinal] = Integer.parseInt(mat.group(3));
 			uniqueIds[ordinal] = uniqueId;
+			highestUnlockedLevel = Math.max(highestUnlockedLevel, ordinal + 3);
 			setXmlTag(ordinal);
 		}
 		

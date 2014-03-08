@@ -1,5 +1,8 @@
 package com.me.beam;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.badlogic.gdx.Gdx;
 import com.me.beam.GameEngine.GameState;
 
@@ -32,6 +35,64 @@ public class InputHandler {
 		return state;
 	}
 
+	private int firstTouchHeight = -1;
+	private int lastTouchHeight = -1;
+	private final int maxDiffClick = 10;
+	private boolean movedTooFar = false;	
+	private float momentum = 0;
+	private final float momentumDropOff = 0.05f;
+
+	//Returns the level ordinal selected, or -1 if no unlocked level selected
+	public int handleMainMenuInput(Menu menu){
+
+		if (Gdx.input.isTouched()){
+			int y = getY();
+
+			//Check for the first press
+			if (firstTouchHeight == -1){
+				firstTouchHeight = y;
+			} 
+			//Otherwise update momentum
+			else {
+				momentum = (y - lastTouchHeight);
+
+				//And move the screen
+				menu.scroll(y - lastTouchHeight);
+			}
+
+			//Update where we are now
+			lastTouchHeight = y;
+			if (Math.abs(firstTouchHeight - lastTouchHeight) > maxDiffClick)
+				movedTooFar = true;
+
+		} else {
+			//Check if clicked a place
+			if (firstTouchHeight != -1){
+				firstTouchHeight = -1;
+				if (!movedTooFar){
+					int selected = menu.getSelectedLevel(lastTouchHeight);
+					lastTouchHeight = -1;
+					movedTooFar = false;
+					return selected;
+				} else {
+					lastTouchHeight = -1;
+					movedTooFar = false;
+				}
+			}
+			if (momentum != 0){
+				boolean moreToScroll = menu.scroll((int)momentum);
+				momentum = momentum * (1 - momentumDropOff);
+				
+				//If we passed zero or hit the wall
+				if (Math.abs(momentum) < 2 || !moreToScroll){
+					momentum = 0;
+				}
+			}
+		}
+
+		return -1;
+	}
+
 	private GameState onRelease() {
 		if (GameEngine.movePath.size() > 1) {
 			/* If they let go with moves queued, make them */
@@ -53,7 +114,13 @@ public class InputHandler {
 			// path.
 			int i = GameEngine.movePath.indexOf(destination);
 			if (i != -1 && i != GameEngine.movePath.size() - 1) {
-				GameEngine.movePath = GameEngine.movePath.subList(0, i + 1);
+				
+				//REPLACING SUBLIST
+				List<Tile> newPath = new ArrayList<Tile>();
+				for (int j = 0; j < i + 1; j++){
+					newPath.add(GameEngine.movePath.get(j));
+				}
+				GameEngine.movePath = newPath;
 			}
 
 			Tile intervening = findValidDiagonal(b, source, destination);
@@ -62,7 +129,12 @@ public class InputHandler {
 			} else if (intervening != null) {
 				i = GameEngine.movePath.indexOf(intervening);
 				if (i != -1) {
-					GameEngine.movePath = GameEngine.movePath.subList(0, i + 1);
+					//REPLACING SUBLIST
+					List<Tile> newPath = new ArrayList<Tile>();
+					for (int j = 0; j < i + 1; j++){
+						newPath.add(GameEngine.movePath.get(j));
+					}
+					GameEngine.movePath = newPath;
 					GameEngine.movePath.add(destination);
 				} else {
 					GameEngine.movePath.add(intervening);
@@ -188,6 +260,6 @@ public class InputHandler {
 		return (Math.abs(t1.getXCoord() - t2.getXCoord()) == 1 && t1
 				.getYCoord() == t2.getYCoord())
 				|| (Math.abs(t2.getYCoord() - t1.getYCoord()) == 1 && t1
-						.getXCoord() == t2.getXCoord());
+				.getXCoord() == t2.getXCoord());
 	}
 }
