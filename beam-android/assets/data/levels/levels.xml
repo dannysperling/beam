@@ -282,7 +282,7 @@ glass,e,e,glass,1,e
 3,1,1,2,e,e
 </level>
 
-<level id=99553 par=25 perfect=17>
+<level id=99553 par=25 perfect=15>
 <attribution name="Danny's option" author="Mike">
 2,e,glass,2,glass,e,goal_2
 e,e,3,glass,3,e,e
