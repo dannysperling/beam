@@ -127,9 +127,9 @@ glass,glass,glass,glass,glass
 <level id=87870 par=13 perfect=8>
 <attribution name="" author=""/>
 2,glass,e,e,2,3
-glass,glass,glass,e,glass,2
-e,2,e,1,glass,e
-e,glass,glass,2,glass,2
+2,glass,glass,e,glass,2
+glass,2,e,1,glass,e
+e,e,glass,2,glass,2
 2,glass,glass,e,glass,1
 goal_3,1,e,e,2,glass
 </level>
