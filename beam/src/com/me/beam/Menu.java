@@ -81,9 +81,11 @@ public class Menu {
 		
 		scrollAmount += scrollDownAmount;
 		
-		int maxHeight = (int) (Gdx.graphics.getHeight()*(menuItemHeight*numLevels - 1));
+		int itemHeight = (int)(Gdx.graphics.getHeight() * menuItemHeight);
+		
+		int maxHeight =  itemHeight * numLevels - Gdx.graphics.getHeight();
 		if (scrollAmount > maxHeight){
-			scrollAmount = maxHeight;
+			scrollAmount = maxHeight - 1;
 			return false;
 		} else if (scrollAmount < 0){
 			scrollAmount = 0;
@@ -122,7 +124,8 @@ public class Menu {
 	
 	//Returns the ordinal of the level at the given position, INCLUDING LOCKED levels
 	public int getLevelAtPosition(int screenYPos){
-		int selectedY = scrollAmount - screenYPos + Gdx.graphics.getHeight();
-		return (int) (selectedY / (Gdx.graphics.getHeight() * menuItemHeight));
+		int selectedY = scrollAmount - screenYPos + Gdx.graphics.getHeight() + 1;
+		int itemHeight = (int)(Gdx.graphics.getHeight() * menuItemHeight);
+		return (selectedY / itemHeight);
 	}
 }
