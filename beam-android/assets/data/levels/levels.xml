@@ -124,14 +124,14 @@ glass,glass,glass,glass,glass
 2,glass,painter_2,2,painter_1
 </level>
 
-<level id=87870 par=13 perfect=8>
+<level id=87870 par=15 perfect=11>
 <attribution name="" author=""/>
-2,glass,e,e,2,3
-2,glass,glass,e,glass,2
-glass,2,e,1,glass,e
-e,e,glass,2,glass,2
-2,glass,glass,e,glass,1
-goal_3,1,e,e,2,glass
+3,glass,e,e,e,3
+2,glass,glass,2,glass,2
+glass,2,1,e,glass,e
+glass,1,glass,2,glass,2
+glass,e,glass,e,glass,1
+glass,1:goal_3,e,e,2,glass
 </level>
 
 <level id=66666 par=20 perfect=12>
@@ -322,3 +322,4 @@ glass,3,e,e,e,3,glass
 e,e,3,glass,3,e,1
 goal_2,e,glass,2,glass,2,e
 </level>
+
