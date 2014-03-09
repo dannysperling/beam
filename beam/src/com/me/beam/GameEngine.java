@@ -27,12 +27,22 @@ public class GameEngine implements ApplicationListener {
 	private static List<Collection<Short>> boardStack = new ArrayList<Collection<Short>>();
 
 	// Animation constants in ticks
+	private static final int timeToMovePiece = 8;
+	private static final int timeToFormBeam = 4;
+	private static final int timeToBreakBeam = 4;
+	private static final int timeToPaintPiece = 4;
 	private static final int timeOnTileBeforeMove = 7;
-
 	private static int timeSpentOnTile = 0;
+	private static int timeForThisStep = 0;
+	
+	
 
 	public enum GameState {
 		PAUSED, IDLE, DECIDING, MOVING, DESTROYED, WON
+	}
+	
+	public enum AnimationState {
+		FORMING, MOVING, PAINTING, BREAKING, NOTANIMATING
 	}
 
 	public enum ButtonPress {
@@ -70,6 +80,7 @@ public class GameEngine implements ApplicationListener {
 	public static final float sideEmptySize = 0.02f;
 
 	private GameState state = GameState.IDLE;
+	private AnimationState animationState = AnimationState.NOTANIMATING;
 
 	//Menu time
 	private boolean mainMenuShowing = true;
@@ -218,7 +229,7 @@ public class GameEngine implements ApplicationListener {
 		}
 
 		// Draw the game
-		dg.draw(b, state, currentLevel);
+		dg.draw(b, state, animationState, currentLevel);
 	}
 
 	private void handleButtonPress(ButtonPress button) {

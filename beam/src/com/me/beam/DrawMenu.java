@@ -55,8 +55,8 @@ public class DrawMenu {
 					numberFont.setColor(Color.GREEN);
 				} else {
 					levelInfo = "Incomplete";
-					menuFont.setColor(Color.BLUE);
-					numberFont.setColor(Color.BLUE);
+					menuFont.setColor(new Color(.133f, .337f, 1, 1));
+					numberFont.setColor(new Color(.133f, .337f, 1, 1));
 				}
 			}
 			tb = menuFont.getBounds(levelInfo);
