@@ -6,22 +6,6 @@ e,e,e
 e,goal_1,e
 </level>
 
-<level id=24354 par=3 perfect=2>
-<attribution name="Glass is impassible" author="John"/>
-e,1,e
-2,glass,2
-e,goal_1,e
-</level>
-
-<level id=18798 par=7 perfect=5>
-<attribution name="Things can be stuck" author="John"/>
-1,glass,glass,glass
-e,glass,2,1
-e,glass,e,glass
-e,glass,2,1
-goal_1,glass,glass,glass
-</level>
-
 <level id=2 par=3 perfect=2>
 <attribution name="Building Beams" author="Danny?"/>
 <beamGoal color=1 count=4/>
@@ -339,3 +323,18 @@ e,e,3,glass,3,e,1
 goal_2,e,glass,2,glass,2,e
 </level>
 
+<level id=35 par=3 perfect=2>
+<attribution name="Glass is impassible" author="John"/>
+e,1,e
+2,glass,2
+e,goal_1,e
+</level>
+
+<level id=36 par=7 perfect=5>
+<attribution name="Things can be stuck" author="John"/>
+1,glass,glass,glass
+e,glass,2,1
+e,glass,e,glass
+e,glass,2,1
+goal_1,glass,glass,glass
+</level>
