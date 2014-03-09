@@ -317,7 +317,7 @@ public class Board {
 			}
 			return true;
 		} catch (ArrayIndexOutOfBoundsException e) {
-			System.out.println("restPieces failed with exception:");
+			GameEngine.debug("restPieces failed with exception:");
 			e.printStackTrace();
 			return false;
 		}

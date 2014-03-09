@@ -69,7 +69,7 @@ public class DrawMenu {
 					itemTopY - ((height * Menu.menuItemHeight) - tb.height)/2);
 			
 			//Increment the botY and the ordinal
-			itemTopY -= Menu.menuItemHeight * height;
+			itemTopY -= itemHeight;
 			itemOrdinal++;
 		}
 		batch.end();

@@ -60,7 +60,7 @@ public class Menu {
 		return GameEngine.ButtonPress.NONE;
 	}
 	
-	static final float menuItemHeight = 0.15f;
+	static final float menuItemHeight = 1/(7.0f);
 	
 	//This indicates how far down the menu has been scrolled. 0 indicates none at
 	//all; the first few levels should be showing. The max value of scrollDownAmount
@@ -84,7 +84,7 @@ public class Menu {
 		int itemHeight = (int)(Gdx.graphics.getHeight() * menuItemHeight);
 		
 		int maxHeight =  itemHeight * numLevels - Gdx.graphics.getHeight();
-		if (scrollAmount > maxHeight){
+		if (scrollAmount >= maxHeight){
 			scrollAmount = maxHeight - 1;
 			return false;
 		} else if (scrollAmount < 0){
@@ -93,6 +93,14 @@ public class Menu {
 		}
 		
 		return true;
+	}
+	
+	//Scrolls to a specific level
+	public void scrollToLevel(int ordinal){
+		int scrollTo = Math.max(ordinal - 3, 0);
+		int itemHeight = (int)(Gdx.graphics.getHeight() * menuItemHeight);
+		int maxHeight =  itemHeight * numLevels - Gdx.graphics.getHeight();
+		scrollAmount = Math.min(itemHeight * scrollTo, maxHeight - 1);
 	}
 	
 	//Allows draw code to know which levels are on screen

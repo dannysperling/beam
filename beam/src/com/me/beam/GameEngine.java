@@ -7,8 +7,13 @@ import java.util.List;
 import java.util.Set;
 
 import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 
 public class GameEngine implements ApplicationListener {
+	
+	public static final boolean DEBUG_MODE = false;
+	
 	// Enter the levelID you want to play here:
 	private int currentLevel = 0;
 
@@ -86,6 +91,10 @@ public class GameEngine implements ApplicationListener {
 	private boolean mainMenuShowing = true;
 	private Menu menu;
 	private DrawMenu dm;
+	
+	//Restoration
+	private String tempData = "level.temp";
+	private FileHandle tempFile;
 
 	@Override
 	public void create() {
@@ -101,6 +110,10 @@ public class GameEngine implements ApplicationListener {
 		dm = new DrawMenu(menu);
 		dg.initFonts();
 		inputHandler = new InputHandler();
+		
+		Gdx.input.setCatchBackKey(true);
+		
+		tempFile = Gdx.files.local(tempData);
 	}
 
 	@Override
@@ -110,11 +123,21 @@ public class GameEngine implements ApplicationListener {
 
 	@Override
 	public void render() {
+		
+		//Check for back pressed first
+		inputHandler.checkBackPressed();
 
 		//Handle the menu separately
 		if (mainMenuShowing){
 
 			int selected = inputHandler.handleMainMenuInput(menu);
+			
+			//Exit to leave
+			if (selected == -2){
+				
+				//TODO: Do things to check if the player wants to leave.
+				System.exit(0);
+			}
 			
 			//Picked a level
 			if (selected != -1){
@@ -137,7 +160,7 @@ public class GameEngine implements ApplicationListener {
 			ButtonPress button = inputHandler.checkForButtonPress();
 
 			if (button == ButtonPress.REDO || button == ButtonPress.RESET || button == ButtonPress.UNDO) {
-				System.out.println(button);
+				debug(button);
 				pushedButton = true;
 				handleButtonPress(button);
 			}
@@ -149,6 +172,7 @@ public class GameEngine implements ApplicationListener {
 					loadLevel(currentLevel);
 				} else {
 					currentLevel--;
+					menu.scrollToLevel(currentLevel);
 					mainMenuShowing=true;
 				}
 				pushedButton = true;
@@ -156,6 +180,7 @@ public class GameEngine implements ApplicationListener {
 			
 			else if (button == ButtonPress.MENU){
 				mainMenuShowing = true;
+				menu.scrollToLevel(currentLevel);
 				pushedButton = true;
 			}
 		}
@@ -164,12 +189,12 @@ public class GameEngine implements ApplicationListener {
 		if (!pushedButton) {
 			// Get input from the user
 			GameState pastState = state;
-			state = inputHandler.handleInput(b, state);
+			state = inputHandler.handleGameInput(b, state);
 
 			// Increment the moves when appropriate
 			if (pastState == GameState.DECIDING && state == GameState.MOVING) {
 				moveCounter++;
-				System.out.println(moveCounter);
+				debug(moveCounter);
 			}
 
 			// Do things if we're moving
@@ -219,7 +244,7 @@ public class GameEngine implements ApplicationListener {
 
 								//TODO: Currently temporary. Should pop-up win menu
 								if (improved){
-									System.out.println("New record on level " + currentLevel + ": " + moveCounter + " moves!");
+									debug("New record on level " + currentLevel + ": " + moveCounter + " moves!");
 								}
 							}
 						}
@@ -277,7 +302,7 @@ public class GameEngine implements ApplicationListener {
 		b = levelLoader.getLevel(levelNumber);
 		if (b == null) {
 			// TODO: fail correctly when the game is out of levels.
-			System.out.println("No further levels exist.");
+			debug("No further levels exist.");
 			System.exit(1);
 		}
 
@@ -358,7 +383,8 @@ public class GameEngine implements ApplicationListener {
 		for (Piece p1 : b.getAllPieces()) {
 			List<Piece> destroyed = formLasersFromPieceAndDestroy(p1);
 			if (!destroyed.isEmpty()){
-				System.out.println("OH GOD WHY WHAT ARE YOU DOING YOU HEATHEN!\nTHIS WOULD BE BEEPING IF I COULD MAKE IT.");
+				debug("OH GOD WHY WHAT ARE YOU DOING YOU HEATHEN!" +
+						"\nTHIS WOULD BE BEEPING IF I COULD MAKE IT.");
 			}
 		}
 	}
@@ -671,11 +697,56 @@ public class GameEngine implements ApplicationListener {
 
 	@Override
 	public void pause() {
+		String toSave = currentLevel + ";" + moveCounter + ";" + mainMenuShowing + ";";
+		for (Collection<Short> curBoard : boardStack){
+			for (Short s : curBoard){
+				toSave += s + "--";
+			}
+			toSave += ";";
+		}
+		debug("Writing " + toSave);
+		tempFile.writeString(toSave, false);
 	}
 
 	@Override
 	public void resume() {
 		dg.initFonts();
 		dm.initFonts();
+		String fromTemp = tempFile.readString();
+		debug("Read " + fromTemp);
+		if (fromTemp != null){
+			String[] parts = fromTemp.split(";");
+			
+			//Get the level
+			currentLevel = Integer.parseInt(parts[0]);
+			loadLevel(currentLevel);
+			
+			//Set up moves and menu
+			moveCounter = Integer.parseInt(parts[1]);
+			mainMenuShowing = Boolean.parseBoolean(parts[2]);
+			
+			//Set up the stack
+			boardStack.clear();
+			for (int i = 3; i < parts.length; i++){
+				List<Short> move = new ArrayList<Short>();
+				String[] subParts = parts[i].split("--");
+				for (String s : subParts){
+					move.add(Short.parseShort(s));
+				}
+				boardStack.add(move);
+			}
+			
+			b.resetPieces(boardStack.get(boardStack.size() - 1));
+			initializeLasers();
+			
+			menu.scrollToLevel(currentLevel);
+		}
+	}
+	
+	public static <T> void debug(T s){
+		if (!DEBUG_MODE){
+			return;
+		}
+		System.out.println(s);
 	}
 }
