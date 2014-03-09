@@ -230,7 +230,7 @@ e,2,e,e,2,e
 3,e,1,e,e,1
 </level>
 
-<level id=27 par=13 perfect=8>
+<level id=27 par=13 perfect=7>
 <attribution name="" author="Mike"/>
 <beamGoal color=1 count=0/>
 <beamGoal color=2 count=0/>

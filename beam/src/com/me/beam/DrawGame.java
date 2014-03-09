@@ -31,6 +31,19 @@ public class DrawGame {
 	BitmapFont titleFontNoBest;
 	BitmapFont menuButtonFont;
 
+	public static Color translateColor(GameEngine.Color c){
+		switch (c) {
+		case RED:
+			return new Color(1, .133f, .133f, 1);
+		case BLUE:
+			return new Color(.133f, .337f, 1, 1);
+		case GREEN:
+			return new Color(.133f, 1, .177f, 1);
+		default:
+			return new Color(0, 0, 0, 0);
+		}
+	}
+	
 	public DrawGame(GameProgress gp) {
 		batch = new SpriteBatch();
 
@@ -54,7 +67,7 @@ public class DrawGame {
 		generator.dispose();
 	}
 
-	public void draw(Board b, GameEngine.GameState state, int currentLevel) {
+	public void draw(Board b, GameEngine.GameState state, GameEngine.AnimationState aState, int currentLevel) {
 		int bx = b.getBotLeftX();
 		int by = b.getBotLeftY();
 		int tilesize = b.getTileSize();
@@ -115,20 +128,7 @@ public class DrawGame {
 			if (t.hasGoal()) {
 				int goalX = bx + (t.getXCoord() * tilesize);
 				int goalY = by + (t.getYCoord() * tilesize);
-				switch (t.getGoalColor()) {
-				case RED:
-					shapes.setColor(Color.RED);
-					break;
-				case BLUE:
-					shapes.setColor(Color.BLUE);
-					break;
-				case GREEN:
-					shapes.setColor(Color.GREEN);
-					break;
-				default:
-					shapes.setColor(new Color(0, 0, 0, 0));
-					break;
-				}
+				shapes.setColor(translateColor(t.getGoalColor()));
 				shapes.rect(goalX + (0.05f * tilesize), goalY
 						+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
 				shapes.setColor(curBG);
@@ -164,7 +164,7 @@ public class DrawGame {
 
 		// Draw Paths
 		List<Tile> path = GameEngine.movePath;
-		float animateTime = 0;// ((float)(GameEngine.getTimeOnThisTile()))/(GameEngine.getTicksPerTile());
+		float animateTime = ((float)(GameEngine.getTimeOnThisTile()))/(GameEngine.getTicksPerTile());
 		shapes.begin(ShapeType.Filled);
 		shapes.setColor(new Color(.9f, .9f, .2f, 1f));
 		for (int i = 0; i < path.size(); i++) {
@@ -237,15 +237,7 @@ public class DrawGame {
 		batch.begin();
 		pieceSprite.setSize(tilesize, tilesize);
 		for (Piece p : pieces) {
-			if (p.getColor() == GameEngine.Color.RED) {
-				pieceSprite.setColor(Color.RED);
-			} else if (p.getColor() == GameEngine.Color.BLUE) {
-				pieceSprite.setColor(Color.BLUE);
-			} else if (p.getColor() == GameEngine.Color.GREEN) {
-				pieceSprite.setColor(Color.GREEN);
-			} else {
-				pieceSprite.setColor(new Color(0, 0, 0, 0));
-			}
+			pieceSprite.setColor(translateColor(p.getColor()));
 			pieceSprite.setPosition(bx + (p.getXCoord() * tilesize),
 					by + (p.getYCoord() * tilesize));
 			if (path.size() > 1
@@ -265,20 +257,7 @@ public class DrawGame {
 		Set<Laser> lasers = b.lasers;
 		shapes.begin(ShapeType.Filled);
 		for (Laser l : lasers) {
-			switch (l.getColor()) {
-			case RED:
-				shapes.setColor(new Color(1, 0, 0, 1));
-				break;
-			case BLUE:
-				shapes.setColor(new Color(0, 0, 1, 1));
-				break;
-			case GREEN:
-				shapes.setColor(new Color(0, 1, 0, 1));
-				break;
-			default:
-				shapes.setColor(new Color(0, 0, 0, 0));
-				break;
-			}
+			shapes.setColor(translateColor(l.getColor()));
 			if (l.getXStart() == l.getXFinish()) {
 				shapes.rect(bx + (l.getXStart() + 0.45f) * tilesize,
 						by + (l.getYStart() + 0.45f) * tilesize,
@@ -292,7 +271,7 @@ public class DrawGame {
 			}
 		}
 		shapes.end();
-
+		
 		// Draw the buttons
 		batch.begin();
 		buttonFont.setColor(Color.WHITE);
