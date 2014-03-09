@@ -84,7 +84,7 @@ public class Menu {
 		int itemHeight = (int)(Gdx.graphics.getHeight() * menuItemHeight);
 		
 		int maxHeight =  itemHeight * numLevels - Gdx.graphics.getHeight();
-		if (scrollAmount > maxHeight){
+		if (scrollAmount >= maxHeight){
 			scrollAmount = maxHeight - 1;
 			return false;
 		} else if (scrollAmount < 0){
