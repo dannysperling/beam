@@ -1,4 +1,6 @@
 10101  -  Comments about the level may be written here in plaintext.
+24354  -  Glass is an obstacle that you can't move through tutorial.
+18798  -  Beam creation can be a problem tutorial.
 36248  -  Don't put a number surrounded by whitespace. level1 is fine.
 10016  -  The dash is unnecessary but looks nice.
 86655
