@@ -134,7 +134,12 @@ public class GameEngine implements ApplicationListener {
 			// Increase level. Should be done elsewhere in non-proto version
 			else if (state == GameState.WON && button == ButtonPress.WON) {
 				currentLevel++;
-				loadLevel(currentLevel);
+				if (currentLevel < levelOrderer.getNumLevels()){
+					loadLevel(currentLevel);
+				} else {
+					currentLevel--;
+					mainMenuShowing=true;
+				}
 				pushedButton = true;
 			}
 			
