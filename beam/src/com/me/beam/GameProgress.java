@@ -46,8 +46,8 @@ public class GameProgress {
 			uniqueIds[i] = -1;
 		}
 		
-		//Only the first level is unlocked at first
-		highestUnlockedLevel = 0;
+		//First three levels originally unlocked
+		highestUnlockedLevel = 2;
 		
 		load();
 	}
@@ -55,14 +55,14 @@ public class GameProgress {
 	//Returns if the new score was better
 	public boolean setLevelScore(int ordinal, int moves, int levelStars){
 		if (scores[ordinal] == -1 || moves < scores[ordinal]){
+			if (scores[ordinal] == -1){
+				highestUnlockedLevel++;
+			}
 			uniqueIds[ordinal] = levelOrderer.getUniqueId(ordinal);
 			scores[ordinal] = moves;
 			stars[ordinal] = levelStars;
 			setXmlTag(ordinal);
 			save();
-			
-			//Always unlock 3 into the future for getting correct
-			highestUnlockedLevel = Math.max(highestUnlockedLevel, ordinal + 3);
 			
 			return true;
 		}
@@ -120,7 +120,7 @@ public class GameProgress {
 			scores[ordinal] = Integer.parseInt(mat.group(2));
 			stars[ordinal] = Integer.parseInt(mat.group(3));
 			uniqueIds[ordinal] = uniqueId;
-			highestUnlockedLevel = Math.max(highestUnlockedLevel, ordinal + 3);
+			highestUnlockedLevel++;
 			setXmlTag(ordinal);
 		}
 		

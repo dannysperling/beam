@@ -214,7 +214,8 @@ public class InputHandler {
 	}
 
 	private int getY() {
-		return Gdx.graphics.getHeight() - Gdx.input.getY() - 1;
+		int y = Gdx.graphics.getHeight() - Gdx.input.getY() - 1;
+		return Math.min(Math.max(y, 0), Gdx.graphics.getHeight() - 1);
 	}
 
 	private int getX() {

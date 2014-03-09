@@ -1,4 +1,4 @@
-<level id=10101 par=3 perfect=2>
+<level id=1 par=3 perfect=2>
 <attribution name="Beam 101" author="Johns"/>
 e,1,e
 2,e,2
@@ -22,7 +22,7 @@ e,glass,2,1
 goal_1,glass,glass,glass
 </level>
 
-<level id=36248 par=3 perfect=2>
+<level id=2 par=3 perfect=2>
 <attribution name="Building Beams" author="Danny?"/>
 <beamGoal color=1 count=4/>
 e,e,e,1
@@ -31,14 +31,14 @@ e,1,e,e
 1,e,e,e
 </level>
 
-<level id=10016 par=4 perfect=3>
+<level id=3 par=4 perfect=3>
 <attribution name="" author=""/>
 e,1,e
 2,e,2
 glass,1:goal_2,glass
 </level>
 
-<level id=86655 par=10 perfect=8>
+<level id=4 par=10 perfect=8>
 <attribution name="Simplicity Incarnate" author="Danny"/>
 goal_2,2,2,goal_2
 2,goal_1,goal_1,1
@@ -46,14 +46,14 @@ goal_2,2,2,goal_2
 goal_2,1,1,goal_2
 </level>
 
-<level id=98743 par=6 perfect=4>
+<level id=5 par=6 perfect=4>
 <attribution name="Watch your step" author="Danny"/>
 2,e,e,1
 1,1,2,2
 goal_1,2,1,goal_2
 </level>
 
-<level id=89897 par=7 perfect=4>
+<level id=6 par=7 perfect=4>
 <attribution name="Step in the goal" author="Danny?"/>
 glass,3,glass
 1,e,1
@@ -62,7 +62,7 @@ glass,e,glass
 glass,goal_3,glass
 </level>
 
-<level id=19874 par=7 perfect=4>
+<level id=7 par=7 perfect=4>
 <attribution name="" author="Mike"/>
 goal_3,e,e,glass
 e,1,2,glass
@@ -71,14 +71,14 @@ glass,e,2,1
 glass,1,e,3
 </level>level>
 
-<level id=91871 par=2 perfect=1>
+<level id=8 par=2 perfect=1>
 <attribution name="Painters 101" author="John"/>
 e,painter_3,e
 e,2,e
 e,goal_3,e
 </level>
 
-<level id=64536 par=4 perfect=2>
+<level id=9 par=4 perfect=2>
 <attribution name="" author=""/>
 2,e
 1,1
@@ -87,7 +87,7 @@ glass,e
 goal_2,painter_2
 </level>
 
-<level id=78777 par=9 perfect=7>
+<level id=10 par=9 perfect=7>
 <attribution name="Trapped in Glass" author="Danny"/>
 e,glass,1,glass
 goal_2,1,glass,2
@@ -95,14 +95,14 @@ e,glass,2,glass
 3:goal_3,e,goal_1,e
 </level>
 
-<level id=10003 par=9 perfect=7>
+<level id=11 par=9 perfect=7>
 <attribution name="" author=""/>
 2:goal_1,e,goal_2:1
 e,goal_3:3,e
 1:goal_2,e,2:goal_1
 </level>
 
-<level id=44298 par=9 perfect=6>
+<level id=12 par=9 perfect=6>
 <attribution name="" author=""/>
 <beamGoal color=1 count=0/>
 <beamGoal color=2 count=0/>
@@ -112,7 +112,7 @@ e,2,2,e
 1,e,e,1
 </level>
 
-<level id=28782 par=14 perfect=7>
+<level id=13 par=14 perfect=7>
 <attribution name="" author=""/>
 <beamGoal color=1 count=12/>
 2,e,e,e,2
@@ -122,7 +122,7 @@ e,1,e,1,e
 2,e,e,e,2
 </level>
 
-<level id=14187 par=9 perfect=6>
+<level id=14 par=9 perfect=6>
 <attribution name="" author=""/>
 1:goal_1,1,goal_1
 2,e,2
@@ -130,7 +130,7 @@ glass,e,glass
 goal_1,1,1:goal_1
 </level>
 
-<level id=40500 par=16 perfect=5>
+<level id=15 par=16 perfect=5>
 <attribution name="" author=""/>
 <beamGoal color=2 count=8/>
 glass,glass,1,glass,1
@@ -140,17 +140,17 @@ glass,glass,glass,glass,glass
 2,glass,painter_2,2,painter_1
 </level>
 
-<level id=87870 par=13 perfect=8>
+<level id=16 par=15 perfect=10>
 <attribution name="" author=""/>
-2,glass,e,e,2,3
-glass,glass,glass,e,glass,2
-e,2,e,1,glass,e
-e,glass,glass,2,glass,2
-2,glass,glass,e,glass,1
-goal_3,1,e,e,2,glass
+3,glass,e,e,e,3
+2,glass,glass,2,glass,2
+glass,2,1,e,glass,e
+glass,1,glass,2,glass,2
+glass,e,glass,e,glass,1
+glass,1:goal_3,e,e,2,glass
 </level>
 
-<level id=66666 par=20 perfect=12>
+<level id=17 par=20 perfect=12>
 <attribution name="" author=""/>
 3,glass,e,glass,e,glass,3
 e,goal_1,glass,2,glass,goal_1,e
@@ -161,7 +161,7 @@ e,goal_1,glass,2,glass,goal_1,e
 3,glass,e,glass,e,glass,3
 </level>
 
-<level id=57155 par=27 perfect=13>
+<level id=18 par=27 perfect=13>
 <attribution name="" author=""/>
 2,glass,e,2:goal_1
 e,goal_2,1:goal_2,glass
@@ -169,7 +169,7 @@ glass,1:goal_2,1:goal_2,e
 2:goal_1,e,glass,2:goal_1
 </level>
 
-<level id=10984 par=15 perfect=11>
+<level id=19 par=15 perfect=11>
 <attribution name="Prismatic Wall" author="Ryan"/>
 3:goal_1,e,e,e,3:goal_2
 e,2,glass,1,e
@@ -180,7 +180,7 @@ e,2,glass,1,e
 3:goal_1,e,e,e,3:goal_2
 </level>
 
-<level id=78965 par=12 perfect=10>
+<level id=20 par=12 perfect=10>
 <attribution name="" author=""/>
 glass,3,e,3,glass
 glass,e,e,e,glass
@@ -190,7 +190,7 @@ glass,2,2,2,glass
 3,e,e,e,3
 </level>
 
-<level id=44949 par=8 perfect=6>
+<level id=21 par=8 perfect=6>
 <attribution name="" author=""/>
 <beamGoal color=2 count=7/>
 glass,glass,1,glass,glass
@@ -200,7 +200,7 @@ glass,2,e,3,e
 glass,glass,1,glass,glass
 </level>
 
-<level id=17111 par=11 perfect=8>
+<level id=22 par=11 perfect=8>
 <attribution name="" author=""/>
 <beamGoal color=1 count=4/>
 <beamGoal color=2 count=4/>
@@ -212,7 +212,7 @@ e,3,glass,3,e
 e,painter_1,e,e,e
 </level>
 
-<level id=30039 par=5 perfect=4>
+<level id=23 par=5 perfect=4>
 <attribution name="Reverse Symmetry" author="Danny"/>
 <beamGoal color=1 count=2/>
 <beamGoal color=2 count=2/>
@@ -223,7 +223,7 @@ painter_1,e,glass,e
 2,glass,1,painter_2
 </level>
 
-<level id=81748 par=8 perfect=6>
+<level id=24 par=8 perfect=6>
 <attribution name="Beam Locks" author="Danny"/>
 <beamGoal color=1 count=4/>
 e,3,glass,3,e
@@ -234,7 +234,7 @@ glass,3,painter_1,e,glass
 e,3,glass,3,e
 </level>
 
-<level id=26409 par=12 perfect=7>
+<level id=25 par=12 perfect=7>
 <attribution name="" author="Ryan"/>
 <beamGoal color=1 count=0/>
 <beamGoal color=2 count=0/>
@@ -244,7 +244,7 @@ painter_2,2,2,painter_1
 1,painter_2,painter_1,1
 </level>
 
-<level id=87011 par=7 perfect=4>
+<level id=26 par=7 perfect=4>
 <attribution name="" author="Mike"/>
 1,e,e,1,e,goal_3
 e,2,e,e,2,e
@@ -254,7 +254,7 @@ e,2,e,e,2,e
 3,e,1,e,e,1
 </level>
 
-<level id=64966 par=13 perfect=8>
+<level id=27 par=13 perfect=8>
 <attribution name="" author="Mike"/>
 <beamGoal color=1 count=0/>
 <beamGoal color=2 count=0/>
@@ -268,7 +268,7 @@ e,2,e,e,e
 3,e,e,3,1
 </level>
 
-<level id=12412 par=24 perfect=16>
+<level id=28 par=24 perfect=16>
 <attribution name="" author="Mike"/>
 3,3,2,2
 glass,glass,e,glass
@@ -278,7 +278,7 @@ e,e,glass,glass
 goal_2,goal_2,3,3:goal_2
 </level>
 
-<level id=54534 par=17 perfect=15>
+<level id=29 par=17 perfect=15>
 <attribution name="" author="Mike"/>
 <beamGoal color=2 count=10/>
 glass,glass,e,glass,glass
@@ -288,7 +288,7 @@ glass,1,2,2,glass
 glass,glass,e,glass,glass
 </level>
 
-<level id=27349 par=20 perfect=14>
+<level id=30 par=20 perfect=14>
 <attribution name="" author="Mike">
 e,3,2,1,glass,goal_3
 e,2,1,glass,1,e
@@ -298,7 +298,7 @@ glass,e,e,glass,1,e
 3,1,1,2,e,e
 </level>
 
-<level id=99553 par=25 perfect=15>
+<level id=31 par=25 perfect=15>
 <attribution name="Danny's option" author="Mike">
 2,e,glass,2,glass,e,goal_2
 e,e,3,glass,3,e,e
@@ -309,7 +309,7 @@ e,e,3,glass,3,e,e
 goal_2,e,glass,2,glass,e,2  
 </level>
 
-<level id=61001 par=6 perfect=5>
+<level id=32 par=6 perfect=5>
 <attribution name="" author="Mike">
 goal_3:2,e,2,e
 e,1,e,1
@@ -317,7 +317,7 @@ e,1,e,1
 2,e,2,3
 </level>
 
-<level id=32419 par=2 perfect=1>
+<level id=33 par=2 perfect=1>
 <attribution name="S shaped move" author="John"/>
 glass,2,glass,3,glass
 glass,glass,glass,glass,glass
@@ -328,7 +328,7 @@ glass,glass,glass,glass,glass
 glass,2,glass,3,glass
 </level>
 
-<level id=89217 par=18 perfect=11>
+<level id=34 par=18 perfect=11>
 <attribution name="Mike's option" author="Mike"/>
 glass,glass,glass,2,glass,e,goal_1
 glass,e,3,glass,3,e,e
@@ -338,3 +338,4 @@ glass,3,e,e,e,3,glass
 e,e,3,glass,3,e,1
 goal_2,e,glass,2,glass,2,e
 </level>
+
