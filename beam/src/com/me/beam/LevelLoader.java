@@ -7,7 +7,6 @@ import com.badlogic.gdx.files.FileHandle;
 import com.me.beam.GameEngine.Color;
 
 public class LevelLoader {
-	public static final boolean DEBUG_MODE = true;
 	private String file;
 	private String FULL_LEVEL_REGEX = "(<level id=(\\d+) par=(\\d+) perfect=(\\d+)>)[\\s]+"
 			//+ "(<beamGoal color=(\\d+) count=(\\d+)/>)*[\\s]+"
@@ -43,15 +42,15 @@ public class LevelLoader {
 	public Board getLevel(int ordinal) {
 		
 		int id = orderer.getUniqueId(ordinal);
-		debug("Looking for level " + id);
+		GameEngine.debug("Looking for level " + id);
 		
 		String spec = findLevelByID(id);
-		debug("Level spec: \n" + spec);
+		GameEngine.debug("Level spec: \n" + spec);
 		if (spec == null)
 			return null;
 		Board b = buildBoard(spec);
-		if (DEBUG_MODE && b == null) {
-			debug("\n\nBoard is NULL\n");
+		if (b == null) {
+			GameEngine.debug("\n\nBoard is NULL\n");
 		}
 		return b;
 	}
@@ -61,7 +60,7 @@ public class LevelLoader {
 		Pattern pat = Pattern.compile(FULL_LEVEL_REGEX, Pattern.UNIX_LINES);
 		Matcher match = pat.matcher(spec.trim());
 		if (!match.matches()) {
-			debug("Regex doesn't match");
+			GameEngine.debug("Regex doesn't match");
 			return null;
 		}
 		// Board ret = new Board();
@@ -69,7 +68,7 @@ public class LevelLoader {
 		String[] rows = tileSpec.split("\\n");
 		int height = rows.length;
 		int width = rows[0].split(",").length;
-		debug("Level is " + width + " x " + height);
+		GameEngine.debug("Level is " + width + " x " + height);
 		Tile[][] tiles = new Tile[width][height];
 		Piece[][] pieces = new Piece[width][height];
 		for (int y = 0; y < height; y++) {
@@ -127,7 +126,7 @@ public class LevelLoader {
 		Pattern pat = Pattern.compile(">\\s*\\n([^><]*?)</l",Pattern.UNIX_LINES);
 		Matcher mat = pat.matcher(group);
 		mat.find();
-		debug("Extracted board:\n"+mat.group(1));
+		GameEngine.debug("Extracted board:\n"+mat.group(1));
 		return mat.group(1);
 	}
 
@@ -143,12 +142,6 @@ public class LevelLoader {
 			}
 		}
 		return null;
-	}
-
-	private void debug(String s) {
-		if (!DEBUG_MODE)
-			return;
-		System.out.println(s);
 	}
 
 }
