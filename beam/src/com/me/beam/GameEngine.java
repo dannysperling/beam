@@ -11,9 +11,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 
 public class GameEngine implements ApplicationListener {
-	
+
 	public static final boolean DEBUG_MODE = false;
-	
+
 	// Enter the levelID you want to play here:
 	private int currentLevel = 0;
 
@@ -36,16 +36,22 @@ public class GameEngine implements ApplicationListener {
 	private static final int timeToFormBeam = 4;
 	private static final int timeToBreakBeam = 4;
 	private static final int timeToPaintPiece = 4;
-	private static final int timeOnTileBeforeMove = 7;
-	private static int timeSpentOnTile = 0;
-	private static int timeForThisStep = 0;
-	
-	
+	private static int timeSpentOnThisAnimation = 0;
+	private static int totalTimeForThisAnimation = 0;
+
+	private static AnimationState currentAnimationState = AnimationState.NOTANIMATING;
+	private List<AnimationState> animationStack = new ArrayList<AnimationState>();
+
+	//Keep track of what will happen
+	private static List<Piece> piecesDestroyed = new ArrayList<Piece>();
+	private static List<Laser> lasersRemoved = new ArrayList<Laser>();
+	private static List<Laser> lasersMovedAlong = new ArrayList<Laser>();
+
 
 	public enum GameState {
 		PAUSED, IDLE, DECIDING, MOVING, DESTROYED, WON
 	}
-	
+
 	public enum AnimationState {
 		FORMING, MOVING, PAINTING, BREAKING, NOTANIMATING
 	}
@@ -91,7 +97,7 @@ public class GameEngine implements ApplicationListener {
 	private boolean mainMenuShowing = true;
 	private Menu menu;
 	private DrawMenu dm;
-	
+
 	//Restoration
 	private String tempData = "level.temp";
 	private FileHandle tempFile;
@@ -110,9 +116,9 @@ public class GameEngine implements ApplicationListener {
 		dm = new DrawMenu(menu);
 		dg.initFonts();
 		inputHandler = new InputHandler();
-		
+
 		Gdx.input.setCatchBackKey(true);
-		
+
 		tempFile = Gdx.files.local(tempData);
 	}
 
@@ -123,7 +129,7 @@ public class GameEngine implements ApplicationListener {
 
 	@Override
 	public void render() {
-		
+
 		//Check for back pressed first
 		inputHandler.checkBackPressed();
 
@@ -131,14 +137,14 @@ public class GameEngine implements ApplicationListener {
 		if (mainMenuShowing){
 
 			int selected = inputHandler.handleMainMenuInput(menu);
-			
+
 			//Exit to leave
 			if (selected == -2){
-				
+
 				//TODO: Do things to check if the player wants to leave.
 				System.exit(0);
 			}
-			
+
 			//Picked a level
 			if (selected != -1){
 				//Only reset if different level
@@ -177,7 +183,7 @@ public class GameEngine implements ApplicationListener {
 				}
 				pushedButton = true;
 			}
-			
+
 			else if (button == ButtonPress.MENU){
 				mainMenuShowing = true;
 				menu.scrollToLevel(currentLevel);
@@ -193,63 +199,69 @@ public class GameEngine implements ApplicationListener {
 
 			// Increment the moves when appropriate
 			if (pastState == GameState.DECIDING && state == GameState.MOVING) {
+				
+				//Precompute the move
 				moveCounter++;
+				
+				animationStack.clear();
+				timeSpentOnThisAnimation = 0;
+				totalTimeForThisAnimation = 0;
+				piecesDestroyed.clear();
+				lasersRemoved.clear();
+				lasersMovedAlong.clear();
 				debug(moveCounter);
-			}
 
-			// Do things if we're moving
-			if (state == GameState.MOVING) {
-				// Check to see if we actually move yet
-				if (timeSpentOnTile < timeOnTileBeforeMove) {
-					timeSpentOnTile++;
-				} else {
+				//TODO: THINGS TO RE-INCLUDE
+				// Get rid of the place we were
+				movePath.remove(0);
 
-					// Move the piece
-					movePiece();
+				// Move the piece
+				movePiece();
 
-					// Update the board state
-					boolean pieceDestroyed = updateBoardState();
+				// Update the board state
+				boolean pieceDestroyed = updateBoardState();
 
-					// No lockout after move
-					if (movePath.size() == 1 || pieceDestroyed) {
-						movingPiece = null;
-						movePath.clear();
+				// No lockout after move
+				if (movePath.size() == 1 || pieceDestroyed) {
+					movingPiece = null;
+					movePath.clear();
 
-						// See which state to transition to
-						if (pieceDestroyed) {
-							state = GameState.DESTROYED;
-						} else {
-							// Made a move
-							state = GameState.IDLE;
+					// See which state to transition to
+					if (pieceDestroyed) {
+						state = GameState.DESTROYED;
+					} else {
+						// Made a move
+						state = GameState.IDLE;
 
-							// Push the move onto the stack
-							boardStack.add(moveCounter, (b.encodePieces()));
+						// Push the move onto the stack
+						boardStack.add(moveCounter, (b.encodePieces()));
 
-							// Remove the old future
-							List<Collection<Short>> newStack = new ArrayList<Collection<Short>>();
-							for (int i = 0; i < moveCounter+1; i++)
-								newStack.add(boardStack.get(i));
-							boardStack = newStack; 
+						// Remove the old future
+						List<Collection<Short>> newStack = new ArrayList<Collection<Short>>();
+						for (int i = 0; i < moveCounter+1; i++)
+							newStack.add(boardStack.get(i));
+						boardStack = newStack; 
 
-							if (b.isWon()) {
-								state = GameState.WON;
+						if (b.isWon()) {
+							state = GameState.WON;
 
-								int numStars = 1;
-								if (moveCounter <= b.perfect){
-									numStars = 3;
-								} else if (moveCounter <= b.par){
-									numStars = 2;
-								}
-								boolean improved = progress.setLevelScore(currentLevel, moveCounter, numStars);
+							int numStars = 1;
+							if (moveCounter <= b.perfect){
+								numStars = 3;
+							} else if (moveCounter <= b.par){
+								numStars = 2;
+							}
+							boolean improved = progress.setLevelScore(currentLevel, moveCounter, numStars);
 
-								//TODO: Currently temporary. Should pop-up win menu
-								if (improved){
-									debug("New record on level " + currentLevel + ": " + moveCounter + " moves!");
-								}
+							//TODO: Currently temporary. Should pop-up win menu
+							if (improved){
+								debug("New record on level " + currentLevel + ": " + moveCounter + " moves!");
 							}
 						}
 					}
-				}
+				} 
+			} else if (state == GameState.MOVING){
+
 			}
 		}
 
@@ -287,7 +299,6 @@ public class GameEngine implements ApplicationListener {
 		b.resetPieces(boardStack.get(moveCounter));
 		movingPiece = null;
 		movePath.clear();
-		timeSpentOnTile = 0;
 		initializeLasers();
 		if (b.isWon())
 			state = GameState.WON;
@@ -324,12 +335,6 @@ public class GameEngine implements ApplicationListener {
 
 	// Moves a piece, and handles changes
 	public void movePiece() {
-
-		// Reset time on tile
-		timeSpentOnTile = 0;
-
-		// Get rid of the place we were
-		movePath.remove(0);
 
 		// Remove previous lasers
 		removeLasersFromPiece(movingPiece);
@@ -679,12 +684,12 @@ public class GameEngine implements ApplicationListener {
 		return false;
 	}
 
-	public static int getTicksPerTile() {
-		return timeOnTileBeforeMove;
+	public static int getTotalTicksForAnimation() {
+		return totalTimeForThisAnimation;
 	}
 
-	public static int getTimeOnThisTile() {
-		return timeSpentOnTile;
+	public static int getTicksSpentOnAnimation() {
+		return timeSpentOnThisAnimation;
 	}
 
 	public static int getMoveCount() {
@@ -716,15 +721,15 @@ public class GameEngine implements ApplicationListener {
 		debug("Read " + fromTemp);
 		if (fromTemp != null){
 			String[] parts = fromTemp.split(";");
-			
+
 			//Get the level
 			currentLevel = Integer.parseInt(parts[0]);
 			loadLevel(currentLevel);
-			
+
 			//Set up moves and menu
 			moveCounter = Integer.parseInt(parts[1]);
 			mainMenuShowing = Boolean.parseBoolean(parts[2]);
-			
+
 			//Set up the stack
 			boardStack.clear();
 			for (int i = 3; i < parts.length; i++){
@@ -735,14 +740,14 @@ public class GameEngine implements ApplicationListener {
 				}
 				boardStack.add(move);
 			}
-			
+
 			b.resetPieces(boardStack.get(boardStack.size() - 1));
 			initializeLasers();
-			
+
 			menu.scrollToLevel(currentLevel);
 		}
 	}
-	
+
 	public static <T> void debug(T s){
 		if (!DEBUG_MODE){
 			return;
