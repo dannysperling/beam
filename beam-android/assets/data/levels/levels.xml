@@ -1,8 +1,8 @@
 <level id=1 par=3 perfect=2>
 <attribution name="Beam 101" author="Johns"/>
 e,1,e
-2,e,2
 e,e,e
+2,e,2
 e,goal_1,e
 </level>
 
@@ -20,14 +20,6 @@ e,1,e,e
 e,1,e
 2,e,2
 glass,1:goal_2,glass
-</level>
-
-<level id=4 par=10 perfect=8>
-<attribution name="Simplicity Incarnate" author="Danny"/>
-goal_2,2,2,goal_2
-2,goal_1,goal_1,1
-2,goal_1,goal_1,1
-goal_2,1,1,goal_2
 </level>
 
 <level id=5 par=6 perfect=4>
@@ -326,6 +318,7 @@ goal_2,e,glass,2,glass,2,e
 <level id=35 par=3 perfect=2>
 <attribution name="Glass is impassible" author="John"/>
 e,1,e
+e,glass,e
 2,glass,2
 e,goal_1,e
 </level>
