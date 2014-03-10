@@ -338,13 +338,19 @@ public class GameEngine implements ApplicationListener {
 		b.resetPieces(futureBoard);
 
 		movingPiece = b.getPieceOnTile(movePath.get(0));
+		
 		//Remove destroyed pieces here
+		List<Piece> newDestroyed = new ArrayList<Piece>();
 		for (Piece p : piecesDestroyed){
 			//Either piece removed, or was moving piece
 			if (!b.removePiece(p)){
 				b.removePiece(movingPiece);
+				newDestroyed.add(movingPiece);
+			} else {
+				newDestroyed.add(p);
 			}
 		}
+		piecesDestroyed = newDestroyed;
 		
 		initializeLasers();
 	}
