@@ -33,7 +33,7 @@ public class GameEngine implements ApplicationListener {
 	private static final int timeToMovePiece = 8;
 	private static final int timeToFormBeam = 4;
 	private static final int timeToBreakBeam = 4;
-	private static final int timeToDestroyPiece = 60;
+	private static final int timeToDestroyPiece = 1;
 	private static final int timeToPaintPiece = 20;
 	private static int timeSpentOnThisAnimation = 0;
 	private static int totalTimeForThisAnimation = 0;
@@ -325,7 +325,11 @@ public class GameEngine implements ApplicationListener {
 		laserRemoved = null;
 		laserMovedAlong = null;
 		lasersCreated.clear();
-		originalColor = movingPiece.getColor();
+		if (movingPiece != null){
+			originalColor = movingPiece.getColor();
+		} else {
+			originalColor = Color.NONE;
+		}
 	}
 	
 	//Return to where we should be
@@ -375,6 +379,7 @@ public class GameEngine implements ApplicationListener {
 		b.resetPieces(boardStack.get(moveCounter));
 		movingPiece = null;
 		movePath.clear();
+		prepAnimationBeginning();
 		initializeLasers();
 		if (b.isWon())
 			state = GameState.WON;
