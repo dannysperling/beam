@@ -34,7 +34,7 @@ public class GameEngine implements ApplicationListener {
 	private static final int timeToFormBeam = 4;
 	private static final int timeToBreakBeam = 4;
 	private static final int timeToDestroyPiece = 0;
-	private static final int timeToPaintPiece = 4;
+	private static final int timeToPaintPiece = 20;
 	private static int timeSpentOnThisAnimation = 0;
 	private static int totalTimeForThisAnimation = 0;
 
@@ -821,6 +821,18 @@ public class GameEngine implements ApplicationListener {
 		}
 	}
 
+	public static Laser getBrokenLaser(){
+		return laserRemoved;
+	}
+	
+	public static Laser getFormedLaser(){
+		return laserCreated;
+	}
+	
+	public static Laser getLaserMovedAlong(){
+		return laserMovedAlong;
+	}
+	
 	public static <T> void debug(T s){
 		if (!DEBUG_MODE){
 			return;
