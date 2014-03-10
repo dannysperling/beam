@@ -255,19 +255,17 @@ public class GameEngine implements ApplicationListener {
 					if (!animationStack.isEmpty()){
 						currentAnimationState = animationStack.remove(0);
 						totalTimeForThisAnimation = AnimationState.getTime(currentAnimationState);
+						
+						if (currentAnimationState == AnimationState.DESTRUCTION){
+							goBackToTheFuture();
+						}
 					} else {
 						
 						//Get the board where it should be now
-						movePath.remove(0);
-						b.resetPieces(futureBoard);
-						movingPiece = b.getPieceOnTile(movePath.get(0));
-						
-						//Remove destroyed pieces here
-						for (Piece p : piecesDestroyed){
-							b.removePiece(p);
+						if (currentAnimationState != AnimationState.DESTRUCTION){
+							goBackToTheFuture();
 						}
 						
-						initializeLasers();
 						prepAnimationBeginning();
 						
 						// No lockout after move
@@ -328,6 +326,23 @@ public class GameEngine implements ApplicationListener {
 		laserMovedAlong = null;
 		lasersCreated.clear();
 		originalColor = movingPiece.getColor();
+	}
+	
+	//Return to where we should be
+	private void goBackToTheFuture(){
+		movePath.remove(0);
+		b.resetPieces(futureBoard);
+
+		movingPiece = b.getPieceOnTile(movePath.get(0));
+		//Remove destroyed pieces here
+		for (Piece p : piecesDestroyed){
+			//Either piece removed, or was moving piece
+			if (!b.removePiece(p)){
+				b.removePiece(movingPiece);
+			}
+		}
+		
+		initializeLasers();
 	}
 
 	private void handleButtonPress(ButtonPress button) {
@@ -469,7 +484,7 @@ public class GameEngine implements ApplicationListener {
 		Tile pieceTile = b.getTileAtBoardPosition(p.getXCoord(), p.getYCoord());
 
 		// Paint the piece!
-		if (pieceTile.hasPainter()) {
+		if (pieceTile.hasPainter() && pieceTile.getPainterColor() != p.getColor()) {
 			p.setColor(pieceTile.getPainterColor());
 			return true;
 		}
