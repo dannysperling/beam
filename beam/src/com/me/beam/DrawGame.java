@@ -426,7 +426,6 @@ public class DrawGame {
 		int moves = gameProgress.getLevelMoves(currentLevel);
 		float movesAdjust = 0.0f;
 		if (moves != -1) {
-			System.out.println("Moves found!");
 			movesAdjust = 0.15f;
 		}
 		if (b.getBeamObjectiveSet().isEmpty()) {
