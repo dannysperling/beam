@@ -10,7 +10,7 @@ import com.badlogic.gdx.files.FileHandle;
 
 public class GameEngine implements ApplicationListener {
 
-	public static final boolean DEBUG_MODE = true;
+	public static final boolean DEBUG_MODE = false;
 
 	// Enter the levelID you want to play here:
 	private int currentLevel = 0;
