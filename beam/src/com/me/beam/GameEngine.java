@@ -10,7 +10,7 @@ import com.badlogic.gdx.files.FileHandle;
 
 public class GameEngine implements ApplicationListener {
 
-	public static final boolean DEBUG_MODE = false;
+	public static final boolean DEBUG_MODE = true;
 
 	// Enter the levelID you want to play here:
 	private int currentLevel = 0;
@@ -799,6 +799,10 @@ public class GameEngine implements ApplicationListener {
 		return moveCounter;
 	}
 
+	public static List<Piece> getDestroyedPieces(){
+		return piecesDestroyed;
+	}
+	
 	@Override
 	public void resize(int width, int height) {
 	}

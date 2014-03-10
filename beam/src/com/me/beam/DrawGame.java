@@ -27,6 +27,8 @@ public class DrawGame {
 	private SpriteBatch batch;
 	private Texture pieceTexture;
 	private Sprite pieceSprite;
+	private Texture bangTexture;
+	private Sprite bangSprite;
 	private ShapeRenderer shapes;
 
 	private GameProgress gameProgress;
@@ -55,11 +57,16 @@ public class DrawGame {
 		pieceTexture = new Texture(Gdx.files.internal("data/piece.png"));
 		pieceTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
+		bangTexture = new Texture(Gdx.files.internal("data/bangbang.png"));
+		bangTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		
 		gameProgress = gp;
 
-		TextureRegion region = new TextureRegion(pieceTexture, 0, 0, 256, 256);
+		TextureRegion pieceregion = new TextureRegion(pieceTexture, 0, 0, 256, 256);
+		TextureRegion bangregion = new TextureRegion(bangTexture, 0, 0, 256, 256);
 
-		pieceSprite = new Sprite(region);
+		pieceSprite = new Sprite(pieceregion);
+		bangSprite = new Sprite(bangregion);
 		shapes = new ShapeRenderer();
 	}
 
@@ -139,8 +146,8 @@ public class DrawGame {
 				shapes.rect(goalX + (0.05f * tilesize), goalY
 						+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
 				shapes.setColor(curBG);
-				shapes.rect(goalX + (0.15f * tilesize), goalY
-						+ (0.15f * tilesize), 0.7f * tilesize, 0.7f * tilesize);
+				shapes.rect(goalX + (0.12f * tilesize), goalY
+						+ (0.12f * tilesize), 0.76f * tilesize, 0.76f * tilesize);
 			}
 		}
 		shapes.end();
@@ -257,7 +264,6 @@ public class DrawGame {
 		Laser movedAlongLaser = null;
 		float breakAnimateTime = 0;
 		float formAnimateTime = 0;
-		float moveAlongAnimateTime = 0;
 		float paintAnimateTime = 0;
 		if(state == GameState.MOVING){
 			GameEngine.debug(aState);
@@ -268,14 +274,11 @@ public class DrawGame {
 				breakAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
 			} else if (aState == AnimationState.MOVING){
 				breakAnimateTime = 1;
-				moveAlongAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
 			} else if (aState == AnimationState.PAINTING){
 				breakAnimateTime = 1;
-				moveAlongAnimateTime = 1;
 				paintAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
 			} else if (aState == AnimationState.FORMING){
 				breakAnimateTime = 1;
-				moveAlongAnimateTime = 1;
 				if(!paintColor.equals(new Color(0,0,0,0)) && !paintColor.equals(translateColor(GameEngine.movingPiece.getColor()))){
 					paintAnimateTime = 1;
 				}
@@ -307,6 +310,7 @@ public class DrawGame {
 			pieceSprite.draw(batch);
 		}
 		batch.end();
+		
 
 		// Draw Lasers
 		Set<Laser> lasers = b.lasers;
@@ -389,7 +393,23 @@ public class DrawGame {
 		}
 		shapes.end();
 		
+		batch.begin();
 		
+		//Draw the bangs!
+		if(state == GameState.DESTROYED || aState == AnimationState.DESTRUCTION){
+			List<Piece> destroyedPieces = GameEngine.getDestroyedPieces();
+			if(destroyedPieces.size() > 0){
+				bangSprite.setSize(tilesize, tilesize);
+				for(Piece dp : destroyedPieces){
+					bangSprite.setPosition(bx + (dp.getXCoord() * tilesize),
+							by + (dp.getYCoord() * tilesize));
+					bangSprite.setColor(translateColor(dp.getColor()));
+					bangSprite.draw(batch);
+				}
+			}
+		}
+		
+		batch.end();
 		
 
 		// Draw the buttons
