@@ -1,16 +1,13 @@
 37 - no other beams, move + goal
 38 - multiple colors of goals
-x - lots of tutorial shit
-
-
 1
 35
 36
 x - easy destruction
 3 
-x - easy beam creation work
+40 - beam objective tutorial
 2 
-x - hard beam goal or two colors
+41 - hard beam goal or two colors
 x - easy beam break level
 12
 6 
