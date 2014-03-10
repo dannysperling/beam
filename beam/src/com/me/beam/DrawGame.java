@@ -501,8 +501,8 @@ public class DrawGame {
 					* (1 - GameEngine.topBarSize * 0.22f));
 			// .3
 		} else {
-			tb = titleFontNoBest.getBounds(toPrint);
-			titleFontNoBest.draw(batch, toPrint, (width - tb.width) / 2, height
+			tb = titleFont.getBounds(toPrint);
+			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
 					* (1 - GameEngine.topBarSize * 0.22f));
 			// .36
 		}
