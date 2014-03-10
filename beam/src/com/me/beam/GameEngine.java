@@ -33,7 +33,7 @@ public class GameEngine implements ApplicationListener {
 	private static final int timeToMovePiece = 8;
 	private static final int timeToFormBeam = 4;
 	private static final int timeToBreakBeam = 4;
-	private static final int timeToDestroyPiece = 0;
+	private static final int timeToDestroyPiece = 60;
 	private static final int timeToPaintPiece = 20;
 	private static int timeSpentOnThisAnimation = 0;
 	private static int totalTimeForThisAnimation = 0;
@@ -46,7 +46,7 @@ public class GameEngine implements ApplicationListener {
 	private static List<Piece> piecesDestroyed = new ArrayList<Piece>();
 	private static Laser laserRemoved = null;
 	private static Laser laserMovedAlong = null;
-	private static Laser laserCreated = null;
+	private static List<Laser> lasersCreated = new ArrayList<Laser>();
 	private boolean wasPieceDestroyed = false;
 	private Collection<Short> futureBoard;
 
@@ -326,7 +326,7 @@ public class GameEngine implements ApplicationListener {
 		piecesDestroyed.clear();
 		laserRemoved = null;
 		laserMovedAlong = null;
-		laserCreated = null;
+		lasersCreated.clear();
 		originalColor = movingPiece.getColor();
 	}
 
@@ -521,7 +521,9 @@ public class GameEngine implements ApplicationListener {
 	// Form lasers from a piece that has just moved return destroyed pieces
 	public List<Piece> formLasersFromPieceAndDestroy(Piece p, Tile cameFrom, boolean addLasers) {
 		
-		//TODO: Use camefrom to not form lasers when moving along
+		boolean horizontalMove = false;
+		if (cameFrom != null)
+			horizontalMove = p.getYCoord() == cameFrom.getYCoord();
 		
 		List<Piece> destroyed = new ArrayList<Piece>();
 
@@ -594,9 +596,8 @@ public class GameEngine implements ApplicationListener {
 		}
 
 		// If it's still possible, it was formed
-		if (possibleFormed != null){
-			laserCreated = possibleFormed;
-			animationStack.add(AnimationState.FORMING);
+		if (!addLasers && possibleFormed != null && (originalColor != p.getColor() || !horizontalMove)){
+			lasersCreated.add(possibleFormed);
 		}
 		possibleFormed = null;
 
@@ -668,11 +669,14 @@ public class GameEngine implements ApplicationListener {
 			}
 		}
 		// If it's still possible, it was formed
-		if (possibleFormed != null){
-			laserCreated = possibleFormed;
-			animationStack.add(AnimationState.FORMING);
+		if (!addLasers && possibleFormed != null && (originalColor != p.getColor() || horizontalMove)){
+			lasersCreated.add(possibleFormed);
 		}
 		possibleFormed = null;
+		
+		if (!lasersCreated.isEmpty() && !addLasers){
+			animationStack.add(AnimationState.FORMING);
+		}
 
 		return destroyed;
 	}
@@ -825,8 +829,8 @@ public class GameEngine implements ApplicationListener {
 		return laserRemoved;
 	}
 	
-	public static Laser getFormedLaser(){
-		return laserCreated;
+	public static List<Laser> getFormedLaser(){
+		return lasersCreated;
 	}
 	
 	public static Laser getLaserMovedAlong(){

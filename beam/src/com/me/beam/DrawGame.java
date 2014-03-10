@@ -1,6 +1,5 @@
 package com.me.beam;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -257,7 +256,12 @@ public class DrawGame {
 		if(state == GameState.MOVING){
 			System.out.println(aState);
 			disbandedLaser = GameEngine.getBrokenLaser();
-			formedLaser = GameEngine.getFormedLaser();
+			
+			//TODO: This is where I changed the code Ryan.
+			List<Laser> allLasers = GameEngine.getFormedLaser();
+			if (!allLasers.isEmpty())
+				formedLaser = allLasers.get(0);
+			
 			movedAlongLaser = GameEngine.getLaserMovedAlong();
 			if(aState == AnimationState.BREAKING){
 				breakAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
