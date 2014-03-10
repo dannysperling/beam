@@ -18,9 +18,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.me.beam.GameEngine.AnimationState;
 import com.me.beam.GameEngine.GameState;
 
 public class DrawGame {
+	private static final float beamThickness = 0.1f; //This is measured in units of square size
+	
 	private SpriteBatch batch;
 	private Texture pieceTexture;
 	private Sprite pieceSprite;
@@ -168,7 +171,12 @@ public class DrawGame {
 
 		// Draw Paths
 		List<Tile> path = GameEngine.movePath;
-		float animateTime = 0;// ((float)(GameEngine.getTimeOnThisTile()))/(GameEngine.getTicksPerTile());
+		float moveAnimateTime = 0;
+		if(aState == AnimationState.MOVING){
+			moveAnimateTime =((float)(GameEngine.getTicksSpentOnAnimation()))/(GameEngine.getTotalTicksForAnimation());
+		} else if (aState == AnimationState.PAINTING || aState == AnimationState.FORMING){
+			moveAnimateTime = 1;
+		}
 		shapes.begin(ShapeType.Filled);
 		shapes.setColor(new Color(.9f, .9f, .2f, 1f));
 		for (int i = 0; i < path.size(); i++) {
@@ -184,9 +192,9 @@ public class DrawGame {
 				float shiftY = 0;
 				if (i == 0 && path.size() > 1 && state == GameState.MOVING) {
 					shiftX = (path.get(1).getXCoord() - GameEngine.movingPiece
-							.getXCoord()) * animateTime;
+							.getXCoord()) * moveAnimateTime;
 					shiftY = (path.get(1).getYCoord() - GameEngine.movingPiece
-							.getYCoord()) * animateTime;
+							.getYCoord()) * moveAnimateTime;
 				}
 				int nextX = path.get(i + 1).getXCoord();
 				int nextY = path.get(i + 1).getYCoord();
@@ -238,19 +246,61 @@ public class DrawGame {
 
 		// Draw the pieces
 		path = GameEngine.movePath;
+		Color paintColor = new Color(0,0,0,0);
+		if(path.size() > 1){
+			paintColor = translateColor(b.getTileAtBoardPosition(path.get(1).getXCoord(), path.get(1).getYCoord()).getPainterColor());
+		}
+		Laser disbandedLaser = null;
+		Laser formedLaser = null;
+		Laser movedAlongLaser = null;
+		float breakAnimateTime = 0;
+		float formAnimateTime = 0;
+		float moveAlongAnimateTime = 0;
+		float paintAnimateTime = 0;
+		if(state == GameState.MOVING){
+			System.out.println(aState);
+			disbandedLaser = GameEngine.getBrokenLaser();
+			formedLaser = GameEngine.getFormedLaser();
+			movedAlongLaser = GameEngine.getLaserMovedAlong();
+			if(aState == AnimationState.BREAKING){
+				breakAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
+			} else if (aState == AnimationState.MOVING){
+				breakAnimateTime = 1;
+				moveAlongAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
+			} else if (aState == AnimationState.PAINTING){
+				breakAnimateTime = 1;
+				moveAlongAnimateTime = 1;
+				paintAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
+			} else if (aState == AnimationState.FORMING){
+				System.out.println("Is formed laser null? " + (formedLaser == null));
+				breakAnimateTime = 1;
+				moveAlongAnimateTime = 1;
+				if(!paintColor.equals(new Color(0,0,0,0))){
+					paintAnimateTime = 1;
+				}
+				formAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
+			}
+		}
+		
 		batch.begin();
 		pieceSprite.setSize(tilesize, tilesize);
 		for (Piece p : pieces) {
 			pieceSprite.setColor(translateColor(p.getColor()));
+			if(p.equals(GameEngine.movingPiece)){
+				float rshift = (paintColor.r - translateColor(p.getColor()).r) * paintAnimateTime;
+				float gshift = (paintColor.g - translateColor(p.getColor()).g) * paintAnimateTime;
+				float bshift = (paintColor.b - translateColor(p.getColor()).b) * paintAnimateTime;
+				pieceSprite.setColor(new Color(translateColor(p.getColor()).r + rshift, translateColor(p.getColor()).g + gshift, translateColor(p.getColor()).b + bshift, 1));
+			}
 			pieceSprite.setPosition(bx + (p.getXCoord() * tilesize),
 					by + (p.getYCoord() * tilesize));
 			if (path.size() > 1
 					&& p.getXCoord() == GameEngine.movingPiece.getXCoord()
 					&& p.getYCoord() == GameEngine.movingPiece.getYCoord()) {
 				float animateX = (path.get(1).getXCoord() - GameEngine.movingPiece
-						.getXCoord()) * tilesize * animateTime;
+						.getXCoord()) * tilesize * moveAnimateTime;
 				float animateY = (path.get(1).getYCoord() - GameEngine.movingPiece
-						.getYCoord()) * tilesize * animateTime;
+						.getYCoord()) * tilesize * moveAnimateTime;
 				pieceSprite.translate(animateX, animateY);
 			}
 			pieceSprite.draw(batch);
@@ -259,21 +309,81 @@ public class DrawGame {
 
 		// Draw Lasers
 		Set<Laser> lasers = b.lasers;
+
 		shapes.begin(ShapeType.Filled);
+		float laserWidth = beamThickness;
 		for (Laser l : lasers) {
-			shapes.setColor(translateColor(l.getColor()));
-			if (l.getXStart() == l.getXFinish()) {
-				shapes.rect(bx + (l.getXStart() + 0.45f) * tilesize,
-						by + (l.getYStart() + 0.45f) * tilesize,
-						0.1f * tilesize, (l.getYFinish() - l.getYStart())
-								* tilesize);
+			if (disbandedLaser != null && l.equals(disbandedLaser)){
+				laserWidth = (1 - breakAnimateTime) * beamThickness;
 			} else {
-				shapes.rect(bx + (l.getXStart() + 0.45f) * tilesize,
-						by + (l.getYStart() + 0.45f) * tilesize,
-						(l.getXFinish() - l.getXStart()) * tilesize,
-						0.1f * tilesize);
+				laserWidth = beamThickness;
+			}
+			shapes.setColor(translateColor(l.getColor()));
+			if(!l.equals(movedAlongLaser)){
+				if (l.getXStart() == l.getXFinish()) {
+					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize,
+							by + (l.getYStart() + 0.5f - (laserWidth / 2)) * tilesize,
+							laserWidth * tilesize, (l.getYFinish() - l.getYStart())
+							* tilesize);
+				} else {
+					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize,
+							by + (l.getYStart() + 0.5f - (laserWidth/2)) * tilesize,
+							(l.getXFinish() - l.getXStart()) * tilesize,
+							laserWidth * tilesize);
+				}
 			}
 		}
+		if (formedLaser != null){
+			laserWidth = formAnimateTime * beamThickness; 
+			System.out.println("Changing width " + laserWidth);
+			Laser l = formedLaser;
+			shapes.setColor(translateColor(l.getColor()));
+			if (l.getXStart() == l.getXFinish()) {
+				shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize,
+						by + (l.getYStart() + 0.5f - (laserWidth / 2)) * tilesize,
+						laserWidth * tilesize, (l.getYFinish() - l.getYStart())
+						* tilesize);
+			} else {
+				shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize,
+						by + (l.getYStart() + 0.5f - (laserWidth/2)) * tilesize,
+						(l.getXFinish() - l.getXStart()) * tilesize,
+						laserWidth * tilesize);
+			}
+		}
+		if(movedAlongLaser != null){
+			laserWidth = beamThickness;
+			shapes.setColor(translateColor(movedAlongLaser.getColor()));
+			float moveAnimX = (path.get(1).getXCoord() - GameEngine.movingPiece
+					.getXCoord()) * tilesize * moveAnimateTime;
+			float moveAnimY = (path.get(1).getYCoord() - GameEngine.movingPiece
+					.getYCoord()) * tilesize * moveAnimateTime;
+			if(movedAlongLaser.getXStart() == movedAlongLaser.getXFinish()){
+				if(movedAlongLaser.getXStart() == GameEngine.movingPiece.getXCoord() && movedAlongLaser.getYStart() == GameEngine.movingPiece.getYCoord()){
+					shapes.rect(bx + (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2)) * tilesize,
+							(by + (movedAlongLaser.getYStart() + 0.5f - (laserWidth / 2)) * tilesize) + moveAnimY,
+							laserWidth * tilesize, ((movedAlongLaser.getYFinish() - movedAlongLaser.getYStart())
+							* tilesize) - moveAnimY);
+				} else {
+					shapes.rect(bx + (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2)) * tilesize,
+							(by + (movedAlongLaser.getYStart() + 0.5f - (laserWidth / 2)) * tilesize),
+							laserWidth * tilesize, ((movedAlongLaser.getYFinish() - movedAlongLaser.getYStart())
+							* tilesize) + moveAnimY);
+				}
+			} else {
+				if(movedAlongLaser.getXStart() == GameEngine.movingPiece.getXCoord() && movedAlongLaser.getYStart() == GameEngine.movingPiece.getYCoord()){
+					shapes.rect((bx + (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2)) * tilesize) + moveAnimX,
+							by + (movedAlongLaser.getYStart() + 0.5f - (laserWidth/2)) * tilesize,
+							((movedAlongLaser.getXFinish() - movedAlongLaser.getXStart()) * tilesize) - moveAnimX,
+							laserWidth * tilesize);
+				} else {
+					shapes.rect((bx + (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2)) * tilesize),
+							by + (movedAlongLaser.getYStart() + 0.5f - (laserWidth/2)) * tilesize,
+							((movedAlongLaser.getXFinish() - movedAlongLaser.getXStart()) * tilesize) + moveAnimX,
+							laserWidth * tilesize);
+				}
+			}
+		}
+		
 		shapes.end();
 
 		// Draw the buttons
