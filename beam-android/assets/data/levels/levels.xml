@@ -331,3 +331,27 @@ e,glass,e,glass
 e,glass,2,1
 goal_1,glass,glass,glass
 </level>
+
+<level id=37 par=2 perfect=1>
+<attribution name="Moving and goals" author="John"/>
+1,e,e
+e,e,e
+e,e,goal_1
+</level>
+
+<level id=38 par=4 perfect=3>
+<attribution name="More than one color" author="John"/>
+1,3,2
+e,e,e
+goal_2,goal_3,goal_1
+</level>
+
+<level id=39 par=3 perfect=2>
+<attribution name="Intro to color locks" author="John"/>
+goal_2,e,e,e,e
+e,e,glass,2,e
+e,glass,1,glass,e
+e,glass,2,glass,e
+e,1,glass,e,e
+e,e,e,e,goal_1
+</level>

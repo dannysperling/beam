@@ -1,5 +1,5 @@
-x - no other beams, move + goal
-x - multiple colors of goals
+37 - no other beams, move + goal
+38 - multiple colors of goals
 x - lots of tutorial shit
 
 
@@ -36,7 +36,7 @@ x - gap
 18
 16
 13 - very hard but simple mechanics
-x - color lock tutorial
+39 - color lock tutorial
 22
 20
 29
