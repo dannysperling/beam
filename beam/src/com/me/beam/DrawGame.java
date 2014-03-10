@@ -260,7 +260,7 @@ public class DrawGame {
 		float moveAlongAnimateTime = 0;
 		float paintAnimateTime = 0;
 		if(state == GameState.MOVING){
-			System.out.println(aState);
+			GameEngine.debug(aState);
 			disbandedLaser = GameEngine.getBrokenLaser();
 
 			movedAlongLaser = GameEngine.getLaserMovedAlong();
@@ -276,7 +276,7 @@ public class DrawGame {
 			} else if (aState == AnimationState.FORMING){
 				breakAnimateTime = 1;
 				moveAlongAnimateTime = 1;
-				if(!paintColor.equals(new Color(0,0,0,0))){
+				if(!paintColor.equals(new Color(0,0,0,0)) && !paintColor.equals(translateColor(GameEngine.movingPiece.getColor()))){
 					paintAnimateTime = 1;
 				}
 				formAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
@@ -354,8 +354,8 @@ public class DrawGame {
 				}
 			}
 		}
-		if(movedAlongLaser != null){
-			laserWidth = beamThickness;
+		if(movedAlongLaser != null && aState != AnimationState.DESTRUCTION){
+			laserWidth = beamThickness * (1 - paintAnimateTime);
 			shapes.setColor(translateColor(movedAlongLaser.getColor()));
 			float moveAnimX = (path.get(1).getXCoord() - GameEngine.movingPiece
 					.getXCoord()) * tilesize * moveAnimateTime;
