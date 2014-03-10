@@ -102,7 +102,7 @@ public class DrawGame {
 		for (int i = 0; i <= b.getNumVerticalTiles(); i++) {
 			shapes.line(bx, by + (i * tilesize),
 					bx + (b.getNumHorizontalTiles() * tilesize), by
-							+ (i * tilesize));
+					+ (i * tilesize));
 		}
 		shapes.end();
 
@@ -177,72 +177,75 @@ public class DrawGame {
 		} else if (aState == AnimationState.PAINTING || aState == AnimationState.FORMING){
 			moveAnimateTime = 1;
 		}
-		shapes.begin(ShapeType.Filled);
-		shapes.setColor(new Color(.9f, .9f, .2f, 1f));
-		for (int i = 0; i < path.size(); i++) {
-			int pointX = path.get(i).getXCoord();
-			int pointY = path.get(i).getYCoord();
-			if (state != GameState.MOVING || i > 0) {
-				shapes.rect(bx + ((pointX + .4f) * tilesize), by
-						+ ((pointY + .4f) * tilesize), .2f * tilesize,
-						.2f * tilesize);
-			}
-			if (i != path.size() - 1) {
-				float shiftX = 0;
-				float shiftY = 0;
-				if (i == 0 && path.size() > 1 && state == GameState.MOVING) {
-					shiftX = (path.get(1).getXCoord() - GameEngine.movingPiece
-							.getXCoord()) * moveAnimateTime;
-					shiftY = (path.get(1).getYCoord() - GameEngine.movingPiece
-							.getYCoord()) * moveAnimateTime;
-				}
-				int nextX = path.get(i + 1).getXCoord();
-				int nextY = path.get(i + 1).getYCoord();
-				if (pointX == nextX) {
-					float originY = Math.min(pointY + shiftY, nextY);
-					float endY = Math.max(pointY + shiftY, nextY);
+
+		if(aState != AnimationState.DESTRUCTION){
+			shapes.begin(ShapeType.Filled);
+			shapes.setColor(new Color(.9f, .9f, .2f, 1f));
+			for (int i = 0; i < path.size(); i++) {
+				int pointX = path.get(i).getXCoord();
+				int pointY = path.get(i).getYCoord();
+				if (state != GameState.MOVING || i > 0) {
 					shapes.rect(bx + ((pointX + .4f) * tilesize), by
-							+ ((originY + .4f) * tilesize), .2f * tilesize,
-							(endY - originY) * tilesize);
-				} else {
-					float originX = Math.min(pointX + shiftX, nextX);
-					float endX = Math.max(pointX + shiftX, nextX);
-					shapes.rect(bx + ((originX + .4f) * tilesize), by
-							+ ((pointY + .4f) * tilesize), (endX - originX)
-							* tilesize, .2f * tilesize);
+							+ ((pointY + .4f) * tilesize), .2f * tilesize,
+							.2f * tilesize);
+				}
+				if (i != path.size() - 1) {
+					float shiftX = 0;
+					float shiftY = 0;
+					if (i == 0 && path.size() > 1 && state == GameState.MOVING) {
+						shiftX = (path.get(1).getXCoord() - GameEngine.movingPiece
+								.getXCoord()) * moveAnimateTime;
+						shiftY = (path.get(1).getYCoord() - GameEngine.movingPiece
+								.getYCoord()) * moveAnimateTime;
+					}
+					int nextX = path.get(i + 1).getXCoord();
+					int nextY = path.get(i + 1).getYCoord();
+					if (pointX == nextX) {
+						float originY = Math.min(pointY + shiftY, nextY);
+						float endY = Math.max(pointY + shiftY, nextY);
+						shapes.rect(bx + ((pointX + .4f) * tilesize), by
+								+ ((originY + .4f) * tilesize), .2f * tilesize,
+								(endY - originY) * tilesize);
+					} else {
+						float originX = Math.min(pointX + shiftX, nextX);
+						float endX = Math.max(pointX + shiftX, nextX);
+						shapes.rect(bx + ((originX + .4f) * tilesize), by
+								+ ((pointY + .4f) * tilesize), (endX - originX)
+								* tilesize, .2f * tilesize);
+					}
 				}
 			}
-		}
-		if (path.size() > 1) {
-			int finalX = path.get(path.size() - 1).getXCoord();
-			int finalY = path.get(path.size() - 1).getYCoord();
-			int prevX = path.get(path.size() - 2).getXCoord();
-			int prevY = path.get(path.size() - 2).getYCoord();
-			int baseX = bx + (finalX * tilesize);
-			int baseY = by + (finalY * tilesize);
-			if (finalX > prevX) {
-				shapes.triangle(baseX + (.5f * tilesize), baseY
-						+ (0.3f * tilesize), baseX + (.5f * tilesize), baseY
-						+ (0.7f * tilesize), baseX + (0.75f * tilesize), baseY
-						+ (0.5f * tilesize));
-			} else if (finalX < prevX) {
-				shapes.triangle(baseX + (.5f * tilesize), baseY
-						+ (0.3f * tilesize), baseX + (.5f * tilesize), baseY
-						+ (0.7f * tilesize), baseX + (0.25f * tilesize), baseY
-						+ (0.5f * tilesize));
-			} else if (finalY > prevY) {
-				shapes.triangle(baseX + (.3f * tilesize), baseY
-						+ (0.5f * tilesize), baseX + (.7f * tilesize), baseY
-						+ (0.5f * tilesize), baseX + (0.5f * tilesize), baseY
-						+ (0.75f * tilesize));
-			} else if (finalY < prevY) {
-				shapes.triangle(baseX + (.3f * tilesize), baseY
-						+ (0.5f * tilesize), baseX + (.7f * tilesize), baseY
-						+ (0.5f * tilesize), baseX + (0.5f * tilesize), baseY
-						+ (0.25f * tilesize));
+			if (path.size() > 1) {
+				int finalX = path.get(path.size() - 1).getXCoord();
+				int finalY = path.get(path.size() - 1).getYCoord();
+				int prevX = path.get(path.size() - 2).getXCoord();
+				int prevY = path.get(path.size() - 2).getYCoord();
+				int baseX = bx + (finalX * tilesize);
+				int baseY = by + (finalY * tilesize);
+				if (finalX > prevX) {
+					shapes.triangle(baseX + (.5f * tilesize), baseY
+							+ (0.3f * tilesize), baseX + (.5f * tilesize), baseY
+							+ (0.7f * tilesize), baseX + (0.75f * tilesize), baseY
+							+ (0.5f * tilesize));
+				} else if (finalX < prevX) {
+					shapes.triangle(baseX + (.5f * tilesize), baseY
+							+ (0.3f * tilesize), baseX + (.5f * tilesize), baseY
+							+ (0.7f * tilesize), baseX + (0.25f * tilesize), baseY
+							+ (0.5f * tilesize));
+				} else if (finalY > prevY) {
+					shapes.triangle(baseX + (.3f * tilesize), baseY
+							+ (0.5f * tilesize), baseX + (.7f * tilesize), baseY
+							+ (0.5f * tilesize), baseX + (0.5f * tilesize), baseY
+							+ (0.75f * tilesize));
+				} else if (finalY < prevY) {
+					shapes.triangle(baseX + (.3f * tilesize), baseY
+							+ (0.5f * tilesize), baseX + (.7f * tilesize), baseY
+							+ (0.5f * tilesize), baseX + (0.5f * tilesize), baseY
+							+ (0.25f * tilesize));
+				}
 			}
+			shapes.end();
 		}
-		shapes.end();
 
 		// Draw the pieces
 		path = GameEngine.movePath;
@@ -251,21 +254,15 @@ public class DrawGame {
 			paintColor = translateColor(b.getTileAtBoardPosition(path.get(1).getXCoord(), path.get(1).getYCoord()).getPainterColor());
 		}
 		Laser disbandedLaser = null;
-		Laser formedLaser = null;
 		Laser movedAlongLaser = null;
 		float breakAnimateTime = 0;
 		float formAnimateTime = 0;
 		float moveAlongAnimateTime = 0;
 		float paintAnimateTime = 0;
 		if(state == GameState.MOVING){
-			System.out.println(aState);
+			GameEngine.debug(aState);
 			disbandedLaser = GameEngine.getBrokenLaser();
-			
-			//TODO: This is where I changed the code Ryan.
-			List<Laser> allLasers = GameEngine.getFormedLaser();
-			if (!allLasers.isEmpty())
-				formedLaser = allLasers.get(0);
-			
+
 			movedAlongLaser = GameEngine.getLaserMovedAlong();
 			if(aState == AnimationState.BREAKING){
 				breakAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
@@ -277,10 +274,9 @@ public class DrawGame {
 				moveAlongAnimateTime = 1;
 				paintAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
 			} else if (aState == AnimationState.FORMING){
-				System.out.println("Is formed laser null? " + (formedLaser == null));
 				breakAnimateTime = 1;
 				moveAlongAnimateTime = 1;
-				if(!paintColor.equals(new Color(0,0,0,0))){
+				if(!paintColor.equals(new Color(0,0,0,0)) && !paintColor.equals(translateColor(GameEngine.movingPiece.getColor()))){
 					paintAnimateTime = 1;
 				}
 				formAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
@@ -338,25 +334,28 @@ public class DrawGame {
 				}
 			}
 		}
-		if (formedLaser != null){
-			laserWidth = formAnimateTime * beamThickness; 
-			System.out.println("Changing width " + laserWidth);
-			Laser l = formedLaser;
-			shapes.setColor(translateColor(l.getColor()));
-			if (l.getXStart() == l.getXFinish()) {
-				shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize,
-						by + (l.getYStart() + 0.5f - (laserWidth / 2)) * tilesize,
-						laserWidth * tilesize, (l.getYFinish() - l.getYStart())
-						* tilesize);
-			} else {
-				shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize,
-						by + (l.getYStart() + 0.5f - (laserWidth/2)) * tilesize,
-						(l.getXFinish() - l.getXStart()) * tilesize,
-						laserWidth * tilesize);
+		
+		List<Laser> allFormedLasers = GameEngine.getFormedLaser();
+		if (!allFormedLasers.isEmpty()){
+			for(Laser l : allFormedLasers)
+			if (l != null){
+				laserWidth = formAnimateTime * beamThickness; 
+				shapes.setColor(translateColor(l.getColor()));
+				if (l.getXStart() == l.getXFinish()) {
+					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize,
+							by + (l.getYStart() + 0.5f - (laserWidth / 2)) * tilesize,
+							laserWidth * tilesize, (l.getYFinish() - l.getYStart())
+							* tilesize);
+				} else {
+					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize,
+							by + (l.getYStart() + 0.5f - (laserWidth/2)) * tilesize,
+							(l.getXFinish() - l.getXStart()) * tilesize,
+							laserWidth * tilesize);
+				}
 			}
 		}
-		if(movedAlongLaser != null){
-			laserWidth = beamThickness;
+		if(movedAlongLaser != null && aState != AnimationState.DESTRUCTION){
+			laserWidth = beamThickness * (1 - paintAnimateTime);
 			shapes.setColor(translateColor(movedAlongLaser.getColor()));
 			float moveAnimX = (path.get(1).getXCoord() - GameEngine.movingPiece
 					.getXCoord()) * tilesize * moveAnimateTime;
@@ -390,7 +389,8 @@ public class DrawGame {
 		}
 		shapes.end();
 		
-		shapes.end();
+		
+		
 
 		// Draw the buttons
 		batch.begin();
@@ -501,8 +501,8 @@ public class DrawGame {
 					* (1 - GameEngine.topBarSize * 0.22f));
 			// .3
 		} else {
-			tb = titleFontNoBest.getBounds(toPrint);
-			titleFontNoBest.draw(batch, toPrint, (width - tb.width) / 2, height
+			tb = titleFont.getBounds(toPrint);
+			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
 					* (1 - GameEngine.topBarSize * 0.22f));
 			// .36
 		}

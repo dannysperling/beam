@@ -33,7 +33,7 @@ public class GameEngine implements ApplicationListener {
 	private static final int timeToMovePiece = 8;
 	private static final int timeToFormBeam = 4;
 	private static final int timeToBreakBeam = 4;
-	private static final int timeToDestroyPiece = 1;
+	private static final int timeToDestroyPiece = 60;
 	private static final int timeToPaintPiece = 20;
 	private static int timeSpentOnThisAnimation = 0;
 	private static int totalTimeForThisAnimation = 0;
