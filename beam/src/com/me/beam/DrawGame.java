@@ -1,5 +1,7 @@
 package com.me.beam;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Set;
 
@@ -31,7 +33,7 @@ public class DrawGame {
 	BitmapFont titleFontNoBest;
 	BitmapFont menuButtonFont;
 
-	public static Color translateColor(GameEngine.Color c){
+	public static Color translateColor(GameEngine.Color c) {
 		switch (c) {
 		case RED:
 			return new Color(1, .133f, .133f, 1);
@@ -43,7 +45,7 @@ public class DrawGame {
 			return new Color(0, 0, 0, 0);
 		}
 	}
-	
+
 	public DrawGame(GameProgress gp) {
 		batch = new SpriteBatch();
 
@@ -58,8 +60,9 @@ public class DrawGame {
 		shapes = new ShapeRenderer();
 	}
 
-	public void initFonts(){
-		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("data/fonts/swanse.ttf"));
+	public void initFonts() {
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
+				Gdx.files.internal("data/fonts/swanse.ttf"));
 		buttonFont = generator.generateFont(Gdx.graphics.getHeight() / 35);
 		titleFont = generator.generateFont(Gdx.graphics.getHeight() / 28);
 		titleFontNoBest = generator.generateFont(Gdx.graphics.getHeight() / 25);
@@ -67,7 +70,8 @@ public class DrawGame {
 		generator.dispose();
 	}
 
-	public void draw(Board b, GameEngine.GameState state, GameEngine.AnimationState aState, int currentLevel) {
+	public void draw(Board b, GameEngine.GameState state,
+			GameEngine.AnimationState aState, int currentLevel) {
 		int bx = b.getBotLeftX();
 		int by = b.getBotLeftY();
 		int tilesize = b.getTileSize();
@@ -95,7 +99,7 @@ public class DrawGame {
 		for (int i = 0; i <= b.getNumVerticalTiles(); i++) {
 			shapes.line(bx, by + (i * tilesize),
 					bx + (b.getNumHorizontalTiles() * tilesize), by
-					+ (i * tilesize));
+							+ (i * tilesize));
 		}
 		shapes.end();
 
@@ -164,7 +168,7 @@ public class DrawGame {
 
 		// Draw Paths
 		List<Tile> path = GameEngine.movePath;
-		float animateTime = 0;//((float)(GameEngine.getTimeOnThisTile()))/(GameEngine.getTicksPerTile());
+		float animateTime = 0;// ((float)(GameEngine.getTimeOnThisTile()))/(GameEngine.getTicksPerTile());
 		shapes.begin(ShapeType.Filled);
 		shapes.setColor(new Color(.9f, .9f, .2f, 1f));
 		for (int i = 0; i < path.size(); i++) {
@@ -262,7 +266,7 @@ public class DrawGame {
 				shapes.rect(bx + (l.getXStart() + 0.45f) * tilesize,
 						by + (l.getYStart() + 0.45f) * tilesize,
 						0.1f * tilesize, (l.getYFinish() - l.getYStart())
-						* tilesize);
+								* tilesize);
 			} else {
 				shapes.rect(bx + (l.getXStart() + 0.45f) * tilesize,
 						by + (l.getYStart() + 0.45f) * tilesize,
@@ -271,7 +275,7 @@ public class DrawGame {
 			}
 		}
 		shapes.end();
-		
+
 		// Draw the buttons
 		batch.begin();
 		buttonFont.setColor(Color.WHITE);
@@ -289,7 +293,7 @@ public class DrawGame {
 		tb = buttonFont.getBounds("RESET");
 		buttonFont.draw(batch, "RESET", Menu.resetButtonLeftX * width
 				+ (Menu.resetButtonWidth * width - tb.width) / 2, textHeight);
-		
+
 		menuButtonFont.setColor(Color.WHITE);
 		tb = menuButtonFont.getBounds("MENU");
 		textHeight = height * Menu.menuButtonBotY
@@ -300,54 +304,101 @@ public class DrawGame {
 
 		// Drawing progress towards level objectives
 		batch.begin();
+		titleFont.setColor(Color.WHITE);
+		titleFontNoBest.setColor(Color.WHITE);
 		String toPrint;
 		int moves = gameProgress.getLevelMoves(currentLevel);
-
+		float movesAdjust = 0.0f;
+		if (moves != -1) {
+			System.out.println("Moves found!");
+			movesAdjust = 0.15f;
+		}
 		if (b.getBeamObjectiveSet().isEmpty()) {
 			toPrint = b.getNumGoalsFilled() + " out of " + b.goalTiles.size()
 					+ " goals filled.";
+			tb = titleFont.getBounds(toPrint);
+			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
+					* (1 - GameEngine.topBarSize * 0.4f - GameEngine.topBarSize
+							* movesAdjust));
 		} else {
-			int beamObjective = 0;
-			int curLaserCount = 0;
+			/*
+			 * int beamObjective = 0; int curLaserCount = 0;
+			 */
+			EnumMap<GameEngine.Color, Integer> beamObjective = new EnumMap<GameEngine.Color, Integer>(
+					GameEngine.Color.class);
+			EnumMap<GameEngine.Color, Integer> curLaserCount = new EnumMap<GameEngine.Color, Integer>(
+					GameEngine.Color.class);
 
+			int objCount = 0;
+			int existCount = 0;
 			for (GameEngine.Color c : b.getBeamObjectiveSet()) {
-				beamObjective += b.getBeamObjectiveCount(c);
-				curLaserCount += b.getLaserCount(c);
+				objCount = b.getBeamObjectiveCount(c);
+				beamObjective.put(c, objCount);
+				existCount = b.getLaserCount(c);
+				curLaserCount.put(c, existCount);
 			}
-			toPrint = curLaserCount + " out of " + beamObjective + " lasers.";
+
+			Integer total;
+			Integer existing;
+			ArrayList<String> colorGoals = new ArrayList<String>();
+			for (GameEngine.Color c : GameEngine.Color.values()) {
+				total = beamObjective.get(c);
+				existing = curLaserCount.get(c);
+				if (total != null && total != 0) {
+					toPrint = existing + " of " + total + " " + c
+							+ " beams made.";
+					colorGoals.add(toPrint);
+				}
+			}
+			if (colorGoals.size() == 0) {
+				toPrint = "Break all beams.";
+				tb = titleFont.getBounds(toPrint);
+				titleFont
+						.draw(batch,
+								toPrint,
+								(width - tb.width) / 2,
+								height
+										* (1 - GameEngine.topBarSize * 0.4f - GameEngine.topBarSize
+												* movesAdjust));
+			} else {
+				for (int i = 0; i < colorGoals.size(); i++) {
+					toPrint = colorGoals.get(i);
+					tb = titleFont.getBounds(toPrint);
+					titleFont
+							.draw(batch,
+									toPrint,
+									(width - tb.width) / 2,
+									height
+											* (1 - GameEngine.topBarSize * 0.4f
+													- GameEngine.topBarSize
+													* movesAdjust - GameEngine.topBarSize
+													* i * .15f));
+				}
+			}
 		}
 
-		//Draw differently if the level has been completed
-		titleFont.setColor(Color.WHITE);
-		titleFontNoBest.setColor(Color.WHITE);
-		if (moves != -1){
+		toPrint = "Moves: " + GameEngine.getMoveCount() + " Perfect: "
+				+ b.perfect;
+
+		if (moves != -1) {
 			tb = titleFont.getBounds(toPrint);
 			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
-					* (1 - GameEngine.topBarSize*0.75f));
+					* (1 - GameEngine.topBarSize * 0.22f));
+			// .3
 		} else {
 			tb = titleFontNoBest.getBounds(toPrint);
 			titleFontNoBest.draw(batch, toPrint, (width - tb.width) / 2, height
-					* (1 - GameEngine.topBarSize*0.64f));
+					* (1 - GameEngine.topBarSize * 0.22f));
+			// .36
 		}
 
-		toPrint = "Moves: " + GameEngine.getMoveCount() + " Perfect: " + b.perfect;
-		
-		if (moves != -1){
-			tb = titleFont.getBounds(toPrint);
-			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
-					* (1 - GameEngine.topBarSize*0.3f));
-		} else {
-			tb = titleFontNoBest.getBounds(toPrint);
-			titleFontNoBest.draw(batch, toPrint, (width - tb.width) / 2, height
-					* (1 - GameEngine.topBarSize*0.36f));
-		}
-
-		if (moves != -1){
+		if (moves != -1) {
 			toPrint = "Your Best: " + moves;
 			tb = titleFont.getBounds(toPrint);
 
 			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
-					* (1 - GameEngine.topBarSize*0.525f));
+					* (1 - GameEngine.topBarSize * 0.39f));
+			// .525
 		}
 		batch.end();
 	}
