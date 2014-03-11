@@ -237,10 +237,10 @@ public class Board {
 		return goalsFilled;
 	}
 
-	public int getLaserCount(GameEngine.Color C) {
+	public int getLaserCount(GameEngine.Color c) {
 		int store = 0;
 		for (Laser l : lasers) {
-			if (l.getColor() == C) {
+			if (l.getColor() == c || c == Color.NONE) {
 				store++;
 			}
 		}
@@ -271,10 +271,15 @@ public class Board {
 		return result;
 	}
 	
+	//Why does this exist? 
 	public boolean isWon() {
 		return isWon(this.pieces);
 	}
 	
+	/**
+	 * Returns true iff all goal squares are full of the correct color
+	 *   and all beam goals are met. 
+	 */
 	public boolean isWon(Piece[][] pieces) {
 		if (getNumGoalsFilled(pieces) != goalTiles.size()) {
 			return false;

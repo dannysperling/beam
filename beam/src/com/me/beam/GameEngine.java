@@ -288,6 +288,7 @@ public class GameEngine implements ApplicationListener {
 								for (int i = 0; i < moveCounter+1; i++)
 									newStack.add(boardStack.get(i));
 								boardStack = newStack; 
+//Is the whole list reconstructed every move? While it won't affect anything, I Hate it.
 
 								if (b.isWon()) {
 									state = GameState.WON;

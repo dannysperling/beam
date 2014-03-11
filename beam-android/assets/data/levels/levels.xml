@@ -8,7 +8,7 @@ e,goal_1,e
 
 <level id=2 par=3 perfect=2>
 <attribution name="Building Beams" author="Danny?"/>
-<beamGoal color=1 count=4/>
+<beamGoal color=0 count=4/>
 e,e,e,1
 e,e,1,e
 e,1,e,e
