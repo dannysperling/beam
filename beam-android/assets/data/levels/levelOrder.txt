@@ -1,34 +1,47 @@
-10101  -  Comments about the level may be written here in plaintext.
-36248  -  Don't put a number surrounded by whitespace. level1 is fine.
-10016  -  The dash is unnecessary but looks nice.
-86655
-98743
-89897
-19874
-91871
-64536
-78777
-10003
-44298
-28782
-14187
-40500
-87870
-66666
-57155
-10984
-78965
-44949
-17111
-30039
-81748
-26409
-87011
-64966
-12412
-54534
-27349
-99553
-61001
-32419
-89217
+37 - no other beams, move + goal
+38 - multiple colors of goals
+1
+35
+36
+x - easy destruction
+3 
+40 - beam objective tutorial
+2 
+41 - hard beam goal or two colors
+x - easy beam break level
+12
+6 
+10
+7
+8
+33
+x - easier painter level
+9
+14
+5
+11
+15
+32
+
+x - huge intermediate gap
+26
+27
+x - gap
+
+21
+23
+18
+16
+13 - very hard but simple mechanics
+39 - color lock tutorial
+22
+20
+29
+25
+24
+17
+28
+30
+34
+31
+19

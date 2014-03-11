@@ -14,3 +14,21 @@ glass,e,2,3,e
 e,3,1,e,glass
 glass,glass,glass,e,e
 </level>
+
+<level id=3 par=13 perfect=8>
+<attribution name="" author=""/>
+2,glass,e,e,2,3
+glass,glass,glass,e,glass,2
+e,2,e,1,glass,e
+e,glass,glass,2,glass,2
+2,glass,glass,e,glass,1
+goal_3,1,e,e,2,glass
+</level>
+
+<level id=4 par=10 perfect=8>
+<attribution name="Simplicity Incarnate" author="Danny"/>
+goal_2,2,2,goal_2
+2,goal_1,goal_1,1
+2,goal_1,goal_1,1
+goal_2,1,1,goal_2
+</level>

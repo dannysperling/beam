@@ -130,8 +130,15 @@ public class Board {
 		return ret;
 	}
 
-	public void removePiece(Piece p) {
+	/**
+	 * Attempts to remove a piece p, based on p's coordinates
+	 * @param p The piece to remove
+	 * @return Whether a piece was removed
+	 */
+	public boolean removePiece(Piece p) {
+		Piece past = pieces[p.getXCoord()][p.getYCoord()];
 		pieces[p.getXCoord()][p.getYCoord()] = null;
+		return (past != null);
 	}
 
 	/**
@@ -317,7 +324,7 @@ public class Board {
 			}
 			return true;
 		} catch (ArrayIndexOutOfBoundsException e) {
-			System.out.println("restPieces failed with exception:");
+			GameEngine.debug("restPieces failed with exception:");
 			e.printStackTrace();
 			return false;
 		}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.me.beam.GameEngine.GameState;
 
 public class InputHandler {
@@ -14,7 +15,7 @@ public class InputHandler {
 
 	private boolean gameWonPressed = false;
 
-	public GameEngine.GameState handleInput(Board b, GameEngine.GameState state) {
+	public GameEngine.GameState handleGameInput(Board b, GameEngine.GameState state) {
 
 		/* Handles inputs starting from a level with no player input. */
 		if (state == GameEngine.GameState.IDLE
@@ -34,6 +35,20 @@ public class InputHandler {
 		}
 		return state;
 	}
+	
+	//Sets a flag if the back button has been pressed. Or just doesn't.
+	private boolean backClicked = false;
+	private boolean backDown = false;
+	public void checkBackPressed(){
+		if (Gdx.input.isKeyPressed(Keys.BACK)){
+			backDown = true;
+		} else {
+			if (backDown){
+				backClicked = true;
+			}
+			backDown = false;
+		}
+	}
 
 	private int firstTouchHeight = -1;
 	private int lastTouchHeight = -1;
@@ -42,8 +57,12 @@ public class InputHandler {
 	private float momentum = 0;
 	private final float momentumDropOff = 0.05f;
 
-	//Returns the level ordinal selected, or -1 if no unlocked level selected
+	//Returns the level ordinal selected, -1 if no unlocked level selected, -2 if exiting game
 	public int handleMainMenuInput(Menu menu){
+		
+		if (backClicked){
+			return -2;
+		}
 
 		if (Gdx.input.isTouched()){
 			int y = getY();
@@ -170,6 +189,12 @@ public class InputHandler {
 	public GameEngine.ButtonPress checkForButtonPress() {
 
 		GameEngine.ButtonPress returnedButton;
+		
+		//Check to see if back was pressed
+		if (backClicked){
+			backClicked = false;
+			return GameEngine.ButtonPress.MENU;
+		}
 
 		// Button pushed
 		if (Gdx.input.isTouched()) {
@@ -214,7 +239,8 @@ public class InputHandler {
 	}
 
 	private int getY() {
-		return Gdx.graphics.getHeight() - Gdx.input.getY() - 1;
+		int y = Gdx.graphics.getHeight() - Gdx.input.getY() - 1;
+		return Math.min(Math.max(y, 0), Gdx.graphics.getHeight() - 1);
 	}
 
 	private int getX() {

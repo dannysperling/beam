@@ -29,7 +29,8 @@ public class DrawMenu {
 		int scrolled = menu.getScrollAmount();
 		int height = Gdx.graphics.getHeight();
 		int width = Gdx.graphics.getWidth();
-		int itemTopY = scrolled % (int)((Menu.menuItemHeight * height)) + height;
+		int itemHeight = (int)(Gdx.graphics.getHeight() * Menu.menuItemHeight);
+		int itemTopY = (scrolled + 1) % itemHeight + height;
 		int itemOrdinal = menu.getLevelAtPosition(height);
 		
 		TextBounds tb;
@@ -38,7 +39,7 @@ public class DrawMenu {
 		batch.begin();
 		String levelInfo;
 		String stringOrdinal;
-		while(itemTopY >= 0){
+		while(itemTopY > 0){
 			//Draw the level number off to the left
 			if (!menu.isUnlocked(itemOrdinal)){
 				levelInfo = "LOCKED";
@@ -54,8 +55,8 @@ public class DrawMenu {
 					numberFont.setColor(Color.GREEN);
 				} else {
 					levelInfo = "Incomplete";
-					menuFont.setColor(Color.BLUE);
-					numberFont.setColor(Color.BLUE);
+					menuFont.setColor(new Color(.133f, .337f, 1, 1));
+					numberFont.setColor(new Color(.133f, .337f, 1, 1));
 				}
 			}
 			tb = menuFont.getBounds(levelInfo);
@@ -68,7 +69,7 @@ public class DrawMenu {
 					itemTopY - ((height * Menu.menuItemHeight) - tb.height)/2);
 			
 			//Increment the botY and the ordinal
-			itemTopY -= Menu.menuItemHeight * height;
+			itemTopY -= itemHeight;
 			itemOrdinal++;
 		}
 		batch.end();
