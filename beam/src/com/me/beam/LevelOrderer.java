@@ -47,4 +47,14 @@ public class LevelOrderer {
 		
 		return inverseMap;
 	}
+
+	//Get an array of all unique ids
+	public int[] getUniqueIds() {
+		int[] uniqueIds = new int[mapping.size()];
+		
+		for (int i = 0; i < mapping.size(); i++){
+			uniqueIds[i] = mapping.get(i);
+		}
+		return uniqueIds;
+	}
 }

@@ -11,6 +11,7 @@ import com.badlogic.gdx.files.FileHandle;
 public class GameEngine implements ApplicationListener {
 
 	public static final boolean DEBUG_MODE = false;
+	public static final boolean LOGGING = true;
 
 	// Enter the levelID you want to play here:
 	private int currentLevel = 0;
@@ -133,6 +134,9 @@ public class GameEngine implements ApplicationListener {
 		Gdx.input.setCatchBackKey(true);
 
 		tempFile = Gdx.files.local(tempData);
+		
+		if (LOGGING)
+			Logger.initialize(levelOrderer.getUniqueIds());
 	}
 
 	@Override
