@@ -7,14 +7,12 @@ import java.util.List;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.me.beam.Logger.LogType;
 
 public class GameEngine implements ApplicationListener {
 
 	public static final boolean DEBUG_MODE = false;
-	public static final boolean LOGGING = true;
-
-	// Enter the levelID you want to play here:
-	private int currentLevel = 0;
+	public static final boolean LOGGING = false;
 
 	// Simple Objects for now
 	private Board b;
@@ -23,7 +21,8 @@ public class GameEngine implements ApplicationListener {
 	private LevelLoader levelLoader;
 	private GameProgress progress;
 	private LevelOrderer levelOrderer;
-
+	
+	private int currentLevel = -1;
 	private static int moveCounter = 0;
 
 	public static Piece movingPiece = null;
@@ -115,15 +114,19 @@ public class GameEngine implements ApplicationListener {
 	//Restoration
 	private String tempData = "level.temp";
 	private FileHandle tempFile;
-
+	
+	//Logging
+	private int undoTimes = 0;
+	private int resetTimes = 0;
+	private int redoTimes = 0;
+	private int deaths = 0;
+	
 	@Override
 	public void create() {
 
 		levelOrderer = new LevelOrderer("data/levels/levelOrder.txt");
 		levelLoader = new LevelLoader("data/levels/levels.xml", levelOrderer);
 		progress = new GameProgress(levelOrderer);
-
-		loadLevel(currentLevel);
 
 		dg = new DrawGame(progress);
 		menu = new Menu(levelOrderer.getNumLevels(), progress);
@@ -154,19 +157,33 @@ public class GameEngine implements ApplicationListener {
 		if (mainMenuShowing){
 
 			int selected = inputHandler.handleMainMenuInput(menu);
+			
+			if (LOGGING && selected == -3){
+				logEnd();
+				clearAllData();
+				Logger.startNewSession();
+			}
 
 			//Exit to leave
 			if (selected == -2){
-
+				if (LOGGING){
+					logEnd();
+				}
 				//TODO: Do things to check if the player wants to leave.
 				System.exit(0);
 			}
 
 			//Picked a level
-			if (selected != -1){
+			if (selected >= 0){
 				//Only reset if different level
 				mainMenuShowing = false;
 				if (selected != currentLevel){
+					if (LOGGING){
+						if (currentLevel != -1){
+							logEnd();
+						}
+						Logger.log(LogType.ENTERED_LEVEL, selected);
+					}
 					currentLevel = selected;
 					loadLevel(currentLevel);
 				}
@@ -190,9 +207,16 @@ public class GameEngine implements ApplicationListener {
 
 			// Increase level. Should be done elsewhere in non-proto version
 			else if (state == GameState.WON && button == ButtonPress.WON) {
+				if (LOGGING){
+					logEnd();
+				}
 				currentLevel++;
 				if (currentLevel < levelOrderer.getNumLevels()){
 					loadLevel(currentLevel);
+					
+					if (LOGGING){
+						Logger.log(LogType.ENTERED_LEVEL, currentLevel);
+					}
 				} else {
 					currentLevel--;
 					menu.scrollToLevel(currentLevel);
@@ -261,6 +285,7 @@ public class GameEngine implements ApplicationListener {
 						totalTimeForThisAnimation = AnimationState.getTime(currentAnimationState);
 						
 						if (currentAnimationState == AnimationState.DESTRUCTION){
+							deaths++;
 							goBackToTheFuture();
 						}
 					} else {
@@ -287,12 +312,13 @@ public class GameEngine implements ApplicationListener {
 								// Push the move onto the stack
 								boardStack.add(moveCounter, (b.encodePieces()));
 
-								// Remove the old future
-								List<Collection<Short>> newStack = new ArrayList<Collection<Short>>();
-								for (int i = 0; i < moveCounter+1; i++)
-									newStack.add(boardStack.get(i));
-								boardStack = newStack; 
-//Is the whole list reconstructed every move? While it won't affect anything, I Hate it.
+								// Remove the old future, if it exists
+								if (boardStack.size() >= moveCounter + 1){
+									List<Collection<Short>> newStack = new ArrayList<Collection<Short>>();
+									for (int i = 0; i < moveCounter+1; i++)
+										newStack.add(boardStack.get(i));
+									boardStack = newStack; 
+								}
 
 								if (b.isWon()) {
 									state = GameState.WON;
@@ -321,6 +347,12 @@ public class GameEngine implements ApplicationListener {
 		dg.draw(b, state, currentAnimationState, currentLevel);
 	}
 	
+	//Removes all user data. Be careful if you call this.
+	private void clearAllData() {
+		currentLevel = -1;
+		progress.clearAllData();
+	}
+
 	//Set up animations
 	private void prepAnimationBeginning(){
 		animationStack.clear();
@@ -366,17 +398,26 @@ public class GameEngine implements ApplicationListener {
 		switch (button) {
 		case UNDO:
 			moveCounter = Math.max(moveCounter - 1, 0);
+			if (LOGGING){
+				undoTimes++;
+			}
 			break;
 		case RESET:
 			moveCounter = 0;
 			List<Collection<Short>> newStack = new ArrayList<Collection<Short>>();
 			newStack.add(boardStack.get(0));
 			boardStack = newStack;
+			if (LOGGING){
+				resetTimes++;
+			}
 			break;
 		case REDO:
 			// Make sure there's a move to go to
 			if (boardStack.size() > moveCounter + 1) {
 				moveCounter++;
+				if (LOGGING){
+					redoTimes++;
+				}
 			} else {
 				// DON'T DO ANYTHING IF THERE'S NOTHING TO REDO
 				return;
@@ -877,5 +918,19 @@ public class GameEngine implements ApplicationListener {
 			return;
 		}
 		System.out.println(s);
+	}
+	
+	private void logEnd(){
+		if (currentLevel != -1){
+			Logger.log(LogType.UNDO, undoTimes);
+			Logger.log(LogType.RESET, resetTimes);
+			Logger.log(LogType.REDO, redoTimes);
+			Logger.log(LogType.DEATH, deaths);
+			Logger.log(LogType.EXITED_LEVEL, currentLevel);
+			undoTimes = 0;
+			resetTimes = 0;
+			redoTimes = 0;
+			deaths = 0;
+		}
 	}
 }

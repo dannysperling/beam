@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.me.beam.Logger.LogType;
 
 public class GameProgress {
 
@@ -33,6 +34,10 @@ public class GameProgress {
 			saveFile.writeString("<sound music=1 fx=1/>\n", false);
 		}
 
+		init();
+	}
+
+	public void init(){
 		//Keep track of progress on levels
 		int numLevels = levelOrderer.getNumLevels();
 		scores = new int[numLevels];
@@ -54,7 +59,14 @@ public class GameProgress {
 
 	//Returns if the new score was better
 	public boolean setLevelScore(int ordinal, int moves, int levelStars){
+		if (GameEngine.LOGGING){
+			Logger.log(LogType.BEAT_LEVEL_MOVES, moves);
+		}
 		if (scores[ordinal] == -1 || moves < scores[ordinal]){
+			//Only store stars if better moves
+			if (GameEngine.LOGGING){
+				Logger.log(LogType.BEAT_LEVEL_STARS, levelStars);
+			}
 			if (scores[ordinal] == -1){
 				highestUnlockedLevel++;
 			}
@@ -67,6 +79,13 @@ public class GameProgress {
 			return true;
 		}
 		return false;
+	}
+
+
+	public void clearAllData() {
+		saveFile.delete();
+		saveFile.writeString("<sound music=1 fx=1/>\n", false);
+		init();
 	}
 
 	public boolean isUnlocked(int ordinal){

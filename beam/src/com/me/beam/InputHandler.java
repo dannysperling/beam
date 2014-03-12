@@ -56,12 +56,27 @@ public class InputHandler {
 	private boolean movedTooFar = false;	
 	private float momentum = 0;
 	private final float momentumDropOff = 0.05f;
+	
+	//For logging purposes
+	private int timeHeld = 0;
+	private final int timeForLoggingReset = 240;
 
 	//Returns the level ordinal selected, -1 if no unlocked level selected, -2 if exiting game
 	public int handleMainMenuInput(Menu menu){
 		
 		if (backClicked){
 			return -2;
+		}
+		
+		if (GameEngine.LOGGING){
+			if (Gdx.input.isTouched(3)){
+				timeHeld++;
+			} else {
+				timeHeld = 0;
+			}
+			if (timeHeld == timeForLoggingReset){
+				return -3;
+			}
 		}
 
 		if (Gdx.input.isTouched()){
