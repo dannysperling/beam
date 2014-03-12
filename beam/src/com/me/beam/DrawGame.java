@@ -25,6 +25,11 @@ public class DrawGame {
 	private static final float beamThickness = 0.1f; // This is measured in
 														// units of square size
 
+	private boolean showFps = true;
+	private int frames = 0;
+	private long lastSecs = 0;
+	private int fps = 0;
+
 	private SpriteBatch batch;
 	private Texture pieceTexture;
 	private Sprite pieceSprite;
@@ -598,6 +603,24 @@ public class DrawGame {
 					* (1 - GameEngine.topBarSize * 0.39f));
 			// .525
 		}
+		
+		//Fps display option, can dike out for final release.
+		if (showFps) {
+			long newSecs = System.currentTimeMillis();
+			if (newSecs - lastSecs < 1000) {
+				frames++;
+			} else {
+				fps = frames;
+				frames = 0;
+				lastSecs = newSecs;
+
+			}
+			toPrint = "fps: " + fps;
+			tb = titleFont.getBounds(toPrint);
+			titleFont.draw(batch, toPrint, 0f, height
+					* (1 - GameEngine.topBarSize * .22f));
+		}
+
 		batch.end();
 	}
 
