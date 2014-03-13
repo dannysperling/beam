@@ -40,7 +40,14 @@ public class GameEngine implements ApplicationListener {
 	
 	private static final int timeForIntro = 300;
 	private static int timeSpentOnIntro = 0;
-
+	
+	private static final int timeBeforeDeathMessage = 120;
+	private static int timeDead = 0;
+	
+	private static int timeWon = 0;
+	public static final int wonAnimationUnit = 30;
+	
+	
 	private static AnimationState currentAnimationState = AnimationState.NOTANIMATING;
 	private List<AnimationState> animationStack = new ArrayList<AnimationState>();
 
@@ -252,6 +259,18 @@ public class GameEngine implements ApplicationListener {
 				prepAnimationBeginning();
 				
 			}
+			if (state == GameState.DESTROYED){
+				timeDead++;
+			} else {
+				timeDead = 0;
+			}
+			
+			if (state == GameState.WON){
+				timeWon++;
+			} else {
+				timeWon = 0;
+			}
+			
 			if (state == GameState.MOVING){
 				
 				//In between steps
@@ -926,6 +945,19 @@ public class GameEngine implements ApplicationListener {
 	public static float getIntroProgress(){
 		return ((float)(timeSpentOnIntro)) / timeForIntro;
 	}
+	
+	public static int getTimeDead(){
+		return timeDead;
+	}
+	
+	public static int getTimeBeforeDeathBeam(){
+		return timeBeforeDeathMessage;
+	}
+	
+	public static int getTimeWon(){
+		return timeWon;
+	}
+	
 	
 	public static <T> void debug(T s){
 		if (!DEBUG_MODE){
