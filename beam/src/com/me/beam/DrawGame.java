@@ -22,14 +22,8 @@ import com.me.beam.GameEngine.AnimationState;
 import com.me.beam.GameEngine.GameState;
 
 public class DrawGame {
-	private static final float beamThickness = 0.1f; // This is measured in
-														// units of square size
-
-	private boolean showFps = true;
-	private int frames = 0;
-	private long lastSecs = 0;
-	private int fps = 0;
-
+	private static final float beamThickness = 0.1f; //This is measured in units of square size
+	
 	private SpriteBatch batch;
 	private Texture pieceTexture;
 	private Sprite pieceSprite;
@@ -43,6 +37,7 @@ public class DrawGame {
 	BitmapFont titleFont;
 	BitmapFont titleFontNoBest;
 	BitmapFont menuButtonFont;
+	BitmapFont introFont;
 
 	public static Color translateColor(GameEngine.Color c) {
 		switch (c) {
@@ -65,13 +60,11 @@ public class DrawGame {
 
 		bangTexture = new Texture(Gdx.files.internal("data/bangbang.png"));
 		bangTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-
+		
 		gameProgress = gp;
 
-		TextureRegion pieceregion = new TextureRegion(pieceTexture, 0, 0, 256,
-				256);
-		TextureRegion bangregion = new TextureRegion(bangTexture, 0, 0, 256,
-				256);
+		TextureRegion pieceregion = new TextureRegion(pieceTexture, 0, 0, 256, 256);
+		TextureRegion bangregion = new TextureRegion(bangTexture, 0, 0, 256, 256);
 
 		pieceSprite = new Sprite(pieceregion);
 		bangSprite = new Sprite(bangregion);
@@ -85,6 +78,7 @@ public class DrawGame {
 		titleFont = generator.generateFont(Gdx.graphics.getHeight() / 28);
 		titleFontNoBest = generator.generateFont(Gdx.graphics.getHeight() / 25);
 		menuButtonFont = generator.generateFont(Gdx.graphics.getHeight() / 45);
+		introFont = generator.generateFont(Gdx.graphics.getHeight() / 20);
 		generator.dispose();
 	}
 
@@ -117,10 +111,10 @@ public class DrawGame {
 		for (int i = 0; i <= b.getNumVerticalTiles(); i++) {
 			shapes.line(bx, by + (i * tilesize),
 					bx + (b.getNumHorizontalTiles() * tilesize), by
-							+ (i * tilesize));
+					+ (i * tilesize));
 		}
 		shapes.end();
-
+		
 		// Draw the tiles
 		shapes.begin(ShapeType.Line);
 		for (Tile t : tiles) {
@@ -155,8 +149,7 @@ public class DrawGame {
 						+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
 				shapes.setColor(curBG);
 				shapes.rect(goalX + (0.12f * tilesize), goalY
-						+ (0.12f * tilesize), 0.76f * tilesize,
-						0.76f * tilesize);
+						+ (0.12f * tilesize), 0.76f * tilesize, 0.76f * tilesize);
 			}
 		}
 		shapes.end();
@@ -188,15 +181,13 @@ public class DrawGame {
 		// Draw Paths
 		List<Tile> path = GameEngine.movePath;
 		float moveAnimateTime = 0;
-		if (aState == AnimationState.MOVING) {
-			moveAnimateTime = ((float) (GameEngine.getTicksSpentOnAnimation()))
-					/ (GameEngine.getTotalTicksForAnimation());
-		} else if (aState == AnimationState.PAINTING
-				|| aState == AnimationState.FORMING) {
+		if(aState == AnimationState.MOVING){
+			moveAnimateTime =((float)(GameEngine.getTicksSpentOnAnimation()))/(GameEngine.getTotalTicksForAnimation());
+		} else if (aState == AnimationState.PAINTING || aState == AnimationState.FORMING){
 			moveAnimateTime = 1;
 		}
 
-		if (aState != AnimationState.DESTRUCTION) {
+		if(aState != AnimationState.DESTRUCTION){
 			shapes.begin(ShapeType.Filled);
 			shapes.setColor(new Color(.9f, .9f, .2f, 1f));
 			for (int i = 0; i < path.size(); i++) {
@@ -242,28 +233,24 @@ public class DrawGame {
 				int baseY = by + (finalY * tilesize);
 				if (finalX > prevX) {
 					shapes.triangle(baseX + (.5f * tilesize), baseY
-							+ (0.3f * tilesize), baseX + (.5f * tilesize),
-							baseY + (0.7f * tilesize), baseX
-									+ (0.75f * tilesize), baseY
-									+ (0.5f * tilesize));
+							+ (0.3f * tilesize), baseX + (.5f * tilesize), baseY
+							+ (0.7f * tilesize), baseX + (0.75f * tilesize), baseY
+							+ (0.5f * tilesize));
 				} else if (finalX < prevX) {
 					shapes.triangle(baseX + (.5f * tilesize), baseY
-							+ (0.3f * tilesize), baseX + (.5f * tilesize),
-							baseY + (0.7f * tilesize), baseX
-									+ (0.25f * tilesize), baseY
-									+ (0.5f * tilesize));
+							+ (0.3f * tilesize), baseX + (.5f * tilesize), baseY
+							+ (0.7f * tilesize), baseX + (0.25f * tilesize), baseY
+							+ (0.5f * tilesize));
 				} else if (finalY > prevY) {
 					shapes.triangle(baseX + (.3f * tilesize), baseY
-							+ (0.5f * tilesize), baseX + (.7f * tilesize),
-							baseY + (0.5f * tilesize), baseX
-									+ (0.5f * tilesize), baseY
-									+ (0.75f * tilesize));
+							+ (0.5f * tilesize), baseX + (.7f * tilesize), baseY
+							+ (0.5f * tilesize), baseX + (0.5f * tilesize), baseY
+							+ (0.75f * tilesize));
 				} else if (finalY < prevY) {
 					shapes.triangle(baseX + (.3f * tilesize), baseY
-							+ (0.5f * tilesize), baseX + (.7f * tilesize),
-							baseY + (0.5f * tilesize), baseX
-									+ (0.5f * tilesize), baseY
-									+ (0.25f * tilesize));
+							+ (0.5f * tilesize), baseX + (.7f * tilesize), baseY
+							+ (0.5f * tilesize), baseX + (0.5f * tilesize), baseY
+							+ (0.25f * tilesize));
 				}
 			}
 			shapes.end();
@@ -271,61 +258,45 @@ public class DrawGame {
 
 		// Draw the pieces
 		path = GameEngine.movePath;
-		Color paintColor = new Color(0, 0, 0, 0);
-		if (path.size() > 1) {
-			paintColor = translateColor(b.getTileAtBoardPosition(
-					path.get(1).getXCoord(), path.get(1).getYCoord())
-					.getPainterColor());
+		Color paintColor = new Color(0,0,0,0);
+		if(path.size() > 1){
+			paintColor = translateColor(b.getTileAtBoardPosition(path.get(1).getXCoord(), path.get(1).getYCoord()).getPainterColor());
 		}
 		Laser disbandedLaser = null;
 		Laser movedAlongLaser = null;
 		float breakAnimateTime = 0;
 		float formAnimateTime = 0;
 		float paintAnimateTime = 0;
-		if (state == GameState.MOVING) {
+		if(state == GameState.MOVING){
 			GameEngine.debug(aState);
 			disbandedLaser = GameEngine.getBrokenLaser();
 
 			movedAlongLaser = GameEngine.getLaserMovedAlong();
-			if (aState == AnimationState.BREAKING) {
-				breakAnimateTime = ((float) (GameEngine
-						.getTicksSpentOnAnimation()))
-						/ GameEngine.getTotalTicksForAnimation();
-			} else if (aState == AnimationState.MOVING) {
+			if(aState == AnimationState.BREAKING){
+				breakAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
+			} else if (aState == AnimationState.MOVING){
 				breakAnimateTime = 1;
-			} else if (aState == AnimationState.PAINTING) {
+			} else if (aState == AnimationState.PAINTING){
 				breakAnimateTime = 1;
-				paintAnimateTime = ((float) (GameEngine
-						.getTicksSpentOnAnimation()))
-						/ GameEngine.getTotalTicksForAnimation();
-			} else if (aState == AnimationState.FORMING) {
+				paintAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
+			} else if (aState == AnimationState.FORMING){
 				breakAnimateTime = 1;
-				if (!paintColor.equals(new Color(0, 0, 0, 0))
-						&& !paintColor
-								.equals(translateColor(GameEngine.movingPiece
-										.getColor()))) {
+				if(!paintColor.equals(new Color(0,0,0,0)) && !paintColor.equals(translateColor(GameEngine.movingPiece.getColor()))){
 					paintAnimateTime = 1;
 				}
-				formAnimateTime = ((float) (GameEngine
-						.getTicksSpentOnAnimation()))
-						/ GameEngine.getTotalTicksForAnimation();
+				formAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
 			}
 		}
-
+		
 		batch.begin();
 		pieceSprite.setSize(tilesize, tilesize);
 		for (Piece p : pieces) {
 			pieceSprite.setColor(translateColor(p.getColor()));
-			if (p.equals(GameEngine.movingPiece)) {
-				float rshift = (paintColor.r - translateColor(p.getColor()).r)
-						* paintAnimateTime;
-				float gshift = (paintColor.g - translateColor(p.getColor()).g)
-						* paintAnimateTime;
-				float bshift = (paintColor.b - translateColor(p.getColor()).b)
-						* paintAnimateTime;
-				pieceSprite.setColor(new Color(translateColor(p.getColor()).r
-						+ rshift, translateColor(p.getColor()).g + gshift,
-						translateColor(p.getColor()).b + bshift, 1));
+			if(p.equals(GameEngine.movingPiece)){
+				float rshift = (paintColor.r - translateColor(p.getColor()).r) * paintAnimateTime;
+				float gshift = (paintColor.g - translateColor(p.getColor()).g) * paintAnimateTime;
+				float bshift = (paintColor.b - translateColor(p.getColor()).b) * paintAnimateTime;
+				pieceSprite.setColor(new Color(translateColor(p.getColor()).r + rshift, translateColor(p.getColor()).g + gshift, translateColor(p.getColor()).b + bshift, 1));
 			}
 			pieceSprite.setPosition(bx + (p.getXCoord() * tilesize),
 					by + (p.getYCoord() * tilesize));
@@ -341,6 +312,7 @@ public class DrawGame {
 			pieceSprite.draw(batch);
 		}
 		batch.end();
+		
 
 		// Draw Lasers
 		Set<Laser> lasers = b.lasers;
@@ -348,133 +320,99 @@ public class DrawGame {
 		shapes.begin(ShapeType.Filled);
 		float laserWidth = beamThickness;
 		for (Laser l : lasers) {
-			if (disbandedLaser != null && l.equals(disbandedLaser)) {
+			if (disbandedLaser != null && l.equals(disbandedLaser)){
 				laserWidth = (1 - breakAnimateTime) * beamThickness;
 			} else {
 				laserWidth = beamThickness;
 			}
 			shapes.setColor(translateColor(l.getColor()));
-			if (!l.equals(movedAlongLaser)) {
+			if(!l.equals(movedAlongLaser)){
 				if (l.getXStart() == l.getXFinish()) {
-					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
-							* tilesize, by
-							+ (l.getYStart() + 0.5f - (laserWidth / 2))
-							* tilesize, laserWidth * tilesize,
-							(l.getYFinish() - l.getYStart()) * tilesize);
+					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize,
+							by + (l.getYStart() + 0.5f - (laserWidth / 2)) * tilesize,
+							laserWidth * tilesize, (l.getYFinish() - l.getYStart())
+							* tilesize);
 				} else {
-					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
-							* tilesize, by
-							+ (l.getYStart() + 0.5f - (laserWidth / 2))
-							* tilesize, (l.getXFinish() - l.getXStart())
-							* tilesize, laserWidth * tilesize);
+					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize,
+							by + (l.getYStart() + 0.5f - (laserWidth/2)) * tilesize,
+							(l.getXFinish() - l.getXStart()) * tilesize,
+							laserWidth * tilesize);
 				}
 			}
 		}
-
+		
 		List<Laser> allFormedLasers = GameEngine.getFormedLaser();
-		if (!allFormedLasers.isEmpty()) {
-			for (Laser l : allFormedLasers)
-				if (l != null) {
-					laserWidth = formAnimateTime * beamThickness;
-					shapes.setColor(translateColor(l.getColor()));
-					if (l.getXStart() == l.getXFinish()) {
-						shapes.rect(bx
-								+ (l.getXStart() + 0.5f - (laserWidth / 2))
-								* tilesize, by
-								+ (l.getYStart() + 0.5f - (laserWidth / 2))
-								* tilesize, laserWidth * tilesize,
-								(l.getYFinish() - l.getYStart()) * tilesize);
-					} else {
-						shapes.rect(bx
-								+ (l.getXStart() + 0.5f - (laserWidth / 2))
-								* tilesize, by
-								+ (l.getYStart() + 0.5f - (laserWidth / 2))
-								* tilesize, (l.getXFinish() - l.getXStart())
-								* tilesize, laserWidth * tilesize);
-					}
+		if (!allFormedLasers.isEmpty()){
+			for(Laser l : allFormedLasers)
+			if (l != null){
+				laserWidth = formAnimateTime * beamThickness; 
+				shapes.setColor(translateColor(l.getColor()));
+				if (l.getXStart() == l.getXFinish()) {
+					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize,
+							by + (l.getYStart() + 0.5f - (laserWidth / 2)) * tilesize,
+							laserWidth * tilesize, (l.getYFinish() - l.getYStart())
+							* tilesize);
+				} else {
+					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize,
+							by + (l.getYStart() + 0.5f - (laserWidth/2)) * tilesize,
+							(l.getXFinish() - l.getXStart()) * tilesize,
+							laserWidth * tilesize);
 				}
+			}
 		}
-		if (movedAlongLaser != null && aState != AnimationState.DESTRUCTION) {
+		if(movedAlongLaser != null && aState != AnimationState.DESTRUCTION){
 			laserWidth = beamThickness * (1 - paintAnimateTime);
 			shapes.setColor(translateColor(movedAlongLaser.getColor()));
 			float moveAnimX = (path.get(1).getXCoord() - GameEngine.movingPiece
 					.getXCoord()) * tilesize * moveAnimateTime;
 			float moveAnimY = (path.get(1).getYCoord() - GameEngine.movingPiece
 					.getYCoord()) * tilesize * moveAnimateTime;
-			if (movedAlongLaser.getXStart() == movedAlongLaser.getXFinish()) {
-				if (movedAlongLaser.getXStart() == GameEngine.movingPiece
-						.getXCoord()
-						&& movedAlongLaser.getYStart() == GameEngine.movingPiece
-								.getYCoord()) {
-					shapes.rect(
-							bx
-									+ (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2))
-									* tilesize,
-							(by + (movedAlongLaser.getYStart() + 0.5f - (laserWidth / 2))
-									* tilesize)
-									+ moveAnimY,
-							laserWidth * tilesize,
-							((movedAlongLaser.getYFinish() - movedAlongLaser
-									.getYStart()) * tilesize) - moveAnimY);
+			if(movedAlongLaser.getXStart() == movedAlongLaser.getXFinish()){
+				if(movedAlongLaser.getXStart() == GameEngine.movingPiece.getXCoord() && movedAlongLaser.getYStart() == GameEngine.movingPiece.getYCoord()){
+					shapes.rect(bx + (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2)) * tilesize,
+							(by + (movedAlongLaser.getYStart() + 0.5f - (laserWidth / 2)) * tilesize) + moveAnimY,
+							laserWidth * tilesize, ((movedAlongLaser.getYFinish() - movedAlongLaser.getYStart())
+							* tilesize) - moveAnimY);
 				} else {
-					shapes.rect(
-							bx
-									+ (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2))
-									* tilesize,
-							(by + (movedAlongLaser.getYStart() + 0.5f - (laserWidth / 2))
-									* tilesize),
-							laserWidth * tilesize,
-							((movedAlongLaser.getYFinish() - movedAlongLaser
-									.getYStart()) * tilesize) + moveAnimY);
+					shapes.rect(bx + (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2)) * tilesize,
+							(by + (movedAlongLaser.getYStart() + 0.5f - (laserWidth / 2)) * tilesize),
+							laserWidth * tilesize, ((movedAlongLaser.getYFinish() - movedAlongLaser.getYStart())
+							* tilesize) + moveAnimY);
 				}
 			} else {
-				if (movedAlongLaser.getXStart() == GameEngine.movingPiece
-						.getXCoord()
-						&& movedAlongLaser.getYStart() == GameEngine.movingPiece
-								.getYCoord()) {
-					shapes.rect(
-							(bx + (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2))
-									* tilesize)
-									+ moveAnimX,
-							by
-									+ (movedAlongLaser.getYStart() + 0.5f - (laserWidth / 2))
-									* tilesize,
-							((movedAlongLaser.getXFinish() - movedAlongLaser
-									.getXStart()) * tilesize) - moveAnimX,
+				if(movedAlongLaser.getXStart() == GameEngine.movingPiece.getXCoord() && movedAlongLaser.getYStart() == GameEngine.movingPiece.getYCoord()){
+					shapes.rect((bx + (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2)) * tilesize) + moveAnimX,
+							by + (movedAlongLaser.getYStart() + 0.5f - (laserWidth/2)) * tilesize,
+							((movedAlongLaser.getXFinish() - movedAlongLaser.getXStart()) * tilesize) - moveAnimX,
 							laserWidth * tilesize);
 				} else {
-					shapes.rect(
-							(bx + (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2))
-									* tilesize),
-							by
-									+ (movedAlongLaser.getYStart() + 0.5f - (laserWidth / 2))
-									* tilesize,
-							((movedAlongLaser.getXFinish() - movedAlongLaser
-									.getXStart()) * tilesize) + moveAnimX,
+					shapes.rect((bx + (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2)) * tilesize),
+							by + (movedAlongLaser.getYStart() + 0.5f - (laserWidth/2)) * tilesize,
+							((movedAlongLaser.getXFinish() - movedAlongLaser.getXStart()) * tilesize) + moveAnimX,
 							laserWidth * tilesize);
 				}
 			}
 		}
 		shapes.end();
-
+		
 		batch.begin();
-
-		// Draw the bangs!
-		if (state == GameState.DESTROYED
-				|| aState == AnimationState.DESTRUCTION) {
+		
+		//Draw the bangs!
+		if(state == GameState.DESTROYED || aState == AnimationState.DESTRUCTION){
 			List<Piece> destroyedPieces = GameEngine.getDestroyedPieces();
-			if (destroyedPieces.size() > 0) {
+			if(destroyedPieces.size() > 0){
 				bangSprite.setSize(tilesize, tilesize);
-				for (Piece dp : destroyedPieces) {
-					bangSprite.setPosition(bx + (dp.getXCoord() * tilesize), by
-							+ (dp.getYCoord() * tilesize));
+				for(Piece dp : destroyedPieces){
+					bangSprite.setPosition(bx + (dp.getXCoord() * tilesize),
+							by + (dp.getYCoord() * tilesize));
 					bangSprite.setColor(translateColor(dp.getColor()));
 					bangSprite.draw(batch);
 				}
 			}
 		}
-
+		
 		batch.end();
+		
 
 		// Draw the buttons
 		batch.begin();
@@ -544,12 +482,8 @@ public class DrawGame {
 				total = beamObjective.get(c);
 				existing = curLaserCount.get(c);
 				if (total != null && total != 0) {
-					if (c == GameEngine.Color.NONE)
-						toPrint = existing + " of " + total
-								+ " beams of any color made.";
-					else
-						toPrint = existing + " of " + total + " " + c
-								+ " beams made.";
+					toPrint = existing + " of " + total + " " + c
+							+ " beams made.";
 					colorGoals.add(toPrint);
 				}
 			}
@@ -603,26 +537,93 @@ public class DrawGame {
 					* (1 - GameEngine.topBarSize * 0.39f));
 			// .525
 		}
-		
-		//Fps display option, can dike out for final release.
-		if (showFps) {
-			long newSecs = System.currentTimeMillis();
-			if (newSecs - lastSecs < 1000) {
-				frames++;
-			} else {
-				fps = frames;
-				frames = 0;
-				lastSecs = newSecs;
-
-			}
-			toPrint = "fps: " + fps;
-			tb = titleFont.getBounds(toPrint);
-			titleFont.draw(batch, toPrint, 0f, height
-					* (1 - GameEngine.topBarSize * .22f));
-		}
-
 		batch.end();
+		
+		// Draw intro
+		if (state == GameState.INTRO) {
+			GameEngine.Color baseColor = GameEngine.Color.RED;
+			float progress = GameEngine.getIntroProgress();
+			GameEngine.debug("intro: " + progress + " " + height + " ");
+			int screenHeight = Gdx.graphics.getHeight();
+			float ibeamheight = screenHeight / 10.0f;
+			if(b.getBeamObjectiveSet().isEmpty()){
+				String message = "FILL " + b.goalTiles.size() + " " + (b.goalTiles.size()==1?"GOAL":"GOALS");
+				drawIntroBeam(progress, ibeamheight, screenHeight / 2.0f, translateColor(baseColor), message);
+			} else {
+				int totalBeams = 0;
+				for(GameEngine.Color c : b.getBeamObjectiveSet()){
+					totalBeams += b.getBeamObjectiveCount(c);
+				}
+				if(totalBeams == 0){
+					String message = "BREAK ALL BEAMS";
+					drawIntroBeam(progress, ibeamheight, screenHeight / 2.0f, translateColor(baseColor), message);
+				} else {
+					int beamsToDraw = b.getBeamObjectiveSet().size() + 1;
+					float totBeamHeight = ((beamsToDraw * 2) - 1) * ibeamheight;
+					float baseheight = ((screenHeight - totBeamHeight) / 2.0f) + totBeamHeight - (ibeamheight / 2.0f);
+					String message = "FORM";
+					drawIntroBeam(progress, ibeamheight, baseheight, translateColor(baseColor), message);
+					int i = 1;
+					for(GameEngine.Color c : b.getBeamObjectiveSet()){
+						String bmessage = b.getBeamObjectiveCount(c) + " " + c.toString() + " BEAM" + (b.getBeamObjectiveCount(c) == 1?"":"S");
+						drawIntroBeam(progress, ibeamheight, baseheight - (2 * i * ibeamheight), translateColor(c), bmessage);
+						i++;
+					}
+				}
+			}
+		}
 	}
+	
+	private void drawIntroBeam(float progress, float ibeamheight, float beamY, Color baseColor, String message){
+		Color c1 = baseColor;
+		Color c2 = new Color(1.4f * c1.r, 1.4f * c1.g, 1.4f * c1.b, 1);
+		Color c3 = new Color(1.8f * c1.r, 1.8f * c1.g, 1.8f * c1.b, 1);
+		float curheight = 0;
+		
+		if(progress <= 0.1){
+			curheight = (progress / 0.1f) * ibeamheight;
+		} else if (progress > 0.9){
+			curheight = ((1-progress) / 0.1f) * ibeamheight;
+		} else {
+			curheight = ibeamheight;
+		}
+		
+		
+		int screenWidth = Gdx.graphics.getWidth();
+		shapes.begin(ShapeType.Filled);
+		GameEngine.debug("Curheigt" + curheight);
+		shapes.setColor(c1);
+		shapes.rect(0, beamY - (curheight / 2.0f), screenWidth, curheight);
+		curheight = curheight * .6666f;
+		shapes.setColor(c2);
+		shapes.rect(0, beamY - (curheight / 2.0f), screenWidth, curheight);
+		curheight = curheight * .5f;
+		shapes.setColor(c3);
+		shapes.rect(0, beamY - (curheight / 2.0f), screenWidth, curheight);
+		shapes.end();
+		
+		TextBounds tb = introFont.getBounds(message);
+		float textwidth = tb.width;
+		float textheight = tb.height;
+		float textX = 0;
+		float textY = beamY + (textheight / 2);
+		if(progress >= 0.1 && progress < 0.15){
+			textX = ((((screenWidth - textwidth) / 2) + textwidth) * ((progress - 0.1f) / 0.05f)) - textwidth;
+		} else if (progress > 0.85 && progress <= 0.9) {
+			textX = ((((screenWidth - textwidth) / 2) + textwidth) * (1 + ((progress - 0.85f) / 0.05f))) - textwidth;
+		} else if (progress <= 0.85 && progress >= 0.15){
+			textX = (screenWidth - textwidth) / 2;
+		} else {
+			textX = -2 * textwidth;
+		}
+		
+		batch.begin();
+		introFont.setColor(Color.WHITE);
+		introFont.draw(batch, message, textX, textY);
+		batch.end();
+
+	}
+	
 
 	public void dispose() {
 		batch.dispose();

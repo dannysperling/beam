@@ -22,6 +22,10 @@ public class InputHandler {
 				&& buttonDown == GameEngine.ButtonPress.NONE) {
 			return selectPiece(b);
 		}
+		
+		if(state == GameState.INTRO && Gdx.input.isTouched()){
+			return GameState.IDLE;
+		}
 
 		/* Handles input if the player is already touching a piece. */
 		if (state == GameEngine.GameState.DECIDING) {

@@ -37,6 +37,9 @@ public class GameEngine implements ApplicationListener {
 	private static final int timeToPaintPiece = 20;
 	private static int timeSpentOnThisAnimation = 0;
 	private static int totalTimeForThisAnimation = 0;
+	
+	private static final int timeForIntro = 300;
+	private static int timeSpentOnIntro = 0;
 
 	private static AnimationState currentAnimationState = AnimationState.NOTANIMATING;
 	private List<AnimationState> animationStack = new ArrayList<AnimationState>();
@@ -52,7 +55,7 @@ public class GameEngine implements ApplicationListener {
 
 
 	public enum GameState {
-		PAUSED, IDLE, DECIDING, MOVING, DESTROYED, WON
+		PAUSED, IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO
 	}
 
 	public enum AnimationState {
@@ -340,7 +343,13 @@ public class GameEngine implements ApplicationListener {
 						} 
 					}
 				}
-			} 
+			} else if (state == GameState.INTRO){
+				if(timeSpentOnIntro >= timeForIntro){
+					state = GameState.IDLE;
+				} else {
+					timeSpentOnIntro++;
+				}
+			}
 		}
 
 		// Draw the game
@@ -459,7 +468,8 @@ public class GameEngine implements ApplicationListener {
 		boardStack.add(b.encodePieces());
 
 		// Set up the state and move counter
-		state = GameState.IDLE;
+		state = GameState.INTRO;
+		timeSpentOnIntro = 0;
 		moveCounter = 0;
 
 		// Initialize the lasers
@@ -911,6 +921,10 @@ public class GameEngine implements ApplicationListener {
 	
 	public static Laser getLaserMovedAlong(){
 		return laserMovedAlong;
+	}
+	
+	public static float getIntroProgress(){
+		return ((float)(timeSpentOnIntro)) / timeForIntro;
 	}
 	
 	public static <T> void debug(T s){
