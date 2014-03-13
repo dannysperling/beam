@@ -559,14 +559,14 @@ public class DrawGame {
 					drawIntroBeam(progress, ibeamheight, screenHeight / 2.0f, translateColor(baseColor), message);
 				} else {
 					int beamsToDraw = b.getBeamObjectiveSet().size() + 1;
-					float totBeamHeight = ((beamsToDraw * 2) - 1) * ibeamheight;
+					float totBeamHeight = ((beamsToDraw) +  ((beamsToDraw - 1)/ 2.0f)) * ibeamheight;
 					float baseheight = ((screenHeight - totBeamHeight) / 2.0f) + totBeamHeight - (ibeamheight / 2.0f);
 					String message = "FORM";
 					drawIntroBeam(progress, ibeamheight, baseheight, translateColor(baseColor), message);
 					int i = 1;
 					for(GameEngine.Color c : b.getBeamObjectiveSet()){
 						String bmessage = b.getBeamObjectiveCount(c) + " " + c.toString() + " BEAM" + (b.getBeamObjectiveCount(c) == 1?"":"S");
-						drawIntroBeam(progress, ibeamheight, baseheight - (2 * i * ibeamheight), translateColor(c), bmessage);
+						drawIntroBeam(progress, ibeamheight, baseheight - ((1.5f) * i * ibeamheight), translateColor(c), bmessage);
 						i++;
 					}
 				}
