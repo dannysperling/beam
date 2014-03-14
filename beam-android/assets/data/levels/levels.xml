@@ -8,7 +8,7 @@ e,goal_1,e
 
 <level id=2 par=3 perfect=2>
 <attribution name="Building Beams" author="Danny?"/>
-<beamGoal color=0 count=4/>
+<beamGoal color=1 count=4/>
 e,e,e,1
 e,e,1,e
 e,1,e,e
@@ -368,8 +368,12 @@ glass,e,e,e,1
 <attribution name="Two color beam objectives" author="John"/>
 <beamGoal color=1 count=7/>
 <beamGoal color=2 count=7/>
-1,1,1,2,2,2
-e,e,e,e,glass,glass
-e,e,e,e,glass,glass
-2,2,2,1,1,1
+2,glass,glass,1
+2,glass,glass,1
+2,e,e,1
+1,e,e,2
+1,e,e,2
+1,e,e,2
 </level>
+
+
