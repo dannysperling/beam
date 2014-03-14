@@ -205,7 +205,7 @@ public class InputHandler {
 	}
 
 	// Returns which button was pressed, or none
-	public GameEngine.ButtonPress checkForButtonPress() {
+	public GameEngine.ButtonPress checkForButtonPress(GameState state) {
 
 		GameEngine.ButtonPress returnedButton;
 		
@@ -223,10 +223,10 @@ public class InputHandler {
 
 			// Look for new button press
 			if (buttonDown == GameEngine.ButtonPress.NONE && lastX == -1) {
-				buttonDown = Menu.containingButtonOfPixel(xPress, yPress);
-
-				if (buttonDown == GameEngine.ButtonPress.NONE) {
-					gameWonPressed = true;
+				if(state != GameState.WON){
+					buttonDown = Menu.containingButtonOfPixel(xPress, yPress);
+				} else {
+					buttonDown = Menu.containingButtonOfPixelWon(xPress, yPress);
 				}
 			}
 			lastX = xPress;
@@ -237,8 +237,11 @@ public class InputHandler {
 		else {
 			// Look for removed input
 			if (buttonDown != GameEngine.ButtonPress.NONE && lastX != -1) {
-				returnedButton = Menu.containingButtonOfPixel(lastX, lastY);
-
+				if(state != GameState.WON){
+					returnedButton = Menu.containingButtonOfPixel(lastX, lastY);
+				} else {
+					returnedButton = Menu.containingButtonOfPixelWon(lastX, lastY);
+				}
 				if (returnedButton != buttonDown) {
 					returnedButton = GameEngine.ButtonPress.NONE;
 				}

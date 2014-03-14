@@ -564,7 +564,7 @@ public class DrawGame {
 				}
 				if(totalBeams == 0){
 					String message = "BREAK ALL BEAMS";
-					drawOverlayBeam(progress, ibeamheight, screenHeight / 2.0f, translateColor(baseColor), message, introFont);
+					drawOverlayBeam(progress, ibeamheight, screenHeight / 2.0f, translateColor(GameEngine.Color.BLUE), message, introFont);
 				} else {
 					int beamsToDraw = b.getBeamObjectiveSet().size() + 1;
 					float totBeamHeight = ((beamsToDraw) +  ((beamsToDraw - 1)/ 2.0f)) * ibeamheight;
@@ -667,6 +667,36 @@ public class DrawGame {
 			}
 			batch.end();
 			
+			float buttonTextProgress;
+			if(timeWon >= (numStars + 2) * au){
+				buttonTextProgress = (timeWon - (numStars + 2) * au) / (2 * au);
+			} else {
+				buttonTextProgress = 0;
+			}
+			
+			Gdx.gl.glEnable(GL10.GL_BLEND);
+			Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+			shapes.begin(ShapeType.Line);
+			shapes.setColor(new Color(1,1,1,buttonTextProgress));
+			float space = screenWidth / 75.0f;
+			shapes.rect(space, ((screenHeight - screenWidth) / 2.0f) + space, (screenWidth / 3.0f) - (2 * space), (screenWidth / 3.0f) - (2 * space));
+			shapes.rect((screenWidth / 3.0f) + space, ((screenHeight - screenWidth) / 2.0f) + space, (screenWidth / 3.0f) - (2 * space), (screenWidth / 3.0f) - (2 * space));
+			shapes.rect((2 * (screenWidth / 3.0f)) + space, ((screenHeight - screenWidth) / 2.0f) + space, (screenWidth / 3.0f) - (2 * space), (screenWidth / 3.0f) - (2 * space));
+			shapes.end();
+			
+			batch.begin();
+			titleFont.setColor(new Color(1,1,1,buttonTextProgress));
+			String buttonText = "RETRY";
+			TextBounds buttonTB = titleFont.getBounds(buttonText);
+			titleFont.draw(batch, buttonText, (screenWidth * (1.0f / 6.0f)) - (buttonTB.width / 2.0f), ((screenHeight - screenWidth) / 2.0f) + (screenWidth / 6.0f) + (buttonTB.height / 2.0f));
+			buttonText = "MENU";
+			buttonTB = titleFont.getBounds(buttonText);
+			titleFont.draw(batch, buttonText, (screenWidth * (3.0f / 6.0f)) - (buttonTB.width / 2.0f), ((screenHeight - screenWidth) / 2.0f) + (screenWidth / 6.0f) + (buttonTB.height / 2.0f));
+			buttonText = "NEXT";
+			buttonTB = titleFont.getBounds(buttonText);
+			titleFont.draw(batch, buttonText, (screenWidth * (5.0f / 6.0f)) - (buttonTB.width / 2.0f), ((screenHeight - screenWidth) / 2.0f) + (screenWidth / 6.0f) + (buttonTB.height / 2.0f));
+			batch.end();
+			Gdx.gl.glDisable(GL10.GL_BLEND);
 
 			
 			drawVerticalTempBeam(beam1Progress, beam1X, starBeamWidth, translateColor(GameEngine.Color.RED));

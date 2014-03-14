@@ -81,7 +81,7 @@ public class GameEngine implements ApplicationListener {
 	}
 
 	public enum ButtonPress {
-		UNDO, RESET, REDO, MENU, NONE, WON // Note: WON should not exist in non-proto version
+		UNDO, RESET, REDO, MENU, NONE, WON, SKIPWIN
 	}
 
 	public enum Color {
@@ -207,8 +207,24 @@ public class GameEngine implements ApplicationListener {
 		boolean pushedButton = false;
 
 		if (state != GameState.DECIDING/* && state != GameState.WON */) {
-			ButtonPress button = inputHandler.checkForButtonPress();
-
+			ButtonPress button = inputHandler.checkForButtonPress(state);
+			if(button == ButtonPress.SKIPWIN){
+				timeWon = wonAnimationUnit * 10;
+			} else if (state == GameState.WON){
+				if(button == ButtonPress.RESET || button == ButtonPress.MENU || button == ButtonPress.WON){
+					int numStars = 1;
+					if (GameEngine.getMoveCount() <= b.perfect){
+						numStars = 3;
+					} else if (GameEngine.getMoveCount() <= b.par){
+						numStars = 2;
+					}
+					if(timeWon < (numStars + 2) * wonAnimationUnit){
+						timeWon = wonAnimationUnit * 10;
+						button = ButtonPress.SKIPWIN;
+					}
+				}
+			}
+			
 			if (button == ButtonPress.REDO || button == ButtonPress.RESET || button == ButtonPress.UNDO) {
 				debug(button);
 				pushedButton = true;

@@ -32,7 +32,7 @@ public class Menu {
 		//Get width and height of screen
 		int height = Gdx.graphics.getHeight();
 		int width = Gdx.graphics.getWidth();
-
+		
 		// y's in the correct range
 		if (y > buttonBotY * height && y < (buttonBotY + buttonHeight) * height ){
 			//Undo
@@ -58,6 +58,21 @@ public class Menu {
 
 		// Not in one of the buttons
 		return GameEngine.ButtonPress.NONE;
+	}
+	
+	public static GameEngine.ButtonPress containingButtonOfPixelWon(int x, int y){
+		int screenHeight = Gdx.graphics.getHeight();
+		int screenWidth = Gdx.graphics.getWidth();
+		if(y > (screenHeight - screenWidth) / 2.0f && y < ((screenHeight - screenWidth) / 2.0f) + (screenWidth / 3.0f)){
+			if(x < (screenWidth / 3.0f)){
+				return GameEngine.ButtonPress.RESET;
+			} else if (x > 2 * (screenWidth / 3.0f)){
+				return GameEngine.ButtonPress.WON;
+			} else {
+				return GameEngine.ButtonPress.MENU;
+			}
+		}
+		return GameEngine.ButtonPress.SKIPWIN;
 	}
 	
 	static final float menuItemHeight = 1/(7.0f);
