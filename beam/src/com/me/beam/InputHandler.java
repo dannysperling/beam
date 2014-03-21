@@ -56,9 +56,14 @@ public class InputHandler {
 
 	private int firstTouchHeight = -1;
 	private int lastTouchHeight = -1;
+	private int firstTouchX = -1;
+	private int lastTouchX = -1;
+	private int world = -1;
 	private final int maxDiffClick = 10;
-	private boolean movedTooFar = false;	
-	private float momentum = 0;
+	private boolean movedTooFar = false;
+	
+	private float momentumY = 0;
+	private float momentumX = 0;
 	private final float momentumDropOff = 0.05f;
 	
 	//For logging purposes
@@ -85,22 +90,29 @@ public class InputHandler {
 
 		if (Gdx.input.isTouched()){
 			int y = getY();
+			int x = getX();
 
 			//Check for the first press
 			if (firstTouchHeight == -1){
 				firstTouchHeight = y;
+				firstTouchX = x;
+				world = menu.getWorldAtPosition(y);
 			} 
 			//Otherwise update momentum
 			else {
-				momentum = (y - lastTouchHeight);
+				momentumY = (y - lastTouchHeight);
+				momentumX = -(x - lastTouchX);
 
 				//And move the screen
-				menu.scroll(y - lastTouchHeight);
+				menu.scrollLeftRight(world, (int)momentumX);
+				menu.scrollUpDown((int)momentumY);
 			}
 
 			//Update where we are now
 			lastTouchHeight = y;
-			if (Math.abs(firstTouchHeight - lastTouchHeight) > maxDiffClick)
+			lastTouchX = x;
+			if ((firstTouchHeight - lastTouchHeight)*(firstTouchHeight - lastTouchHeight) + 
+					(firstTouchX - lastTouchX)*(firstTouchX - lastTouchX) > maxDiffClick * maxDiffClick)
 				movedTooFar = true;
 
 		} else {
@@ -108,22 +120,33 @@ public class InputHandler {
 			if (firstTouchHeight != -1){
 				firstTouchHeight = -1;
 				if (!movedTooFar){
-					int selected = menu.getSelectedLevel(lastTouchHeight);
+					int selected = menu.getSelectedLevel(lastTouchX, lastTouchHeight);
+					lastTouchX = -1;
 					lastTouchHeight = -1;
 					movedTooFar = false;
 					return selected;
 				} else {
+					lastTouchX = -1;
 					lastTouchHeight = -1;
 					movedTooFar = false;
 				}
 			}
-			if (momentum != 0){
-				boolean moreToScroll = menu.scroll((int)momentum);
-				momentum = momentum * (1 - momentumDropOff);
+			if (momentumY != 0){
+				boolean moreToScroll = menu.scrollUpDown((int)momentumY);
+				momentumY = momentumY * (1 - momentumDropOff);
 				
 				//If we passed zero or hit the wall
-				if (Math.abs(momentum) < 2 || !moreToScroll){
-					momentum = 0;
+				if (Math.abs(momentumY) < 2 || !moreToScroll){
+					momentumY = 0;
+				}
+			}
+			if (momentumX != 0){
+				boolean moreToScroll = menu.scrollLeftRight(world, (int)momentumX);
+				momentumX = momentumX * (1 - momentumDropOff);
+				
+				//If we passed zero or hit the wall
+				if (Math.abs(momentumX) < 2 || !moreToScroll){
+					momentumX = 0;
 				}
 			}
 		}

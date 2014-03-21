@@ -1,5 +1,7 @@
 package com.me.beam;
 
+import java.util.List;
+
 import com.badlogic.gdx.Gdx;
 
 public class Menu {
@@ -75,35 +77,56 @@ public class Menu {
 		return GameEngine.ButtonPress.SKIPWIN;
 	}
 	
-	static final float menuItemHeight = 1/(7.0f);
+	static final float worldItemPercent = 1/(3.0f);
 	
 	//This indicates how far down the menu has been scrolled. 0 indicates none at
 	//all; the first few levels should be showing. The max value of scrollDownAmount
 	//is menuItemHeight*numLevels*screenHeight - screenHeight;
-	private int scrollAmount = 0;
-	private int numLevels;
+	private int downScrollAmount = 0;
+	private int[] worldScrollAmounts;
+	private int numWorlds;
+	private List<Integer> worldSizes;
 	private GameProgress progress;
 	
-	public Menu(int numLevels, GameProgress progress){
-		this.numLevels = numLevels;
+	public Menu(List<Integer> worldSizes, GameProgress progress){
+		this.numWorlds = worldSizes.size();
+		this.worldSizes = worldSizes;
+		worldScrollAmounts = new int[numWorlds];
 		this.progress = progress;
 	}
 	
 	//Returns true if able to scroll entirely; false otherwise (hit end)
 	//scrollDownAmount is positive if scrolling down (to higher levels), 
 	//negative for up
-	public boolean scroll(int scrollDownAmount){
+	public boolean scrollUpDown(int scrollDownAmount){
 		
-		scrollAmount += scrollDownAmount;
+		downScrollAmount += scrollDownAmount;
 		
-		int itemHeight = (int)(Gdx.graphics.getHeight() * menuItemHeight);
+		int itemHeight = (int)(Gdx.graphics.getHeight() * worldItemPercent);
 		
-		int maxHeight =  itemHeight * numLevels - Gdx.graphics.getHeight();
-		if (scrollAmount >= maxHeight){
-			scrollAmount = maxHeight - 1;
+		int maxHeight =  itemHeight * numWorlds - Gdx.graphics.getHeight();
+		if (downScrollAmount >= maxHeight){
+			downScrollAmount = maxHeight - 1;
 			return false;
-		} else if (scrollAmount < 0){
-			scrollAmount = 0;
+		} else if (downScrollAmount < 0){
+			downScrollAmount = 0;
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public boolean scrollLeftRight(int world, int scrollRightAmount){
+		
+		worldScrollAmounts[world] += scrollRightAmount;
+		int itemWidth = (int)(Gdx.graphics.getWidth() * worldItemPercent);
+		
+		int maxWidth =  Math.max(itemWidth * (worldSizes.get(world) - 1), 0);
+		if (worldScrollAmounts[world] >= maxWidth){
+			worldScrollAmounts[world] = maxWidth - 1;
+			return false;
+		} else if (worldScrollAmounts[world] < 0){
+			worldScrollAmounts[world] = 0;
 			return false;
 		}
 		
@@ -112,15 +135,38 @@ public class Menu {
 	
 	//Scrolls to a specific level
 	public void scrollToLevel(int ordinal){
-		int scrollTo = Math.max(ordinal - 3, 0);
-		int itemHeight = (int)(Gdx.graphics.getHeight() * menuItemHeight);
-		int maxHeight =  itemHeight * numLevels - Gdx.graphics.getHeight();
-		scrollAmount = Math.min(itemHeight * scrollTo, maxHeight - 1);
+		
+		int prevLevels = 0;
+		boolean foundAlready = false;
+		//Scroll all the things
+		for (int i = 0; i < worldSizes.size(); i++){
+			if (!foundAlready && worldSizes.get(i) + prevLevels > ordinal){
+				foundAlready = true;
+				
+				//Scroll down
+				int scrollToY = Math.max(i - 1, 0);
+				int itemHeight = (int)(Gdx.graphics.getHeight() * worldItemPercent);
+				int maxHeight =  itemHeight * numWorlds - Gdx.graphics.getHeight();
+				downScrollAmount = Math.min(itemHeight * scrollToY, maxHeight - 1);
+				
+				//And over
+				int over = ordinal - prevLevels;
+				int itemWidth = (int)(Gdx.graphics.getWidth() * worldItemPercent);
+				worldScrollAmounts[i] = Math.max((over - 1) * itemWidth, 0);
+			} else {
+				worldScrollAmounts[i] = 0;
+			}
+			prevLevels += worldSizes.get(i);
+		}
 	}
 	
 	//Allows draw code to know which levels are on screen
-	public int getScrollAmount(){
-		return scrollAmount;
+	public int getVerticalScrollAmount(){
+		return downScrollAmount;
+	}
+	
+	public int getHorizontalScrollAmount(int world){
+		return worldScrollAmounts[world];
 	}
 	
 	//Allow some read-through to the game progress
@@ -135,9 +181,11 @@ public class Menu {
 	public boolean isUnlocked(int ordinal){
 		return progress.isUnlocked(ordinal);
 	}
+	
+	
 	//Returns the ordinal of the selected level, or -1 if selected level is locked.
-	public int getSelectedLevel(int screenYPos){
-		int levelOrdinal = getLevelAtPosition(screenYPos);
+	public int getSelectedLevel(int screenXPos, int screenYPos){
+		int levelOrdinal = getLevelAtPosition(screenXPos, screenYPos);
 		if (progress.isUnlocked(levelOrdinal)){
 			return levelOrdinal;
 		} else {
@@ -145,10 +193,29 @@ public class Menu {
 		}
 	}
 	
-	//Returns the ordinal of the level at the given position, INCLUDING LOCKED levels
-	public int getLevelAtPosition(int screenYPos){
-		int selectedY = scrollAmount - screenYPos + Gdx.graphics.getHeight() + 1;
-		int itemHeight = (int)(Gdx.graphics.getHeight() * menuItemHeight);
+	//Returns the world of the level at the given position
+	public int getWorldAtPosition(int screenYPos){
+		int selectedY = downScrollAmount - screenYPos + Gdx.graphics.getHeight() + 1;
+		int itemHeight = (int)(Gdx.graphics.getHeight() * worldItemPercent);
 		return (selectedY / itemHeight);
+	}
+	
+	//Returns the ordinal of the level at the given position, INCLUDING LOCKED levels
+	public int getLevelAtPosition(int screenXPos, int screenYPos){
+		
+		int world = getWorldAtPosition(screenYPos);
+		int selectedX = worldScrollAmounts[world] + screenXPos;
+		int itemWidth = (int)(Gdx.graphics.getWidth() * worldItemPercent);
+		
+		int withinWorld = (selectedX / itemWidth);
+		if (withinWorld >= worldSizes.get(world)){
+			return -1;
+		}
+		
+		int prevLevels = 0;
+		for (int i = 0; i < world; i++){
+			prevLevels += worldSizes.get(i);
+		}
+		return prevLevels + withinWorld;
 	}
 }
