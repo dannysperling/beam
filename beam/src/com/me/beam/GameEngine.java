@@ -45,7 +45,7 @@ public class GameEngine implements ApplicationListener {
 	private static int timeDead = 0;
 	
 	private static int timeWon = 0;
-	public static final int wonAnimationUnit = 30;
+	public static final int wonAnimationUnit = 14;
 	
 	
 	private static AnimationState currentAnimationState = AnimationState.NOTANIMATING;
