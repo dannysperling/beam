@@ -22,6 +22,8 @@ public class GameEngine implements ApplicationListener {
 	private GameProgress progress;
 	private LevelOrderer levelOrderer;
 	
+	private List<Board> allBoards = new ArrayList<Board>();
+	
 	private int currentLevel = -1;
 	private static int moveCounter = 0;
 
@@ -31,8 +33,8 @@ public class GameEngine implements ApplicationListener {
 
 	// Animation constants in ticks
 	private static final int timeToMovePiece = 8;
-	private static final int timeToFormBeam = 4;
-	private static final int timeToBreakBeam = 4;
+	private static final int timeToFormBeam = 12;
+	private static final int timeToBreakBeam = 12;
 	private static final int timeToDestroyPiece = 60;
 	private static final int timeToPaintPiece = 20;
 	private static int timeSpentOnThisAnimation = 0;
@@ -143,6 +145,8 @@ public class GameEngine implements ApplicationListener {
 		dm = new DrawMenu(menu);
 		dg.initFonts();
 		inputHandler = new InputHandler();
+		
+		initializeBoards();
 
 		Gdx.input.setCatchBackKey(true);
 
@@ -150,6 +154,14 @@ public class GameEngine implements ApplicationListener {
 		
 		if (LOGGING)
 			Logger.initialize(levelOrderer.getUniqueIds());
+	}
+	
+	private void initializeBoards(){
+		for (int i = 0; i < levelOrderer.getNumLevels(); i++){
+			Board cur = levelLoader.getLevel(i);
+			initializeLasers(cur);
+			allBoards.add(cur);
+		}
 	}
 
 	@Override
@@ -199,14 +211,14 @@ public class GameEngine implements ApplicationListener {
 				}
 			}
 
-			dm.draw();
+			dm.draw(dg, allBoards, b, currentLevel);
 			return;
 		}
 
 
 		boolean pushedButton = false;
 
-		if (state != GameState.DECIDING/* && state != GameState.WON */) {
+		if (state != GameState.DECIDING) {
 			ButtonPress button = inputHandler.checkForButtonPress(state);
 			if(button == ButtonPress.SKIPWIN){
 				timeWon = wonAnimationUnit * 10;
@@ -221,6 +233,11 @@ public class GameEngine implements ApplicationListener {
 					if(timeWon < (numStars + 2) * wonAnimationUnit){
 						timeWon = wonAnimationUnit * 10;
 						button = ButtonPress.SKIPWIN;
+					} else if (button == ButtonPress.MENU){
+						resetCurrentLevel();
+						state = GameState.IDLE;
+					} else {
+						state = GameState.IDLE;
 					}
 				}
 			}
@@ -367,12 +384,7 @@ public class GameEngine implements ApplicationListener {
 									} else if (moveCounter <= b.par){
 										numStars = 2;
 									}
-									boolean improved = progress.setLevelScore(currentLevel, moveCounter, numStars);
-
-									//TODO: Currently temporary. Should pop-up win menu
-									if (improved){
-										debug("New record on level " + currentLevel + ": " + moveCounter + " moves!");
-									}
+									progress.setLevelScore(currentLevel, moveCounter, numStars);
 								}
 							}
 						} 
@@ -387,8 +399,11 @@ public class GameEngine implements ApplicationListener {
 			}
 		}
 
-		// Draw the game
-		dg.draw(b, state, currentAnimationState, currentLevel);
+		// Draw the game or menu
+		if (!mainMenuShowing)
+			dg.draw(b, state, currentAnimationState, currentLevel);
+		else
+			dm.draw(dg, allBoards, b, currentLevel);
 	}
 	
 	//Removes all user data. Be careful if you call this.
@@ -433,7 +448,7 @@ public class GameEngine implements ApplicationListener {
 		}
 		piecesDestroyed = newDestroyed;
 		
-		initializeLasers();
+		initializeLasers(b);
 	}
 
 	private void handleButtonPress(ButtonPress button) {
@@ -447,14 +462,11 @@ public class GameEngine implements ApplicationListener {
 			}
 			break;
 		case RESET:
-			moveCounter = 0;
-			List<Collection<Short>> newStack = new ArrayList<Collection<Short>>();
-			newStack.add(boardStack.get(0));
-			boardStack = newStack;
+			resetCurrentLevel();
 			if (LOGGING){
 				resetTimes++;
 			}
-			break;
+			return;
 		case REDO:
 			// Make sure there's a move to go to
 			if (boardStack.size() > moveCounter + 1) {
@@ -476,20 +488,32 @@ public class GameEngine implements ApplicationListener {
 		movingPiece = null;
 		movePath.clear();
 		prepAnimationBeginning();
-		initializeLasers();
+		initializeLasers(b);
 		if (b.isWon())
 			state = GameState.WON;
 		else 
 			state = GameState.IDLE;
 	}
+	
+	//Resets the current level to its original state
+	private void resetCurrentLevel(){
+		moveCounter = 0;
+		List<Collection<Short>> newStack = new ArrayList<Collection<Short>>();
+		newStack.add(boardStack.get(0));
+		b.resetPieces(boardStack.get(moveCounter));
+		movingPiece = null;
+		movePath.clear();
+		prepAnimationBeginning();
+		initializeLasers(b);
+		boardStack = newStack;
+	}
 
 	// Loads a level, and handles initializations
-	public void loadLevel(int levelNumber) {
+	private void loadLevel(int levelNumber) {
 
 		// Load the world
 		b = levelLoader.getLevel(levelNumber);
 		if (b == null) {
-			// TODO: fail correctly when the game is out of levels.
 			debug("No further levels exist.");
 			System.exit(1);
 		}
@@ -508,7 +532,7 @@ public class GameEngine implements ApplicationListener {
 		moveCounter = 0;
 
 		// Initialize the lasers
-		initializeLasers();
+		initializeLasers(b);
 	}
 
 	// Moves a piece, and handles changes
@@ -544,7 +568,7 @@ public class GameEngine implements ApplicationListener {
 			if (!checkIfPieceDestroyed(movingPiece)) {
 
 				// Form new lasers and cause destruction
-				List<Piece> destroyed = formLasersFromPieceAndDestroy(movingPiece, movePath.get(0), false);
+				List<Piece> destroyed = formLasersFromPieceAndDestroy(b, movingPiece, movePath.get(0), false);
 
 				// Indicate that a piece was destroyed
 				if (!destroyed.isEmpty()) {
@@ -568,10 +592,10 @@ public class GameEngine implements ApplicationListener {
 	}
 
 	// Add all lasers to the board
-	public void initializeLasers() {
-		b.lasers.clear();
-		for (Piece p1 : b.getAllPieces()) {
-			List<Piece> destroyed = formLasersFromPieceAndDestroy(p1, null, true);
+	public void initializeLasers(Board board) {
+		board.lasers.clear();
+		for (Piece p1 : board.getAllPieces()) {
+			List<Piece> destroyed = formLasersFromPieceAndDestroy(board, p1, null, true);
 			if (!destroyed.isEmpty()){
 				debug("OH GOD WHY WHAT ARE YOU DOING YOU HEATHEN!" +
 						"\nTHIS WOULD BE BEEPING IF I COULD MAKE IT.");
@@ -636,7 +660,7 @@ public class GameEngine implements ApplicationListener {
 	}
 
 	// Form lasers from a piece that has just moved return destroyed pieces
-	public List<Piece> formLasersFromPieceAndDestroy(Piece p, Tile cameFrom, boolean addLasers) {
+	public List<Piece> formLasersFromPieceAndDestroy(Board board, Piece p, Tile cameFrom, boolean addLasers) {
 		
 		boolean horizontalMove = false;
 		if (cameFrom != null)
@@ -657,18 +681,18 @@ public class GameEngine implements ApplicationListener {
 
 		// Slide to the left
 		for (; leftSameColor == null && xPos >= 0; xPos--) {
-			Piece possible = b.getPieceOnTile(b.getTileAtBoardPosition(xPos,
+			Piece possible = board.getPieceOnTile(board.getTileAtBoardPosition(xPos,
 					yPos));
 
 			// There's a piece there
 			if (possible != null) {
 				if (possible.getColor() == p.getColor()) {
-					leftSameColor = b.getTileAtBoardPosition(xPos, yPos);
+					leftSameColor = board.getTileAtBoardPosition(xPos, yPos);
 					destroyed.addAll(possibleDestroy);
 					possibleFormed = new Laser(xPos, yPos, p.getXCoord(), p
 							.getYCoord(), p.getColor());
 					if (addLasers){
-						b.lasers.add(possibleFormed);
+						board.lasers.add(possibleFormed);
 					}
 				} else {
 					possibleDestroy.add(possible);
@@ -683,20 +707,20 @@ public class GameEngine implements ApplicationListener {
 		xPos = p.getXCoord() + 1;
 
 		// Slide to the right
-		for (; rightSameColor == null && xPos < b.getNumHorizontalTiles(); xPos++) {
+		for (; rightSameColor == null && xPos < board.getNumHorizontalTiles(); xPos++) {
 
-			Piece possible = b.getPieceOnTile(b.getTileAtBoardPosition(xPos,
+			Piece possible = board.getPieceOnTile(board.getTileAtBoardPosition(xPos,
 					yPos));
 
 			// There's a piece there
 			if (possible != null) {
 				if (possible.getColor() == p.getColor()) {
-					rightSameColor = b.getTileAtBoardPosition(xPos, yPos);
+					rightSameColor = board.getTileAtBoardPosition(xPos, yPos);
 					destroyed.addAll(possibleDestroy);
 					possibleFormed = new Laser(p.getXCoord(), p.getYCoord(), xPos,
 							yPos, p.getColor());
 					if (addLasers){
-						b.lasers.add(possibleFormed);
+						board.lasers.add(possibleFormed);
 					}
 				} else {
 					possibleDestroy.add(possible);
@@ -707,7 +731,7 @@ public class GameEngine implements ApplicationListener {
 		if (leftSameColor != null && rightSameColor != null) {
 			possibleFormed = null;
 			if (addLasers){
-				b.lasers.remove(new Laser(leftSameColor.getXCoord(), leftSameColor.getYCoord(),
+				board.lasers.remove(new Laser(leftSameColor.getXCoord(), leftSameColor.getYCoord(),
 						rightSameColor.getXCoord(), rightSameColor.getYCoord(), p.getColor()));
 			}
 		}
@@ -730,18 +754,18 @@ public class GameEngine implements ApplicationListener {
 
 		// Slide down
 		for (; botSameColor == null && yPos >= 0; yPos--) {
-			Piece possible = b.getPieceOnTile(b.getTileAtBoardPosition(xPos,
+			Piece possible = board.getPieceOnTile(board.getTileAtBoardPosition(xPos,
 					yPos));
 
 			// There's a piece there
 			if (possible != null) {
 				if (possible.getColor() == p.getColor()) {
-					botSameColor = b.getTileAtBoardPosition(xPos, yPos);
+					botSameColor = board.getTileAtBoardPosition(xPos, yPos);
 					destroyed.addAll(possibleDestroy);
 					possibleFormed = new Laser(xPos, yPos, p.getXCoord(), p
 							.getYCoord(), p.getColor());
 					if (addLasers){
-						b.lasers.add(possibleFormed);
+						board.lasers.add(possibleFormed);
 					}
 				} else {
 					possibleDestroy.add(possible);
@@ -757,20 +781,20 @@ public class GameEngine implements ApplicationListener {
 		yPos = p.getYCoord() + 1;
 
 		// Slide up
-		for (; topSameColor == null && yPos < b.getNumVerticalTiles(); yPos++) {
+		for (; topSameColor == null && yPos < board.getNumVerticalTiles(); yPos++) {
 
-			Piece possible = b.getPieceOnTile(b.getTileAtBoardPosition(xPos,
+			Piece possible = board.getPieceOnTile(board.getTileAtBoardPosition(xPos,
 					yPos));
 
 			// There's a piece there
 			if (possible != null) {
 				if (possible.getColor() == p.getColor()) {
-					topSameColor = b.getTileAtBoardPosition(xPos, yPos);
+					topSameColor = board.getTileAtBoardPosition(xPos, yPos);
 					destroyed.addAll(possibleDestroy);
 					possibleFormed = new Laser(p.getXCoord(), p.getYCoord(), xPos,
 							yPos, p.getColor());
 					if (addLasers){
-						b.lasers.add(possibleFormed);
+						board.lasers.add(possibleFormed);
 					}
 				} else {
 					possibleDestroy.add(possible);
@@ -781,7 +805,7 @@ public class GameEngine implements ApplicationListener {
 		if (botSameColor != null && topSameColor != null) {
 			possibleFormed = null;
 			if (addLasers){
-				b.lasers.remove(new Laser(botSameColor.getXCoord(), botSameColor.getYCoord(),
+				board.lasers.remove(new Laser(botSameColor.getXCoord(), botSameColor.getYCoord(),
 						topSameColor.getXCoord(), topSameColor.getYCoord(), p.getColor()));
 			}
 		}
@@ -900,21 +924,30 @@ public class GameEngine implements ApplicationListener {
 
 	@Override
 	public void pause() {
-		String toSave = currentLevel + ";" + moveCounter + ";" + mainMenuShowing + ";";
-		for (Collection<Short> curBoard : boardStack){
-			for (Short s : curBoard){
-				toSave += s + "--";
+		if (currentLevel != -1){
+			String toSave = currentLevel + ";" + moveCounter + ";" + mainMenuShowing + ";";
+			for (Collection<Short> curBoard : boardStack){
+				for (Short s : curBoard){
+					toSave += s + "--";
+				}
+				toSave += ";";
 			}
-			toSave += ";";
+			debug("Writing " + toSave);
+			tempFile.writeString(toSave, false);
+		} else {
+			tempFile.delete();
 		}
-		debug("Writing " + toSave);
-		tempFile.writeString(toSave, false);
 	}
 
 	@Override
 	public void resume() {
 		dg.initFonts();
 		dm.initFonts();
+		
+		//Check if there's data for to read
+		if (!tempFile.exists())
+			return;
+		
 		String fromTemp = tempFile.readString();
 		debug("Read " + fromTemp);
 		if (fromTemp != null){
@@ -939,8 +972,8 @@ public class GameEngine implements ApplicationListener {
 				boardStack.add(move);
 			}
 
-			b.resetPieces(boardStack.get(boardStack.size() - 1));
-			initializeLasers();
+			b.resetPieces(boardStack.get(moveCounter));
+			initializeLasers(b);
 
 			menu.scrollToLevel(currentLevel);
 		}
