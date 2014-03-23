@@ -116,12 +116,15 @@ public class Menu {
 		return true;
 	}
 	
+	//This should be between 1, 2, and 3. Otherwise, you'd never be able to select the final level...
+	private final int NUM_TILES_SHOWING_RIGHT = 1;
+	
 	public boolean scrollLeftRight(int world, int scrollRightAmount){
 		
 		worldScrollAmounts[world] += scrollRightAmount;
 		int itemWidth = (int)(Gdx.graphics.getWidth() * worldItemPercent);
 		
-		int maxWidth =  Math.max(itemWidth * (worldSizes.get(world) - 1), 0);
+		int maxWidth =  Math.max(itemWidth * (worldSizes.get(world) - NUM_TILES_SHOWING_RIGHT), 0);
 		if (worldScrollAmounts[world] >= maxWidth){
 			worldScrollAmounts[world] = maxWidth - 1;
 			return false;
