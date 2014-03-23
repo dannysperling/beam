@@ -24,9 +24,10 @@ glass,1:goal_2,glass
 
 <level id=5 par=6 perfect=4>
 <attribution name="Watch your step" author="Danny"/>
-2,e,e,1
-1,1,2,2
-goal_1,2,1,goal_2
+2,1,goal_1
+e,1,2
+e,2,1
+1,2,goal_2
 </level>
 
 <level id=6 par=7 perfect=4>

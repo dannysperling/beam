@@ -59,14 +59,15 @@ public class InputHandler {
 	private int firstTouchX = -1;
 	private int lastTouchX = -1;
 	private int world = -1;
-	private final int maxDiffClick = 10;
+	private final int maxDiffClick = 15;
 	private boolean movedTooFar = false;
 	
 	private float momentumY = 0;
 	private float momentumX = 0;
-	private final float momentumDropOff = 0.05f;
+	private final float momentumDropOff = 0.10f;
 	
-	private final int moveBounds = 5;
+	private final int vertMoveBounds = 20;
+	private final int horizMoveBounds = 10;
 	private boolean movingVertically = false;
 	private boolean movingHorizontally = false;
 	
@@ -108,11 +109,11 @@ public class InputHandler {
 			else {
 				//Only allow one direction of motion
 				if (!movingVertically && !movingHorizontally){
-					if (Math.abs(firstTouchHeight - y) > moveBounds){
+					if (Math.abs(firstTouchHeight - y) > vertMoveBounds){
 						movingVertically = true;
 						momentumY = (y - lastTouchHeight);
 						menu.scrollUpDown(y - firstTouchHeight, true);
-					} else if (Math.abs(firstTouchX - x) > moveBounds){
+					} else if (Math.abs(firstTouchX - x) > horizMoveBounds){
 						movingHorizontally = true;
 						momentumX = (x - lastTouchX);
 						menu.scrollLeftRight(world, firstTouchX - x, true);

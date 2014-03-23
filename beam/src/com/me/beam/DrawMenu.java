@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 public class DrawMenu {
 
 	private Menu menu;
-	private BitmapFont menuFont;
 	private BitmapFont numberFont;
 	private SpriteBatch batch;
 
@@ -30,8 +29,8 @@ public class DrawMenu {
 		int verticalScrolled = menu.getVerticalScrollAmount();
 		int height = Gdx.graphics.getHeight();
 		int width = Gdx.graphics.getWidth();
-		int itemHeight = (int)(Gdx.graphics.getHeight() * Menu.worldItemPercent);
-		int itemWidth = (int)(Gdx.graphics.getWidth() * Menu.worldItemPercent);
+		int itemHeight = menu.getItemHeight();
+		int itemWidth = menu.getItemWidth();
 		int itemTopY = (verticalScrolled + 1) % itemHeight + height;
 		int world = menu.getWorldAtPosition(height);
 
@@ -48,19 +47,18 @@ public class DrawMenu {
 				int itemLeftX = -(horizontalScrolled % itemWidth);
 				int itemBotY = itemTopY - itemHeight;
 				int ordinal = menu.getLevelAtPosition(itemLeftX + itemWidth / 2, itemTopY - itemHeight / 2);
+				
 				while (itemLeftX < width - 1){
-					
 					//Ensure ordinal in bounds
 					if (ordinal != -1){
 						//Figure out how to draw the item
 						if (!menu.isUnlocked(ordinal)){
 							numberFont.setColor(Color.RED);
 						} else {
-							int bestMoves = menu.getLevelMoves(world);
+							int bestMoves = menu.getLevelMoves(ordinal);
 							if (bestMoves != -1){
 								numberFont.setColor(Color.GREEN);
 							} else {
-								menuFont.setColor(new Color(.133f, .337f, 1, 1));
 								numberFont.setColor(new Color(.133f, .337f, 1, 1));
 							}
 						}
@@ -70,17 +68,18 @@ public class DrawMenu {
 						
 						// Get board dimensions
 						Color curBG = new Color(.1f, .1f, .1f, 1);
-						int bx = (int) ((((float) b.getBotLeftX()) / width) * itemWidth) + itemLeftX;
-						int by = (int) ((((float) b.getBotLeftY()) / height) * itemHeight) + itemBotY;
-						int tilesize = (int) ((((float) b.getTileSize()) / width) * itemWidth);
+						int by = (int)((1 - menu.boardHeightPercent) / 4 * itemHeight + itemBotY);
+						int tilesize = (int)(menu.boardHeightPercent * itemHeight / b.getNumVerticalTiles());
+						int bx = (itemWidth - tilesize * b.getNumHorizontalTiles()) / 2 + itemLeftX;
+						
 						dg.drawBoard(b, bx, by, tilesize, curBG);
 						
 						//Draw number on top
 						batch.begin();
-						stringOrdinal = (ordinal + 1) + "";
+						stringOrdinal = (world + 1) + "-" + menu.getPositionInWorld(ordinal);
 						tb = numberFont.getBounds(stringOrdinal);
-						numberFont.draw(batch, stringOrdinal, itemLeftX + ((width * Menu.worldItemPercent) - tb.width)/2, 
-								itemTopY - ((height * Menu.worldItemPercent) - tb.height)/2);
+						numberFont.draw(batch, stringOrdinal, itemLeftX + (itemWidth - tb.width)/2, 
+								itemTopY - ((itemHeight * (1-menu.boardHeightPercent) * 3/4) - tb.height) / 2);
 						batch.end();
 					}
 					
@@ -101,8 +100,7 @@ public class DrawMenu {
 	//Initializes menu fonts
 	public void initFonts() {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("data/fonts/swanse.ttf"));
-		menuFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Menu.worldItemPercent / 5));
-		numberFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Menu.worldItemPercent / 5f));
+		numberFont = generator.generateFont((int) (menu.getItemHeight() * (1 - menu.boardHeightPercent) / 2));
 		generator.dispose();
 	}
 }

@@ -88,6 +88,8 @@ public class Menu {
 	private List<Integer> worldSizes;
 	private GameProgress progress;
 	
+	public final float boardHeightPercent = 0.6f;
+	
 	public Menu(List<Integer> worldSizes, GameProgress progress){
 		this.numWorlds = worldSizes.size();
 		this.worldSizes = worldSizes;
@@ -110,7 +112,7 @@ public class Menu {
 	public boolean scrollUpDown(int scrollDownAmount, boolean held){
 		
 		int height = Gdx.graphics.getHeight();
-		int itemHeight = (int)(height * worldItemPercent);
+		int itemHeight = getItemHeight();
 		
 		int maxHeight =  itemHeight * numWorlds - Gdx.graphics.getHeight() - 1;
 		
@@ -167,18 +169,15 @@ public class Menu {
 		
 	}
 	
-	//This should be between 1, 2, and 3. Otherwise, you'd never be able to select the final level...
-	private final int NUM_TILES_SHOWING_RIGHT = 3;
-	
 	public boolean scrollLeftRight(int world, int scrollRightAmount, boolean held){
 		
 		if (!worldInBounds(world))
 			return false;
 		
 		int width = Gdx.graphics.getWidth();
-		int itemWidth = (int)(width * worldItemPercent);
+		int itemWidth = getItemWidth();
 		
-		int maxWidth =  Math.max(itemWidth * (worldSizes.get(world) - NUM_TILES_SHOWING_RIGHT) - 1, 0);
+		int maxWidth =  Math.max(itemWidth * worldSizes.get(world) - width - 1, 0);
 		if (worldScrollAmounts[world] > maxWidth){
 			//Take the scroll right amount past the right side
 			scrollRightAmount -= Math.max(maxWidth - worldScrollAmounts[world], 0);
@@ -241,13 +240,13 @@ public class Menu {
 				
 				//Scroll down
 				int scrollToY = Math.max(i - 1, 0);
-				int itemHeight = (int)(Gdx.graphics.getHeight() * worldItemPercent);
+				int itemHeight = getItemHeight();
 				int maxHeight =  itemHeight * numWorlds - Gdx.graphics.getHeight();
 				downScrollAmount = Math.min(itemHeight * scrollToY, maxHeight - 1);
 				
 				//And over
 				int over = ordinal - prevLevels;
-				int itemWidth = (int)(Gdx.graphics.getWidth() * worldItemPercent);
+				int itemWidth = getItemWidth();
 				worldScrollAmounts[i] = Math.max((over - 1) * itemWidth, 0);
 			} else {
 				worldScrollAmounts[i] = 0;
@@ -296,7 +295,7 @@ public class Menu {
 	//Returns the world of the level at the given position
 	public int getWorldAtPosition(int screenYPos){
 		int selectedY = downScrollAmount - screenYPos + Gdx.graphics.getHeight() + 1;
-		int itemHeight = (int)(Gdx.graphics.getHeight() * worldItemPercent);
+		int itemHeight = getItemHeight();
 		return (selectedY / itemHeight);
 	}
 	
@@ -305,10 +304,10 @@ public class Menu {
 		
 		int world = getWorldAtPosition(screenYPos);
 		int selectedX = worldScrollAmounts[world] + screenXPos;
-		int itemWidth = (int)(Gdx.graphics.getWidth() * worldItemPercent);
+		int itemWidth = getItemWidth();
 		
 		int withinWorld = (selectedX / itemWidth);
-		if (withinWorld >= worldSizes.get(world)){
+		if (withinWorld < 0 || withinWorld >= worldSizes.get(world)){
 			return -1;
 		}
 		
@@ -317,5 +316,29 @@ public class Menu {
 			prevLevels += worldSizes.get(i);
 		}
 		return prevLevels + withinWorld;
+	}
+	
+	//Gets the position of the ordinal within its world
+	public int getPositionInWorld(int ordinal){
+		int before = 0;
+		int world = 0;
+		
+		while (world < worldSizes.size() && before + worldSizes.get(world) <= ordinal){
+			before += worldSizes.get(world);
+			world++;
+		}
+		
+		if (world >= worldSizes.size())
+			return -1;
+		else
+			return ordinal - before + 1;
+	}
+	
+	public int getItemHeight(){
+		return (int)(Gdx.graphics.getHeight() * worldItemPercent);
+	}
+	
+	public int getItemWidth(){
+		return (int)(getItemHeight() * boardHeightPercent * 1.1f);
 	}
 }

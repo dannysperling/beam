@@ -12,7 +12,7 @@ import com.me.beam.Logger.LogType;
 public class GameEngine implements ApplicationListener {
 
 	public static final boolean DEBUG_MODE = false;
-	public static final boolean LOGGING = true;
+	public static final boolean LOGGING = false;
 
 	// Simple Objects for now
 	private Board b;
@@ -976,7 +976,12 @@ public class GameEngine implements ApplicationListener {
 
 			b.resetPieces(boardStack.get(moveCounter));
 			initializeLasers(b);
-
+			
+			//Handle having won on restarting level
+			if (!mainMenuShowing && b.isWon()){
+				state = GameState.WON;
+				timeWon = wonAnimationUnit * 10;
+			}
 			menu.scrollToLevel(currentLevel);
 		}
 	}
