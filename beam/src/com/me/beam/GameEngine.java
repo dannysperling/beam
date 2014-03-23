@@ -604,6 +604,7 @@ public class GameEngine implements ApplicationListener {
 		}
 	}
 
+
 	// Simple method to paint a piece
 	public boolean paintPiece(Piece p) {
 
