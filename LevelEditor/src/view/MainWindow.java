@@ -2,7 +2,6 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,13 +13,12 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JTextField;
+
+import main.EditorModel;
 
 import com.me.beam.GameEngine;
-import com.me.beam.GameEngine.GameState;
 
 public class MainWindow extends JFrame {
 	/**
@@ -30,6 +28,7 @@ public class MainWindow extends JFrame {
 	JPanel mainPanel = new JPanel();
 	JPanel toolBar = new JPanel();
 	JPanel sideBar = new JPanel();
+	JPanel boardPanel;
 	ButtonGroup radioGroup = new ButtonGroup();
 	///
 	JRadioButton jrbPiece = new JRadioButton("Piece");
@@ -44,14 +43,20 @@ public class MainWindow extends JFrame {
 	JButton buttonClear = new JButton("Clear");
 	JButton buttonNew = new JButton("New");
 	JButton buttonFin = new JButton("Finalize");
+	EditorModel model;
 	
 	
-	public MainWindow(){
+	
+	public MainWindow(EditorModel m){
+		model = m;
+		boardPanel = new BoardPanel(model.b);
 		mainPanel.setLayout(new BorderLayout(0, 0));
 		mainPanel.add(toolBar, BorderLayout.NORTH);
 		mainPanel.add(sideBar, BorderLayout.EAST);
-		toolBar.setBackground(Color.RED);
-		sideBar.setBackground(Color.BLUE);
+		mainPanel.add(boardPanel,BorderLayout.CENTER);
+		//toolBar.setBackground(Color.GRAY);
+		//sideBar.setBackground(Color.GRAY);
+		boardPanel.setBackground(Color.DARK_GRAY);
 		///
 		colorDropdown = new JComboBox<GameEngine.Color>(GameEngine.Color.values());
 		toolBar.add(colorDropdown);
@@ -95,10 +100,10 @@ public class MainWindow extends JFrame {
 			}
 			
 		});
-		///
 		this.setSize(800, 600);
 		this.add(mainPanel);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.repaint();
 		this.setVisible(true);
 	}
 	

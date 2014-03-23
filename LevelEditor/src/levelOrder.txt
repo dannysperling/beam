@@ -1,0 +1,73 @@
+
+### WORLDSTART: Early Mechanics ###
+37 - no other beams, move + goal
+38 - multiple colors of goals
+1
+35
+36
+x - easy destruction
+3 
+### WORLDEND ###
+
+
+
+### WORLDSTART: Beam Objectives ###
+40 - beam objective tutorial
+2 
+41 - hard beam goal or two colors
+x - easy beam break level
+12
+6 
+10
+7
+### WORLDEND ###
+
+
+
+### WORLDSTART: Painters ###
+8
+33
+x - easier painter level
+9
+14
+5
+11
+15
+32
+### WORLDEND ###
+
+
+
+### WORLDSTART: Limitations ###
+x - huge intermediate gap
+26
+27
+x - gap
+21
+23
+18
+16
+13 - very hard but simple mechanics
+### WORLDEND ###
+
+
+
+### WORLDSTART: Color Lock ###
+39 - color lock tutorial
+22
+20
+29
+25
+24
+### WORLDEND ###
+
+
+
+### WORLDSTART: CHALLENGE! ###
+17
+28
+30
+34
+31
+19
+### WORLDEND ###

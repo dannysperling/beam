@@ -48,8 +48,16 @@ public class BoardPanel extends JPanel{
 	public void paint(Graphics g){
 		List<Piece> pieces = b.getAllPieces();
 		List<Tile> tiles = b.getAllTiles();
+		
+		int widthTiles = this.getSize().width /  b.getNumHorizontalTiles();
+		int heightTiles = this.getSize().height / b.getNumVerticalTiles();
+		tilesize = Math.min(widthTiles, heightTiles);
+		
 		int bx = 0;
 		int by = 0;
+		
+		g.setColor(this.getBackground());
+		g.fillRect(0, 0, this.getWidth(), this.getHeight());
 		
 		// Draw the basic grid
 		g.setColor(Color.white);
@@ -92,7 +100,7 @@ public class BoardPanel extends JPanel{
 				g.setColor(translateColor(t.getGoalColor()));
 				g.fillRect((int)(goalX + (0.05f * tilesize)), (int)(goalY
 						+ (0.05f * tilesize)), (int)(0.9f * tilesize), (int)(0.9f * tilesize));
-				g.setColor(Color.DARK_GRAY);
+				g.setColor(getBackground());
 				g.fillRect((int)(goalX + (0.12f * tilesize)), (int)(goalY
 						+ (0.12f * tilesize)), (int)(0.76f * tilesize), (int)(0.76f * tilesize));
 			}
