@@ -41,46 +41,52 @@ public class DrawMenu {
 		String stringOrdinal;
 		while(itemTopY > 0){
 		
-			//Loop through horizontally as well
-			int horizontalScrolled = menu.getHorizontalScrollAmount(world);
-			int itemLeftX = -(horizontalScrolled % itemWidth);
-			int itemBotY = itemTopY - itemHeight;
-			int ordinal = menu.getLevelAtPosition(itemLeftX + itemWidth / 2, itemTopY - itemHeight / 2);
-			while (itemLeftX < width - 1 && ordinal != -1){
-				
-				//Figure out how to draw the item
-				if (!menu.isUnlocked(ordinal)){
-					numberFont.setColor(Color.RED);
-				} else {
-					int bestMoves = menu.getLevelMoves(world);
-					if (bestMoves != -1){
-						numberFont.setColor(Color.GREEN);
-					} else {
-						menuFont.setColor(new Color(.133f, .337f, 1, 1));
-						numberFont.setColor(new Color(.133f, .337f, 1, 1));
+			//Ensure world in bounds
+			if (menu.worldInBounds(world)){
+				//Loop through horizontally as well
+				int horizontalScrolled = menu.getHorizontalScrollAmount(world);
+				int itemLeftX = -(horizontalScrolled % itemWidth);
+				int itemBotY = itemTopY - itemHeight;
+				int ordinal = menu.getLevelAtPosition(itemLeftX + itemWidth / 2, itemTopY - itemHeight / 2);
+				while (itemLeftX < width - 1){
+					
+					//Ensure ordinal in bounds
+					if (ordinal != -1){
+						//Figure out how to draw the item
+						if (!menu.isUnlocked(ordinal)){
+							numberFont.setColor(Color.RED);
+						} else {
+							int bestMoves = menu.getLevelMoves(world);
+							if (bestMoves != -1){
+								numberFont.setColor(Color.GREEN);
+							} else {
+								menuFont.setColor(new Color(.133f, .337f, 1, 1));
+								numberFont.setColor(new Color(.133f, .337f, 1, 1));
+							}
+						}
+						
+						//Either draw current state or entire board
+						Board b = (ordinal == curLevel) ? curBoard : boardList.get(ordinal);
+						
+						// Get board dimensions
+						Color curBG = new Color(.1f, .1f, .1f, 1);
+						int bx = (int) ((((float) b.getBotLeftX()) / width) * itemWidth) + itemLeftX;
+						int by = (int) ((((float) b.getBotLeftY()) / height) * itemHeight) + itemBotY;
+						int tilesize = (int) ((((float) b.getTileSize()) / width) * itemWidth);
+						dg.drawBoard(b, bx, by, tilesize, curBG);
+						
+						//Draw number on top
+						batch.begin();
+						stringOrdinal = (ordinal + 1) + "";
+						tb = numberFont.getBounds(stringOrdinal);
+						numberFont.draw(batch, stringOrdinal, itemLeftX + ((width * Menu.worldItemPercent) - tb.width)/2, 
+								itemTopY - ((height * Menu.worldItemPercent) - tb.height)/2);
+						batch.end();
 					}
+					
+					itemLeftX += itemWidth;
+					ordinal = menu.getLevelAtPosition(itemLeftX + itemWidth / 2, itemTopY - itemHeight / 2);
 				}
-				
-				//Either draw current state or entire board
-				Board b = (ordinal == curLevel) ? curBoard : boardList.get(ordinal);
-				
-				// Get board dimensions
-				Color curBG = new Color(.1f, .1f, .1f, 1);
-				int bx = (int) ((((float) b.getBotLeftX()) / width) * itemWidth) + itemLeftX;
-				int by = (int) ((((float) b.getBotLeftY()) / height) * itemHeight) + itemBotY;
-				int tilesize = (int) ((((float) b.getTileSize()) / width) * itemWidth);
-				dg.drawBoard(b, bx, by, tilesize, curBG);
-				
-				//Draw number on top
-				batch.begin();
-				stringOrdinal = (ordinal + 1) + "";
-				tb = numberFont.getBounds(stringOrdinal);
-				numberFont.draw(batch, stringOrdinal, itemLeftX + ((width * Menu.worldItemPercent) - tb.width)/2, 
-						itemTopY - ((height * Menu.worldItemPercent) - tb.height)/2);
-				batch.end();
-				
-				itemLeftX += itemWidth;
-				ordinal = menu.getLevelAtPosition(itemLeftX + itemWidth / 2, itemTopY - itemHeight / 2);
 			}
 
 			itemTopY -= itemHeight;

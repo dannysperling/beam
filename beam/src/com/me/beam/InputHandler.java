@@ -66,6 +66,10 @@ public class InputHandler {
 	private float momentumX = 0;
 	private final float momentumDropOff = 0.05f;
 	
+	private final int moveBounds = 5;
+	private boolean movingVertically = false;
+	private boolean movingHorizontally = false;
+	
 	//For logging purposes
 	private int timeHeld = 0;
 	private final int timeForLoggingReset = 240;
@@ -97,15 +101,30 @@ public class InputHandler {
 				firstTouchHeight = y;
 				firstTouchX = x;
 				world = menu.getWorldAtPosition(y);
+				momentumX = 0;
+				momentumY = 0;
 			} 
 			//Otherwise update momentum
 			else {
-				momentumY = (y - lastTouchHeight);
-				momentumX = -(x - lastTouchX);
-
-				//And move the screen
-				menu.scrollLeftRight(world, (int)momentumX);
-				menu.scrollUpDown((int)momentumY);
+				//Only allow one direction of motion
+				if (!movingVertically && !movingHorizontally){
+					if (Math.abs(firstTouchHeight - y) > moveBounds){
+						movingVertically = true;
+						momentumY = (y - lastTouchHeight);
+						menu.scrollUpDown(y - firstTouchHeight, true);
+					} else if (Math.abs(firstTouchX - x) > moveBounds){
+						movingHorizontally = true;
+						momentumX = (x - lastTouchX);
+						menu.scrollLeftRight(world, firstTouchX - x, true);
+					} 
+				}
+				else if (movingVertically){
+					momentumY = (y - lastTouchHeight);
+					menu.scrollUpDown((int)momentumY, true);
+				} else {
+					momentumX = -(x - lastTouchX);
+					menu.scrollLeftRight(world, (int)momentumX, true);
+				}
 			}
 
 			//Update where we are now
@@ -117,6 +136,8 @@ public class InputHandler {
 
 		} else {
 			//Check if clicked a place
+			movingVertically = false;
+			movingHorizontally = false;
 			if (firstTouchHeight != -1){
 				firstTouchHeight = -1;
 				if (!movedTooFar){
@@ -132,22 +153,26 @@ public class InputHandler {
 				}
 			}
 			if (momentumY != 0){
-				boolean moreToScroll = menu.scrollUpDown((int)momentumY);
+				boolean turned = menu.scrollUpDown((int)momentumY, false);
 				momentumY = momentumY * (1 - momentumDropOff);
 				
 				//If we passed zero or hit the wall
-				if (Math.abs(momentumY) < 2 || !moreToScroll){
+				if (Math.abs(momentumY) < 2 || turned){
 					momentumY = 0;
 				}
+			} else {
+				menu.scrollUpDown(0, false);
 			}
 			if (momentumX != 0){
-				boolean moreToScroll = menu.scrollLeftRight(world, (int)momentumX);
+				boolean turned = menu.scrollLeftRight(world, (int)momentumX, false);
 				momentumX = momentumX * (1 - momentumDropOff);
 				
 				//If we passed zero or hit the wall
-				if (Math.abs(momentumX) < 2 || !moreToScroll){
+				if (Math.abs(momentumX) < 2 || turned){
 					momentumX = 0;
 				}
+			} else {
+				menu.scrollLeftRight(world, 0, false);
 			}
 		}
 
@@ -271,7 +296,7 @@ public class InputHandler {
 			}
 			// HACK HERE TO GET GAME WINNING HAPPENING ON TOUCH
 			else if (lastX != -1 && gameWonPressed) {
-				returnedButton = GameEngine.ButtonPress.WON;
+				returnedButton = GameEngine.ButtonPress.NEXT_LEVEL;
 			} else {
 				returnedButton = GameEngine.ButtonPress.NONE;
 			}

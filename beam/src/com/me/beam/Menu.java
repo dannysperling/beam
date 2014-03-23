@@ -69,7 +69,7 @@ public class Menu {
 			if(x < (screenWidth / 3.0f)){
 				return GameEngine.ButtonPress.RESET;
 			} else if (x > 2 * (screenWidth / 3.0f)){
-				return GameEngine.ButtonPress.WON;
+				return GameEngine.ButtonPress.NEXT_LEVEL;
 			} else {
 				return GameEngine.ButtonPress.MENU;
 			}
@@ -95,45 +95,138 @@ public class Menu {
 		this.progress = progress;
 	}
 	
+	
+	private final float PERCENT_OFF_SCROLL = 0.2f;
+	private final float RESCROLL_BOUNCE = 0.01f;
+	
+	
+	private float determineScrollAmount(int max, int cur, int ref){
+		return Math.max((1 - (Math.abs((float)cur - max) / ref) / PERCENT_OFF_SCROLL) / 2, 0); 
+	}
+	
 	//Returns true if able to scroll entirely; false otherwise (hit end)
 	//scrollDownAmount is positive if scrolling down (to higher levels), 
 	//negative for up
-	public boolean scrollUpDown(int scrollDownAmount){
+	public boolean scrollUpDown(int scrollDownAmount, boolean held){
 		
-		downScrollAmount += scrollDownAmount;
+		int height = Gdx.graphics.getHeight();
+		int itemHeight = (int)(height * worldItemPercent);
 		
-		int itemHeight = (int)(Gdx.graphics.getHeight() * worldItemPercent);
+		int maxHeight =  itemHeight * numWorlds - Gdx.graphics.getHeight() - 1;
 		
-		int maxHeight =  itemHeight * numWorlds - Gdx.graphics.getHeight();
-		if (downScrollAmount >= maxHeight){
-			downScrollAmount = maxHeight - 1;
-			return false;
-		} else if (downScrollAmount < 0){
-			downScrollAmount = 0;
+		//If going off bottom
+		if (downScrollAmount + scrollDownAmount > maxHeight){
+			//Take the scroll down amount past the bottom
+			scrollDownAmount -= Math.max(maxHeight - downScrollAmount, 0);
+			
+			//Scroll down to bottom if not there
+			boolean wasAbove = downScrollAmount < maxHeight;
+			if (wasAbove)
+				downScrollAmount = maxHeight;
+			
+			//Get reduced amount based on how close to end currently
+			scrollDownAmount *= determineScrollAmount(maxHeight, downScrollAmount, height);
+			
+			//Figure out reverse effect if not held
+			boolean turned = false;
+			if (!held && !wasAbove){
+				scrollDownAmount -= RESCROLL_BOUNCE * height;
+				
+				turned = (scrollDownAmount <= 0);
+			}
+			//And scroll.
+			downScrollAmount += scrollDownAmount;
+			return turned;
+			
+		} else if (downScrollAmount + scrollDownAmount < 0){
+			//Take the scroll down amount up past the top
+			scrollDownAmount += Math.min(-downScrollAmount, 0);
+			
+			//Scroll up to top if not there
+			boolean wasBelow = downScrollAmount > 0;
+			if (wasBelow)
+				downScrollAmount = 0;
+			
+			//Get reduced amount based on how close to end currently
+			scrollDownAmount *= determineScrollAmount(0, downScrollAmount, height);
+			
+			//Figure out reverse effect if not held
+			boolean turned = false;
+			if (!held && !wasBelow){
+				scrollDownAmount += RESCROLL_BOUNCE * height;
+				
+				turned = (scrollDownAmount >= 0);
+			}
+			//And scroll.
+			downScrollAmount += scrollDownAmount;
+			return turned;
+		} else {
+			downScrollAmount += scrollDownAmount;
 			return false;
 		}
 		
-		return true;
 	}
 	
 	//This should be between 1, 2, and 3. Otherwise, you'd never be able to select the final level...
-	private final int NUM_TILES_SHOWING_RIGHT = 1;
+	private final int NUM_TILES_SHOWING_RIGHT = 3;
 	
-	public boolean scrollLeftRight(int world, int scrollRightAmount){
+	public boolean scrollLeftRight(int world, int scrollRightAmount, boolean held){
 		
-		worldScrollAmounts[world] += scrollRightAmount;
-		int itemWidth = (int)(Gdx.graphics.getWidth() * worldItemPercent);
-		
-		int maxWidth =  Math.max(itemWidth * (worldSizes.get(world) - NUM_TILES_SHOWING_RIGHT), 0);
-		if (worldScrollAmounts[world] >= maxWidth){
-			worldScrollAmounts[world] = maxWidth - 1;
+		if (!worldInBounds(world))
 			return false;
+		
+		int width = Gdx.graphics.getWidth();
+		int itemWidth = (int)(width * worldItemPercent);
+		
+		int maxWidth =  Math.max(itemWidth * (worldSizes.get(world) - NUM_TILES_SHOWING_RIGHT) - 1, 0);
+		if (worldScrollAmounts[world] > maxWidth){
+			//Take the scroll right amount past the right side
+			scrollRightAmount -= Math.max(maxWidth - worldScrollAmounts[world], 0);
+			
+			//Scroll to right if not there
+			boolean wasRight = worldScrollAmounts[world] < maxWidth;
+			if (wasRight)
+				worldScrollAmounts[world] = maxWidth;
+			
+			//Get reduced amount based on how close to end currently
+			scrollRightAmount *= determineScrollAmount(maxWidth, worldScrollAmounts[world], width);
+			
+			//Figure out reverse effect if not held
+			boolean turned = false;
+			if (!held && !wasRight){
+				scrollRightAmount -= RESCROLL_BOUNCE * width;
+				
+				turned = (scrollRightAmount <= 0);
+			}
+			//And scroll.
+			worldScrollAmounts[world] += scrollRightAmount;
+			return turned;
 		} else if (worldScrollAmounts[world] < 0){
-			worldScrollAmounts[world] = 0;
-			return false;
+			//Take the scroll down amount up past the top
+			scrollRightAmount += Math.min(-worldScrollAmounts[world], 0);
+			
+			//Scroll up to top if not there
+			boolean wasLeft = worldScrollAmounts[world] > 0;
+			if (wasLeft)
+				worldScrollAmounts[world] = 0;
+			
+			//Get reduced amount based on how close to end currently
+			scrollRightAmount *= determineScrollAmount(0, worldScrollAmounts[world], width);
+			
+			//Figure out reverse effect if not held
+			boolean turned = false;
+			if (!held && !wasLeft){
+				scrollRightAmount += RESCROLL_BOUNCE * width;
+				
+				turned = (scrollRightAmount >= 0);
+			}
+			//And scroll.
+			worldScrollAmounts[world] += scrollRightAmount;
+			return turned;
+		} else {
+			worldScrollAmounts[world] += scrollRightAmount;
 		}
-		
-		return true;
+		return false;
 	}
 	
 	//Scrolls to a specific level
@@ -170,6 +263,10 @@ public class Menu {
 	
 	public int getHorizontalScrollAmount(int world){
 		return worldScrollAmounts[world];
+	}
+	
+	public boolean worldInBounds(int world){
+		return world >= 0 && world < numWorlds;
 	}
 	
 	//Allow some read-through to the game progress

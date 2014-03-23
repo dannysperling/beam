@@ -14,7 +14,7 @@ x - easy destruction
 ### WORLDSTART: Beam Objectives ###
 40 - beam objective tutorial
 2 
-41 - hard beam goal or two colors
+42 - hard beam goal or two colors
 x - easy beam break level
 12
 6 
