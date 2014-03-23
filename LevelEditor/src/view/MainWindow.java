@@ -17,6 +17,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 import com.me.beam.GameEngine;
+import com.me.beam.GameEngine.GameState;
 
 public class MainWindow extends JFrame {
 	/**
@@ -61,10 +62,12 @@ public class MainWindow extends JFrame {
 		radioGroup.add(jrbGoal);
 		radioGroup.add(jrbPainter);
 		///
-		sideBar.setLayout(new GridLayout(0, 3, 2, 15));
+		sideBar.setLayout(new GridLayout(0, 3, 25, 50));
+		sideBar.setAlignmentX(CENTER_ALIGNMENT);
 		///
 		for (GameEngine.Color c : GameEngine.Color.values()){
-			JLabel num = new JLabel("X");
+			if (c == GameEngine.Color.NONE) continue;
+			JLabel num = new JLabel(c+" : X");
 			num.setAlignmentX(CENTER_ALIGNMENT);
 			num.setAlignmentY(CENTER_ALIGNMENT);
 			goalTextFields.add(num);
@@ -73,9 +76,9 @@ public class MainWindow extends JFrame {
 		sideBar.add(beamGoalsLabel);
 		sideBar.add(new JLabel(""));
 		for (JLabel txt : goalTextFields){
-			sideBar.add(new JLabel(new ImageIcon("src/LeftArrow.png")));
+			sideBar.add(new JButton(new ImageIcon("src/LeftArrow.png")));
 			sideBar.add(txt);
-			sideBar.add(new JLabel(new ImageIcon("src/RightArrow.png")));
+			sideBar.add(new JButton(new ImageIcon("src/RightArrow.png")));
 		}
 		sideBar.add(buttonClear);
 		sideBar.add(buttonNew);
