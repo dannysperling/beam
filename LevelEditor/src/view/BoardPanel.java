@@ -7,6 +7,8 @@ import java.util.Set;
 
 import javax.swing.JPanel;
 
+import main.EditorModel;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.me.beam.Board;
@@ -52,6 +54,8 @@ public class BoardPanel extends JPanel{
 		int widthTiles = this.getSize().width /  b.getNumHorizontalTiles();
 		int heightTiles = this.getSize().height / b.getNumVerticalTiles();
 		tilesize = Math.min(widthTiles, heightTiles);
+		EditorModel.initializeLasers(b);
+		//System.out.println(b.lasers.size());
 		
 		int bx = 0;
 		int by = 0;
@@ -135,18 +139,13 @@ public class BoardPanel extends JPanel{
 		if(path.size() > 1){
 			paintColor = translateColor(b.getTileAtBoardPosition(path.get(1).getXCoord(), path.get(1).getYCoord()).getPainterColor());
 		}
-		Laser disbandedLaser = null;
-		Laser movedAlongLaser = null;
-		float breakAnimateTime = 0;
-		float formAnimateTime = 0;
-		float paintAnimateTime = 0;
 
 		for (Piece p : pieces) {
 			g.setColor(translateColor(p.getColor()));
 			if(p.equals(GameEngine.movingPiece)){
-				float rshift = (paintColor.getRed() - translateColor(p.getColor()).getRed()) * paintAnimateTime;
-				float gshift = (paintColor.getGreen() - translateColor(p.getColor()).getGreen()) * paintAnimateTime;
-				float bshift = (paintColor.getBlue() - translateColor(p.getColor()).getBlue()) * paintAnimateTime;
+				float rshift = (paintColor.getRed() - translateColor(p.getColor()).getRed()) * 0;
+				float gshift = (paintColor.getGreen() - translateColor(p.getColor()).getGreen()) * 0;
+				float bshift = (paintColor.getBlue() - translateColor(p.getColor()).getBlue()) * 0;
 				g.setColor(new Color(translateColor(p.getColor()).getRed() + rshift, translateColor(p.getColor()).getGreen() + gshift, translateColor(p.getColor()).getBlue() + bshift, 1));
 			}
 			g.fillOval(bx + (p.getXCoord() * tilesize),
@@ -157,25 +156,25 @@ public class BoardPanel extends JPanel{
 		// Draw Lasers
 		Set<Laser> lasers = b.lasers;
 
-		float laserWidth = 0.1f * tilesize;
+		float laserWidth = 0.15f;
 		for (Laser l : lasers) {
-			if (disbandedLaser != null && l.equals(disbandedLaser)){
-				laserWidth = (1 - breakAnimateTime) * 0.1f * tilesize;
-			} else {
-				laserWidth = 0.1f * tilesize;
-			}
 			g.setColor(translateColor(l.getColor()));
-			if(!l.equals(movedAlongLaser)){
+			System.out.println(l.getXStart()+" , "+l.getYStart()+" to "+l.getXFinish()+" , "+l.getYFinish());
+			System.out.println("TileSize: "+ tilesize);
+			if(true){
 				if (l.getXStart() == l.getXFinish()) {
 					g.fillRect((int)(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize),
 							(int)(by + (l.getYStart() + 0.5f - (laserWidth / 2)) * tilesize),
 							(int)(laserWidth * tilesize), (int)((l.getYFinish() - l.getYStart())
 							* tilesize));
 				} else {
+					System.out.println("Horizontal");
 					g.fillRect((int)(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize),
 							(int)(by + (l.getYStart() + 0.5f - (laserWidth/2)) * tilesize),
 							(int)((l.getXFinish() - l.getXStart()) * tilesize),
 							(int)(laserWidth * tilesize));
+					System.out.println(((int)(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize)) + ", " + ((int)(by + (l.getYStart() + 0.5f - (laserWidth/2)) * tilesize)));
+					System.out.println(((int)((l.getXFinish() - l.getXStart()) * tilesize)) + " , " + ((int)(laserWidth * tilesize)));
 				}
 			}
 		}
