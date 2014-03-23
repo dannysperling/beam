@@ -12,7 +12,7 @@ import com.me.beam.Logger.LogType;
 public class GameEngine implements ApplicationListener {
 
 	public static final boolean DEBUG_MODE = false;
-	public static final boolean LOGGING = false;
+	public static final boolean LOGGING = true;
 
 	// Simple Objects for now
 	private Board b;
@@ -83,7 +83,7 @@ public class GameEngine implements ApplicationListener {
 	}
 
 	public enum ButtonPress {
-		UNDO, RESET, REDO, MENU, NONE, WON, SKIPWIN
+		UNDO, RESET, REDO, MENU, NEXT_LEVEL, SKIPWIN, NONE
 	}
 
 	public enum Color {
@@ -223,7 +223,7 @@ public class GameEngine implements ApplicationListener {
 			if(button == ButtonPress.SKIPWIN){
 				timeWon = wonAnimationUnit * 10;
 			} else if (state == GameState.WON){
-				if(button == ButtonPress.RESET || button == ButtonPress.MENU || button == ButtonPress.WON){
+				if(button == ButtonPress.RESET || button == ButtonPress.MENU || button == ButtonPress.NEXT_LEVEL){
 					int numStars = 1;
 					if (GameEngine.getMoveCount() <= b.perfect){
 						numStars = 3;
@@ -236,6 +236,26 @@ public class GameEngine implements ApplicationListener {
 					} else if (button == ButtonPress.MENU){
 						resetCurrentLevel();
 						state = GameState.IDLE;
+					} 
+					// Go to the next level
+					else if (button == ButtonPress.NEXT_LEVEL){
+						state = GameState.IDLE;
+						if (LOGGING){
+							logEnd();
+						}
+						currentLevel++;
+						if (currentLevel < levelOrderer.getNumLevels()){
+							loadLevel(currentLevel);
+							
+							if (LOGGING){
+								Logger.log(LogType.ENTERED_LEVEL, currentLevel);
+							}
+						} else {
+							currentLevel--;
+							menu.scrollToLevel(currentLevel);
+							mainMenuShowing=true;
+						}
+						pushedButton = true;
 					} else {
 						state = GameState.IDLE;
 					}
@@ -246,26 +266,6 @@ public class GameEngine implements ApplicationListener {
 				debug(button);
 				pushedButton = true;
 				handleButtonPress(button);
-			}
-
-			// Increase level. Should be done elsewhere in non-proto version
-			else if (state == GameState.WON && button == ButtonPress.WON) {
-				if (LOGGING){
-					logEnd();
-				}
-				currentLevel++;
-				if (currentLevel < levelOrderer.getNumLevels()){
-					loadLevel(currentLevel);
-					
-					if (LOGGING){
-						Logger.log(LogType.ENTERED_LEVEL, currentLevel);
-					}
-				} else {
-					currentLevel--;
-					menu.scrollToLevel(currentLevel);
-					mainMenuShowing=true;
-				}
-				pushedButton = true;
 			}
 
 			else if (button == ButtonPress.MENU){

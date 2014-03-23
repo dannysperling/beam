@@ -359,21 +359,19 @@ e,e,e,e,goal_1
 <level id=40 par=2 perfect=2>
 <attribution name="Intro to beam objectives" author="John"/>
 <beamGoal color=1 count=1/>
-1,e,e,e,glass
-e,glass,glass,glass,e
-glass,e,e,e,1
+glass,e,1
+e,glass,e
+1,e,glass
 </level>
 
-<level id=41 par=7 perfect=6>
+<level id=42 par=7 perfect=6>
 <attribution name="Two color beam objectives" author="John"/>
-<beamGoal color=1 count=7/>
-<beamGoal color=2 count=7/>
-2,glass,glass,1
+<beamGoal color=1 count=4/>
+<beamGoal color=2 count=4/>
 2,glass,glass,1
 2,e,e,1
 1,e,e,2
-1,e,e,2
-1,e,e,2
+1,glass,glass,2
 </level>
 
 
