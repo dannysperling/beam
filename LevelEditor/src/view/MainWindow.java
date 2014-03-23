@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
@@ -12,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -83,6 +86,15 @@ public class MainWindow extends JFrame {
 		sideBar.add(buttonClear);
 		sideBar.add(buttonNew);
 		sideBar.add(buttonFin);
+		///
+		buttonFin.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				new FinalizationWindow();
+			}
+			
+		});
 		///
 		this.setSize(800, 600);
 		this.add(mainPanel);
