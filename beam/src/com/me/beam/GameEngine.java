@@ -463,6 +463,7 @@ public class GameEngine implements ApplicationListener {
 			break;
 		case RESET:
 			resetCurrentLevel();
+			state = GameState.IDLE;
 			if (LOGGING){
 				resetTimes++;
 			}
