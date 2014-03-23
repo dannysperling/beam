@@ -1,5 +1,6 @@
 package com.me.beam;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -8,6 +9,10 @@ import java.util.List;
 import java.util.Set;
 
 import com.badlogic.gdx.Gdx;
+import com.me.beam.GameEngine;
+import com.me.beam.Laser;
+import com.me.beam.Piece;
+import com.me.beam.Tile;
 import com.me.beam.GameEngine.Color;
 
 public class Board {
@@ -49,21 +54,30 @@ public class Board {
 			}
 		}
 
-		int screenWidth = (int) (Gdx.graphics.getWidth() * (1 - GameEngine.sideEmptySize * 2));
-		int screenHeight = (int) (Gdx.graphics.getHeight() * (1 - GameEngine.topBarSize - GameEngine.botBarSize));
+		int screenWidth; 
+		int screenHeight;
+		if(Gdx.graphics == null){
+			screenWidth = 0;
+			screenHeight = 0;
+		} else {
+			screenWidth = (int) (Gdx.graphics.getWidth() * (1 - GameEngine.sideEmptySize * 2));
+			screenHeight = (int) (Gdx.graphics.getHeight() * (1 - GameEngine.topBarSize - GameEngine.botBarSize));
+		}
 
 		int maxWidth = (int) (screenWidth / width);
 		int maxHeight = (int) (screenHeight / height);
 
-		if (maxWidth < maxHeight) {
-			tileSize = maxWidth;
-			botLeftX = (int) (Gdx.graphics.getWidth() * GameEngine.sideEmptySize);
-			botLeftY = (int) (Gdx.graphics.getHeight() * GameEngine.botBarSize + (screenHeight - (tileSize * height)) / 2);
-		} else {
-			tileSize = maxHeight;
-			botLeftX = (int) (Gdx.graphics.getWidth()
-					* GameEngine.sideEmptySize + (screenWidth - (tileSize * width)) / 2);
-			botLeftY = (int) (Gdx.graphics.getHeight() * GameEngine.botBarSize);
+		if(Gdx.graphics != null){
+			if (maxWidth < maxHeight) {
+				tileSize = maxWidth;
+				botLeftX = (int) (Gdx.graphics.getWidth() * GameEngine.sideEmptySize);
+				botLeftY = (int) (Gdx.graphics.getHeight() * GameEngine.botBarSize + (screenHeight - (tileSize * height)) / 2);
+			} else {
+				tileSize = maxHeight;
+				botLeftX = (int) (Gdx.graphics.getWidth()
+						* GameEngine.sideEmptySize + (screenWidth - (tileSize * width)) / 2);
+				botLeftY = (int) (Gdx.graphics.getHeight() * GameEngine.botBarSize);
+			}
 		}
 
 	}
