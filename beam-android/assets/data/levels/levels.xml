@@ -376,4 +376,15 @@ glass,e,e,e,1
 1,e,e,2
 </level>
 
+<level id=45 par=16 perfect=12>
+<attribution name="" author="John"/>
+<beamGoal color=3 count=7/>
+glass,3,glass,e,glass,glass
+glass,glass,1,1,glass,glass
+glass,glass,e,glass,2,e
+1,e,e,painter_3,glass,1
+glass,glass,e,glass,2,e
+glass,glass,1,1,glass,glass
+glass,3,glass,e,glass,glass
+</level>
 
