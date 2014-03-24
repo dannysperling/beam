@@ -30,15 +30,19 @@ public class Solver {
 		 * 
 		 * LevelLoader levelLoader = new LevelLoader(level, numToSolve);
 		 */
-		LevelOrderer levelOrderer = new LevelOrderer("/Users/John/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levelOrder.txt", true);
-		LevelLoader levelLoader = new LevelLoader("/Users/John/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levels.xml", levelOrderer, true);
+		LevelOrderer levelOrderer = new LevelOrderer(
+				"C:\\Users/Douglas/workspace/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levelOrder.txt",
+				true);
+		LevelLoader levelLoader = new LevelLoader(
+				"C:\\Users/Douglas/workspace/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levels.xml",
+				levelOrderer, true);
 
 		int ordinal = 5;
 		int index = ordinal - 1;
 		Board toSolve = levelLoader.getLevel(index);
 		GameEngineForSolver solverEngine = new GameEngineForSolver();
 		Solver solver = new Solver(toSolve, solverEngine);
-		System.out.println(solver.getMovesNeeded());
+		System.out.println("Moves: " + solver.getMovesNeeded());
 	}
 
 	public Solver(Board board, GameEngineForSolver solverEngine) {
@@ -80,20 +84,22 @@ public class Solver {
 			return;
 		}
 
+		printBoard(pieces);
+
 		Set<Piece[][]> possibleMoves = getAllMoves(pieces);
-		int moves = table.get(pieces) + 1;
+		int moves = table.get(pieces);
 		if (moves > this.highestDepthPrinted) {
 			System.out.println(moves);
 			this.highestDepthPrinted = moves;
 		}
 		for (Piece[][] p : possibleMoves) {
-			addToQueue(p, moves);
+			addToQueue(p, moves + 1);
 		}
 	}
-	
+
 	private static void printBoard(Piece[][] pieces) {
-		for(int i = pieces[0].length - 1; i >= 0; i--) {
-			for(int j = 0; j < pieces.length; j++) {
+		for (int i = pieces[0].length - 1; i >= 0; i--) {
+			for (int j = 0; j < pieces.length; j++) {
 				if (pieces[j][i] == null) {
 					System.out.print("_");
 				} else {
@@ -162,8 +168,10 @@ public class Solver {
 				if (!this.board.isTilePassable(i, j, pieces)) {
 					continue;
 				}
-				if (solverEngine.formLasersFromPieceAndDestroy(this.board,
-						new Piece(i, j, color)).size() == 0) {
+				Piece p = new Piece(i, j, color);
+				if ((solverEngine.formLasersFromPieceAndDestroy(this.board, p)
+						.size() == 0)
+						&& solverEngine.checkIfPieceDestroyed(pieces, p)) {
 					ret.add(new Point(i, j));
 				}
 			}
@@ -184,7 +192,8 @@ public class Solver {
 		Set<Piece[][]> moveStates = new HashSet<Piece[][]>();
 
 		for (Point movePoint : moves) {
-			Piece[][] copy = new Piece[board.getNumHorizontalTiles()][board.getNumVerticalTiles()];
+			Piece[][] copy = new Piece[board.getNumHorizontalTiles()][board
+					.getNumVerticalTiles()];
 			for (int i = 0; i < copy.length; i++) {
 				for (int j = 0; j < copy[0].length; j++) {
 					copy[i][j] = pieces[i][j];

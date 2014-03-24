@@ -155,4 +155,79 @@ public class GameEngineForSolver {
 
 		return destroyed;
 	}
+	
+	public boolean checkIfPieceDestroyed(Piece[][] pieces, Piece p) {
+
+		// Check if p is destroyed. First, horizontally
+		Color leftColor = Color.NONE;
+		int xPos = p.getXCoord() - 1;
+		int yPos = p.getYCoord();
+
+		// Slide to left
+		for (; leftColor == Color.NONE && xPos >= 0; xPos--) {
+
+			Piece atLeft = pieces[xPos][yPos];
+
+			if (atLeft != null) {
+				leftColor = atLeft.getColor();
+			}
+		}
+
+		if (leftColor != Color.NONE && leftColor != p.getColor()) {
+			Color rightColor = Color.NONE;
+
+			xPos = p.getXCoord() + 1;
+
+			// Slide to the right
+			for (; rightColor == Color.NONE && xPos < pieces.length; xPos++) {
+
+				Piece atRight = pieces[xPos][yPos];
+
+				if (atRight != null) {
+					rightColor = atRight.getColor();
+				}
+			}
+			// Criss cross
+			if (leftColor == rightColor) {
+				return true;
+			}
+		}
+
+		// Now vertically
+		Color topColor = Color.NONE;
+		xPos = p.getXCoord();
+		yPos = p.getYCoord() - 1;
+
+		// Step up
+		for (; topColor == Color.NONE && yPos >= 0; yPos--) {
+
+			Piece atTop = pieces[xPos][yPos];
+
+			if (atTop != null) {
+				topColor = atTop.getColor();
+			}
+		}
+
+		if (topColor != Color.NONE && topColor != p.getColor()) {
+			Color botColor = Color.NONE;
+
+			yPos = p.getYCoord() + 1;
+
+			// Step down
+			for (; botColor == Color.NONE && yPos < pieces[0].length; yPos++) {
+
+				Piece atBot = pieces[xPos][yPos];
+
+				if (atBot != null) {
+					botColor = atBot.getColor();
+				}
+			}
+			// Criss cross
+			if (topColor == botColor) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 }
