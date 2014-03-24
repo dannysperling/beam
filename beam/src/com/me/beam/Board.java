@@ -1,6 +1,5 @@
 package com.me.beam;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -27,7 +26,7 @@ public class Board {
 
 	public int id; // ID in its levels file
 	public int par; // Good solution
-	public int perfect; //Optimal solution
+	public int perfect; // Optimal solution
 
 	private EnumMap<Color, Integer> beamObjectives = new EnumMap<Color, Integer>(
 			Color.class);
@@ -54,9 +53,9 @@ public class Board {
 			}
 		}
 
-		int screenWidth; 
+		int screenWidth;
 		int screenHeight;
-		if(Gdx.graphics == null){
+		if (Gdx.graphics == null) {
 			screenWidth = 0;
 			screenHeight = 0;
 		} else {
@@ -67,11 +66,12 @@ public class Board {
 		int maxWidth = (int) (screenWidth / width);
 		int maxHeight = (int) (screenHeight / height);
 
-		if(Gdx.graphics != null){
+		if (Gdx.graphics != null) {
 			if (maxWidth < maxHeight) {
 				tileSize = maxWidth;
 				botLeftX = (int) (Gdx.graphics.getWidth() * GameEngine.sideEmptySize);
-				botLeftY = (int) (Gdx.graphics.getHeight() * GameEngine.botBarSize + (screenHeight - (tileSize * height)) / 2);
+				botLeftY = (int) (Gdx.graphics.getHeight()
+						* GameEngine.botBarSize + (screenHeight - (tileSize * height)) / 2);
 			} else {
 				tileSize = maxHeight;
 				botLeftX = (int) (Gdx.graphics.getWidth()
@@ -110,7 +110,7 @@ public class Board {
 	public int getBeamObjectiveCount(Color c) {
 		return beamObjectives.get(c);
 	}
-	
+
 	public Piece[][] getPieces() {
 		return pieces;
 	}
@@ -146,7 +146,9 @@ public class Board {
 
 	/**
 	 * Attempts to remove a piece p, based on p's coordinates
-	 * @param p The piece to remove
+	 * 
+	 * @param p
+	 *            The piece to remove
 	 * @return Whether a piece was removed
 	 */
 	public boolean removePiece(Piece p) {
@@ -178,12 +180,17 @@ public class Board {
 	 * full (piece or glass)
 	 */
 	public boolean canMove(int x1, int y1, int x2, int y2) {
-		boolean ret = true;
-		ret &= (Math.abs(x1 - x2) == 1 & y1 == y2)
+		return arePlacesAdjacent(x1, y1, x2, y2)
+				&& isTilePassable(x2, y2, this.pieces);
+	}
+
+	private static boolean arePlacesAdjacent(int x1, int y1, int x2, int y2) {
+		return (Math.abs(x1 - x2) == 1 & y1 == y2)
 				| (Math.abs(y2 - y1) == 1 & x1 == x2);
-		ret &= !tiles[x2][y2].isGlass;
-		ret &= pieces[x2][y2] == null;
-		return ret;
+	}
+
+	public boolean isTilePassable(int x, int y, Piece[][] pieces) {
+		return !tiles[x][y].isGlass && pieces[x][y] == null;
 	}
 
 	public int getBotLeftX() {
@@ -223,7 +230,7 @@ public class Board {
 	public Piece getPieceOnTile(Tile t) {
 		return getPieceOnTile(t, this.pieces);
 	}
-	
+
 	public Piece getPieceOnTile(Tile t, Piece[][] pieces) {
 		return pieces[t.getXCoord()][t.getYCoord()];
 	}
@@ -231,7 +238,7 @@ public class Board {
 	public boolean isGoalMet(Tile t) {
 		return isGoalMet(t, this.pieces);
 	}
-	
+
 	public boolean isGoalMet(Tile t, Piece[][] pieces) {
 		return getPieceOnTile(t, pieces) != null
 				&& getPieceOnTile(t, pieces).getColor() == t.getGoalColor();
@@ -240,7 +247,7 @@ public class Board {
 	public int getNumGoalsFilled() {
 		return getNumGoalsFilled(this.pieces);
 	}
-	
+
 	public int getNumGoalsFilled(Piece[][] pieces) {
 		int goalsFilled = 0;
 		for (Tile t : goalTiles) {
@@ -284,21 +291,21 @@ public class Board {
 		}
 		return result;
 	}
-	
-	//Why does this exist? 
+
+	// Why does this exist?
 	public boolean isWon() {
 		return isWon(this.pieces);
 	}
-	
+
 	/**
-	 * Returns true iff all goal squares are full of the correct color
-	 *   and all beam goals are met. 
+	 * Returns true iff all goal squares are full of the correct color and all
+	 * beam goals are met.
 	 */
 	public boolean isWon(Piece[][] pieces) {
 		if (getNumGoalsFilled(pieces) != goalTiles.size()) {
 			return false;
 		}
-		//TODO: add support to solver for laser objective levels
+		// TODO: add support to solver for laser objective levels
 		for (Color c : getBeamObjectiveSet()) {
 			if (getLaserCount(c) != getBeamObjectiveCount(c)) {
 				return false;
