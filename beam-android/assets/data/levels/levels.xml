@@ -375,7 +375,7 @@ e,glass,e
 1,glass,glass,2
 </level>
 
-<level id=45 par=16 perfect=12>
+<level id=43 par=16 perfect=12>
 <attribution name="" author="John"/>
 <beamGoal color=3 count=7/>
 glass,3,glass,e,glass,glass
