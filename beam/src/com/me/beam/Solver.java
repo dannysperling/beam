@@ -10,7 +10,6 @@ import java.util.Set;
 
 import com.me.beam.GameEngine.Color;
 
-
 public class Solver {
 	private Map<Piece[][], Integer> table;
 	private List<Piece[][]> searchQueue;
@@ -19,22 +18,41 @@ public class Solver {
 	private boolean verticalSymmetry;
 	private boolean solved;
 	private Piece[][] solution;
-	private GameEngine gameEngine;
+	private GameEngineForSolver solverEngine;
 
-	public Solver(Board board, GameEngine gameEngine) {
+	public static void main(String[] args) {
+		/*
+		 * int numToSolve = 37; String level =
+		 * "<level id=37 par=2 perfect=1>\n<attribution name=\"Moving and goals\" "
+		 * + "author=\"John\"/>1,e,e\ne,e,e\ne,e,goal_1\n</level>\n";
+		 * 
+		 * 
+		 * LevelLoader levelLoader = new LevelLoader(level, numToSolve);
+		 */
+		LevelOrderer levelOrderer = new LevelOrderer("C:\\Users/Douglas/workspace/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levelOrder.txt", true);
+		LevelLoader levelLoader = new LevelLoader("C:\\Users/Douglas/workspace/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levels.xml", levelOrderer, true);
+
+		Board toSolve = levelLoader.getLevel(1);
+		GameEngineForSolver solverEngine = new GameEngineForSolver();
+		Solver solver = new Solver(toSolve, solverEngine);
+		System.out.println(solver.getMovesNeeded());
+	}
+
+	public Solver(Board board, GameEngineForSolver solverEngine) {
 		table = new HashMap<Piece[][], Integer>();
 		this.board = board;
 		setSymmetry();
 		searchQueue = new ArrayList<Piece[][]>();
 		this.solved = false;
 		this.solution = null;
-		this.gameEngine = gameEngine;
+		this.solverEngine = solverEngine;
 	}
 
 	public int getMovesNeeded() {
 		if (!solved) {
 			solve();
 		}
+		System.out.println(table.get(solution) == null);
 		return table.get(solution);
 	}
 
@@ -60,10 +78,19 @@ public class Solver {
 		}
 
 		Set<Piece[][]> possibleMoves = getAllMoves(pieces);
-		int moves = 0;
+		int moves = table.get(pieces);
 		for (Piece[][] p : possibleMoves) {
-			moves = table.get(p);
-			addToQueue(p, moves);
+			printBoard(p);
+			addToQueue(p, moves + 1);
+		}
+	}
+	
+	private void printBoard(Piece[][] pieces) {
+		for(int i = 0; i < pieces[0].length; i++) {
+			for(int j = pieces.length - 1; j >= 0; j--) {
+				System.out.print(pieces[i][j]);
+			}
+			System.out.println();
 		}
 	}
 
@@ -124,8 +151,8 @@ public class Solver {
 				if (!this.board.isTilePassable(i, j, pieces)) {
 					continue;
 				}
-				if (gameEngine.formLasersFromPieceAndDestroy(this.board,
-						new Piece(i, j, color), null, false).size() == 0) {
+				if (solverEngine.formLasersFromPieceAndDestroy(this.board,
+						new Piece(i, j, color)).size() == 0) {
 					ret.add(new Point(i, j));
 				}
 			}
@@ -142,7 +169,7 @@ public class Solver {
 		Set<Point> moves = getContiguousPoints(
 				getSafePlaces(pieces, p.getColor()),
 				new Point(p.getXCoord(), p.getYCoord()));
-		
+
 		Set<Piece[][]> moveStates = new HashSet<Piece[][]>();
 
 		for (Point movePoint : moves) {
@@ -161,7 +188,7 @@ public class Solver {
 		Set<Point> contiguousPoints = new HashSet<Point>();
 		List<Point> searchQueue = new ArrayList<Point>();
 		searchQueue.add(p);
-		
+
 		while (searchQueue.size() > 0) {
 			Point tempPoint = searchQueue.remove(0);
 			Point up = new Point(tempPoint.x, tempPoint.y + 1);

@@ -46,4 +46,16 @@ public class Piece {
 	public void setColor(GameEngine.Color color){
 		this.color = color;
 	}
+	
+	public String toString() {
+		if(color == GameEngine.Color.RED) {
+			return "R";
+		} else if(color == GameEngine.Color.GREEN) {
+			return "G";
+		} else if(color == GameEngine.Color.BLUE) {
+			return "B";
+		} else {
+			return "_";
+		}
+	}
 }

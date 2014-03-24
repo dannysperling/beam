@@ -1,5 +1,8 @@
 package com.me.beam;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.regex.*;
 
 import com.badlogic.gdx.Gdx;
@@ -9,14 +12,16 @@ import com.me.beam.GameEngine.Color;
 public class LevelLoader {
 	private String file;
 	private String FULL_LEVEL_REGEX = "(<level id=(\\d+) par=(\\d+) perfect=(\\d+)>)[\\s]+"
-			//+ "(<beamGoal color=(\\d+) count=(\\d+)/>)*[\\s]+"
+			// + "(<beamGoal color=(\\d+) count=(\\d+)/>)*[\\s]+"
 			+ "((.*\\n)+?)(</level>)";
-	//Regex groups because named capture isn't supported on Android
+	// Regex groups because named capture isn't supported on Android
 	private static final int IDgroup = 2;
 	private static final int PARgroup = 3;
 	private static final int PERFECTgroup = 4;
-	
+
 	private LevelOrderer orderer;
+
+	private boolean ioFile;
 
 	/**
 	 * Create a LeveLoader for the given file. Any FileNotFound or IO exceptions
@@ -25,13 +30,19 @@ public class LevelLoader {
 	 * @param fn
 	 *            The path to the level file
 	 * @param fon
-	 * 			  The path to the fileOrder file
+	 *            The path to the fileOrder file
 	 */
 	public LevelLoader(String fn, LevelOrderer levelOrderer) {
 		file = fn;
 		orderer = levelOrderer;
 	}
-	
+
+	public LevelLoader(String fn, LevelOrderer levelOrderer, boolean pointless) {
+		file = fn;
+		orderer = levelOrderer;
+		this.ioFile = true;
+	}
+
 	/**
 	 * Load the level from file with the given id
 	 * 
@@ -40,10 +51,10 @@ public class LevelLoader {
 	 * @return null if id was not found or level was malformed.
 	 */
 	public Board getLevel(int ordinal) {
-		
+
 		int id = orderer.getUniqueId(ordinal);
 		GameEngine.debug("Looking for level " + id);
-		
+
 		String spec = findLevelByID(id);
 		GameEngine.debug("Level spec: \n" + spec);
 		if (spec == null)
@@ -55,7 +66,7 @@ public class LevelLoader {
 		return b;
 	}
 
-	//Abandon hope, all ye who try and read this
+	// Abandon hope, all ye who try and read this
 	private Board buildBoard(String spec) {
 		Pattern pat = Pattern.compile(FULL_LEVEL_REGEX, Pattern.UNIX_LINES);
 		Matcher match = pat.matcher(spec.trim());
@@ -78,7 +89,7 @@ public class LevelLoader {
 				return null;
 			for (int x = 0; x < width; x++) {
 				String cell = cols[x];
-				Tile t = new Tile(x, height-1-y);
+				Tile t = new Tile(x, height - 1 - y);
 				Piece p = null;
 				String[] contents = cell.split(":");
 				for (String s : contents) {
@@ -96,43 +107,59 @@ public class LevelLoader {
 						t.setPainter(Color.lookup(Integer.parseInt(s
 								.substring("painter_".length()))));
 					} else {
-						p = new Piece(x, height-1-y, Color.lookup(Integer.parseInt(s)));
+						p = new Piece(x, height - 1 - y, Color.lookup(Integer
+								.parseInt(s)));
 					}
 				}
-				tiles[x][height-1-y] = t;
-				pieces[x][height-1-y] = p;
+				tiles[x][height - 1 - y] = t;
+				pieces[x][height - 1 - y] = p;
 			}
 		}
 		int id = Integer.parseInt(match.group(IDgroup));
 		int perfect = Integer.parseInt(match.group(PERFECTgroup));
 		int par = Integer.parseInt(match.group(PARgroup));
 		Board b = new Board(tiles, pieces, id, perfect, par);
-		processBeamGoals(b,match.group());
+		processBeamGoals(b, match.group());
 		return b;
 	}
 
 	private void processBeamGoals(Board b, String group) {
-		Pattern pat = Pattern.compile("<beamGoal\\s*color=(\\d+)\\s*count=(\\d+)/>");
+		Pattern pat = Pattern
+				.compile("<beamGoal\\s*color=(\\d+)\\s*count=(\\d+)/>");
 		Matcher mat = pat.matcher(group);
-		while (mat.find()){
+		while (mat.find()) {
 			Color color = Color.lookup(Integer.parseInt(mat.group(1)));
 			int count = Integer.parseInt(mat.group(2));
 			b.addBeamObjective(color, count);
 		}
-		
+
 	}
 
 	private String extractBoard(String group) {
-		Pattern pat = Pattern.compile(">\\s*\\n([^><]*?)</l",Pattern.UNIX_LINES);
+		Pattern pat = Pattern.compile(">\\s*\\n([^><]*?)</l",
+				Pattern.UNIX_LINES);
 		Matcher mat = pat.matcher(group);
 		mat.find();
-		GameEngine.debug("Extracted board:\n"+mat.group(1));
+		GameEngine.debug("Extracted board:\n" + mat.group(1));
 		return mat.group(1);
 	}
 
 	private String findLevelByID(int id) {
-		FileHandle fh = Gdx.files.internal(file);
-		String text = fh.readString();
+		String text = "";
+		if (!ioFile) {
+			FileHandle fh = Gdx.files.internal(file);
+			text = fh.readString();
+		} else {
+			try {
+				BufferedReader reader = new BufferedReader(new FileReader(file));
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					text += line + "\n";
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		Pattern pat = Pattern.compile("<level(.|\n)*?/level>",
 				Pattern.UNIX_LINES);
 		Matcher match = pat.matcher(text);
