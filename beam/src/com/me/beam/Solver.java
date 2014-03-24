@@ -33,12 +33,12 @@ public class Solver {
 		LevelOrderer levelOrderer = new LevelOrderer("/Users/John/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levelOrder.txt", true);
 		LevelLoader levelLoader = new LevelLoader("/Users/John/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levels.xml", levelOrderer, true);
 
-		int ordinal = 5;
+		int ordinal = 12;
 		int index = ordinal - 1;
 		Board toSolve = levelLoader.getLevel(index);
 		GameEngineForSolver solverEngine = new GameEngineForSolver();
 		Solver solver = new Solver(toSolve, solverEngine);
-		System.out.println(solver.getMovesNeeded());
+		System.out.println("Moves: " + solver.getMovesNeeded());
 	}
 
 	public Solver(Board board, GameEngineForSolver solverEngine) {
@@ -79,15 +79,15 @@ public class Solver {
 			this.solution = pieces;
 			return;
 		}
-
+		//printBoard(pieces);
 		Set<Piece[][]> possibleMoves = getAllMoves(pieces);
-		int moves = table.get(pieces) + 1;
+		int moves = table.get(pieces);
 		if (moves > this.highestDepthPrinted) {
 			System.out.println(moves);
 			this.highestDepthPrinted = moves;
 		}
 		for (Piece[][] p : possibleMoves) {
-			addToQueue(p, moves);
+			addToQueue(p, moves + 1);
 		}
 	}
 	
@@ -162,7 +162,7 @@ public class Solver {
 				if (!this.board.isTilePassable(i, j, pieces)) {
 					continue;
 				}
-				if (solverEngine.formLasersFromPieceAndDestroy(this.board,
+				if (solverEngine.formLasersFromPieceAndDestroy(pieces,
 						new Piece(i, j, color)).size() == 0) {
 					ret.add(new Point(i, j));
 				}
