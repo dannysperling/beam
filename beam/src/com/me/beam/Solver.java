@@ -19,6 +19,7 @@ public class Solver {
 	private boolean solved;
 	private Piece[][] solution;
 	private GameEngineForSolver solverEngine;
+	private int highestDepthPrinted;
 
 	public static void main(String[] args) {
 		/*
@@ -29,10 +30,12 @@ public class Solver {
 		 * 
 		 * LevelLoader levelLoader = new LevelLoader(level, numToSolve);
 		 */
-		LevelOrderer levelOrderer = new LevelOrderer("C:\\Users/Douglas/workspace/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levelOrder.txt", true);
-		LevelLoader levelLoader = new LevelLoader("C:\\Users/Douglas/workspace/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levels.xml", levelOrderer, true);
+		LevelOrderer levelOrderer = new LevelOrderer("/Users/John/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levelOrder.txt", true);
+		LevelLoader levelLoader = new LevelLoader("/Users/John/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levels.xml", levelOrderer, true);
 
-		Board toSolve = levelLoader.getLevel(1);
+		int ordinal = 5;
+		int index = ordinal - 1;
+		Board toSolve = levelLoader.getLevel(index);
 		GameEngineForSolver solverEngine = new GameEngineForSolver();
 		Solver solver = new Solver(toSolve, solverEngine);
 		System.out.println(solver.getMovesNeeded());
@@ -46,13 +49,13 @@ public class Solver {
 		this.solved = false;
 		this.solution = null;
 		this.solverEngine = solverEngine;
+		this.highestDepthPrinted = 0;
 	}
 
 	public int getMovesNeeded() {
 		if (!solved) {
 			solve();
 		}
-		System.out.println(table.get(solution) == null);
 		return table.get(solution);
 	}
 
@@ -78,20 +81,28 @@ public class Solver {
 		}
 
 		Set<Piece[][]> possibleMoves = getAllMoves(pieces);
-		int moves = table.get(pieces);
+		int moves = table.get(pieces) + 1;
+		if (moves > this.highestDepthPrinted) {
+			System.out.println(moves);
+			this.highestDepthPrinted = moves;
+		}
 		for (Piece[][] p : possibleMoves) {
-			printBoard(p);
-			addToQueue(p, moves + 1);
+			addToQueue(p, moves);
 		}
 	}
 	
-	private void printBoard(Piece[][] pieces) {
-		for(int i = 0; i < pieces[0].length; i++) {
-			for(int j = pieces.length - 1; j >= 0; j--) {
-				System.out.print(pieces[i][j]);
+	private static void printBoard(Piece[][] pieces) {
+		for(int i = pieces[0].length - 1; i >= 0; i--) {
+			for(int j = 0; j < pieces.length; j++) {
+				if (pieces[j][i] == null) {
+					System.out.print("_");
+				} else {
+					System.out.print(pieces[j][i]);
+				}
 			}
 			System.out.println();
 		}
+		System.out.println();
 	}
 
 	private void addToQueue(Piece[][] pieces, int moves) {
@@ -173,7 +184,12 @@ public class Solver {
 		Set<Piece[][]> moveStates = new HashSet<Piece[][]>();
 
 		for (Point movePoint : moves) {
-			Piece[][] copy = pieces.clone();
+			Piece[][] copy = new Piece[board.getNumHorizontalTiles()][board.getNumVerticalTiles()];
+			for (int i = 0; i < copy.length; i++) {
+				for (int j = 0; j < copy[0].length; j++) {
+					copy[i][j] = pieces[i][j];
+				}
+			}
 			int x = movePoint.x;
 			int y = movePoint.y;
 			copy[x][y] = new Piece(x, y, p.getColor());
