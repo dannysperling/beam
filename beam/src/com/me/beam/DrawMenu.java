@@ -1,5 +1,7 @@
 package com.me.beam;
 
+import java.util.List;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
@@ -9,81 +11,96 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
 public class DrawMenu {
-	
-	
+
 	private Menu menu;
-	private BitmapFont menuFont;
 	private BitmapFont numberFont;
 	private SpriteBatch batch;
-	
+
 	public DrawMenu(Menu menu){
 		this.menu = menu;
 		batch = new SpriteBatch();
 		initFonts();
 	}
-	
-	public void draw(){
+
+	public void draw(DrawGame dg, List<Board> boardList, Board curBoard, int curLevel){
 		Gdx.gl.glClearColor(.1f, .1f, .1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		
-		int scrolled = menu.getScrollAmount();
+
+		int verticalScrolled = menu.getVerticalScrollAmount();
 		int height = Gdx.graphics.getHeight();
 		int width = Gdx.graphics.getWidth();
-		int itemHeight = (int)(Gdx.graphics.getHeight() * Menu.menuItemHeight);
-		int itemTopY = (scrolled + 1) % itemHeight + height;
-		int itemOrdinal = menu.getLevelAtPosition(height);
-		
+		int itemHeight = menu.getItemHeight();
+		int itemWidth = menu.getItemWidth();
+		int itemTopY = (verticalScrolled + 1) % itemHeight + height;
+		int world = menu.getWorldAtPosition(height);
+
 		TextBounds tb;
-		
+
 		//Loop until the item wouldn't show at all
-		batch.begin();
-		String levelInfo;
 		String stringOrdinal;
 		while(itemTopY > 0){
-			//Draw the level number off to the left
-			if (!menu.isUnlocked(itemOrdinal)){
-				levelInfo = "LOCKED";
-				menuFont.setColor(Color.RED);
-				numberFont.setColor(Color.RED);
-			} else {
-				int bestMoves = menu.getLevelMoves(itemOrdinal);
-				if (bestMoves != -1){
-					int stars = menu.getLevelStars(itemOrdinal);
-					levelInfo = "Your Best: " + bestMoves + " moves. " + stars + " star";
-					levelInfo += (stars == 1)? "." : "s.";
-					menuFont.setColor(Color.GREEN);
-					numberFont.setColor(Color.GREEN);
-				} else {
-					levelInfo = "Incomplete";
-					menuFont.setColor(new Color(.133f, .337f, 1, 1));
-					numberFont.setColor(new Color(.133f, .337f, 1, 1));
+		
+			//Ensure world in bounds
+			if (menu.worldInBounds(world)){
+				//Loop through horizontally as well
+				int horizontalScrolled = menu.getHorizontalScrollAmount(world);
+				int itemLeftX = -(horizontalScrolled % itemWidth);
+				int itemBotY = itemTopY - itemHeight;
+				int ordinal = menu.getLevelAtPosition(itemLeftX + itemWidth / 2, itemTopY - itemHeight / 2);
+				
+				while (itemLeftX < width - 1){
+					//Ensure ordinal in bounds
+					if (ordinal != -1){
+						//Figure out how to draw the item
+						if (!menu.isUnlocked(ordinal)){
+							numberFont.setColor(Color.RED);
+						} else {
+							int bestMoves = menu.getLevelMoves(ordinal);
+							if (bestMoves != -1){
+								numberFont.setColor(Color.GREEN);
+							} else {
+								numberFont.setColor(new Color(.133f, .337f, 1, 1));
+							}
+						}
+						
+						//Either draw current state or entire board
+						Board b = (ordinal == curLevel) ? curBoard : boardList.get(ordinal);
+						
+						// Get board dimensions
+						Color curBG = new Color(.1f, .1f, .1f, 1);
+						int by = (int)((1 - menu.boardHeightPercent) / 4 * itemHeight + itemBotY);
+						int tilesize = (int)(menu.boardHeightPercent * itemHeight / b.getNumVerticalTiles());
+						int bx = (itemWidth - tilesize * b.getNumHorizontalTiles()) / 2 + itemLeftX;
+						
+						dg.drawBoard(b, bx, by, tilesize, curBG);
+						
+						//Draw number on top
+						batch.begin();
+						stringOrdinal = (world + 1) + "-" + menu.getPositionInWorld(ordinal);
+						tb = numberFont.getBounds(stringOrdinal);
+						numberFont.draw(batch, stringOrdinal, itemLeftX + (itemWidth - tb.width)/2, 
+								itemTopY - ((itemHeight * (1-menu.boardHeightPercent) * 3/4) - tb.height) / 2);
+						batch.end();
+					}
+					
+					itemLeftX += itemWidth;
+					ordinal = menu.getLevelAtPosition(itemLeftX + itemWidth / 2, itemTopY - itemHeight / 2);
 				}
 			}
-			tb = menuFont.getBounds(levelInfo);
-			menuFont.drawMultiLine(batch, levelInfo, (width * 0.30f), 
-					itemTopY - (height * Menu.menuItemHeight - tb.height)/2);
-			
-			stringOrdinal = (itemOrdinal + 1) + "";
-			tb = numberFont.getBounds(stringOrdinal);
-			numberFont.draw(batch, stringOrdinal, (width * 0.2f - tb.width)/2 + width*0.05f, 
-					itemTopY - ((height * Menu.menuItemHeight) - tb.height)/2);
-			
-			//Increment the botY and the ordinal
+
 			itemTopY -= itemHeight;
-			itemOrdinal++;
+			world++;
 		}
-		batch.end();
 	}
-	
+
 	public void dispose(){
-		
+
 	}
 
 	//Initializes menu fonts
 	public void initFonts() {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("data/fonts/swanse.ttf"));
-		menuFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Menu.menuItemHeight / 5));
-		numberFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Menu.menuItemHeight / 1.5f));
+		numberFont = generator.generateFont((int) (menu.getItemHeight() * (1 - menu.boardHeightPercent) / 2));
 		generator.dispose();
 	}
 }

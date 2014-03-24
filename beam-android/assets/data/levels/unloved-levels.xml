@@ -32,3 +32,15 @@ goal_2,2,2,goal_2
 2,goal_1,goal_1,1
 goal_2,1,1,goal_2
 </level>
+
+<level id=41 par=7 perfect=6>
+<attribution name="Two color beam objectives" author="John"/>
+<beamGoal color=1 count=7/>
+<beamGoal color=2 count=7/>
+2,glass,glass,1
+2,glass,glass,1
+2,e,e,1
+1,e,e,2
+1,e,e,2
+1,e,e,2
+</level>
