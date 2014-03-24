@@ -37,7 +37,7 @@ public class Solver {
 				"C:\\Users/Douglas/workspace/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levels.xml",
 				levelOrderer, true);
 
-		int ordinal = 5;
+		int ordinal = 3;
 		int index = ordinal - 1;
 		Board toSolve = levelLoader.getLevel(index);
 		GameEngineForSolver solverEngine = new GameEngineForSolver();
@@ -84,8 +84,7 @@ public class Solver {
 			return;
 		}
 
-		printBoard(pieces);
-
+		//printBoard(pieces);
 		Set<Piece[][]> possibleMoves = getAllMoves(pieces);
 		int moves = table.get(pieces);
 		if (moves > this.highestDepthPrinted) {
@@ -169,9 +168,9 @@ public class Solver {
 					continue;
 				}
 				Piece p = new Piece(i, j, color);
-				if ((solverEngine.formLasersFromPieceAndDestroy(this.board, p)
+				if ((solverEngine.formLasersFromPieceAndDestroy(pieces, p)
 						.size() == 0)
-						&& solverEngine.checkIfPieceDestroyed(pieces, p)) {
+						&& !solverEngine.checkIfPieceDestroyed(pieces, p)) {
 					ret.add(new Point(i, j));
 				}
 			}

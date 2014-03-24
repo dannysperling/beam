@@ -13,7 +13,7 @@ public class GameEngineForSolver {
 	
 	public GameEngineForSolver() {}
 
-	public List<Piece> formLasersFromPieceAndDestroy(Board board, Piece p) {
+	public List<Piece> formLasersFromPieceAndDestroy(Piece[][] pieces, Piece p) {
 
 		boolean horizontalMove = false;
 		
@@ -23,7 +23,7 @@ public class GameEngineForSolver {
 		List<Piece> possibleDestroy = new ArrayList<Piece>();
 
 		// Check for left pieces
-		Tile leftSameColor = null;
+		Piece leftSameColor = null;
 
 		int xPos = p.getXCoord() - 1;
 		int yPos = p.getYCoord();
@@ -32,13 +32,12 @@ public class GameEngineForSolver {
 
 		// Slide to the left
 		for (; leftSameColor == null && xPos >= 0; xPos--) {
-			Piece possible = board.getPieceOnTile(board.getTileAtBoardPosition(
-					xPos, yPos));
+			Piece possible = pieces[xPos][yPos];
 
 			// There's a piece there
 			if (possible != null) {
 				if (possible.getColor() == p.getColor()) {
-					leftSameColor = board.getTileAtBoardPosition(xPos, yPos);
+					leftSameColor = pieces[xPos][yPos];
 					destroyed.addAll(possibleDestroy);
 					possibleFormed = new Laser(xPos, yPos, p.getXCoord(),
 							p.getYCoord(), p.getColor());
@@ -51,19 +50,18 @@ public class GameEngineForSolver {
 		possibleDestroy.clear();
 
 		// Check for right colored pieces
-		Tile rightSameColor = null;
+		Piece rightSameColor = null;
 		xPos = p.getXCoord() + 1;
 
 		// Slide to the right
-		for (; rightSameColor == null && xPos < board.getNumHorizontalTiles(); xPos++) {
+		for (; rightSameColor == null && xPos < pieces.length; xPos++) {
 
-			Piece possible = board.getPieceOnTile(board.getTileAtBoardPosition(
-					xPos, yPos));
+			Piece possible = pieces[xPos][yPos];
 
 			// There's a piece there
 			if (possible != null) {
 				if (possible.getColor() == p.getColor()) {
-					rightSameColor = board.getTileAtBoardPosition(xPos, yPos);
+					rightSameColor = pieces[xPos][yPos];
 					destroyed.addAll(possibleDestroy);
 					possibleFormed = new Laser(p.getXCoord(), p.getYCoord(),
 							xPos, yPos, p.getColor());
@@ -91,20 +89,19 @@ public class GameEngineForSolver {
 		// Now do vertical!
 
 		// Check for bot pieces
-		Tile botSameColor = null;
+		Piece botSameColor = null;
 
 		xPos = p.getXCoord();
 		yPos = p.getYCoord() - 1;
 
 		// Slide down
 		for (; botSameColor == null && yPos >= 0; yPos--) {
-			Piece possible = board.getPieceOnTile(board.getTileAtBoardPosition(
-					xPos, yPos));
+			Piece possible = pieces[xPos][yPos];
 
 			// There's a piece there
 			if (possible != null) {
 				if (possible.getColor() == p.getColor()) {
-					botSameColor = board.getTileAtBoardPosition(xPos, yPos);
+					botSameColor = pieces[xPos][yPos];
 					destroyed.addAll(possibleDestroy);
 					possibleFormed = new Laser(xPos, yPos, p.getXCoord(),
 							p.getYCoord(), p.getColor());
@@ -118,20 +115,19 @@ public class GameEngineForSolver {
 		possibleDestroy.clear();
 
 		// Check for right colored pieces
-		Tile topSameColor = null;
+		Piece topSameColor = null;
 
 		yPos = p.getYCoord() + 1;
 
 		// Slide up
-		for (; topSameColor == null && yPos < board.getNumVerticalTiles(); yPos++) {
+		for (; topSameColor == null && yPos < pieces[0].length; yPos++) {
 
-			Piece possible = board.getPieceOnTile(board.getTileAtBoardPosition(
-					xPos, yPos));
+			Piece possible = pieces[xPos][yPos];
 
 			// There's a piece there
 			if (possible != null) {
 				if (possible.getColor() == p.getColor()) {
-					topSameColor = board.getTileAtBoardPosition(xPos, yPos);
+					topSameColor = pieces[xPos][yPos];
 					destroyed.addAll(possibleDestroy);
 					possibleFormed = new Laser(p.getXCoord(), p.getYCoord(),
 							xPos, yPos, p.getColor());
