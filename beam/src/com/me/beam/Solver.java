@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.me.beam.GameEngine.Color;
 
+
 public class Solver {
 	private Map<Piece[][], Integer> table;
 	private List<Piece[][]> searchQueue;
@@ -57,7 +58,13 @@ public class Solver {
 			this.solution = pieces;
 			return;
 		}
-		// TODO:
+
+		Set<Piece[][]> possibleMoves = getAllMoves(pieces);
+		int moves = 0;
+		for (Piece[][] p : possibleMoves) {
+			moves = table.get(p);
+			addToQueue(p, moves);
+		}
 	}
 
 	private void addToQueue(Piece[][] pieces, int moves) {
@@ -81,6 +88,18 @@ public class Solver {
 	private Piece[][] reflectVertically(Piece[][] pieces) {
 		// TODO: support symmetry
 		return pieces;
+	}
+
+	private Set<Piece[][]> getAllMoves(Piece[][] pieces) {
+		Set<Piece[][]> newStates = new HashSet<Piece[][]>();
+		for (int i = 0; i < pieces.length; i++) {
+			for (int j = 0; j < pieces[i].length; j++) {
+				if (pieces[i][j] != null) {
+					newStates.addAll(getMoves(pieces, pieces[i][j]));
+				}
+			}
+		}
+		return newStates;
 	}
 
 	private void setMovesToReach(Piece[][] pieces, int moves) {
