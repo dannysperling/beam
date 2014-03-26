@@ -3,6 +3,7 @@ package com.me.beam;
 import java.awt.Point;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -11,48 +12,34 @@ import java.util.Set;
 import com.me.beam.GameEngine.Color;
 
 public class Solver {
-	private Map<Piece[][], Integer> table;
+	private Map<String, Integer> table;
 	private List<Piece[][]> searchQueue;
 	private Board board;
 	private boolean horizontalSymmetry;
 	private boolean verticalSymmetry;
 	private boolean solved;
 	private Piece[][] solution;
-	private GameEngineForSolver solverEngine;
 	private int highestDepthPrinted;
 
 	public static void main(String[] args) {
-		/*
-		 * int numToSolve = 37; String level =
-		 * "<level id=37 par=2 perfect=1>\n<attribution name=\"Moving and goals\" "
-		 * + "author=\"John\"/>1,e,e\ne,e,e\ne,e,goal_1\n</level>\n";
-		 * 
-		 * 
-		 * LevelLoader levelLoader = new LevelLoader(level, numToSolve);
-		 */
-		LevelOrderer levelOrderer = new LevelOrderer(
-				"C:\\Users/Douglas/workspace/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levelOrder.txt",
-				true);
-		LevelLoader levelLoader = new LevelLoader(
-				"C:\\Users/Douglas/workspace/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levels.xml",
-				levelOrderer, true);
+		LevelOrderer levelOrderer = new LevelOrderer("../beam-android/assets/data/levels/levelOrder.txt", true);
+		LevelLoader levelLoader = new LevelLoader("../beam-android/assets/data/levels/levels.xml", levelOrderer, true);
 
-		int ordinal = 3;
+		int ordinal = 1;
 		int index = ordinal - 1;
 		Board toSolve = levelLoader.getLevel(index);
-		GameEngineForSolver solverEngine = new GameEngineForSolver();
-		Solver solver = new Solver(toSolve, solverEngine);
+		System.out.println("Solving level: " + ordinal);
+		Solver solver = new Solver(toSolve);
 		System.out.println("Moves: " + solver.getMovesNeeded());
 	}
 
-	public Solver(Board board, GameEngineForSolver solverEngine) {
-		table = new HashMap<Piece[][], Integer>();
+	public Solver(Board board) {
+		table = new HashMap<String, Integer>();
 		this.board = board;
 		setSymmetry();
-		searchQueue = new ArrayList<Piece[][]>();
+		searchQueue = new LinkedList<Piece[][]>();
 		this.solved = false;
 		this.solution = null;
-		this.solverEngine = solverEngine;
 		this.highestDepthPrinted = 0;
 	}
 
@@ -60,7 +47,12 @@ public class Solver {
 		if (!solved) {
 			solve();
 		}
-		return table.get(solution);
+		Integer movesNeeded = safeGet(solution);
+		if (movesNeeded == null) {
+			return -1;
+		} else {
+			return movesNeeded.intValue();
+		}
 	}
 
 	public Piece[][] getSolution() {
@@ -86,32 +78,56 @@ public class Solver {
 
 		//printBoard(pieces);
 		Set<Piece[][]> possibleMoves = getAllMoves(pieces);
-		int moves = table.get(pieces);
+		int moves = safeGet(pieces);
 		if (moves > this.highestDepthPrinted) {
-			System.out.println(moves);
+			System.out.println("At least " + moves + " moves with " + table.size() + " positions evaluated.");
 			this.highestDepthPrinted = moves;
 		}
 		for (Piece[][] p : possibleMoves) {
 			addToQueue(p, moves + 1);
 		}
 	}
-
-	private static void printBoard(Piece[][] pieces) {
+	
+	private static String piecesString(Piece[][] pieces) {
+		String temp = "";
 		for (int i = pieces[0].length - 1; i >= 0; i--) {
 			for (int j = 0; j < pieces.length; j++) {
 				if (pieces[j][i] == null) {
-					System.out.print("_");
+					temp += "_";
 				} else {
-					System.out.print(pieces[j][i]);
+					temp += pieces[j][i].toString();
 				}
 			}
-			System.out.println();
+			temp += "\n";
 		}
-		System.out.println();
+		return temp;
+	}
+	
+	private static String piecesStringDense(Piece[][] pieces) {
+		String temp = "";
+		int count = 0;
+		for (int i = pieces[0].length - 1; i >= 0; i--) {
+			for (int j = 0; j < pieces.length; j++) {
+				if (pieces[j][i] == null) {
+					count++;
+				} else {
+					if (count > 0) {
+						temp += count;
+						count = 0;
+					}
+					temp += pieces[j][i].toString();
+				}
+			}
+		}
+		return temp;
+	}
+
+	private static void printPieces(Piece[][] pieces) {
+		System.out.println(piecesString(pieces));
 	}
 
 	private void addToQueue(Piece[][] pieces, int moves) {
-		if (table.get(pieces) == null) {
+		if (safeGet(pieces) == null) {
 			searchQueue.add(pieces);
 			setMovesToReach(pieces, moves);
 		}
@@ -144,18 +160,26 @@ public class Solver {
 		}
 		return newStates;
 	}
+	
+	private Integer safeGet(Piece[][] pieces) {
+		return table.get(piecesStringDense(pieces));
+	}
+	
+	private void safePut(Piece[][] pieces, int moves) {
+		table.put(piecesStringDense(pieces), moves);
+	}
 
 	private void setMovesToReach(Piece[][] pieces, int moves) {
-		table.put(pieces, moves);
+		safePut(pieces, moves);
 		if (horizontalSymmetry) {
 			Piece[][] horizontallyReflectedPieces = reflectHorizontally(pieces);
-			table.put(horizontallyReflectedPieces, moves);
+			safePut(horizontallyReflectedPieces, moves);
 			if (verticalSymmetry) {
-				table.put(reflectVertically(horizontallyReflectedPieces), moves);
-				table.put(reflectVertically(pieces), moves);
+				safePut(reflectVertically(horizontallyReflectedPieces), moves);
+				safePut(reflectVertically(pieces), moves);
 			}
 		} else if (verticalSymmetry) {
-			table.put(reflectVertically(pieces), moves);
+			safePut(reflectVertically(pieces), moves);
 		}
 	}
 
@@ -168,9 +192,9 @@ public class Solver {
 					continue;
 				}
 				Piece p = new Piece(i, j, color);
-				if ((solverEngine.formLasersFromPieceAndDestroy(pieces, p)
+				if ((formLasersFromPieceAndDestroy(pieces, p)
 						.size() == 0)
-						&& !solverEngine.checkIfPieceDestroyed(pieces, p)) {
+						&& !checkIfPieceDestroyed(pieces, p)) {
 					ret.add(new Point(i, j));
 				}
 			}
