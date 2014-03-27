@@ -48,15 +48,17 @@ public class DrawMenu {
 				int itemBotY = itemTopY - itemHeight;
 				int ordinal = menu.getLevelAtPosition(itemLeftX + itemWidth / 2, itemTopY - itemHeight / 2);
 				
+				boolean worldUnlocked = menu.isWorldUnlocked(world);
+				
 				while (itemLeftX < width - 1){
 					//Ensure ordinal in bounds
 					if (ordinal != -1){
 						//Figure out how to draw the item
-						if (!menu.isUnlocked(ordinal)){
+						if (!worldUnlocked || (menu.isBonus(world, ordinal) && !menu.isBonusLevelUnlocked(world))){
 							numberFont.setColor(Color.RED);
 						} else {
 							int bestMoves = menu.getLevelMoves(ordinal);
-							if (bestMoves != -1){
+							if (bestMoves != 0){
 								numberFont.setColor(Color.GREEN);
 							} else {
 								numberFont.setColor(new Color(.133f, .337f, 1, 1));
