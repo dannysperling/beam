@@ -16,6 +16,7 @@ public class LevelOrderer {
 
 	private List<Integer> mapping = new ArrayList<Integer>();
 	private List<Integer> worldSizes = new ArrayList<Integer>();
+	private List<Integer> worldStartIndices = new ArrayList<Integer>();
 
 	// Initializes the level orderer with the correct file
 	public LevelOrderer(String fon) {
@@ -40,6 +41,10 @@ public class LevelOrderer {
 				}
 			}
 			worldSizes.add(numInWorld);
+		}
+		worldStartIndices.add(0);
+		for (int i = 0; i < worldSizes.size() - 1; i++){
+			worldStartIndices.add(worldStartIndices.get(i) + worldSizes.get(i));
 		}
 	}
 
@@ -89,6 +94,10 @@ public class LevelOrderer {
 
 	public List<Integer> getWorldSizes() {
 		return worldSizes;
+	}
+	
+	public List<Integer> getWorldStartIndices(){
+		return worldStartIndices;
 	}
 
 	// Get the map in reverse for purposes of populating save game file

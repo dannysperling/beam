@@ -1,5 +1,6 @@
 package com.me.beam;
 
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,9 +22,12 @@ public class GameProgress {
 	private int playMusic;
 	private int playFX;
 
-	private int highestUnlockedLevel;
-
 	private LevelOrderer levelOrderer;
+	
+	//Number of stars, per level, needed to unlock either the next world or the
+	//bonus level for a given world
+	private final int WORLD_UNLOCK_STARS = 2;
+	private final int BONUS_UNLOCK_STARS = 3;
 
 	public GameProgress(LevelOrderer levelOrderer){
 		saveFile = Gdx.files.local(fileString);
@@ -45,14 +49,11 @@ public class GameProgress {
 		xmlTags = new String[numLevels];
 		uniqueIds = new int[numLevels];
 		for (int i = 0; i < numLevels; i++){
-			scores[i] = -1;
-			stars[i] = -1;
+			scores[i] = 0;
+			stars[i] = 0;
 			xmlTags[i] = "";
 			uniqueIds[i] = -1;
 		}
-
-		//First three levels originally unlocked
-		highestUnlockedLevel = 2;
 
 		load();
 	}
@@ -62,13 +63,10 @@ public class GameProgress {
 		if (GameEngine.LOGGING){
 			Logger.log(LogType.BEAT_LEVEL_MOVES, moves);
 		}
-		if (scores[ordinal] == -1 || moves < scores[ordinal]){
+		if (scores[ordinal] == 0 || moves < scores[ordinal]){
 			//Only store stars if better moves
 			if (GameEngine.LOGGING){
 				Logger.log(LogType.BEAT_LEVEL_STARS, levelStars);
-			}
-			if (scores[ordinal] == -1){
-				highestUnlockedLevel++;
 			}
 			uniqueIds[ordinal] = levelOrderer.getUniqueId(ordinal);
 			scores[ordinal] = moves;
@@ -87,17 +85,68 @@ public class GameProgress {
 		saveFile.writeString("<sound music=1 fx=1/>\n", false);
 		init();
 	}
-
-	public boolean isUnlocked(int ordinal){
-		return (ordinal <= highestUnlockedLevel);
+	
+	//Returns the number of stars in the progress for the current world
+	//Returns -1 if world is out of bounds
+	public int getBaseWorldStars(int world){
+		
+		List<Integer> worldSizes = levelOrderer.getWorldSizes();
+		if (world >= 0 && world < worldSizes.size()){
+			List<Integer> worldStartIndices = levelOrderer.getWorldStartIndices();
+			int numStars = 0;
+			int startIndex = worldStartIndices.get(world);
+			for (int i = 0; i < worldSizes.get(world) - 1; i++){
+				numStars += getLevelStars(startIndex + i);
+			}
+			return numStars;
+ 		}
+		return -1;
+	}
+	
+	//Check to see if a world is unlocked. Returns false if out of bounds
+	public boolean isWorldUnlocked(int world){
+		//World zero is always unlocked
+		if (world == 0){
+			return true;
+		} else {
+			List<Integer> worldSizes = levelOrderer.getWorldSizes();
+			if (world > 0 && world < worldSizes.size()){
+				
+				//Future world needs to average WORLD_UNLOCK_STARS
+				int previousWorldProgress = getBaseWorldStars(world - 1);
+				boolean averageTwo = (previousWorldProgress >= (worldSizes.get(world - 1) - 1) * WORLD_UNLOCK_STARS);
+				if (averageTwo){
+					
+					//And have completed every level
+					int startIndex = levelOrderer.getWorldStartIndices().get(world - 1);
+					for (int i = 0; i < worldSizes.get(world - 1) - 1; i++){
+						if (getLevelMoves(startIndex + i) == 0){
+							return false;
+						}	
+					}
+					return true;
+				}
+			} 
+		}
+		return false;
+	}
+	
+	public boolean isBonusLevelUnlocked(int world){
+		List<Integer> worldSizes = levelOrderer.getWorldSizes();
+		if (world >= 0 && world < worldSizes.size()){
+			int currentWorldProgress = getBaseWorldStars(world);
+			return (currentWorldProgress >= (worldSizes.get(world) - 1) * BONUS_UNLOCK_STARS);
+		} else {
+			return false;
+		}
 	}
 
-	//Returns the number of moves done on this level, or -1 if not completed
+	//Returns the number of moves done on this level, or 0 if not completed
 	public int getLevelMoves(int ordinal){
 		return scores[ordinal];
 	}
 
-	//Returns the number of stars earned on this level, or -1 if not completed
+	//Returns the number of stars earned on this level, or 0 if not completed
 	public int getLevelStars(int ordinal){
 		return stars[ordinal];
 	}
@@ -141,7 +190,6 @@ public class GameProgress {
 				scores[ordinal] = Integer.parseInt(mat.group(2));
 				stars[ordinal] = Integer.parseInt(mat.group(3));
 				uniqueIds[ordinal] = uniqueId;
-				highestUnlockedLevel++;
 				setXmlTag(ordinal);
 			}
 		}

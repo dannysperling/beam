@@ -141,7 +141,7 @@ public class GameEngine implements ApplicationListener {
 		progress = new GameProgress(levelOrderer);
 
 		dg = new DrawGame(progress);
-		menu = new Menu(levelOrderer.getWorldSizes(), progress);
+		menu = new Menu(levelOrderer.getWorldSizes(), levelOrderer.getWorldStartIndices(), progress);
 		dm = new DrawMenu(menu);
 		dg.initFonts();
 		inputHandler = new InputHandler();

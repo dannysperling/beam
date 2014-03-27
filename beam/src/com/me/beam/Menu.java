@@ -86,13 +86,16 @@ public class Menu {
 	private int[] worldScrollAmounts;
 	private int numWorlds;
 	private List<Integer> worldSizes;
+	private List<Integer> worldStartIndices;
 	private GameProgress progress;
 	
 	public final float boardHeightPercent = 0.6f;
 	
-	public Menu(List<Integer> worldSizes, GameProgress progress){
+	public Menu(List<Integer> worldSizes, List<Integer> worldStartIndices,
+			GameProgress progress){
 		this.numWorlds = worldSizes.size();
 		this.worldSizes = worldSizes;
+		this.worldStartIndices = worldStartIndices;
 		worldScrollAmounts = new int[numWorlds];
 		this.progress = progress;
 	}
@@ -277,19 +280,31 @@ public class Menu {
 		return progress.getLevelStars(ordinal);
 	}
 	
-	public boolean isUnlocked(int ordinal){
-		return progress.isUnlocked(ordinal);
+	public boolean isWorldUnlocked(int world){
+		return progress.isWorldUnlocked(world);
 	}
 	
+	public boolean isBonusLevelUnlocked(int world){
+		return progress.isBonusLevelUnlocked(world);
+	}
+
+	public boolean isBonus(int world, int levelIndex){
+		return (levelIndex - worldStartIndices.get(world) + 1) == worldSizes.get(world);
+	}
 	
 	//Returns the ordinal of the selected level, or -1 if selected level is locked.
 	public int getSelectedLevel(int screenXPos, int screenYPos){
-		int levelOrdinal = getLevelAtPosition(screenXPos, screenYPos);
-		if (progress.isUnlocked(levelOrdinal)){
-			return levelOrdinal;
-		} else {
-			return -1;
+		int world = getWorldAtPosition(screenYPos);
+		if (progress.isWorldUnlocked(world)){
+			int levelIndex = getLevelAtPosition(screenXPos, screenYPos);
+			
+			//Determines if the world is bonus 
+			boolean isBonus = isBonus(world, levelIndex);
+			if (!isBonus || progress.isBonusLevelUnlocked(world)){
+				return levelIndex;
+			}
 		}
+		return -1;
 	}
 	
 	//Returns the world of the level at the given position
@@ -311,27 +326,16 @@ public class Menu {
 			return -1;
 		}
 		
-		int prevLevels = 0;
-		for (int i = 0; i < world; i++){
-			prevLevels += worldSizes.get(i);
-		}
-		return prevLevels + withinWorld;
+		return worldStartIndices.get(world) + withinWorld;
 	}
 	
 	//Gets the position of the ordinal within its world
 	public int getPositionInWorld(int ordinal){
-		int before = 0;
 		int world = 0;
-		
-		while (world < worldSizes.size() && before + worldSizes.get(world) <= ordinal){
-			before += worldSizes.get(world);
+		while (world < worldSizes.size() - 1 && ordinal >= worldStartIndices.get(world + 1) ){
 			world++;
 		}
-		
-		if (world >= worldSizes.size())
-			return -1;
-		else
-			return ordinal - before + 1;
+		return ordinal - worldStartIndices.get(world) + 1;
 	}
 	
 	public int getItemHeight(){
