@@ -25,6 +25,8 @@ public class Solver {
 	private boolean solved;
 	private Piece[][] solution;
 	private int highestDepthPrinted;
+	private int cutoffs;
+	private long startTime;
 
 	public static void main(String[] args) {
 		LevelOrderer levelOrderer = new LevelOrderer(
@@ -36,6 +38,7 @@ public class Solver {
 		int ordinal = 40;
 		int index = ordinal - 1;
 		Board toSolve = levelLoader.getLevel(index);
+
 		System.out.println("Solving level " + ordinal);
 		Solver solver = new Solver(toSolve);
 		System.out.println("Moves: " + solver.getMovesNeeded());
@@ -49,6 +52,7 @@ public class Solver {
 		this.solved = false;
 		this.solution = null;
 		this.highestDepthPrinted = 0;
+		this.cutoffs = 0;
 	}
 
 	public int getMovesNeeded() {
@@ -67,6 +71,7 @@ public class Solver {
 
 	private void solve() {
 		addToQueue(board.getPieces(), 0);
+		this.startTime = System.currentTimeMillis();
 		while (searchQueue.size() > 0 && !this.solved) {
 			expand(searchQueue.remove(0));
 		}
@@ -83,9 +88,14 @@ public class Solver {
 		Set<Piece[][]> possibleMoves = getAllMoves(pieces);
 		int moves = safeGet(pieces);
 		if (moves > this.highestDepthPrinted) {
+			double timeToSolveSeconds = (System.currentTimeMillis() - startTime) / 1000.0;
 			System.out.println("At least " + moves + " moves with "
-					+ table.size() + " positions evaluated.");
+					+ table.size() + " positions evaluated and with "
+					+ this.cutoffs + " cutoffs and took " + timeToSolveSeconds
+					+ " seconds.");
 			this.highestDepthPrinted = moves;
+			this.cutoffs = 0;
+			this.startTime = System.currentTimeMillis();
 		}
 		for (Piece[][] p : possibleMoves) {
 			addToQueue(p, moves + 1);
@@ -134,23 +144,68 @@ public class Solver {
 		if (safeGet(pieces) == null) {
 			searchQueue.add(pieces);
 			setMovesToReach(pieces, moves);
+		} else {
+			this.cutoffs++;
 		}
 	}
 
 	private void setSymmetry() {
-		// TODO: support symmetry
-		horizontalSymmetry = false;
-		verticalSymmetry = false;
+		horizontalSymmetry = isHSym();
+		verticalSymmetry = isVSym();
+		// */
+		/*
+		 * horizontalSymmetry = false; verticalSymmetry = false; //
+		 */
+	}
+
+	private boolean isHSym() {
+		int numH = board.getNumHorizontalTiles();
+		int numV = board.getNumVerticalTiles();
+		for (int x = 0; x < numH / 2; x++) {
+			for (int y = 0; y < numV; y++) {
+				if (!board.areTilesSimilar(x, y, numH - x - 1, y)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	private boolean isVSym() {
+		int numH = board.getNumHorizontalTiles();
+		int numV = board.getNumVerticalTiles();
+		for (int x = 0; x < numH; x++) {
+			for (int y = 0; y < numV / 2; y++) {
+				if (!board.areTilesSimilar(x, y, x, numV - y - 1)) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	private Piece[][] reflectHorizontally(Piece[][] pieces) {
-		// TODO: support symmetry
-		return pieces;
+		int numH = board.getNumHorizontalTiles();
+		int numV = board.getNumVerticalTiles();
+		Piece[][] ret = new Piece[pieces.length][pieces[0].length];
+		for (int x = 0; x < numH; x++) {
+			for (int y = 0; y < numV; y++) {
+				ret[x][y] = pieces[numH - x - 1][y];
+			}
+		}
+		return ret;
 	}
 
 	private Piece[][] reflectVertically(Piece[][] pieces) {
-		// TODO: support symmetry
-		return pieces;
+		int numH = board.getNumHorizontalTiles();
+		int numV = board.getNumVerticalTiles();
+		Piece[][] ret = new Piece[pieces.length][pieces[0].length];
+		for (int x = 0; x < numH; x++) {
+			for (int y = 0; y < numV; y++) {
+				ret[x][y] = pieces[x][numV - y - 1];
+			}
+		}
+		return ret;
 	}
 
 	private Set<Piece[][]> getAllMoves(Piece[][] pieces) {
