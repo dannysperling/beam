@@ -387,3 +387,19 @@ glass,glass,1,1,glass,glass
 glass,3,glass,e,glass,glass
 </level>
 
+<level id=43 par=10 perfect=9>
+<attribution name="" author="John"/>
+e,1,e
+2,2,2
+2,2,2
+2,goal_1,2
+</level>
+
+<level id=44 par=9 perfect=8>
+<attribution name="" author="John"/>
+goal_3,e,2,glass
+e,1,2,glass
+2,e,e,2
+glass,e,2,1
+glass,1,2,3
+</level>level>
