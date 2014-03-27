@@ -3,20 +3,21 @@ package com.me.beamsolver;
 import java.awt.Point;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
+import com.me.beam.Board;
 import com.me.beam.GameEngine.Color;
 import com.me.beam.Laser;
-import com.me.beam.Piece;
-import com.me.beam.Board;
-import com.me.beam.LevelOrderer;
 import com.me.beam.LevelLoader;
+import com.me.beam.LevelOrderer;
+import com.me.beam.Piece;
 
 public class Solver {
-	private Map<com.me.beam.Piece[][], Integer> table;
+	private Map<String, Integer> table;
 	private List<Piece[][]> searchQueue;
 	private Board board;
 	private boolean horizontalSymmetry;
@@ -26,22 +27,13 @@ public class Solver {
 	private int highestDepthPrinted;
 
 	public static void main(String[] args) {
-		/*
-		 * int numToSolve = 37; String level =
-		 * "<level id=37 par=2 perfect=1>\n<attribution name=\"Moving and goals\" "
-		 * + "author=\"John\"/>1,e,e\ne,e,e\ne,e,goal_1\n</level>\n";
-		 * 
-		 * 
-		 * LevelLoader levelLoader = new LevelLoader(level, numToSolve);
-		 */
 		LevelOrderer levelOrderer = new LevelOrderer(
-				"C:\\Users/Douglas/workspace/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levelOrder.txt",
-				true);
+				"../beam-android/assets/data/levels/levelOrder.txt", true);
 		LevelLoader levelLoader = new LevelLoader(
-				"C:\\Users/Douglas/workspace/Mildly-Offensive-Entertainment/beam/src/com/me/beam/levels.xml",
-				levelOrderer, true);
+				"../beam-android/assets/data/levels/levels.xml", levelOrderer,
+				true);
 
-		int ordinal = 3;
+		int ordinal = 40;
 		int index = ordinal - 1;
 		Board toSolve = levelLoader.getLevel(index);
 		System.out.println("Solving level " + ordinal);
@@ -50,10 +42,10 @@ public class Solver {
 	}
 
 	public Solver(Board board) {
-		table = new HashMap<Piece[][], Integer>();
+		table = new HashMap<String, Integer>();
 		this.board = board;
 		setSymmetry();
-		searchQueue = new ArrayList<Piece[][]>();
+		searchQueue = new LinkedList<Piece[][]>();
 		this.solved = false;
 		this.solution = null;
 		this.highestDepthPrinted = 0;
@@ -63,7 +55,7 @@ public class Solver {
 		if (!solved) {
 			solve();
 		}
-		return table.get(solution);
+		return safeGet(solution);
 	}
 
 	public Piece[][] getSolution() {
@@ -87,11 +79,12 @@ public class Solver {
 			return;
 		}
 
-		//printBoard(pieces);
+		// printBoard(pieces);
 		Set<Piece[][]> possibleMoves = getAllMoves(pieces);
-		int moves = table.get(pieces);
+		int moves = safeGet(pieces);
 		if (moves > this.highestDepthPrinted) {
-			System.out.println(moves);
+			System.out.println("At least " + moves + " moves with "
+					+ table.size() + " positions evaluated.");
 			this.highestDepthPrinted = moves;
 		}
 		for (Piece[][] p : possibleMoves) {
@@ -99,22 +92,46 @@ public class Solver {
 		}
 	}
 
-	private static void printBoard(Piece[][] pieces) {
+	private static String piecesString(Piece[][] pieces) {
+		String temp = "";
 		for (int i = pieces[0].length - 1; i >= 0; i--) {
 			for (int j = 0; j < pieces.length; j++) {
 				if (pieces[j][i] == null) {
-					System.out.print("_");
+					temp += "_";
 				} else {
-					System.out.print(pieces[j][i]);
+					temp += pieces[j][i].toString();
 				}
 			}
-			System.out.println();
+			temp += "\n";
 		}
-		System.out.println();
+		return temp;
+	}
+
+	private static String piecesStringDense(Piece[][] pieces) {
+		String temp = "";
+		int count = 0;
+		for (int i = pieces[0].length - 1; i >= 0; i--) {
+			for (int j = 0; j < pieces.length; j++) {
+				if (pieces[j][i] == null) {
+					count++;
+				} else {
+					if (count > 0) {
+						temp += count;
+						count = 0;
+					}
+					temp += pieces[j][i].toString();
+				}
+			}
+		}
+		return temp;
+	}
+
+	private static void printPieces(Piece[][] pieces) {
+		System.out.println(piecesString(pieces));
 	}
 
 	private void addToQueue(Piece[][] pieces, int moves) {
-		if (table.get(pieces) == null) {
+		if (safeGet(pieces) == null) {
 			searchQueue.add(pieces);
 			setMovesToReach(pieces, moves);
 		}
@@ -148,17 +165,25 @@ public class Solver {
 		return newStates;
 	}
 
+	private Integer safeGet(Piece[][] pieces) {
+		return table.get(piecesStringDense(pieces));
+	}
+
+	private void safePut(Piece[][] pieces, int moves) {
+		table.put(piecesStringDense(pieces), moves);
+	}
+
 	private void setMovesToReach(Piece[][] pieces, int moves) {
-		table.put(pieces, moves);
+		safePut(pieces, moves);
 		if (horizontalSymmetry) {
 			Piece[][] horizontallyReflectedPieces = reflectHorizontally(pieces);
-			table.put(horizontallyReflectedPieces, moves);
+			safePut(horizontallyReflectedPieces, moves);
 			if (verticalSymmetry) {
-				table.put(reflectVertically(horizontallyReflectedPieces), moves);
-				table.put(reflectVertically(pieces), moves);
+				safePut(reflectVertically(horizontallyReflectedPieces), moves);
+				safePut(reflectVertically(pieces), moves);
 			}
 		} else if (verticalSymmetry) {
-			table.put(reflectVertically(pieces), moves);
+			safePut(reflectVertically(pieces), moves);
 		}
 	}
 
@@ -171,8 +196,7 @@ public class Solver {
 					continue;
 				}
 				Piece p = new Piece(i, j, color);
-				if ((formLasersFromPieceAndDestroy(pieces, p)
-						.size() == 0)
+				if ((formLasersFromPieceAndDestroy(pieces, p).size() == 0)
 						&& !checkIfPieceDestroyed(pieces, p)) {
 					ret.add(new Point(i, j));
 				}
@@ -241,221 +265,221 @@ public class Solver {
 		}
 		return contiguousPoints;
 	}
-	
-		private Color originalColor = Color.NONE; 
-		private static List<Laser> lasersCreated = new ArrayList<Laser>();
-		
-		public List<Piece> formLasersFromPieceAndDestroy(Piece[][] pieces, Piece p) {
 
-			boolean horizontalMove = false;
-			
-			List<Piece> destroyed = new ArrayList<Piece>();
+	private Color originalColor = Color.NONE;
+	private static List<Laser> lasersCreated = new ArrayList<Laser>();
 
-			// For each destruction
-			List<Piece> possibleDestroy = new ArrayList<Piece>();
+	public List<Piece> formLasersFromPieceAndDestroy(Piece[][] pieces, Piece p) {
 
-			// Check for left pieces
-			Piece leftSameColor = null;
+		boolean horizontalMove = false;
 
-			int xPos = p.getXCoord() - 1;
-			int yPos = p.getYCoord();
+		List<Piece> destroyed = new ArrayList<Piece>();
 
-			Laser possibleFormed = null;
+		// For each destruction
+		List<Piece> possibleDestroy = new ArrayList<Piece>();
 
-			// Slide to the left
-			for (; leftSameColor == null && xPos >= 0; xPos--) {
-				Piece possible = pieces[xPos][yPos];
+		// Check for left pieces
+		Piece leftSameColor = null;
 
-				// There's a piece there
-				if (possible != null) {
-					if (possible.getColor() == p.getColor()) {
-						leftSameColor = pieces[xPos][yPos];
-						destroyed.addAll(possibleDestroy);
-						possibleFormed = new Laser(xPos, yPos, p.getXCoord(),
-								p.getYCoord(), p.getColor());
-					} else {
-						possibleDestroy.add(possible);
-					}
+		int xPos = p.getXCoord() - 1;
+		int yPos = p.getYCoord();
+
+		Laser possibleFormed = null;
+
+		// Slide to the left
+		for (; leftSameColor == null && xPos >= 0; xPos--) {
+			Piece possible = pieces[xPos][yPos];
+
+			// There's a piece there
+			if (possible != null) {
+				if (possible.getColor() == p.getColor()) {
+					leftSameColor = pieces[xPos][yPos];
+					destroyed.addAll(possibleDestroy);
+					possibleFormed = new Laser(xPos, yPos, p.getXCoord(),
+							p.getYCoord(), p.getColor());
+				} else {
+					possibleDestroy.add(possible);
 				}
 			}
+		}
 
-			possibleDestroy.clear();
+		possibleDestroy.clear();
 
-			// Check for right colored pieces
-			Piece rightSameColor = null;
+		// Check for right colored pieces
+		Piece rightSameColor = null;
+		xPos = p.getXCoord() + 1;
+
+		// Slide to the right
+		for (; rightSameColor == null && xPos < pieces.length; xPos++) {
+
+			Piece possible = pieces[xPos][yPos];
+
+			// There's a piece there
+			if (possible != null) {
+				if (possible.getColor() == p.getColor()) {
+					rightSameColor = pieces[xPos][yPos];
+					destroyed.addAll(possibleDestroy);
+					possibleFormed = new Laser(p.getXCoord(), p.getYCoord(),
+							xPos, yPos, p.getColor());
+
+				} else {
+					possibleDestroy.add(possible);
+				}
+			}
+		}
+		// Lasers on both sides. Remove!
+		if (leftSameColor != null && rightSameColor != null) {
+			possibleFormed = null;
+
+		}
+
+		// If it's still possible, it was formed
+		if (possibleFormed != null
+				&& (originalColor != p.getColor() || !horizontalMove)) {
+			lasersCreated.add(possibleFormed);
+		}
+		possibleFormed = null;
+
+		possibleDestroy.clear();
+
+		// Now do vertical!
+
+		// Check for bot pieces
+		Piece botSameColor = null;
+
+		xPos = p.getXCoord();
+		yPos = p.getYCoord() - 1;
+
+		// Slide down
+		for (; botSameColor == null && yPos >= 0; yPos--) {
+			Piece possible = pieces[xPos][yPos];
+
+			// There's a piece there
+			if (possible != null) {
+				if (possible.getColor() == p.getColor()) {
+					botSameColor = pieces[xPos][yPos];
+					destroyed.addAll(possibleDestroy);
+					possibleFormed = new Laser(xPos, yPos, p.getXCoord(),
+							p.getYCoord(), p.getColor());
+
+				} else {
+					possibleDestroy.add(possible);
+				}
+			}
+		}
+
+		possibleDestroy.clear();
+
+		// Check for right colored pieces
+		Piece topSameColor = null;
+
+		yPos = p.getYCoord() + 1;
+
+		// Slide up
+		for (; topSameColor == null && yPos < pieces[0].length; yPos++) {
+
+			Piece possible = pieces[xPos][yPos];
+
+			// There's a piece there
+			if (possible != null) {
+				if (possible.getColor() == p.getColor()) {
+					topSameColor = pieces[xPos][yPos];
+					destroyed.addAll(possibleDestroy);
+					possibleFormed = new Laser(p.getXCoord(), p.getYCoord(),
+							xPos, yPos, p.getColor());
+
+				} else {
+					possibleDestroy.add(possible);
+				}
+			}
+		}
+		// Lasers on both sides. Remove!
+		if (botSameColor != null && topSameColor != null) {
+			possibleFormed = null;
+
+		}
+		// If it's still possible, it was formed
+		if (possibleFormed != null
+				&& (originalColor != p.getColor() || horizontalMove)) {
+			lasersCreated.add(possibleFormed);
+		}
+		possibleFormed = null;
+
+		return destroyed;
+	}
+
+	public boolean checkIfPieceDestroyed(Piece[][] pieces, Piece p) {
+
+		// Check if p is destroyed. First, horizontally
+		Color leftColor = Color.NONE;
+		int xPos = p.getXCoord() - 1;
+		int yPos = p.getYCoord();
+
+		// Slide to left
+		for (; leftColor == Color.NONE && xPos >= 0; xPos--) {
+
+			Piece atLeft = pieces[xPos][yPos];
+
+			if (atLeft != null) {
+				leftColor = atLeft.getColor();
+			}
+		}
+
+		if (leftColor != Color.NONE && leftColor != p.getColor()) {
+			Color rightColor = Color.NONE;
+
 			xPos = p.getXCoord() + 1;
 
 			// Slide to the right
-			for (; rightSameColor == null && xPos < pieces.length; xPos++) {
+			for (; rightColor == Color.NONE && xPos < pieces.length; xPos++) {
 
-				Piece possible = pieces[xPos][yPos];
+				Piece atRight = pieces[xPos][yPos];
 
-				// There's a piece there
-				if (possible != null) {
-					if (possible.getColor() == p.getColor()) {
-						rightSameColor = pieces[xPos][yPos];
-						destroyed.addAll(possibleDestroy);
-						possibleFormed = new Laser(p.getXCoord(), p.getYCoord(),
-								xPos, yPos, p.getColor());
-						
-					} else {
-						possibleDestroy.add(possible);
-					}
+				if (atRight != null) {
+					rightColor = atRight.getColor();
 				}
 			}
-			// Lasers on both sides. Remove!
-			if (leftSameColor != null && rightSameColor != null) {
-				possibleFormed = null;
-				
+			// Criss cross
+			if (leftColor == rightColor) {
+				return true;
 			}
+		}
 
-			// If it's still possible, it was formed
-			if (possibleFormed != null
-					&& (originalColor != p.getColor() || !horizontalMove)) {
-				lasersCreated.add(possibleFormed);
+		// Now vertically
+		Color topColor = Color.NONE;
+		xPos = p.getXCoord();
+		yPos = p.getYCoord() - 1;
+
+		// Step up
+		for (; topColor == Color.NONE && yPos >= 0; yPos--) {
+
+			Piece atTop = pieces[xPos][yPos];
+
+			if (atTop != null) {
+				topColor = atTop.getColor();
 			}
-			possibleFormed = null;
+		}
 
-			possibleDestroy.clear();
-
-			// Now do vertical!
-
-			// Check for bot pieces
-			Piece botSameColor = null;
-
-			xPos = p.getXCoord();
-			yPos = p.getYCoord() - 1;
-
-			// Slide down
-			for (; botSameColor == null && yPos >= 0; yPos--) {
-				Piece possible = pieces[xPos][yPos];
-
-				// There's a piece there
-				if (possible != null) {
-					if (possible.getColor() == p.getColor()) {
-						botSameColor = pieces[xPos][yPos];
-						destroyed.addAll(possibleDestroy);
-						possibleFormed = new Laser(xPos, yPos, p.getXCoord(),
-								p.getYCoord(), p.getColor());
-					
-					} else {
-						possibleDestroy.add(possible);
-					}
-				}
-			}
-
-			possibleDestroy.clear();
-
-			// Check for right colored pieces
-			Piece topSameColor = null;
+		if (topColor != Color.NONE && topColor != p.getColor()) {
+			Color botColor = Color.NONE;
 
 			yPos = p.getYCoord() + 1;
 
-			// Slide up
-			for (; topSameColor == null && yPos < pieces[0].length; yPos++) {
+			// Step down
+			for (; botColor == Color.NONE && yPos < pieces[0].length; yPos++) {
 
-				Piece possible = pieces[xPos][yPos];
+				Piece atBot = pieces[xPos][yPos];
 
-				// There's a piece there
-				if (possible != null) {
-					if (possible.getColor() == p.getColor()) {
-						topSameColor = pieces[xPos][yPos];
-						destroyed.addAll(possibleDestroy);
-						possibleFormed = new Laser(p.getXCoord(), p.getYCoord(),
-								xPos, yPos, p.getColor());
-					
-					} else {
-						possibleDestroy.add(possible);
-					}
+				if (atBot != null) {
+					botColor = atBot.getColor();
 				}
 			}
-			// Lasers on both sides. Remove!
-			if (botSameColor != null && topSameColor != null) {
-				possibleFormed = null;
-				
+			// Criss cross
+			if (topColor == botColor) {
+				return true;
 			}
-			// If it's still possible, it was formed
-			if (possibleFormed != null
-					&& (originalColor != p.getColor() || horizontalMove)) {
-				lasersCreated.add(possibleFormed);
-			}
-			possibleFormed = null;
-
-			return destroyed;
 		}
-		
-		public boolean checkIfPieceDestroyed(Piece[][] pieces, Piece p) {
 
-			// Check if p is destroyed. First, horizontally
-			Color leftColor = Color.NONE;
-			int xPos = p.getXCoord() - 1;
-			int yPos = p.getYCoord();
-
-			// Slide to left
-			for (; leftColor == Color.NONE && xPos >= 0; xPos--) {
-
-				Piece atLeft = pieces[xPos][yPos];
-
-				if (atLeft != null) {
-					leftColor = atLeft.getColor();
-				}
-			}
-
-			if (leftColor != Color.NONE && leftColor != p.getColor()) {
-				Color rightColor = Color.NONE;
-
-				xPos = p.getXCoord() + 1;
-
-				// Slide to the right
-				for (; rightColor == Color.NONE && xPos < pieces.length; xPos++) {
-
-					Piece atRight = pieces[xPos][yPos];
-
-					if (atRight != null) {
-						rightColor = atRight.getColor();
-					}
-				}
-				// Criss cross
-				if (leftColor == rightColor) {
-					return true;
-				}
-			}
-
-			// Now vertically
-			Color topColor = Color.NONE;
-			xPos = p.getXCoord();
-			yPos = p.getYCoord() - 1;
-
-			// Step up
-			for (; topColor == Color.NONE && yPos >= 0; yPos--) {
-
-				Piece atTop = pieces[xPos][yPos];
-
-				if (atTop != null) {
-					topColor = atTop.getColor();
-				}
-			}
-
-			if (topColor != Color.NONE && topColor != p.getColor()) {
-				Color botColor = Color.NONE;
-
-				yPos = p.getYCoord() + 1;
-
-				// Step down
-				for (; botColor == Color.NONE && yPos < pieces[0].length; yPos++) {
-
-					Piece atBot = pieces[xPos][yPos];
-
-					if (atBot != null) {
-						botColor = atBot.getColor();
-					}
-				}
-				// Criss cross
-				if (topColor == botColor) {
-					return true;
-				}
-			}
-
-			return false;
-		}
+		return false;
+	}
 }
