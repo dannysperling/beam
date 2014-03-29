@@ -159,8 +159,8 @@ public class BoardPanel extends JPanel{
 		float laserWidth = 0.15f;
 		for (Laser l : lasers) {
 			g.setColor(translateColor(l.getColor()));
-			System.out.println(l.getXStart()+" , "+l.getYStart()+" to "+l.getXFinish()+" , "+l.getYFinish());
-			System.out.println("TileSize: "+ tilesize);
+			//System.out.println(l.getXStart()+" , "+l.getYStart()+" to "+l.getXFinish()+" , "+l.getYFinish());
+			//System.out.println("TileSize: "+ tilesize);
 			if(true){
 				if (l.getXStart() == l.getXFinish()) {
 					g.fillRect((int)(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize),
@@ -168,13 +168,13 @@ public class BoardPanel extends JPanel{
 							(int)(laserWidth * tilesize), (int)((l.getYFinish() - l.getYStart())
 							* tilesize));
 				} else {
-					System.out.println("Horizontal");
+					//System.out.println("Horizontal");
 					g.fillRect((int)(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize),
 							(int)(by + (l.getYStart() + 0.5f - (laserWidth/2)) * tilesize),
 							(int)((l.getXFinish() - l.getXStart()) * tilesize),
 							(int)(laserWidth * tilesize));
-					System.out.println(((int)(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize)) + ", " + ((int)(by + (l.getYStart() + 0.5f - (laserWidth/2)) * tilesize)));
-					System.out.println(((int)((l.getXFinish() - l.getXStart()) * tilesize)) + " , " + ((int)(laserWidth * tilesize)));
+					//System.out.println(((int)(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize)) + ", " + ((int)(by + (l.getYStart() + 0.5f - (laserWidth/2)) * tilesize)));
+					//System.out.println(((int)((l.getXFinish() - l.getXStart()) * tilesize)) + " , " + ((int)(laserWidth * tilesize)));
 				}
 			}
 		}

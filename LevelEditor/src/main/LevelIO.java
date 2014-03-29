@@ -12,8 +12,15 @@ import com.me.beam.GameEngine;
 import com.me.beam.GameEngine.Color;
 import com.me.beam.Piece;
 import com.me.beam.Tile;
-
-public class LevelLoader {
+/**
+ * This is the Level Editor board load/save tool, and is not compatible with
+ * the game's level loader. Interestingly is loads games upside down
+ * to avoid having to change draw code. This means boards are also
+ * saved upside down.
+ * @author RGlidden
+ *
+ */
+public class LevelIO {
 	private String file;
 	private String FULL_LEVEL_REGEX = "(<level id=(\\d+) par=(\\d+) perfect=(\\d+)>)[\\s]+"
 			//+ "(<beamGoal color=(\\d+) count=(\\d+)/>)*[\\s]+"
@@ -32,7 +39,7 @@ public class LevelLoader {
 	 * @param fon
 	 * 			  The path to the fileOrder file
 	 */
-	public LevelLoader(String fn) {
+	public LevelIO(String fn) {
 		file = fn;
 	}
 	
@@ -154,4 +161,14 @@ public class LevelLoader {
 		return null;
 	}
 
+	/**
+	 * Appends the given board to the file this class was constructed
+	 * with, with the provided name and author attributions.
+	 * @param b - board with accurate par/perfect/id fields
+	 * @param title - null for no title
+	 * @param author - your name here, null for anonymous
+	 */
+	public void saveBoard(Board b, String tile, String author){
+		//TODO
+	}
 }

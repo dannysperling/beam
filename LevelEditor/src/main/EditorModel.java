@@ -13,12 +13,12 @@ import com.me.beam.GameEngine.AnimationState;
 public class EditorModel {
 	public Board b;
 	public String outputFile = "";
-	LevelLoader ll;
+	LevelIO ll;
 	
 	
 	public void loadBoard(int n) throws IOException{
 		if (ll == null){
-			ll = new LevelLoader("src/levels.xml");
+			ll = new LevelIO("src/levels.xml");
 		}
 		b = ll.getLevel(n);
 	}
