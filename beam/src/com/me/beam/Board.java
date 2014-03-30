@@ -138,6 +138,26 @@ public class Board {
 		tiles[x][y].isGlass = isGlass;
 		return ret;
 	}
+	
+	/**
+	 * Sets the tile at (X,Y) to be a type of painter.
+	 * GameEngine.Color.NONE removes the painter.
+	 * 
+	 * @param painterColor
+	 */
+	public void setPainter(int x, int y, GameEngine.Color painterColor) {
+		tiles[x][y].setPainter(painterColor);
+	}
+	
+	/**
+	 * Sets the tile at (X,Y) to be a type of goal.
+	 * GameEngine.Color.NONE removes the goal.
+	 * 
+	 * @param goalColor
+	 */
+	public void setGoal(int x, int y, GameEngine.Color goalColor) {
+		tiles[x][y].setGoal(goalColor);
+	}
 
 	/**
 	 * Addes piece p to the board, returning the piece that was previously there

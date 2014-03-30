@@ -2,7 +2,6 @@ package view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -16,6 +15,12 @@ import javax.swing.JTextField;
 import main.EditorModel;
 
 public class FinalizationWindow extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	
 	JLabel labelTitle = new JLabel("Title");
 	JLabel labelAuthor = new JLabel("Author");
 	JTextField textTitle = new JTextField("Level Title (internal use only)");

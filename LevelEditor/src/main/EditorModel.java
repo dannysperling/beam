@@ -1,14 +1,11 @@
 package main;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.me.beam.Board;
 import com.me.beam.Laser;
 import com.me.beam.Piece;
 import com.me.beam.Tile;
-import com.me.beam.GameEngine.AnimationState;
 
 public class EditorModel {
 	public Board b;
@@ -35,7 +32,6 @@ public class EditorModel {
 	}
 
 	private static void formLasers(Board board, Piece p) {
-		boolean horizontalMove = false;
 		// Check for left pieces
 		Tile leftSameColor = null;
 

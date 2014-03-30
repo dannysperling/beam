@@ -416,3 +416,13 @@ glass,glass,glass,glass,glass
 2,glass,2,e,1
 2,glass,painter_2,2,painter_1
 </level>
+
+<level id=46 par=10 perfect=5>
+<attribution name="Full Test" author="Danny"/>
+2,1,3,glass
+1,3,e,e
+3,goal_2,painter_3,glass
+glass,painter_3,goal_2,3
+e,e,3,1
+glass,3,1,2
+</level>
