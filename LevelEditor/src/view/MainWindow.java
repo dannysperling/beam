@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.EnumMap;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -20,12 +21,16 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import main.EditorModel;
 
+import com.me.beam.Board;
 import com.me.beam.GameEngine;
+import com.me.beam.Piece;
+import com.me.beam.Tile;
 
 public class MainWindow extends JFrame {
 	/**
@@ -35,6 +40,8 @@ public class MainWindow extends JFrame {
 	JPanel mainPanel = new JPanel();
 	JPanel toolBar = new JPanel();
 	JPanel sideBar = new JPanel();
+	JPanel boardHolder = new JPanel();
+	JPanel resizeButtonPanel = new JPanel();
 	JPanel boardPanel;
 	JPanel panelSideBarButtons = new JPanel();
 	ButtonGroup radioGroup = new ButtonGroup();
@@ -43,6 +50,12 @@ public class MainWindow extends JFrame {
 	JRadioButton jrbGlass = new JRadioButton("Glass");
 	JRadioButton jrbPainter = new JRadioButton("Painter");
 	JRadioButton jrbGoal = new JRadioButton("Goal");
+	///
+	JLabel labelCurLevel = new JLabel();
+	JButton buttonPlusRow = new JButton("Add Row");
+	JButton buttonPlusCol = new JButton("Add Column");
+	JButton buttonMinusRow = new JButton("Remove Row");
+	JButton buttonMinusCol= new JButton("Remove Column");
 	///
 	JComboBox<GameEngine.Color> colorDropdown;
 	SpinnerModel spinPerfModel;
@@ -55,20 +68,30 @@ public class MainWindow extends JFrame {
 	JButton buttonNew = new JButton("New");
 	JButton buttonLoad = new JButton("Load");
 	JButton buttonFin = new JButton("Save");
+	///
 	EditorModel model;
 	
 	
 	
 	public MainWindow(final EditorModel m){
 		model = m;
+		///
 		boardPanel = new BoardPanel(model);
-		mainPanel.setLayout(new BorderLayout(0, 0));
+		boardHolder.setLayout(new BorderLayout(20,20));
+		boardHolder.add(boardPanel,BorderLayout.CENTER);
+		labelCurLevel.setText(m.fileName()+" - "+m.idString());
+		boardHolder.add(labelCurLevel,BorderLayout.NORTH);
+		resizeButtonPanel.setLayout(new BorderLayout(5,5));
+		resizeButtonPanel.add(buttonMinusRow,BorderLayout.NORTH);
+		resizeButtonPanel.add(buttonPlusRow,BorderLayout.SOUTH);
+		resizeButtonPanel.add(buttonMinusCol,BorderLayout.WEST);
+		resizeButtonPanel.add(buttonPlusCol,BorderLayout.EAST);
+		boardHolder.add(resizeButtonPanel,BorderLayout.SOUTH);
+		///
+		mainPanel.setLayout(new BorderLayout(10, 10));
 		mainPanel.add(toolBar, BorderLayout.NORTH);
 		mainPanel.add(sideBar, BorderLayout.EAST);
-		mainPanel.add(boardPanel,BorderLayout.CENTER);
-		//toolBar.setBackground(Color.GRAY);
-		//sideBar.setBackground(Color.GRAY);
-		boardPanel.setBackground(Color.DARK_GRAY);
+		mainPanel.add(boardHolder,BorderLayout.CENTER);
 		////
 		spinPerfModel =new SpinnerNumberModel(m.b.perfect,0,100,1);
 		spinParModel =new SpinnerNumberModel(m.b.par,0,100,1);
@@ -136,14 +159,24 @@ public class MainWindow extends JFrame {
 				}
 			});
 		}
-		
-		///Panel these together TODO
+	
 		panelSideBarButtons.add(buttonNew);
 		panelSideBarButtons.add(buttonLoad);
 		panelSideBarButtons.add(buttonFin);
-		sideBar.add(Box.createVerticalGlue());
+		sideBar.add(Box.createVerticalStrut(375));
 		sideBar.add(panelSideBarButtons);
-		sideBar.add(Box.createVerticalStrut(0));
+		//sideBar.add(Box.createVerticalStrut(0));
+		///
+		this.setSize(758, 750);
+		boardPanel.setBackground(Color.DARK_GRAY);
+		boardPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE, 3));
+		mainPanel.setBackground(new Color(75,100,150));
+		boardHolder.setBackground(mainPanel.getBackground());
+		mainPanel.add(new JLabel(""),BorderLayout.WEST);
+		toolBar.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+		sideBar.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+		resizeButtonPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+		labelCurLevel.setForeground(Color.white);
 		///
 		buttonFin.addActionListener(new ActionListener(){
 
@@ -157,7 +190,7 @@ public class MainWindow extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int oldID = m.b.id;
+				Board old = m.b;
 				int id;
 				try{
 				id = Integer.parseInt(JOptionPane.showInputDialog(null, "Enter the id of the level you wish to load", "Select level", JOptionPane.QUESTION_MESSAGE));
@@ -168,8 +201,8 @@ public class MainWindow extends JFrame {
 				try {
 					m.loadBoard(id);
 					if (m.b == null){
-						m.loadBoard(oldID);
 						JOptionPane.showMessageDialog(null, "Umm, I don't think there is a level "+id, ":(", JOptionPane.ERROR_MESSAGE);
+						m.b = old;
 					}
 					update();
 				} catch (IOException e1) {
@@ -184,7 +217,136 @@ public class MainWindow extends JFrame {
 			}
 		});
 		///
-		this.setSize(800, 600);
+		buttonPlusCol.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Board nb = new Board(m.b.getNumHorizontalTiles()+1,m.b.getNumVerticalTiles());
+				nb.id = m.b.id;
+				nb.par = m.b.par;
+				nb.perfect = m.b.perfect;
+				for (Tile t : m.b.getAllTiles()){
+					int x = t.getXCoord();
+					int y = t.getYCoord();
+					nb.setGlass(x, y, t.isGlass);
+					nb.setGoal(x, y, t.getGoalColor());
+					nb.setPainter(x, y, t.getPainterColor());
+					
+				}
+				for (int y = 0; y < nb.getNumVerticalTiles(); y++){
+					nb.setGlass(m.b.getNumHorizontalTiles(), y, true);
+				}
+				for (GameEngine.Color c : GameEngine.Color.values()){
+					if (c==GameEngine.Color.NONE) continue;
+					nb.addBeamObjective(c, m.b.getBeamObjectiveCount(c));
+				}
+				for (Piece p : m.b.getAllPieces()){
+					if (p.getXCoord() > nb.getNumHorizontalTiles()-1) continue;
+					if (p.getYCoord() > nb.getNumVerticalTiles()-1) continue;
+					nb.put(p);
+				}
+				m.b = nb;
+				update();
+			}
+		});
+		
+		buttonPlusRow.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Board nb = new Board(m.b.getNumHorizontalTiles(),m.b.getNumVerticalTiles()+1);
+				nb.id = m.b.id;
+				nb.par = m.b.par;
+				nb.perfect = m.b.perfect;
+				for (Tile t : m.b.getAllTiles()){
+					int x = t.getXCoord();
+					int y = t.getYCoord();
+					nb.setGlass(x, y, t.isGlass);
+					nb.setGoal(x, y, t.getGoalColor());
+					nb.setPainter(x, y, t.getPainterColor());
+					
+				}
+				for (int x = 0; x < nb.getNumHorizontalTiles(); x++){
+					nb.setGlass(x, m.b.getNumVerticalTiles(), true);
+				}
+				for (GameEngine.Color c : GameEngine.Color.values()){
+					if (c==GameEngine.Color.NONE) continue;
+					nb.addBeamObjective(c, m.b.getBeamObjectiveCount(c));
+				}
+				for (Piece p : m.b.getAllPieces()){
+					if (p.getXCoord() > nb.getNumHorizontalTiles()-1) continue;
+					if (p.getYCoord() > nb.getNumVerticalTiles()-1) continue;
+					nb.put(p);
+				}
+				m.b = nb;
+				update();
+			}
+		});
+		buttonMinusCol.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (m.b.getNumHorizontalTiles() == 1)return;
+				Board nb = new Board(m.b.getNumHorizontalTiles()-1,m.b.getNumVerticalTiles());
+				nb.id = m.b.id;
+				nb.par = m.b.par;
+				nb.perfect = m.b.perfect;
+				for (Tile t : m.b.getAllTiles()){
+					int x = t.getXCoord();
+					int y = t.getYCoord();
+					if (x >= nb.getNumHorizontalTiles()) continue;
+					if (y >= nb.getNumVerticalTiles()) continue;
+					nb.setGlass(x, y, t.isGlass);
+					nb.setGoal(x, y, t.getGoalColor());
+					nb.setPainter(x, y, t.getPainterColor());
+					
+				}
+				for (GameEngine.Color c : GameEngine.Color.values()){
+					if (c==GameEngine.Color.NONE) continue;
+					nb.addBeamObjective(c, m.b.getBeamObjectiveCount(c));
+				}
+				for (Piece p : m.b.getAllPieces()){
+					if (p.getXCoord() > nb.getNumHorizontalTiles()-1) continue;
+					if (p.getYCoord() > nb.getNumVerticalTiles()-1) continue;
+					nb.put(p);
+				}
+				m.b = nb;
+				update();
+			}
+		});
+		
+		buttonMinusRow.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (m.b.getNumVerticalTiles() == 1)return;
+				Board nb = new Board(m.b.getNumHorizontalTiles(),m.b.getNumVerticalTiles()-1);
+				nb.id = m.b.id;
+				nb.par = m.b.par;
+				nb.perfect = m.b.perfect;
+				for (Tile t : m.b.getAllTiles()){
+					int x = t.getXCoord();
+					int y = t.getYCoord();
+					if (x >= nb.getNumHorizontalTiles()) continue;
+					if (y >= nb.getNumVerticalTiles()) continue;
+					nb.setGlass(x, y, t.isGlass);
+					nb.setGoal(x, y, t.getGoalColor());
+					nb.setPainter(x, y, t.getPainterColor());
+					
+				}
+				for (GameEngine.Color c : GameEngine.Color.values()){
+					if (c==GameEngine.Color.NONE) continue;
+					nb.addBeamObjective(c, m.b.getBeamObjectiveCount(c));
+				}
+				for (Piece p : m.b.getAllPieces()){
+					if (p.getXCoord() > nb.getNumHorizontalTiles()-1) continue;
+					if (p.getYCoord() > nb.getNumVerticalTiles()-1) continue;
+					nb.put(p);
+				}
+				m.b = nb;
+				update();
+			}
+		});
+		///
 		this.add(mainPanel);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.repaint();
@@ -196,6 +358,7 @@ public class MainWindow extends JFrame {
 	}
 
 	public void update(){
+		if (model.b == null) return;
 		boardPanel = new BoardPanel(model);
 		//System.out.println("Par: "+model.b.par+"Perfect: "+model.b.perfect);
 		spinParModel.setValue(model.b.par);
@@ -205,6 +368,7 @@ public class MainWindow extends JFrame {
 			SpinnerModel sm = goalSpinnerModels.get(c);
 			sm.setValue(model.b.getBeamObjectiveCount(c));
 		}
+		labelCurLevel.setText(model.fileName()+" - "+model.idString());
 		this.repaint();
 	}
 	

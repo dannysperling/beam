@@ -1,14 +1,12 @@
 package main;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.me.beam.Board;
 import com.me.beam.Laser;
 import com.me.beam.Piece;
 import com.me.beam.Tile;
-import com.me.beam.GameEngine.AnimationState;
 
 public class EditorModel {
 	public Board b;
@@ -16,6 +14,18 @@ public class EditorModel {
 	public LevelIO levelIO;
 	public String workingTitle = "";
 	public String workingAuthor = "";
+	public String fn;
+	
+	public EditorModel(){
+		b = new Board(3,3);
+	}
+	
+	public EditorModel(String fileName){
+		fn = fileName;
+		levelIO = new LevelIO(fileName,this);
+		b = new Board(3,3);
+		b.id = -1;
+	}
 	
 	
  	public void loadBoard(int n) throws IOException{
@@ -141,5 +151,29 @@ public class EditorModel {
 						topSameColor.getXCoord(), topSameColor.getYCoord(), p.getColor()));
 		}
 		possibleFormed = null;
+	}
+
+
+
+	public String idString() {
+		if (b.id < 1){
+			return "new Level";
+		}
+		return "id#"+b.id;
+	}
+
+	public String fileName() {
+		//System.out.println(fn);
+		//System.out.println(File.separatorChar);
+		String name = fn.substring(fn.lastIndexOf(File.separatorChar));
+		String dir;
+		if (fn.contains("beam-android")){
+			dir = ". . . "+File.separator+"beam-android";
+		} else if (fn.contains("LevelEditor")){
+			dir = ". . . "+File.separator+"LevelEditor";
+		} else {
+			dir = fn.substring(0, fn.indexOf(File.separatorChar, 23));
+		}
+		return dir+File.separator+" . . . "+name;
 	}
 }

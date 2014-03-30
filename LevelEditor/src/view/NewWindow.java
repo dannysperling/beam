@@ -44,6 +44,7 @@ public class NewWindow extends JFrame {
 				m.b = new Board((int)spinXModel.getValue(), (int)spinYModel.getValue());
 				m.workingTitle = textTitle.getText();
 				m.workingAuthor = textAuthor.getText();
+				m.b.id = -1;
 				main.update();
 				close();
 			}

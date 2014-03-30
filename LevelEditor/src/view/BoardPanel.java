@@ -27,6 +27,7 @@ public class BoardPanel extends JPanel{
 
 	public BoardPanel(EditorModel model){
 		m = model;
+		if (m.b == null) return;
 		int widthTiles = this.getSize().width /  m.b.getNumHorizontalTiles();
 		int heightTiles = this.getSize().height / m.b.getNumVerticalTiles();
 		tilesize = Math.min(widthTiles, heightTiles);
@@ -47,12 +48,14 @@ public class BoardPanel extends JPanel{
 
 	@Override
 	public void paint(Graphics g){
+		//super.paint(g);//Allows boarders,bevels,etc
 		List<Piece> pieces = m.b.getAllPieces();
 		List<Tile> tiles = m.b.getAllTiles();
 		
 		int widthTiles = this.getSize().width /  m.b.getNumHorizontalTiles();
 		int heightTiles = this.getSize().height / m.b.getNumVerticalTiles();
 		tilesize = Math.min(widthTiles, heightTiles);
+		//this.setPreferredSize(new Dimension(tilesize*m.b.getNumHorizontalTiles(), tilesize*m.b.getNumVerticalTiles()));
 		EditorModel.initializeLasers(m.b);
 		//System.out.println(m.b.lasers.size());
 		
@@ -60,7 +63,7 @@ public class BoardPanel extends JPanel{
 		int by = 0;
 		
 		g.setColor(this.getBackground());
-		g.fillRect(0, 0, this.getWidth(), this.getHeight());
+		g.fillRect(0, 0, tilesize*m.b.getNumHorizontalTiles(), tilesize*m.b.getNumVerticalTiles());
 		
 		// Draw the basic grid
 		g.setColor(Color.white);

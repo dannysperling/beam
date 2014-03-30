@@ -138,6 +138,16 @@ public class Board {
 		tiles[x][y].isGlass = isGlass;
 		return ret;
 	}
+	
+	//Req for level editor
+	public void setGoal(int x, int y, Color c){
+		tiles[x][y].setGoal(c);
+	}
+	
+	//Req for level editor
+	public void setPainter(int x, int y, Color c){
+		tiles[x][y].setPainter(c);
+	}
 
 	/**
 	 * Addes piece p to the board, returning the piece that was previously there
