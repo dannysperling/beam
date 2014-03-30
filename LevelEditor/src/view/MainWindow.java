@@ -354,7 +354,7 @@ public class MainWindow extends JFrame implements MouseListener{
 		this.add(mainPanel);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.repaint();
-		this.addMouseListener(this);
+		boardPanel.addMouseListener(this);
 		this.setVisible(true);
 	}
 	
