@@ -212,9 +212,10 @@ public class LevelIO {
 	 *            - "" for no title
 	 * @param author
 	 *            - your name here, "" allowable
+	 * @return 
 	 * @throws IOException
 	 */
-	public void saveBoard(Board b, String title, String author)
+	public int saveBoard(Board b, String title, String author)
 			throws IOException {
 		String existingFile = fileContent(file);
 		if (getLevel(b.id) != null) {// If id exists, remove it from file so we can re-insert
@@ -242,6 +243,7 @@ public class LevelIO {
 		fw.close();
 		System.out.println("\n"+file);
 		System.out.println("\n\n"+newFile);
+		return b.id;
 	}
 
 	private String generateBeamGoalSpec() {

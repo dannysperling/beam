@@ -4,8 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.util.EnumMap;
 
@@ -39,6 +43,7 @@ public class MainWindow extends JFrame implements MouseListener{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	boolean saved = false;
 	JPanel mainPanel = new JPanel();
 	JPanel toolBar = new JPanel();
 	JPanel sideBar = new JPanel();
@@ -76,6 +81,7 @@ public class MainWindow extends JFrame implements MouseListener{
 	
 	
 	public MainWindow(final EditorModel m){
+		saved = false;
 		model = m;
 		///
 		boardPanel = new BoardPanel();
@@ -102,24 +108,27 @@ public class MainWindow extends JFrame implements MouseListener{
 		spinPar = new JSpinner(spinParModel);
 		spinPerf.addChangeListener(new ChangeListener(){
 			public void stateChanged(ChangeEvent arg0) {
+				if (model.b.perfect == (int) spinPerfModel.getValue()) return;
 				model.b.perfect = (int) spinPerfModel.getValue();
 				if (((int) spinParModel.getValue()) < model.b.perfect){
 					model.b.par = model.b.perfect;
 					spinParModel.setValue(model.b.par);
 				}
-				
+				saved = false;
 			}
 			
 		});
 		spinPar.addChangeListener(new ChangeListener(){
 			public void stateChanged(ChangeEvent arg0) {
+				if (model.b.par == (int) spinParModel.getValue()) return;
 				model.b.par = (int) spinParModel.getValue();
 				if (((int) spinParModel.getValue()) < model.b.perfect){
 					model.b.par = model.b.perfect;
 					spinParModel.setValue(model.b.par);
 				}
-				
+				saved = false;
 			}
+			
 			
 		});
 		///
@@ -154,12 +163,11 @@ public class MainWindow extends JFrame implements MouseListener{
 			goalSpinnerModels.put(c,snm);
 			sideBar.add(new JLabel(c.toString()));
 			sideBar.add(new JSpinner(snm));
-			snm.addChangeListener(new ChangeListener() {
-				
+			snm.addChangeListener(new ChangeListener() {	
 				@Override
 				public void stateChanged(ChangeEvent arg0) {
 					model.b.addBeamObjective(c, (int)snm.getValue());
-					
+					saved = false;
 				}
 			});
 		}
@@ -187,7 +195,8 @@ public class MainWindow extends JFrame implements MouseListener{
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				new FinalizationWindow(model);
+				new FinalizationWindow(model,DO_NOTHING_ON_CLOSE);
+				saved = true;
 			}
 			
 		});
@@ -198,7 +207,11 @@ public class MainWindow extends JFrame implements MouseListener{
 				Board old = m.b;
 				int id;
 				try{
-				id = Integer.parseInt(JOptionPane.showInputDialog(null, "Enter the id of the level you wish to load", "Select level", JOptionPane.QUESTION_MESSAGE));
+				String retVal = JOptionPane.showInputDialog(null, "Enter the id of the level you wish to load", "Select level", JOptionPane.QUESTION_MESSAGE);
+				if (retVal.isEmpty()){
+					return;
+				}
+				id = Integer.parseInt(retVal);
 				} catch (NumberFormatException ex){
 					JOptionPane.showMessageDialog(null, "Bro that wasn't a number!", "Wat?", JOptionPane.ERROR_MESSAGE);
 					return;
@@ -208,23 +221,27 @@ public class MainWindow extends JFrame implements MouseListener{
 					if (m.b == null){
 						JOptionPane.showMessageDialog(null, "Umm, I don't think there is a level "+id, ":(", JOptionPane.ERROR_MESSAGE);
 						m.b = old;
-					}
-					update();
+					}	
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
+				saved = true;
+				System.out.println("Level loaded. Save? - "+saved+" = "+saved);
+				update();
 			}
 		});
 		buttonNew.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				new NewWindow(model, thisWindow());
+				saved = false;
 			}
 		});
 		///
 		buttonPlusCol.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				saved = false;
 				Board nb = new Board(m.b.getNumHorizontalTiles()+1,m.b.getNumVerticalTiles());
 				nb.id = m.b.id;
 				nb.par = m.b.par;
@@ -253,11 +270,11 @@ public class MainWindow extends JFrame implements MouseListener{
 				update();
 			}
 		});
-		
 		buttonPlusRow.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				saved = false;
 				Board nb = new Board(m.b.getNumHorizontalTiles(),m.b.getNumVerticalTiles()+1);
 				nb.id = m.b.id;
 				nb.par = m.b.par;
@@ -290,6 +307,7 @@ public class MainWindow extends JFrame implements MouseListener{
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				saved = false;
 				if (m.b.getNumHorizontalTiles() == 1)return;
 				Board nb = new Board(m.b.getNumHorizontalTiles()-1,m.b.getNumVerticalTiles());
 				nb.id = m.b.id;
@@ -318,11 +336,11 @@ public class MainWindow extends JFrame implements MouseListener{
 				update();
 			}
 		});
-		
 		buttonMinusRow.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				saved = false;
 				if (m.b.getNumVerticalTiles() == 1)return;
 				Board nb = new Board(m.b.getNumHorizontalTiles(),m.b.getNumVerticalTiles()-1);
 				nb.id = m.b.id;
@@ -352,17 +370,45 @@ public class MainWindow extends JFrame implements MouseListener{
 			}
 		});
 		///
+		this.addWindowListener(new WindowListener() {
+			public void windowOpened(WindowEvent arg0) {}
+			public void windowIconified(WindowEvent arg0) {}
+			public void windowDeiconified(WindowEvent arg0) {}
+			public void windowDeactivated(WindowEvent arg0) {}
+			
+			@Override
+			public void windowClosing(WindowEvent arg0) {
+				if (!saved){
+					promptSave();
+				}
+				System.exit(0);
+			}
+			public void windowClosed(WindowEvent arg0) {}
+			public void windowActivated(WindowEvent arg0) {}
+		});
+		///
 		this.add(mainPanel);
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		this.repaint();
 		boardPanel.addMouseListener(this);
 		this.setVisible(true);
 	}
-	
+
+
+	protected void promptSave() {
+		int opt = JOptionPane.showConfirmDialog(thisWindow(), "You have unsaved changes, would you like to save first?","Save First?", JOptionPane.YES_NO_OPTION);
+		if (opt == JOptionPane.YES_OPTION){
+			new FinalizationWindow(model,FinalizationWindow.EXIT_ON_CLOSE);
+		}
+		
+	}
+
 	protected MainWindow thisWindow() {
 		return this;
 	}
+	
 
+	
 	public void update(){
 		boardPanel.setModel(model);
 		//System.out.println("Par: "+model.b.par+"Perfect: "+model.b.perfect);
@@ -373,7 +419,8 @@ public class MainWindow extends JFrame implements MouseListener{
 			SpinnerModel sm = goalSpinnerModels.get(c);
 			sm.setValue(model.b.getBeamObjectiveCount(c));
 		}
-		labelCurLevel.setText(model.fileName()+" - "+model.idString());
+		System.out.println("Update. Saved? - "+saved+" = "+saved);
+		labelCurLevel.setText(model.fileName()+" - "+model.idString()+(saved?"":"*"));
 		this.repaint();
 	}
 

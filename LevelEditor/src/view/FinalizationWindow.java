@@ -28,8 +28,15 @@ public class FinalizationWindow extends JFrame {
 	JPanel panelButtons = new JPanel();
 	JButton buttonSave = new JButton("Save");
 	JButton buttonCancel = new JButton("Cancel");
+	int exitMode = DO_NOTHING_ON_CLOSE;
 
-	public FinalizationWindow(final EditorModel m) {
+	/**
+	 * 
+	 * @param m
+	 * @param mode - One of FianlizationWindow.DO_NOTHING_ON_CLOSE or EXIT_ON_CLOSE. If the latter, the program terminates upon completion of the save operation.
+	 */
+	public FinalizationWindow(final EditorModel m, int mode) {
+		exitMode = mode;
 		System.out.println("Working title: "+m.workingTitle);
 		System.out.println("Working Author: "+m.workingAuthor);
 		buttonCancel.addActionListener(new ActionListener() {
@@ -45,12 +52,16 @@ public class FinalizationWindow extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				String name = textTitle.getText();
 				String author = textAuthor.getText();
+				int id = -1;
 				try {
-					m.levelIO.saveBoard(m.b, name, author);
+					id = m.levelIO.saveBoard(m.b, name, author);
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, "A(n) "+e.getClass()+"  has occured!", "MUCH ERROR, VERY BROKEN, SUCH WOW", ERROR);
 				}
+				JOptionPane.showMessageDialog(null, "Save sucessful! Your level has been assigned id #"+id, "Save Sucessful", JOptionPane.INFORMATION_MESSAGE);
 				close();
+				if (exitMode == EXIT_ON_CLOSE)
+					System.exit(0);
 			}
 		});
 		///
