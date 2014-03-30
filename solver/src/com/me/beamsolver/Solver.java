@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 
-import sun.swing.plaf.synth.Paint9Painter.PaintType;
-
 import com.me.beam.Board;
 import com.me.beam.GameEngine.Color;
 import com.me.beam.Laser;
@@ -20,7 +18,7 @@ import com.me.beam.Piece;
 
 public class Solver {
 
-	private class QueueEntry implements Comparable{
+	private class QueueEntry implements Comparable<QueueEntry>{
 		private Piece[][] pieces;
 		private int moves;
 
@@ -30,7 +28,7 @@ public class Solver {
 		}
 
 		@Override
-		public int compareTo(Object other) {
+		public int compareTo(QueueEntry other) {
 			if (!(other instanceof QueueEntry)) {
 				System.err.println("QueueEntry compare failed.");
 				return 0;
@@ -265,20 +263,6 @@ public class Solver {
 		} else if (verticalSymmetry) {
 			safePut(reflectVertically(pieces), moves);
 		}
-	}
-
-	private Set<Point> getSafePlaces(Piece[][] pieces, Color color) {
-		// TODO: assumes that painters don't exist
-		Set<Point> ret = new HashSet<Point>();
-		for (int i = 0; i < this.board.getNumHorizontalTiles(); i++) {
-			for (int j = 0; j < this.board.getNumVerticalTiles(); j++) {
-				Piece p = new Piece(i, j, color);
-				if (isPlaceSafe(pieces, p)) {
-					ret.add(new Point(i, j));
-				}
-			}
-		}
-		return ret;
 	}
 	
 	private boolean isPlaceSafe(Piece[][] pieces, Piece p) {
