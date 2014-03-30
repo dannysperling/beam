@@ -58,8 +58,6 @@ public class LevelIO {
 	 * @throws IOException
 	 */
 	public Board getLevel(int id) throws IOException {
-		GameEngine.debug("Looking for level " + id);
-
 		String spec = findLevelByID(id);
 		if (spec == null)
 			return null;
@@ -169,7 +167,7 @@ public class LevelIO {
 				Pattern.UNIX_LINES);
 		Matcher match = pat.matcher(text);
 		while (match.find()) {
-			if (match.group().contains("id=" + id)) {
+			if (match.group().contains("id=" + id +" ")) {
 				return match.group();
 			}
 		}
@@ -220,7 +218,7 @@ public class LevelIO {
 			throws IOException {
 		String existingFile = fileContent(file);
 		if (getLevel(b.id) != null) {// If id exists, remove it from file so we can re-insert
-			Pattern pat = Pattern.compile("<level id="+b.id+".*?/level>", Pattern.DOTALL);
+			Pattern pat = Pattern.compile("<level id="+b.id+"\\s.*?/level>", Pattern.DOTALL);
 			Matcher mat = pat.matcher(existingFile);
 			existingFile = mat.replaceAll("");
 			mat.reset();
@@ -238,7 +236,7 @@ public class LevelIO {
 		System.out.println("Old file deleted? - "+f.delete());
 		f.createNewFile();
 		FileWriter fw = new FileWriter(f);
-		fw.write(newFile);
+		fw.write(newFile.trim());
 		fw.flush();
 		fw.close();
 		System.out.println("\n"+file);

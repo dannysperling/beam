@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
@@ -13,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
@@ -49,16 +51,16 @@ public class MainWindow extends JFrame {
 	///
 	ArrayList<JLabel> goalTextFields = new ArrayList<JLabel>();
 	JLabel beamGoalsLabel = new JLabel("Beam Goals");
-	JButton buttonClear = new JButton("Clear");
 	JButton buttonNew = new JButton("New");
+	JButton buttonLoad = new JButton("Load");
 	JButton buttonFin = new JButton("Finalize");
 	EditorModel model;
 	
 	
 	
-	public MainWindow(EditorModel m){
+	public MainWindow(final EditorModel m){
 		model = m;
-		boardPanel = new BoardPanel(model.b);
+		boardPanel = new BoardPanel(model);
 		mainPanel.setLayout(new BorderLayout(0, 0));
 		mainPanel.add(toolBar, BorderLayout.NORTH);
 		mainPanel.add(sideBar, BorderLayout.EAST);
@@ -130,8 +132,8 @@ public class MainWindow extends JFrame {
 			sideBar.add(txt);
 			sideBar.add(new JButton(new ImageIcon("src/RightArrow.png")));
 		}
-		sideBar.add(buttonClear);
 		sideBar.add(buttonNew);
+		sideBar.add(buttonLoad);
 		sideBar.add(buttonFin);
 		///
 		buttonFin.addActionListener(new ActionListener(){
@@ -142,11 +144,43 @@ public class MainWindow extends JFrame {
 			}
 			
 		});
+		buttonLoad.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int oldID = m.b.id;
+				int id;
+				try{
+				id = Integer.parseInt(JOptionPane.showInputDialog(null, "Enter the id of the level you wish to load", "Select level", JOptionPane.QUESTION_MESSAGE));
+				} catch (NumberFormatException ex){
+					JOptionPane.showMessageDialog(null, "Bro that wasn't a number!", "Wat?", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				try {
+					m.loadBoard(id);
+					if (m.b == null){
+						m.loadBoard(oldID);
+						JOptionPane.showMessageDialog(null, "Umm, I don't think there is a level "+id, ":(", JOptionPane.ERROR_MESSAGE);
+					}
+					update();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		///
 		this.setSize(800, 600);
 		this.add(mainPanel);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.repaint();
 		this.setVisible(true);
+	}
+	
+	public void update(){
+		boardPanel = new BoardPanel(model);
+		spinPerfModel.setValue(model.b.perfect);
+		spinParModel.setValue(model.b.par);
+		this.repaint();
 	}
 	
 
