@@ -417,3 +417,29 @@ e,2,1
 e,glass,glass
 goal_1,e,e
 </level>
+
+
+
+<level id=46 par=100 perfect=34>
+<attribution name="Way too hard" author="John"/>
+3,1:goal_3,e,1:goal_3,2
+1,glass,e,glass,1
+1,glass,e,glass,1
+2,1:goal_2,e,1:goal_2,3
+</level>
+
+<level id=47 par=4 perfect=3>
+<attribution name="Learn to kill 3" author="John"/>
+1,glass,glass
+2,2,1
+e,glass,e
+goal_1,e,glass
+</level>
+
+<level id=48 par=3 perfect=2>
+<attribution name="Learn to Kill 2" author="John"/>
+1,glass,glass
+e,2,1
+e,glass,e
+goal_1,glass,glass
+</level>
