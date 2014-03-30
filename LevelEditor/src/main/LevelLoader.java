@@ -39,8 +39,8 @@ public class LevelLoader {
 	/**
 	 * Load the level from file with the given id
 	 * 
-	 * @param ordinal
-	 *            Must be a valid ordinal in the file
+	 * @param index
+	 *            Must be a valid index in the file
 	 * @return null if id was not found or level was malformed.
 	 * @throws IOException 
 	 */

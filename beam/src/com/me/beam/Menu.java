@@ -232,13 +232,13 @@ public class Menu {
 	}
 	
 	//Scrolls to a specific level
-	public void scrollToLevel(int ordinal){
+	public void scrollToLevel(int index){
 		
 		int prevLevels = 0;
 		boolean foundAlready = false;
 		//Scroll all the things
 		for (int i = 0; i < worldSizes.size(); i++){
-			if (!foundAlready && worldSizes.get(i) + prevLevels > ordinal){
+			if (!foundAlready && worldSizes.get(i) + prevLevels > index){
 				foundAlready = true;
 				
 				//Scroll down
@@ -248,7 +248,7 @@ public class Menu {
 				downScrollAmount = Math.min(itemHeight * scrollToY, maxHeight - 1);
 				
 				//And over
-				int over = ordinal - prevLevels;
+				int over = index - prevLevels;
 				int itemWidth = getItemWidth();
 				worldScrollAmounts[i] = Math.max((over - 1) * itemWidth, 0);
 			} else {
@@ -272,12 +272,12 @@ public class Menu {
 	}
 	
 	//Allow some read-through to the game progress
-	public int getLevelMoves(int ordinal){
-		return progress.getLevelMoves(ordinal);
+	public int getLevelMoves(int index){
+		return progress.getLevelMoves(index);
 	}
 	
-	public int getLevelStars(int ordinal){
-		return progress.getLevelStars(ordinal);
+	public int getLevelStars(int index){
+		return progress.getLevelStars(index);
 	}
 	
 	public boolean isWorldUnlocked(int world){
@@ -292,7 +292,7 @@ public class Menu {
 		return (levelIndex - worldStartIndices.get(world) + 1) == worldSizes.get(world);
 	}
 	
-	//Returns the ordinal of the selected level, or -1 if selected level is locked.
+	//Returns the index of the selected level, or -1 if selected level is locked.
 	public int getSelectedLevel(int screenXPos, int screenYPos){
 		int world = getWorldAtPosition(screenYPos);
 		if (progress.isWorldUnlocked(world)){
@@ -314,7 +314,7 @@ public class Menu {
 		return (selectedY / itemHeight);
 	}
 	
-	//Returns the ordinal of the level at the given position, INCLUDING LOCKED levels
+	//Returns the index of the level at the given position, INCLUDING LOCKED levels
 	public int getLevelAtPosition(int screenXPos, int screenYPos){
 		
 		int world = getWorldAtPosition(screenYPos);
@@ -329,13 +329,13 @@ public class Menu {
 		return worldStartIndices.get(world) + withinWorld;
 	}
 	
-	//Gets the position of the ordinal within its world
-	public int getPositionInWorld(int ordinal){
+	//Gets the position of the index within its world
+	public int getPositionInWorld(int index){
 		int world = 0;
-		while (world < worldSizes.size() - 1 && ordinal >= worldStartIndices.get(world + 1) ){
+		while (world < worldSizes.size() - 1 && index >= worldStartIndices.get(world + 1) ){
 			world++;
 		}
-		return ordinal - worldStartIndices.get(world) + 1;
+		return index - worldStartIndices.get(world) + 1;
 	}
 	
 	public int getItemHeight(){

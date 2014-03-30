@@ -33,7 +33,7 @@ public class Solver {
 				"../beam-android/assets/data/levels/levels.xml", levelOrderer,
 				true);
 
-		int ordinal = 40;
+		int ordinal = 38;
 		int index = ordinal - 1;
 		Board toSolve = levelLoader.getLevel(index);
 		System.out.println("Solving level " + ordinal);

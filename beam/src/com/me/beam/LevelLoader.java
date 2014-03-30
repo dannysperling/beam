@@ -1,7 +1,6 @@
 package com.me.beam;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.util.regex.*;
 
@@ -46,13 +45,13 @@ public class LevelLoader {
 	/**
 	 * Load the level from file with the given id
 	 * 
-	 * @param ordinal
-	 *            Must be a valid ordinal in the file
+	 * @param index
+	 *            Must be a valid index in the file
 	 * @return null if id was not found or level was malformed.
 	 */
-	public Board getLevel(int ordinal) {
+	public Board getLevel(int index) {
 
-		int id = orderer.getUniqueId(ordinal);
+		int id = orderer.getUniqueId(index);
 		GameEngine.debug("Looking for level " + id);
 
 		String spec = findLevelByID(id);
@@ -156,6 +155,7 @@ public class LevelLoader {
 				while ((line = reader.readLine()) != null) {
 					text += line + "\n";
 				}
+				reader.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

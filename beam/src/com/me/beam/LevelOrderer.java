@@ -56,6 +56,7 @@ public class LevelOrderer {
 			while ((line = reader.readLine()) != null) {
 				text += line + "\n";
 			}
+			reader.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -81,10 +82,10 @@ public class LevelOrderer {
 		}
 	}
 
-	// Get the unique id for an ordinal
-	public int getUniqueId(int ordinal) {
-		if (ordinal >= 0 && ordinal < mapping.size())
-			return mapping.get(ordinal);
+	// Get the unique id for an index
+	public int getUniqueId(int index) {
+		if (index >= 0 && index < mapping.size())
+			return mapping.get(index);
 		return 0;
 	}
 

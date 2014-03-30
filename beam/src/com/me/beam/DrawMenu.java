@@ -37,7 +37,7 @@ public class DrawMenu {
 		TextBounds tb;
 
 		//Loop until the item wouldn't show at all
-		String stringOrdinal;
+		String stringNumber;
 		while(itemTopY > 0){
 		
 			//Ensure world in bounds
@@ -46,18 +46,18 @@ public class DrawMenu {
 				int horizontalScrolled = menu.getHorizontalScrollAmount(world);
 				int itemLeftX = -(horizontalScrolled % itemWidth);
 				int itemBotY = itemTopY - itemHeight;
-				int ordinal = menu.getLevelAtPosition(itemLeftX + itemWidth / 2, itemTopY - itemHeight / 2);
+				int index = menu.getLevelAtPosition(itemLeftX + itemWidth / 2, itemTopY - itemHeight / 2);
 				
 				boolean worldUnlocked = menu.isWorldUnlocked(world);
 				
 				while (itemLeftX < width - 1){
-					//Ensure ordinal in bounds
-					if (ordinal != -1){
+					//Ensure index in bounds
+					if (index != -1){
 						//Figure out how to draw the item
-						if (!worldUnlocked || (menu.isBonus(world, ordinal) && !menu.isBonusLevelUnlocked(world))){
+						if (!worldUnlocked || (menu.isBonus(world, index) && !menu.isBonusLevelUnlocked(world))){
 							numberFont.setColor(Color.RED);
 						} else {
-							int bestMoves = menu.getLevelMoves(ordinal);
+							int bestMoves = menu.getLevelMoves(index);
 							if (bestMoves != 0){
 								numberFont.setColor(Color.GREEN);
 							} else {
@@ -66,7 +66,7 @@ public class DrawMenu {
 						}
 						
 						//Either draw current state or entire board
-						Board b = (ordinal == curLevel) ? curBoard : boardList.get(ordinal);
+						Board b = (index == curLevel) ? curBoard : boardList.get(index);
 						
 						// Get board dimensions
 						Color curBG = new Color(.1f, .1f, .1f, 1);
@@ -78,15 +78,15 @@ public class DrawMenu {
 						
 						//Draw number on top
 						batch.begin();
-						stringOrdinal = (world + 1) + "-" + menu.getPositionInWorld(ordinal);
-						tb = numberFont.getBounds(stringOrdinal);
-						numberFont.draw(batch, stringOrdinal, itemLeftX + (itemWidth - tb.width)/2, 
+						stringNumber = (world + 1) + "-" + menu.getPositionInWorld(index);
+						tb = numberFont.getBounds(stringNumber);
+						numberFont.draw(batch, stringNumber, itemLeftX + (itemWidth - tb.width)/2, 
 								itemTopY - ((itemHeight * (1-menu.boardHeightPercent) * 3/4) - tb.height) / 2);
 						batch.end();
 					}
 					
 					itemLeftX += itemWidth;
-					ordinal = menu.getLevelAtPosition(itemLeftX + itemWidth / 2, itemTopY - itemHeight / 2);
+					index = menu.getLevelAtPosition(itemLeftX + itemWidth / 2, itemTopY - itemHeight / 2);
 				}
 			}
 
