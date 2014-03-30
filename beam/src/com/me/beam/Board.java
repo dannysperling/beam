@@ -116,7 +116,9 @@ public class Board {
 	}
 
 	public int getBeamObjectiveCount(Color c) {
-		return beamObjectives.get(c);
+		if (beamObjectives != null && beamObjectives.containsKey(c))
+			return beamObjectives.get(c);
+		return -1;
 	}
 
 	public Piece[][] getPieces() {
