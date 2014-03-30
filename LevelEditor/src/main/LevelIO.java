@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 import com.me.beam.Board;
 import com.me.beam.GameEngine;
 import com.me.beam.GameEngine.Color;
-import com.me.beam.GameEngine.GameState;
 import com.me.beam.Piece;
 import com.me.beam.Tile;
 

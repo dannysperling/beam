@@ -2,10 +2,8 @@ package main;
 
 import java.io.File;
 import java.io.IOException;
-
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
-
 import view.MainWindow;
 
 public class Main {
@@ -31,7 +29,7 @@ public class Main {
 		int fcVal = fc.showOpenDialog(null);
 		if (fcVal != JFileChooser.APPROVE_OPTION) return;
 		EditorModel model = new EditorModel(fc.getSelectedFile().getCanonicalPath());
-		//model.loadBoard(1);
+		@SuppressWarnings("unused")
 		MainWindow mw = new MainWindow(model);
 	}
 

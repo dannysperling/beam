@@ -139,6 +139,7 @@ public class Board {
 		return ret;
 	}
 	
+<<<<<<< HEAD
 	//Req for level editor
 	public void setGoal(int x, int y, Color c){
 		tiles[x][y].setGoal(c);
@@ -147,6 +148,26 @@ public class Board {
 	//Req for level editor
 	public void setPainter(int x, int y, Color c){
 		tiles[x][y].setPainter(c);
+=======
+	/**
+	 * Sets the tile at (X,Y) to be a type of painter.
+	 * GameEngine.Color.NONE removes the painter.
+	 * 
+	 * @param painterColor
+	 */
+	public void setPainter(int x, int y, GameEngine.Color painterColor) {
+		tiles[x][y].setPainter(painterColor);
+	}
+	
+	/**
+	 * Sets the tile at (X,Y) to be a type of goal.
+	 * GameEngine.Color.NONE removes the goal.
+	 * 
+	 * @param goalColor
+	 */
+	public void setGoal(int x, int y, GameEngine.Color goalColor) {
+		tiles[x][y].setGoal(goalColor);
+>>>>>>> 420b8799f7e46848cb8a3f239f251edea843a3f7
 	}
 
 	/**

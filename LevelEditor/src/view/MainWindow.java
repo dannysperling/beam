@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.EnumMap;
 
@@ -32,7 +34,7 @@ import com.me.beam.GameEngine;
 import com.me.beam.Piece;
 import com.me.beam.Tile;
 
-public class MainWindow extends JFrame {
+public class MainWindow extends JFrame implements MouseListener{
 	/**
 	 * 
 	 */
@@ -42,7 +44,7 @@ public class MainWindow extends JFrame {
 	JPanel sideBar = new JPanel();
 	JPanel boardHolder = new JPanel();
 	JPanel resizeButtonPanel = new JPanel();
-	JPanel boardPanel;
+	BoardPanel boardPanel;
 	JPanel panelSideBarButtons = new JPanel();
 	ButtonGroup radioGroup = new ButtonGroup();
 	///
@@ -76,7 +78,8 @@ public class MainWindow extends JFrame {
 	public MainWindow(final EditorModel m){
 		model = m;
 		///
-		boardPanel = new BoardPanel(model);
+		boardPanel = new BoardPanel();
+		boardPanel.setModel(m);
 		boardHolder.setLayout(new BorderLayout(20,20));
 		boardHolder.add(boardPanel,BorderLayout.CENTER);
 		labelCurLevel.setText(m.fileName()+" - "+m.idString());
@@ -137,6 +140,7 @@ public class MainWindow extends JFrame {
 		radioGroup.add(jrbGlass);
 		radioGroup.add(jrbGoal);
 		radioGroup.add(jrbPainter);
+		jrbPiece.setSelected(true);
 		///
 		sideBar.setLayout(new BoxLayout(sideBar,BoxLayout.Y_AXIS));
 		beamGoalsLabel.setAlignmentX(CENTER_ALIGNMENT);
@@ -358,8 +362,7 @@ public class MainWindow extends JFrame {
 	}
 
 	public void update(){
-		if (model.b == null) return;
-		boardPanel = new BoardPanel(model);
+		boardPanel.setModel(model);
 		//System.out.println("Par: "+model.b.par+"Perfect: "+model.b.perfect);
 		spinParModel.setValue(model.b.par);
 		spinPerfModel.setValue(model.b.perfect);
@@ -371,6 +374,72 @@ public class MainWindow extends JFrame {
 		labelCurLevel.setText(model.fileName()+" - "+model.idString());
 		this.repaint();
 	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		
+		int xPos = e.getX();
+		int yPos = e.getY();
+				
+		int tileSize = boardPanel.getTileSize();
+		
+		System.out.println("Why is the tile size " + tileSize);
+		
+		if (tileSize == 0)
+			return;
+		
+		int tileX = xPos / tileSize;
+		int tileY = yPos / tileSize;
+		
+		if (tileX < model.b.getNumHorizontalTiles() && tileY < model.b.getNumVerticalTiles()){
+			
+			GameEngine.Color curColor = (GameEngine.Color) colorDropdown.getSelectedItem();
+			int button = e.getButton();
+			
+			//Determine what to do based on selected button and press
+			if (jrbPiece.isSelected()){
+				//Always remove, add of current color if first button press
+				//Basically, left click to add, right click to remove
+				Piece p = new Piece(tileX, tileY, curColor);
+				model.b.removePiece(p);
+				
+				if (button == MouseEvent.BUTTON1 && curColor != GameEngine.Color.NONE){
+					model.b.put(p);
+				}
+				
+			} else if (jrbGlass.isSelected()){
+				model.b.setGlass(tileX, tileY, button == MouseEvent.BUTTON1);
+				
+			} else if (jrbGoal.isSelected()){
+				//Allows for right click to remove
+				if (button != MouseEvent.BUTTON1){
+					curColor = GameEngine.Color.NONE;
+				}
+				model.b.setGoal(tileX, tileY, curColor);
+				
+			} else if (jrbPainter.isSelected()){
+				//Allows for right click to remove
+				if (button != MouseEvent.BUTTON1){
+					curColor = GameEngine.Color.NONE;
+				}
+				model.b.setPainter(tileX, tileY, curColor);
+			}
+			boardPanel.repaint();
+		}
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {}
+
+	@Override
+	public void mouseExited(MouseEvent e) {}
+
+	@Override
+	public void mousePressed(MouseEvent e) {}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {}
 	
 
 }

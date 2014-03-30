@@ -10,6 +10,12 @@ import com.me.beam.Board;
 import main.EditorModel;
 
 public class NewWindow extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	
 	JLabel labelTitle = new JLabel("Title");
 	JLabel labelAuthor = new JLabel("Author");
 	JTextField textTitle = new JTextField("Level Title (internal use only)");

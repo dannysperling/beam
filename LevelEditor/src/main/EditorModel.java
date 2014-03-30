@@ -45,7 +45,6 @@ public class EditorModel {
 	}
 
 	private static void formLasers(Board board, Piece p) {
-		boolean horizontalMove = false;
 		// Check for left pieces
 		Tile leftSameColor = null;
 

@@ -75,7 +75,7 @@ public class InputHandler {
 	private int timeHeld = 0;
 	private final int timeForLoggingReset = 240;
 
-	//Returns the level ordinal selected, -1 if no unlocked level selected, -2 if exiting game
+	//Returns the level index selected, -1 if no unlocked level selected, -2 if exiting game
 	public int handleMainMenuInput(Menu menu){
 		
 		if (backClicked){

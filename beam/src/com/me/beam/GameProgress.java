@@ -59,19 +59,19 @@ public class GameProgress {
 	}
 
 	//Returns if the new score was better
-	public boolean setLevelScore(int ordinal, int moves, int levelStars){
+	public boolean setLevelScore(int index, int moves, int levelStars){
 		if (GameEngine.LOGGING){
 			Logger.log(LogType.BEAT_LEVEL_MOVES, moves);
 		}
-		if (scores[ordinal] == 0 || moves < scores[ordinal]){
+		if (scores[index] == 0 || moves < scores[index]){
 			//Only store stars if better moves
 			if (GameEngine.LOGGING){
 				Logger.log(LogType.BEAT_LEVEL_STARS, levelStars);
 			}
-			uniqueIds[ordinal] = levelOrderer.getUniqueId(ordinal);
-			scores[ordinal] = moves;
-			stars[ordinal] = levelStars;
-			setXmlTag(ordinal);
+			uniqueIds[index] = levelOrderer.getUniqueId(index);
+			scores[index] = moves;
+			stars[index] = levelStars;
+			setXmlTag(index);
 			save();
 
 			return true;
@@ -142,13 +142,13 @@ public class GameProgress {
 	}
 
 	//Returns the number of moves done on this level, or 0 if not completed
-	public int getLevelMoves(int ordinal){
-		return scores[ordinal];
+	public int getLevelMoves(int index){
+		return scores[index];
 	}
 
 	//Returns the number of stars earned on this level, or 0 if not completed
-	public int getLevelStars(int ordinal){
-		return stars[ordinal];
+	public int getLevelStars(int index){
+		return stars[index];
 	}
 
 	public void setMusic(boolean isPlaying){
@@ -181,16 +181,16 @@ public class GameProgress {
 		Pattern pat = Pattern.compile("<level\\s*id=(\\d+)\\s*score=(\\d+)\\s*stars=(\\d+)\\s*/>");
 		Matcher mat = pat.matcher(toMatch.trim());
 
-		Map<Integer,Integer> inverseOrdinalMap = levelOrderer.getInverseMapping();
+		Map<Integer,Integer> inverseIndexMap = levelOrderer.getInverseMapping();
 		while (mat.find()){
 			int uniqueId = Integer.parseInt(mat.group(1));
-			Integer ordinalObj = inverseOrdinalMap.get(uniqueId);
-			if (ordinalObj != null){
-				int ordinal = ordinalObj;
-				scores[ordinal] = Integer.parseInt(mat.group(2));
-				stars[ordinal] = Integer.parseInt(mat.group(3));
-				uniqueIds[ordinal] = uniqueId;
-				setXmlTag(ordinal);
+			Integer indexObj = inverseIndexMap.get(uniqueId);
+			if (indexObj != null){
+				int index = indexObj;
+				scores[index] = Integer.parseInt(mat.group(2));
+				stars[index] = Integer.parseInt(mat.group(3));
+				uniqueIds[index] = uniqueId;
+				setXmlTag(index);
 			}
 		}
 
@@ -201,9 +201,9 @@ public class GameProgress {
 		playFX = Integer.parseInt(mat.group(2));
 	}
 
-	private void setXmlTag(int ordinal){
-		xmlTags[ordinal] = "<level id=" + uniqueIds[ordinal] + 
-				" score=" + scores[ordinal] + 
-				" stars=" + stars[ordinal] +" />\n";
+	private void setXmlTag(int index){
+		xmlTags[index] = "<level id=" + uniqueIds[index] + 
+				" score=" + scores[index] + 
+				" stars=" + stars[index] +" />\n";
 	}
 }

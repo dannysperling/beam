@@ -1,6 +1,5 @@
 package view;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.List;
 import java.util.Set;
@@ -9,9 +8,6 @@ import javax.swing.JPanel;
 
 import main.EditorModel;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.me.beam.Board;
 import com.me.beam.GameEngine;
 import com.me.beam.Laser;
 import com.me.beam.Piece;
@@ -25,7 +21,10 @@ public class BoardPanel extends JPanel{
 
 	private static final long serialVersionUID = 1L;
 
-	public BoardPanel(EditorModel model){
+	public BoardPanel(){
+	}
+	
+	public void setModel(EditorModel model){
 		m = model;
 		if (m.b == null) return;
 		int widthTiles = this.getSize().width /  m.b.getNumHorizontalTiles();
@@ -45,6 +44,10 @@ public class BoardPanel extends JPanel{
 			return new Color(0, 0, 0, 0);	
 		}
 	}
+	
+	public int getTileSize(){
+		return tilesize;
+	}
 
 	@Override
 	public void paint(Graphics g){
@@ -55,7 +58,6 @@ public class BoardPanel extends JPanel{
 		int widthTiles = this.getSize().width /  m.b.getNumHorizontalTiles();
 		int heightTiles = this.getSize().height / m.b.getNumVerticalTiles();
 		tilesize = Math.min(widthTiles, heightTiles);
-		//this.setPreferredSize(new Dimension(tilesize*m.b.getNumHorizontalTiles(), tilesize*m.b.getNumVerticalTiles()));
 		EditorModel.initializeLasers(m.b);
 		//System.out.println(m.b.lasers.size());
 		
@@ -133,7 +135,6 @@ public class BoardPanel extends JPanel{
 						+ (0.05f * tilesize)), (int)(0.9f * tilesize), (int)(0.9f * tilesize));
 			}
 		}
-		float moveAnimateTime = 0;
 
 		// Draw the pieces
 		List<Tile> path = GameEngine.movePath;
