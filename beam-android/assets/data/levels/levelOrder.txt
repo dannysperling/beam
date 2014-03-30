@@ -4,8 +4,9 @@
 38 - multiple colors of goals
 1
 35
+45
+47
 36
-x - easy destruction
 3 
 ### WORLDEND ###
 
@@ -70,4 +71,5 @@ x - gap
 34
 31
 19
+46
 ### WORLDEND ###
