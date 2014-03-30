@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import com.me.beam.Board;
 import com.me.beam.GameEngine;
 import com.me.beam.GameEngine.Color;
+import com.me.beam.GameEngine.GameState;
 import com.me.beam.Piece;
 import com.me.beam.Tile;
 
@@ -229,9 +230,10 @@ public class LevelIO {
 		String header = "<level id=" + b.id + " par=" + b.par + " perfect="
 				+ b.perfect + ">" + "\n" + "<attribution name=\"" + title
 				+ "\" author=\"" + author + "\"/>" + "\n";
+		String beamGoals = generateBeamGoalSpec();
 		String boardSpec = generateSpec(b);
 		String footer = "</level>\n";
-		String newFile = existingFile +"\n"+ header+boardSpec+footer;
+		String newFile = existingFile +"\n"+ header+beamGoals+boardSpec+footer;
 		File f = new File(file);
 		System.out.println("Old file deleted? - "+f.delete());
 		f.createNewFile();
@@ -241,6 +243,18 @@ public class LevelIO {
 		fw.close();
 		System.out.println("\n"+file);
 		System.out.println("\n\n"+newFile);
+	}
+
+	private String generateBeamGoalSpec() {
+		StringBuffer sb = new StringBuffer();
+		for (GameEngine.Color c : GameEngine.Color.values()){
+			if (c == GameEngine.Color.NONE) continue;
+			int beamsReq = model.b.getBeamObjectiveCount(c);
+			if (beamsReq>=0){
+				sb.append("<beamGoal color="+c.toIndex()+" count="+beamsReq+"/>\n");
+			}
+		}
+		return sb.toString();
 	}
 
 	private int generateNewId() {

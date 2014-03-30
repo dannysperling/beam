@@ -2,14 +2,14 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.EnumMap;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -36,6 +36,7 @@ public class MainWindow extends JFrame {
 	JPanel toolBar = new JPanel();
 	JPanel sideBar = new JPanel();
 	JPanel boardPanel;
+	JPanel panelSideBarButtons = new JPanel();
 	ButtonGroup radioGroup = new ButtonGroup();
 	///
 	JRadioButton jrbPiece = new JRadioButton("Piece");
@@ -49,11 +50,11 @@ public class MainWindow extends JFrame {
 	JSpinner spinPar;
 	JSpinner spinPerf;
 	///
-	ArrayList<JLabel> goalTextFields = new ArrayList<JLabel>();
+	EnumMap<GameEngine.Color,SpinnerModel> goalSpinnerModels = new EnumMap<GameEngine.Color,SpinnerModel>(GameEngine.Color.class);
 	JLabel beamGoalsLabel = new JLabel("Beam Goals");
 	JButton buttonNew = new JButton("New");
 	JButton buttonLoad = new JButton("Load");
-	JButton buttonFin = new JButton("Finalize");
+	JButton buttonFin = new JButton("Save");
 	EditorModel model;
 	
 	
@@ -114,27 +115,35 @@ public class MainWindow extends JFrame {
 		radioGroup.add(jrbGoal);
 		radioGroup.add(jrbPainter);
 		///
-		sideBar.setLayout(new GridLayout(0, 3, 25, 50));
-		sideBar.setAlignmentX(CENTER_ALIGNMENT);
-		///
-		for (GameEngine.Color c : GameEngine.Color.values()){
-			if (c == GameEngine.Color.NONE) continue;
-			JLabel num = new JLabel(c+" : X");
-			num.setAlignmentX(CENTER_ALIGNMENT);
-			num.setAlignmentY(CENTER_ALIGNMENT);
-			goalTextFields.add(num);
-		}
-		sideBar.add(new JLabel(""));
+		sideBar.setLayout(new BoxLayout(sideBar,BoxLayout.Y_AXIS));
+		beamGoalsLabel.setAlignmentX(CENTER_ALIGNMENT);
 		sideBar.add(beamGoalsLabel);
-		sideBar.add(new JLabel(""));
-		for (JLabel txt : goalTextFields){
-			sideBar.add(new JButton(new ImageIcon("src/LeftArrow.png")));
-			sideBar.add(txt);
-			sideBar.add(new JButton(new ImageIcon("src/RightArrow.png")));
+		JLabel tip = new JLabel("(-1 = No requirment)");
+		tip.setAlignmentX(CENTER_ALIGNMENT);
+		sideBar.add(tip);
+		for (final GameEngine.Color c : GameEngine.Color.values()){
+			if (c == GameEngine.Color.NONE) continue;
+			final SpinnerNumberModel snm = new SpinnerNumberModel(m.b.getBeamObjectiveCount(c),-1,100,1);
+			goalSpinnerModels.put(c,snm);
+			sideBar.add(new JLabel(c.toString()));
+			sideBar.add(new JSpinner(snm));
+			snm.addChangeListener(new ChangeListener() {
+				
+				@Override
+				public void stateChanged(ChangeEvent arg0) {
+					model.b.addBeamObjective(c, (int)snm.getValue());
+					
+				}
+			});
 		}
-		sideBar.add(buttonNew);
-		sideBar.add(buttonLoad);
-		sideBar.add(buttonFin);
+		
+		///Panel these together TODO
+		panelSideBarButtons.add(buttonNew);
+		panelSideBarButtons.add(buttonLoad);
+		panelSideBarButtons.add(buttonFin);
+		sideBar.add(Box.createVerticalGlue());
+		sideBar.add(panelSideBarButtons);
+		sideBar.add(Box.createVerticalStrut(0));
 		///
 		buttonFin.addActionListener(new ActionListener(){
 
@@ -168,6 +177,12 @@ public class MainWindow extends JFrame {
 				}
 			}
 		});
+		buttonNew.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new NewWindow(model, thisWindow());
+			}
+		});
 		///
 		this.setSize(800, 600);
 		this.add(mainPanel);
@@ -176,10 +191,20 @@ public class MainWindow extends JFrame {
 		this.setVisible(true);
 	}
 	
+	protected MainWindow thisWindow() {
+		return this;
+	}
+
 	public void update(){
 		boardPanel = new BoardPanel(model);
-		spinPerfModel.setValue(model.b.perfect);
+		//System.out.println("Par: "+model.b.par+"Perfect: "+model.b.perfect);
 		spinParModel.setValue(model.b.par);
+		spinPerfModel.setValue(model.b.perfect);
+		for (GameEngine.Color c : GameEngine.Color.values()){
+			if (c == GameEngine.Color.NONE) continue;
+			SpinnerModel sm = goalSpinnerModels.get(c);
+			sm.setValue(model.b.getBeamObjectiveCount(c));
+		}
 		this.repaint();
 	}
 	

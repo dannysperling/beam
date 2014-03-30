@@ -99,15 +99,7 @@ glass,e,glass
 goal_1,1,1:goal_1
 </level>
 
-<level id=15 par=16 perfect=5>
-<attribution name="" author=""/>
-<beamGoal color=2 count=8/>
-glass,glass,1,glass,1
-glass,glass,glass,glass,glass
-2,glass,painter_1,1,painter_1
-2,glass,2,e,1
-2,glass,painter_2,2,painter_1
-</level>
+
 
 <level id=16 par=15 perfect=10>
 <attribution name="" author=""/>
@@ -402,4 +394,25 @@ e,1,e
 e,e,e
 2,e,2
 e,goal_1,e
+</level>
+
+
+
+<level id=45 par=10 perfect=5>
+<attribution name="Empty Level" author="Reese (testing)"/>
+e,e,e
+e,e,e
+e,e,e
+</level>
+
+
+
+<level id=15 par=16 perfect=5>
+<attribution name="Painted Beams" author="Reese (Testing)"/>
+<beamGoal color=2 count=8/>
+glass,glass,1,glass,1
+glass,glass,glass,glass,glass
+2,glass,painter_1,1,painter_1
+2,glass,2,e,1
+2,glass,painter_2,2,painter_1
 </level>
