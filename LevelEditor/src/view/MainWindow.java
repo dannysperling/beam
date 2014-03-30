@@ -67,8 +67,8 @@ public class MainWindow extends JFrame {
 		//sideBar.setBackground(Color.GRAY);
 		boardPanel.setBackground(Color.DARK_GRAY);
 		////
-		spinPerfModel =new SpinnerNumberModel(0,0,100,1);
-		spinParModel =new SpinnerNumberModel(0,0,100,1);
+		spinPerfModel =new SpinnerNumberModel(m.b.perfect,0,100,1);
+		spinParModel =new SpinnerNumberModel(m.b.par,0,100,1);
 		spinPerf = new JSpinner(spinPerfModel);
 		spinPar = new JSpinner(spinParModel);
 		spinPerf.addChangeListener(new ChangeListener(){
@@ -138,7 +138,7 @@ public class MainWindow extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				new FinalizationWindow();
+				new FinalizationWindow(model);
 			}
 			
 		});

@@ -13,14 +13,16 @@ import com.me.beam.GameEngine.AnimationState;
 public class EditorModel {
 	public Board b;
 	public String outputFile = "";
-	LevelIO ll;
+	public LevelIO levelIO;
+	public String workingTitle = "";
+	public String workingAuthor = "";
 	
 	
-	public void loadBoard(int n) throws IOException{
-		if (ll == null){
-			ll = new LevelIO("src/levels.xml");
+ 	public void loadBoard(int n) throws IOException{
+		if (levelIO == null){
+			levelIO = new LevelIO("src/levels.xml",this);
 		}
-		b = ll.getLevel(n);
+		b = levelIO.getLevel(n);
 	}
 	
 	// Add all lasers to the board
