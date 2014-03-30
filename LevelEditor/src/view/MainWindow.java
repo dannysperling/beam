@@ -172,7 +172,8 @@ public class MainWindow extends JFrame implements MouseListener{
 		//sideBar.add(Box.createVerticalStrut(0));
 		///
 		this.setSize(758, 750);
-		boardPanel.setBackground(Color.DARK_GRAY);
+		boardPanel.setBackground(new Color(255,255,240));
+		boardPanel.setForeground(Color.BLACK);
 		boardPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE, 3));
 		mainPanel.setBackground(new Color(75,100,150));
 		boardHolder.setBackground(mainPanel.getBackground());
@@ -384,7 +385,7 @@ public class MainWindow extends JFrame implements MouseListener{
 				
 		int tileSize = boardPanel.getTileSize();
 		
-		System.out.println("Why is the tile size " + tileSize);
+		//System.out.println("Why is the tile size " + tileSize);
 		
 		if (tileSize == 0)
 			return;
@@ -425,7 +426,7 @@ public class MainWindow extends JFrame implements MouseListener{
 				}
 				model.b.setPainter(tileX, tileY, curColor);
 			}
-			boardPanel.repaint();
+			update();
 		}
 		
 	}

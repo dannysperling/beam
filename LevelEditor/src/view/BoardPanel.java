@@ -68,7 +68,7 @@ public class BoardPanel extends JPanel{
 		g.fillRect(0, 0, tilesize*m.b.getNumHorizontalTiles(), tilesize*m.b.getNumVerticalTiles());
 		
 		// Draw the basic grid
-		g.setColor(Color.white);
+		g.setColor(this.getForeground());
 		for (int i = 0; i <= m.b.getNumHorizontalTiles(); i++) {
 			g.drawLine(bx + (i * tilesize), by, bx + (i * tilesize),
 					by + (m.b.getNumVerticalTiles() * tilesize));
@@ -82,7 +82,7 @@ public class BoardPanel extends JPanel{
 		// Draw the tiles
 		for (Tile t : tiles) {
 			if (t.isGlass) {
-				g.setColor(Color.WHITE);
+				g.setColor(this.getForeground());
 				int glassX = bx + (t.getXCoord() * tilesize);
 				int glassY = by + (t.getYCoord() * tilesize);
 				g.drawLine(glassX,(int)( glassY + (0.25f * tilesize)),(int)( glassX
@@ -131,6 +131,9 @@ public class BoardPanel extends JPanel{
 					g.setColor(new Color(0, 0, 0, 0));
 					break;
 				}
+				//EXPERIMENTAL (TODO decide)
+				g.setColor(translateColor(t.getPainterColor()).darker().darker());
+				//END EXPERIMENTAL
 				g.fillRect((int)(paintX + (0.05f * tilesize)), (int)(paintY
 						+ (0.05f * tilesize)), (int)(0.9f * tilesize), (int)(0.9f * tilesize));
 			}
@@ -151,15 +154,16 @@ public class BoardPanel extends JPanel{
 				float bshift = (paintColor.getBlue() - translateColor(p.getColor()).getBlue()) * 0;
 				g.setColor(new Color(translateColor(p.getColor()).getRed() + rshift, translateColor(p.getColor()).getGreen() + gshift, translateColor(p.getColor()).getBlue() + bshift, 1));
 			}
-			g.fillOval(bx + (p.getXCoord() * tilesize),
-					by + (p.getYCoord() * tilesize), tilesize, tilesize);
+			int offset = (int) Math.round(tilesize*0.12);
+			g.fillOval(bx + (p.getXCoord() * tilesize)+offset,
+					by + (p.getYCoord() * tilesize)+offset, tilesize-2*offset, tilesize-2*offset);
 		}
 
 
 		// Draw Lasers
 		Set<Laser> lasers = m.b.lasers;
 
-		float laserWidth = 0.15f;
+		float laserWidth = 0.075f;
 		for (Laser l : lasers) {
 			g.setColor(translateColor(l.getColor()));
 			//System.out.println(l.getXStart()+" , "+l.getYStart()+" to "+l.getXFinish()+" , "+l.getYFinish());
