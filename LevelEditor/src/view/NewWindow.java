@@ -1,5 +1,7 @@
 package view;
 
+import java.awt.Dialog.ModalExclusionType;
+import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -9,7 +11,7 @@ import com.me.beam.Board;
 
 import main.EditorModel;
 
-public class NewWindow extends JFrame {
+public class NewWindow extends JDialog {
 	/**
 	 * 
 	 */
@@ -31,6 +33,8 @@ public class NewWindow extends JFrame {
 	
 	
 	public NewWindow(final EditorModel m, final MainWindow main){
+		this.setModalityType(ModalityType.APPLICATION_MODAL);
+		this.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		spinYModel =new SpinnerNumberModel(3,0,100,1);
 		spinXModel =new SpinnerNumberModel(3,0,100,1);
 		spinY = new JSpinner(spinYModel);

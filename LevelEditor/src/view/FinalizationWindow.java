@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -14,7 +15,7 @@ import javax.swing.JTextField;
 
 import main.EditorModel;
 
-public class FinalizationWindow extends JFrame {
+public class FinalizationWindow extends JDialog{
 	/**
 	 * 
 	 */
@@ -29,6 +30,7 @@ public class FinalizationWindow extends JFrame {
 	JButton buttonSave = new JButton("Save");
 	JButton buttonCancel = new JButton("Cancel");
 	int exitMode = DO_NOTHING_ON_CLOSE;
+	EditorModel model;
 
 	/**
 	 * 
@@ -36,7 +38,10 @@ public class FinalizationWindow extends JFrame {
 	 * @param mode - One of FianlizationWindow.DO_NOTHING_ON_CLOSE or EXIT_ON_CLOSE. If the latter, the program terminates upon completion of the save operation.
 	 */
 	public FinalizationWindow(final EditorModel m, int mode) {
+		model = m;
 		exitMode = mode;
+		this.setModalityType(ModalityType.APPLICATION_MODAL);
+		this.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		System.out.println("Working title: "+m.workingTitle);
 		System.out.println("Working Author: "+m.workingAuthor);
 		buttonCancel.addActionListener(new ActionListener() {
@@ -56,9 +61,9 @@ public class FinalizationWindow extends JFrame {
 				try {
 					id = m.levelIO.saveBoard(m.b, name, author);
 				} catch (Exception e) {
-					JOptionPane.showMessageDialog(null, "A(n) "+e.getClass()+"  has occured!", "MUCH ERROR, VERY BROKEN, SUCH WOW", ERROR);
+					JOptionPane.showMessageDialog(FinalizationWindow.this, "A(n) "+e.getClass()+"  has occured!", "MUCH ERROR, VERY BROKEN, SUCH WOW", ERROR);
 				}
-				JOptionPane.showMessageDialog(null, "Save sucessful! Your level has been assigned id #"+id, "Save Sucessful", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(FinalizationWindow.this, "Save sucessful! Your level has been assigned id #"+id, "Save Sucessful", JOptionPane.INFORMATION_MESSAGE);
 				close();
 				if (exitMode == EXIT_ON_CLOSE)
 					System.exit(0);
@@ -90,4 +95,5 @@ public class FinalizationWindow extends JFrame {
 	public void close(){
 		this.dispose();
 	}
+	
 }

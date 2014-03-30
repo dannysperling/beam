@@ -204,36 +204,37 @@ public class MainWindow extends JFrame implements MouseListener{
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				promptSave(FinalizationWindow.DO_NOTHING_ON_CLOSE);
 				Board old = m.b;
 				int id;
 				try{
-				String retVal = JOptionPane.showInputDialog(null, "Enter the id of the level you wish to load", "Select level", JOptionPane.QUESTION_MESSAGE);
-				if (retVal.isEmpty()){
+				String retVal = JOptionPane.showInputDialog(MainWindow.this, "Enter the id of the level you wish to load", "Select level", JOptionPane.QUESTION_MESSAGE);
+				if (retVal == null || retVal.isEmpty()){
 					return;
 				}
 				id = Integer.parseInt(retVal);
 				} catch (NumberFormatException ex){
-					JOptionPane.showMessageDialog(null, "Bro that wasn't a number!", "Wat?", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(MainWindow.this, "Bro that wasn't a number!", "Wat?", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 				try {
 					m.loadBoard(id);
 					if (m.b == null){
-						JOptionPane.showMessageDialog(null, "Umm, I don't think there is a level "+id, ":(", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(MainWindow.this, "Umm, I don't think there is a level "+id, ":(", JOptionPane.ERROR_MESSAGE);
 						m.b = old;
 					}	
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
 				saved = true;
-				System.out.println("Level loaded. Save? - "+saved+" = "+saved);
 				update();
 			}
 		});
 		buttonNew.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new NewWindow(model, thisWindow());
+				promptSave(FinalizationWindow.DO_NOTHING_ON_CLOSE);
+				new NewWindow(model, MainWindow.this);
 				saved = false;
 			}
 		});
@@ -379,8 +380,8 @@ public class MainWindow extends JFrame implements MouseListener{
 			@Override
 			public void windowClosing(WindowEvent arg0) {
 				if (!saved){
-					promptSave();
-				}
+					promptSave(FinalizationWindow.EXIT_ON_CLOSE);
+				} else
 				System.exit(0);
 			}
 			public void windowClosed(WindowEvent arg0) {}
@@ -395,16 +396,15 @@ public class MainWindow extends JFrame implements MouseListener{
 	}
 
 
-	protected void promptSave() {
-		int opt = JOptionPane.showConfirmDialog(thisWindow(), "You have unsaved changes, would you like to save first?","Save First?", JOptionPane.YES_NO_OPTION);
+	protected void promptSave(int exitMode) {
+		if (saved) return;
+		int opt = JOptionPane.showConfirmDialog(MainWindow.this, "You have unsaved changes, would you like to save first?","Save First?", JOptionPane.YES_NO_OPTION);
 		if (opt == JOptionPane.YES_OPTION){
-			new FinalizationWindow(model,FinalizationWindow.EXIT_ON_CLOSE);
+			FinalizationWindow fw = new FinalizationWindow(model,exitMode);
+		} else if (exitMode == FinalizationWindow.EXIT_ON_CLOSE){
+			System.exit(0);
 		}
 		
-	}
-
-	protected MainWindow thisWindow() {
-		return this;
 	}
 	
 
@@ -419,7 +419,6 @@ public class MainWindow extends JFrame implements MouseListener{
 			SpinnerModel sm = goalSpinnerModels.get(c);
 			sm.setValue(model.b.getBeamObjectiveCount(c));
 		}
-		System.out.println("Update. Saved? - "+saved+" = "+saved);
 		labelCurLevel.setText(model.fileName()+" - "+model.idString()+(saved?"":"*"));
 		this.repaint();
 	}
