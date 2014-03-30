@@ -3,10 +3,10 @@ package com.me.beamsolver;
 import java.awt.Point;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 
 import com.me.beam.Board;
@@ -17,8 +17,29 @@ import com.me.beam.LevelOrderer;
 import com.me.beam.Piece;
 
 public class Solver {
+
+	private class QueueEntry implements Comparable{
+		private Piece[][] pieces;
+		private int moves;
+
+		private QueueEntry(Piece[][] pieces, int moves) {
+			this.pieces = pieces;
+			this.moves = moves;
+		}
+
+		@Override
+		public int compareTo(Object other) {
+			if (!(other instanceof QueueEntry)) {
+				System.err.println("QueueEntry compare failed.");
+				return 0;
+			}
+			QueueEntry qe = (QueueEntry) other;
+			return this.moves - qe.moves;
+		}
+	}
+
 	private Map<String, Integer> table;
-	private List<Piece[][]> searchQueue;
+	private PriorityQueue<QueueEntry> searchQueue;
 	private Board board;
 	private boolean horizontalSymmetry;
 	private boolean verticalSymmetry;
@@ -35,10 +56,10 @@ public class Solver {
 				"../beam-android/assets/data/levels/levels.xml", levelOrderer,
 				true);
 
-		int ordinal = 40;
+		int ordinal = 36;
 		int index = ordinal - 1;
 		Board toSolve = levelLoader.getLevel(index);
-
+		printPieces(toSolve.getPieces());
 		System.out.println("Solving level " + ordinal);
 		Solver solver = new Solver(toSolve);
 		System.out.println("Moves: " + solver.getMovesNeeded());
@@ -48,7 +69,7 @@ public class Solver {
 		table = new HashMap<String, Integer>();
 		this.board = board;
 		setSymmetry();
-		searchQueue = new LinkedList<Piece[][]>();
+		searchQueue = new PriorityQueue<QueueEntry>();
 		this.solved = false;
 		this.solution = null;
 		this.highestDepthPrinted = 0;
@@ -73,7 +94,7 @@ public class Solver {
 		addToQueue(board.getPieces(), 0);
 		this.startTime = System.currentTimeMillis();
 		while (searchQueue.size() > 0 && !this.solved) {
-			expand(searchQueue.remove(0));
+			expand(searchQueue.poll().pieces);
 		}
 	}
 
@@ -142,7 +163,8 @@ public class Solver {
 
 	private void addToQueue(Piece[][] pieces, int moves) {
 		if (safeGet(pieces) == null) {
-			searchQueue.add(pieces);
+			int heuristic = board.getNumGoalsUnfilled(pieces);
+			searchQueue.add(new QueueEntry(pieces, moves + heuristic));
 			setMovesToReach(pieces, moves);
 		} else {
 			this.cutoffs++;
