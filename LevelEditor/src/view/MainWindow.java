@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
@@ -13,8 +14,14 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import main.EditorModel;
 
@@ -37,19 +44,23 @@ public class MainWindow extends JFrame {
 	JRadioButton jrbGoal = new JRadioButton("Goal");
 	///
 	JComboBox<GameEngine.Color> colorDropdown;
+	SpinnerModel spinPerfModel;
+	SpinnerModel spinParModel;
+	JSpinner spinPar;
+	JSpinner spinPerf;
 	///
 	ArrayList<JLabel> goalTextFields = new ArrayList<JLabel>();
 	JLabel beamGoalsLabel = new JLabel("Beam Goals");
-	JButton buttonClear = new JButton("Clear");
 	JButton buttonNew = new JButton("New");
+	JButton buttonLoad = new JButton("Load");
 	JButton buttonFin = new JButton("Finalize");
 	EditorModel model;
 	
 	
 	
-	public MainWindow(EditorModel m){
+	public MainWindow(final EditorModel m){
 		model = m;
-		boardPanel = new BoardPanel(model.b);
+		boardPanel = new BoardPanel(model);
 		mainPanel.setLayout(new BorderLayout(0, 0));
 		mainPanel.add(toolBar, BorderLayout.NORTH);
 		mainPanel.add(sideBar, BorderLayout.EAST);
@@ -57,14 +68,47 @@ public class MainWindow extends JFrame {
 		//toolBar.setBackground(Color.GRAY);
 		//sideBar.setBackground(Color.GRAY);
 		boardPanel.setBackground(Color.DARK_GRAY);
+		////
+		spinPerfModel =new SpinnerNumberModel(m.b.perfect,0,100,1);
+		spinParModel =new SpinnerNumberModel(m.b.par,0,100,1);
+		spinPerf = new JSpinner(spinPerfModel);
+		spinPar = new JSpinner(spinParModel);
+		spinPerf.addChangeListener(new ChangeListener(){
+			public void stateChanged(ChangeEvent arg0) {
+				model.b.perfect = (int) spinPerfModel.getValue();
+				if (((int) spinParModel.getValue()) < model.b.perfect){
+					model.b.par = model.b.perfect;
+					spinParModel.setValue(model.b.par);
+				}
+				
+			}
+			
+		});
+		spinPar.addChangeListener(new ChangeListener(){
+			public void stateChanged(ChangeEvent arg0) {
+				model.b.par = (int) spinParModel.getValue();
+				if (((int) spinParModel.getValue()) < model.b.perfect){
+					model.b.par = model.b.perfect;
+					spinParModel.setValue(model.b.par);
+				}
+				
+			}
+			
+		});
 		///
+		toolBar.add(new JLabel("Perfect: "));
+		toolBar.add(spinPerf);
+		toolBar.add(new JLabel("Par: "));
+		toolBar.add(spinPar);
+		///
+		toolBar.add(new JLabel("Active Tool: "));
 		colorDropdown = new JComboBox<GameEngine.Color>(GameEngine.Color.values());
 		toolBar.add(colorDropdown);
 		toolBar.add(jrbPiece);
 		toolBar.add(jrbGlass);
 		toolBar.add(jrbPainter);
 		toolBar.add(jrbGoal);
-		///
+		////
 		radioGroup.add(jrbPiece);
 		radioGroup.add(jrbGlass);
 		radioGroup.add(jrbGoal);
@@ -88,23 +132,55 @@ public class MainWindow extends JFrame {
 			sideBar.add(txt);
 			sideBar.add(new JButton(new ImageIcon("src/RightArrow.png")));
 		}
-		sideBar.add(buttonClear);
 		sideBar.add(buttonNew);
+		sideBar.add(buttonLoad);
 		sideBar.add(buttonFin);
 		///
 		buttonFin.addActionListener(new ActionListener(){
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				new FinalizationWindow();
+				new FinalizationWindow(model);
 			}
 			
 		});
+		buttonLoad.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int oldID = m.b.id;
+				int id;
+				try{
+				id = Integer.parseInt(JOptionPane.showInputDialog(null, "Enter the id of the level you wish to load", "Select level", JOptionPane.QUESTION_MESSAGE));
+				} catch (NumberFormatException ex){
+					JOptionPane.showMessageDialog(null, "Bro that wasn't a number!", "Wat?", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				try {
+					m.loadBoard(id);
+					if (m.b == null){
+						m.loadBoard(oldID);
+						JOptionPane.showMessageDialog(null, "Umm, I don't think there is a level "+id, ":(", JOptionPane.ERROR_MESSAGE);
+					}
+					update();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		///
 		this.setSize(800, 600);
 		this.add(mainPanel);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.repaint();
 		this.setVisible(true);
+	}
+	
+	public void update(){
+		boardPanel = new BoardPanel(model);
+		spinPerfModel.setValue(model.b.perfect);
+		spinParModel.setValue(model.b.par);
+		this.repaint();
 	}
 	
 

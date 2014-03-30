@@ -19,17 +19,16 @@ import com.me.beam.Tile;
 
 
 public class BoardPanel extends JPanel{
-
-	private Board b;
+	private EditorModel m;
 	private int tilesize;
 
 
 	private static final long serialVersionUID = 1L;
 
-	public BoardPanel(Board b){
-		this.b = b;
-		int widthTiles = this.getSize().width /  b.getNumHorizontalTiles();
-		int heightTiles = this.getSize().height / b.getNumVerticalTiles();
+	public BoardPanel(EditorModel model){
+		m = model;
+		int widthTiles = this.getSize().width /  m.b.getNumHorizontalTiles();
+		int heightTiles = this.getSize().height / m.b.getNumVerticalTiles();
 		tilesize = Math.min(widthTiles, heightTiles);
 	}
 
@@ -48,14 +47,14 @@ public class BoardPanel extends JPanel{
 
 	@Override
 	public void paint(Graphics g){
-		List<Piece> pieces = b.getAllPieces();
-		List<Tile> tiles = b.getAllTiles();
+		List<Piece> pieces = m.b.getAllPieces();
+		List<Tile> tiles = m.b.getAllTiles();
 		
-		int widthTiles = this.getSize().width /  b.getNumHorizontalTiles();
-		int heightTiles = this.getSize().height / b.getNumVerticalTiles();
+		int widthTiles = this.getSize().width /  m.b.getNumHorizontalTiles();
+		int heightTiles = this.getSize().height / m.b.getNumVerticalTiles();
 		tilesize = Math.min(widthTiles, heightTiles);
-		EditorModel.initializeLasers(b);
-		//System.out.println(b.lasers.size());
+		EditorModel.initializeLasers(m.b);
+		//System.out.println(m.b.lasers.size());
 		
 		int bx = 0;
 		int by = 0;
@@ -65,13 +64,13 @@ public class BoardPanel extends JPanel{
 		
 		// Draw the basic grid
 		g.setColor(Color.white);
-		for (int i = 0; i <= b.getNumHorizontalTiles(); i++) {
+		for (int i = 0; i <= m.b.getNumHorizontalTiles(); i++) {
 			g.drawLine(bx + (i * tilesize), by, bx + (i * tilesize),
-					by + (b.getNumVerticalTiles() * tilesize));
+					by + (m.b.getNumVerticalTiles() * tilesize));
 		}
-		for (int i = 0; i <= b.getNumVerticalTiles(); i++) {
+		for (int i = 0; i <= m.b.getNumVerticalTiles(); i++) {
 			g.drawLine(bx, by + (i * tilesize),
-					bx + (b.getNumHorizontalTiles() * tilesize), by
+					bx + (m.b.getNumHorizontalTiles() * tilesize), by
 					+ (i * tilesize));
 		}
 
@@ -137,7 +136,7 @@ public class BoardPanel extends JPanel{
 		List<Tile> path = GameEngine.movePath;
 		Color paintColor = new Color(0,0,0,0);
 		if(path.size() > 1){
-			paintColor = translateColor(b.getTileAtBoardPosition(path.get(1).getXCoord(), path.get(1).getYCoord()).getPainterColor());
+			paintColor = translateColor(m.b.getTileAtBoardPosition(path.get(1).getXCoord(), path.get(1).getYCoord()).getPainterColor());
 		}
 
 		for (Piece p : pieces) {
@@ -154,13 +153,13 @@ public class BoardPanel extends JPanel{
 
 
 		// Draw Lasers
-		Set<Laser> lasers = b.lasers;
+		Set<Laser> lasers = m.b.lasers;
 
 		float laserWidth = 0.15f;
 		for (Laser l : lasers) {
 			g.setColor(translateColor(l.getColor()));
-			System.out.println(l.getXStart()+" , "+l.getYStart()+" to "+l.getXFinish()+" , "+l.getYFinish());
-			System.out.println("TileSize: "+ tilesize);
+			//System.out.println(l.getXStart()+" , "+l.getYStart()+" to "+l.getXFinish()+" , "+l.getYFinish());
+			//System.out.println("TileSize: "+ tilesize);
 			if(true){
 				if (l.getXStart() == l.getXFinish()) {
 					g.fillRect((int)(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize),
@@ -168,13 +167,13 @@ public class BoardPanel extends JPanel{
 							(int)(laserWidth * tilesize), (int)((l.getYFinish() - l.getYStart())
 							* tilesize));
 				} else {
-					System.out.println("Horizontal");
+					//System.out.println("Horizontal");
 					g.fillRect((int)(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize),
 							(int)(by + (l.getYStart() + 0.5f - (laserWidth/2)) * tilesize),
 							(int)((l.getXFinish() - l.getXStart()) * tilesize),
 							(int)(laserWidth * tilesize));
-					System.out.println(((int)(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize)) + ", " + ((int)(by + (l.getYStart() + 0.5f - (laserWidth/2)) * tilesize)));
-					System.out.println(((int)((l.getXFinish() - l.getXStart()) * tilesize)) + " , " + ((int)(laserWidth * tilesize)));
+					//System.out.println(((int)(bx + (l.getXStart() + 0.5f - (laserWidth / 2)) * tilesize)) + ", " + ((int)(by + (l.getYStart() + 0.5f - (laserWidth/2)) * tilesize)));
+					//System.out.println(((int)((l.getXFinish() - l.getXStart()) * tilesize)) + " , " + ((int)(laserWidth * tilesize)));
 				}
 			}
 		}
