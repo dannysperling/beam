@@ -266,6 +266,10 @@ public class Board {
 		return goalsFilled;
 	}
 
+	public int getNumGoalsUnfilled(Piece[][] pieces) {
+		return goalTiles.size() - getNumGoalsFilled(pieces);
+	}
+
 	public int getLaserCount(GameEngine.Color c) {
 		int store = 0;
 		for (Laser l : lasers) {
