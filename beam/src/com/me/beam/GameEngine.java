@@ -87,7 +87,7 @@ public class GameEngine implements ApplicationListener {
 	}
 
 	public enum Color {
-		RED, BLUE, GREEN, NONE;
+		RED, BLUE, GREEN, ORANGE, PURPLE, NONE;
 		public static Color lookup(int i) {
 			switch (i) {
 			case 1:
@@ -96,6 +96,10 @@ public class GameEngine implements ApplicationListener {
 				return Color.BLUE;
 			case 3:
 				return Color.GREEN;
+			case 4:
+				return Color.ORANGE;
+			case 5:
+				return Color.PURPLE;
 			default:
 				return Color.NONE;
 			}

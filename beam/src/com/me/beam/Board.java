@@ -99,6 +99,14 @@ public class Board {
 		}
 	}
 
+	public boolean areTilesSimilar(int x1, int y1, int x2, int y2) {
+		Tile t1 = this.getTileAtBoardPosition(x1, y1);
+		Tile t2 = this.getTileAtBoardPosition(x2, y2);
+		return t1.isGlass == t2.isGlass
+				&& t1.getGoalColor() == t2.getGoalColor()
+				&& t1.getPainterColor() == t2.getPainterColor();
+	}
+
 	public void addBeamObjective(Color c, int n) {
 		beamObjectives.put(c, n);
 	}
@@ -108,7 +116,9 @@ public class Board {
 	}
 
 	public int getBeamObjectiveCount(Color c) {
-		return beamObjectives.get(c);
+		if (beamObjectives != null && beamObjectives.containsKey(c))
+			return beamObjectives.get(c);
+		return -1;
 	}
 
 	public Piece[][] getPieces() {
@@ -256,6 +266,10 @@ public class Board {
 			}
 		}
 		return goalsFilled;
+	}
+
+	public int getNumGoalsUnfilled(Piece[][] pieces) {
+		return goalTiles.size() - getNumGoalsFilled(pieces);
 	}
 
 	public int getLaserCount(GameEngine.Color c) {

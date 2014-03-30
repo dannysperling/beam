@@ -3,10 +3,10 @@ package com.me.beamsolver;
 import java.awt.Point;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 
 import com.me.beam.Board;
@@ -17,14 +17,37 @@ import com.me.beam.LevelOrderer;
 import com.me.beam.Piece;
 
 public class Solver {
+
+	private class QueueEntry implements Comparable<QueueEntry>{
+		private Piece[][] pieces;
+		private int moves;
+
+		private QueueEntry(Piece[][] pieces, int moves) {
+			this.pieces = pieces;
+			this.moves = moves;
+		}
+
+		@Override
+		public int compareTo(QueueEntry other) {
+			if (!(other instanceof QueueEntry)) {
+				System.err.println("QueueEntry compare failed.");
+				return 0;
+			}
+			QueueEntry qe = (QueueEntry) other;
+			return this.moves - qe.moves;
+		}
+	}
+
 	private Map<String, Integer> table;
-	private List<Piece[][]> searchQueue;
+	private PriorityQueue<QueueEntry> searchQueue;
 	private Board board;
 	private boolean horizontalSymmetry;
 	private boolean verticalSymmetry;
 	private boolean solved;
 	private Piece[][] solution;
 	private int highestDepthPrinted;
+	private int cutoffs;
+	private long startTime;
 
 	public static void main(String[] args) {
 		LevelOrderer levelOrderer = new LevelOrderer(
@@ -33,9 +56,10 @@ public class Solver {
 				"../beam-android/assets/data/levels/levels.xml", levelOrderer,
 				true);
 
-		int ordinal = 38;
+		int ordinal = 36;
 		int index = ordinal - 1;
 		Board toSolve = levelLoader.getLevel(index);
+		printPieces(toSolve.getPieces());
 		System.out.println("Solving level " + ordinal);
 		Solver solver = new Solver(toSolve);
 		System.out.println("Moves: " + solver.getMovesNeeded());
@@ -45,10 +69,11 @@ public class Solver {
 		table = new HashMap<String, Integer>();
 		this.board = board;
 		setSymmetry();
-		searchQueue = new LinkedList<Piece[][]>();
+		searchQueue = new PriorityQueue<QueueEntry>();
 		this.solved = false;
 		this.solution = null;
 		this.highestDepthPrinted = 0;
+		this.cutoffs = 0;
 	}
 
 	public int getMovesNeeded() {
@@ -67,12 +92,14 @@ public class Solver {
 
 	private void solve() {
 		addToQueue(board.getPieces(), 0);
+		this.startTime = System.currentTimeMillis();
 		while (searchQueue.size() > 0 && !this.solved) {
-			expand(searchQueue.remove(0));
+			QueueEntry qe = searchQueue.poll();
+			expand(qe.pieces, qe.moves);
 		}
 	}
 
-	private void expand(Piece[][] pieces) {
+	private void expand(Piece[][] pieces, int searchDepth) {
 		if (board.isWon(pieces)) {
 			this.solved = true;
 			this.solution = pieces;
@@ -81,12 +108,17 @@ public class Solver {
 
 		// printBoard(pieces);
 		Set<Piece[][]> possibleMoves = getAllMoves(pieces);
-		int moves = safeGet(pieces);
-		if (moves > this.highestDepthPrinted) {
-			System.out.println("At least " + moves + " moves with "
-					+ table.size() + " positions evaluated.");
-			this.highestDepthPrinted = moves;
+		if (searchDepth > this.highestDepthPrinted) {
+			double timeToSolveSeconds = (System.currentTimeMillis() - startTime) / 1000.0;
+			System.out.println("At least " + searchDepth + " moves with "
+					+ table.size() + " positions evaluated and with "
+					+ this.cutoffs + " cutoffs and took " + timeToSolveSeconds
+					+ " seconds.");
+			this.highestDepthPrinted = searchDepth;
+			this.cutoffs = 0;
+			this.startTime = System.currentTimeMillis();
 		}
+		int moves = safeGet(pieces);
 		for (Piece[][] p : possibleMoves) {
 			addToQueue(p, moves + 1);
 		}
@@ -132,25 +164,71 @@ public class Solver {
 
 	private void addToQueue(Piece[][] pieces, int moves) {
 		if (safeGet(pieces) == null) {
-			searchQueue.add(pieces);
+			int heuristic = board.getNumGoalsUnfilled(pieces);
+			searchQueue.add(new QueueEntry(pieces, moves + heuristic));
 			setMovesToReach(pieces, moves);
+		} else {
+			this.cutoffs++;
 		}
 	}
 
 	private void setSymmetry() {
-		// TODO: support symmetry
-		horizontalSymmetry = false;
-		verticalSymmetry = false;
+		horizontalSymmetry = isHSym();
+		verticalSymmetry = isVSym();
+		// */
+		/*
+		 * horizontalSymmetry = false; verticalSymmetry = false; //
+		 */
+	}
+
+	private boolean isHSym() {
+		int numH = board.getNumHorizontalTiles();
+		int numV = board.getNumVerticalTiles();
+		for (int x = 0; x < numH / 2; x++) {
+			for (int y = 0; y < numV; y++) {
+				if (!board.areTilesSimilar(x, y, numH - x - 1, y)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	private boolean isVSym() {
+		int numH = board.getNumHorizontalTiles();
+		int numV = board.getNumVerticalTiles();
+		for (int x = 0; x < numH; x++) {
+			for (int y = 0; y < numV / 2; y++) {
+				if (!board.areTilesSimilar(x, y, x, numV - y - 1)) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	private Piece[][] reflectHorizontally(Piece[][] pieces) {
-		// TODO: support symmetry
-		return pieces;
+		int numH = board.getNumHorizontalTiles();
+		int numV = board.getNumVerticalTiles();
+		Piece[][] ret = new Piece[pieces.length][pieces[0].length];
+		for (int x = 0; x < numH; x++) {
+			for (int y = 0; y < numV; y++) {
+				ret[x][y] = pieces[numH - x - 1][y];
+			}
+		}
+		return ret;
 	}
 
 	private Piece[][] reflectVertically(Piece[][] pieces) {
-		// TODO: support symmetry
-		return pieces;
+		int numH = board.getNumHorizontalTiles();
+		int numV = board.getNumVerticalTiles();
+		Piece[][] ret = new Piece[pieces.length][pieces[0].length];
+		for (int x = 0; x < numH; x++) {
+			for (int y = 0; y < numV; y++) {
+				ret[x][y] = pieces[x][numV - y - 1];
+			}
+		}
+		return ret;
 	}
 
 	private Set<Piece[][]> getAllMoves(Piece[][] pieces) {
@@ -186,23 +264,22 @@ public class Solver {
 			safePut(reflectVertically(pieces), moves);
 		}
 	}
-
-	private Set<Point> getSafePlaces(Piece[][] pieces, Color color) {
-		// TODO: assumes that painters don't exist
-		Set<Point> ret = new HashSet<Point>();
-		for (int i = 0; i < this.board.getNumHorizontalTiles(); i++) {
-			for (int j = 0; j < this.board.getNumVerticalTiles(); j++) {
-				if (!this.board.isTilePassable(i, j, pieces)) {
-					continue;
-				}
-				Piece p = new Piece(i, j, color);
-				if ((formLasersFromPieceAndDestroy(pieces, p).size() == 0)
-						&& !checkIfPieceDestroyed(pieces, p)) {
-					ret.add(new Point(i, j));
-				}
-			}
+	
+	private boolean isPlaceSafe(Piece[][] pieces, Piece p) {
+		if (!(p.getXCoord() >= 0 && p.getXCoord() < this.board.getNumHorizontalTiles())) {
+			return false;
 		}
-		return ret;
+		if (!(p.getYCoord() >= 0 && p.getYCoord() < this.board.getNumVerticalTiles())) {
+			return false;
+		}
+		if (!this.board.isTilePassable(p.getXCoord(), p.getYCoord(), pieces)) {
+			return false;
+		}
+		if ((formLasersFromPieceAndDestroy(pieces, p).size() == 0)
+				&& !checkIfPieceDestroyed(pieces, p)) {
+			return true;
+		}
+		return false;
 	}
 
 	// Call with the current piece array and the piece to move,
@@ -211,9 +288,7 @@ public class Solver {
 	private Set<Piece[][]> getMoves(Piece[][] pieces, Piece p) {
 		// Temporarily remove p from the pieces.
 		pieces[p.getXCoord()][p.getYCoord()] = null;
-		Set<Point> moves = getContiguousPoints(
-				getSafePlaces(pieces, p.getColor()),
-				new Point(p.getXCoord(), p.getYCoord()));
+		Set<Point> moves = getContiguousPoints(pieces, p);
 
 		Set<Piece[][]> moveStates = new HashSet<Piece[][]>();
 
@@ -235,32 +310,36 @@ public class Solver {
 		return moveStates;
 	}
 
-	private Set<Point> getContiguousPoints(Set<Point> points, Point p) {
+	private Set<Point> getContiguousPoints(Piece[][] pieces, Piece p) {
 		Set<Point> contiguousPoints = new HashSet<Point>();
 		List<Point> searchQueue = new ArrayList<Point>();
-		searchQueue.add(p);
-
+		searchQueue.add(new Point(p.getXCoord(), p.getYCoord()));
+		
 		while (searchQueue.size() > 0) {
 			Point tempPoint = searchQueue.remove(0);
-			Point up = new Point(tempPoint.x, tempPoint.y + 1);
-			if (points.contains(up) && !contiguousPoints.contains(up)) {
-				searchQueue.add(up);
-				contiguousPoints.add(up);
+			Piece up = new Piece(tempPoint.x, tempPoint.y + 1, p.getColor());
+			Point up_point = new Point(tempPoint.x, tempPoint.y + 1);
+			if (isPlaceSafe(pieces, up) && !contiguousPoints.contains(up_point)) {
+				searchQueue.add(up_point);
+				contiguousPoints.add(up_point);
 			}
-			Point down = new Point(tempPoint.x, tempPoint.y - 1);
-			if (points.contains(down) && !contiguousPoints.contains(down)) {
-				searchQueue.add(down);
-				contiguousPoints.add(down);
+			Piece down = new Piece(tempPoint.x, tempPoint.y - 1, p.getColor());
+			Point down_point = new Point(tempPoint.x, tempPoint.y - 1);
+			if (isPlaceSafe(pieces, down) && !contiguousPoints.contains(down_point)) {
+				searchQueue.add(down_point);
+				contiguousPoints.add(down_point);
 			}
-			Point right = new Point(tempPoint.x + 1, tempPoint.y);
-			if (points.contains(right) && !contiguousPoints.contains(right)) {
-				searchQueue.add(right);
-				contiguousPoints.add(right);
+			Piece left = new Piece(tempPoint.x - 1, tempPoint.y, p.getColor());
+			Point left_point = new Point(tempPoint.x - 1, tempPoint.y);
+			if (isPlaceSafe(pieces, left) && !contiguousPoints.contains(left_point)) {
+				searchQueue.add(left_point);
+				contiguousPoints.add(left_point);
 			}
-			Point left = new Point(tempPoint.x - 1, tempPoint.y);
-			if (points.contains(left) && !contiguousPoints.contains(left)) {
-				searchQueue.add(left);
-				contiguousPoints.add(left);
+			Piece right = new Piece(tempPoint.x + 1, tempPoint.y, p.getColor());
+			Point right_point = new Point(tempPoint.x + 1, tempPoint.y);
+			if (isPlaceSafe(pieces, right) && !contiguousPoints.contains(right_point)) {
+				searchQueue.add(right_point);
+				contiguousPoints.add(right_point);
 			}
 		}
 		return contiguousPoints;
