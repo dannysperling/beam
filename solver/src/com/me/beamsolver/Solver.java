@@ -171,7 +171,7 @@ public class Solver {
 	}
 
 	private String piecesStringDense(Piece[][] pieces) {
-		String temp = "";
+		StringBuffer temp = new StringBuffer();
 		int count = 0;
 		for (int x = 0; x < pieces.length; x++) {
 			for (int y = 0; y < pieces[0].length; y++) {
@@ -179,14 +179,14 @@ public class Solver {
 					count++;
 				} else {
 					if (count > 0) {
-						temp += count;
+						temp.append(count);
 						count = 0;
 					}
-					temp += pieces[x][y].toString();
+					temp.append(pieces[x][y].toString());
 				}
 			}
 		}
-		return temp;
+		return temp.toString();
 	}
 
 	private static void printPieces(Piece[][] pieces) {
