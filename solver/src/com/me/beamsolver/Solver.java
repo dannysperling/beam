@@ -11,14 +11,13 @@ import java.util.Set;
 
 import com.me.beam.Board;
 import com.me.beam.GameEngine.Color;
-import com.me.beam.Laser;
 import com.me.beam.LevelLoader;
 import com.me.beam.LevelOrderer;
 import com.me.beam.Piece;
 
 public class Solver {
 
-	private class QueueEntry implements Comparable<QueueEntry>{
+	private class QueueEntry implements Comparable<QueueEntry> {
 		private Piece[][] pieces;
 		private int moves;
 
@@ -91,7 +90,7 @@ public class Solver {
 		}
 		return solution;
 	}
-	
+
 	public void printSolutionTrace() {
 		if (!solved) {
 			solve();
@@ -291,19 +290,21 @@ public class Solver {
 			safePut(reflectVertically(pieces), moves);
 		}
 	}
-	
+
 	private boolean isPlaceSafe(Piece[][] pieces, Piece p) {
-		if (!(p.getXCoord() >= 0 && p.getXCoord() < this.board.getNumHorizontalTiles())) {
+		if (!(p.getXCoord() >= 0 && p.getXCoord() < this.board
+				.getNumHorizontalTiles())) {
 			return false;
 		}
-		if (!(p.getYCoord() >= 0 && p.getYCoord() < this.board.getNumVerticalTiles())) {
+		if (!(p.getYCoord() >= 0 && p.getYCoord() < this.board
+				.getNumVerticalTiles())) {
 			return false;
 		}
 		if (!this.board.isTilePassable(p.getXCoord(), p.getYCoord(), pieces)) {
 			return false;
 		}
-		if ((formLasersFromPieceAndDestroy(pieces, p).size() == 0)
-				&& !checkIfPieceDestroyed(pieces, p)) {
+		if (!doesPieceDestroy(pieces, p)
+				&& !isPieceDestroyed(pieces, p)) {
 			return true;
 		}
 		return false;
@@ -341,7 +342,7 @@ public class Solver {
 		Set<Point> contiguousPoints = new HashSet<Point>();
 		List<Point> searchQueue = new ArrayList<Point>();
 		searchQueue.add(new Point(p.getXCoord(), p.getYCoord()));
-		
+
 		while (searchQueue.size() > 0) {
 			Point tempPoint = searchQueue.remove(0);
 			Piece up = new Piece(tempPoint.x, tempPoint.y + 1, p.getColor());
@@ -352,19 +353,22 @@ public class Solver {
 			}
 			Piece down = new Piece(tempPoint.x, tempPoint.y - 1, p.getColor());
 			Point down_point = new Point(tempPoint.x, tempPoint.y - 1);
-			if (isPlaceSafe(pieces, down) && !contiguousPoints.contains(down_point)) {
+			if (isPlaceSafe(pieces, down)
+					&& !contiguousPoints.contains(down_point)) {
 				searchQueue.add(down_point);
 				contiguousPoints.add(down_point);
 			}
 			Piece left = new Piece(tempPoint.x - 1, tempPoint.y, p.getColor());
 			Point left_point = new Point(tempPoint.x - 1, tempPoint.y);
-			if (isPlaceSafe(pieces, left) && !contiguousPoints.contains(left_point)) {
+			if (isPlaceSafe(pieces, left)
+					&& !contiguousPoints.contains(left_point)) {
 				searchQueue.add(left_point);
 				contiguousPoints.add(left_point);
 			}
 			Piece right = new Piece(tempPoint.x + 1, tempPoint.y, p.getColor());
 			Point right_point = new Point(tempPoint.x + 1, tempPoint.y);
-			if (isPlaceSafe(pieces, right) && !contiguousPoints.contains(right_point)) {
+			if (isPlaceSafe(pieces, right)
+					&& !contiguousPoints.contains(right_point)) {
 				searchQueue.add(right_point);
 				contiguousPoints.add(right_point);
 			}
@@ -372,149 +376,78 @@ public class Solver {
 		return contiguousPoints;
 	}
 
-	private Color originalColor = Color.NONE;
-	private static List<Laser> lasersCreated = new ArrayList<Laser>();
+	private boolean doesPieceDestroy(Piece[][] pieces, Piece p) {
+		boolean destroyPossible = false;
+		
+		final int PX = p.getXCoord();
+		final int PY = p.getYCoord();
 
-	public List<Piece> formLasersFromPieceAndDestroy(Piece[][] pieces, Piece p) {
-
-		boolean horizontalMove = false;
-
-		List<Piece> destroyed = new ArrayList<Piece>();
-
-		// For each destruction
-		List<Piece> possibleDestroy = new ArrayList<Piece>();
-
-		// Check for left pieces
-		Piece leftSameColor = null;
-
-		int xPos = p.getXCoord() - 1;
-		int yPos = p.getYCoord();
-
-		Laser possibleFormed = null;
-
-		// Slide to the left
-		for (; leftSameColor == null && xPos >= 0; xPos--) {
-			Piece possible = pieces[xPos][yPos];
-
-			// There's a piece there
+		// Slide left
+		for (int xPos = PX - 1; xPos >= 0; xPos--) {
+			Piece possible = pieces[xPos][PY];
 			if (possible != null) {
 				if (possible.getColor() == p.getColor()) {
-					leftSameColor = pieces[xPos][yPos];
-					destroyed.addAll(possibleDestroy);
-					possibleFormed = new Laser(xPos, yPos, p.getXCoord(),
-							p.getYCoord(), p.getColor());
+					if (destroyPossible) {
+						return true;
+					}
+					break;
 				} else {
-					possibleDestroy.add(possible);
+					destroyPossible = true;
 				}
 			}
 		}
+		destroyPossible = false;
 
-		possibleDestroy.clear();
-
-		// Check for right colored pieces
-		Piece rightSameColor = null;
-		xPos = p.getXCoord() + 1;
-
-		// Slide to the right
-		for (; rightSameColor == null && xPos < pieces.length; xPos++) {
-
-			Piece possible = pieces[xPos][yPos];
-
-			// There's a piece there
+		// Slide right
+		for (int xPos = PX + 1; xPos < pieces.length; xPos++) {
+			Piece possible = pieces[xPos][PY];
 			if (possible != null) {
 				if (possible.getColor() == p.getColor()) {
-					rightSameColor = pieces[xPos][yPos];
-					destroyed.addAll(possibleDestroy);
-					possibleFormed = new Laser(p.getXCoord(), p.getYCoord(),
-							xPos, yPos, p.getColor());
-
+					if (destroyPossible) {
+						return true;
+					}
+					break;
 				} else {
-					possibleDestroy.add(possible);
+					destroyPossible = true;
 				}
 			}
 		}
-		// Lasers on both sides. Remove!
-		if (leftSameColor != null && rightSameColor != null) {
-			possibleFormed = null;
-
-		}
-
-		// If it's still possible, it was formed
-		if (possibleFormed != null
-				&& (originalColor != p.getColor() || !horizontalMove)) {
-			lasersCreated.add(possibleFormed);
-		}
-		possibleFormed = null;
-
-		possibleDestroy.clear();
-
-		// Now do vertical!
-
-		// Check for bot pieces
-		Piece botSameColor = null;
-
-		xPos = p.getXCoord();
-		yPos = p.getYCoord() - 1;
+		destroyPossible = false;
 
 		// Slide down
-		for (; botSameColor == null && yPos >= 0; yPos--) {
-			Piece possible = pieces[xPos][yPos];
-
-			// There's a piece there
+		for (int yPos = PY - 1; yPos >= 0; yPos--) {
+			Piece possible = pieces[PX][yPos];
 			if (possible != null) {
 				if (possible.getColor() == p.getColor()) {
-					botSameColor = pieces[xPos][yPos];
-					destroyed.addAll(possibleDestroy);
-					possibleFormed = new Laser(xPos, yPos, p.getXCoord(),
-							p.getYCoord(), p.getColor());
-
+					if (destroyPossible) {
+						return true;
+					}
+					break;
 				} else {
-					possibleDestroy.add(possible);
+					destroyPossible = true;
 				}
 			}
 		}
-
-		possibleDestroy.clear();
-
-		// Check for right colored pieces
-		Piece topSameColor = null;
-
-		yPos = p.getYCoord() + 1;
+		destroyPossible = false;
 
 		// Slide up
-		for (; topSameColor == null && yPos < pieces[0].length; yPos++) {
-
-			Piece possible = pieces[xPos][yPos];
-
-			// There's a piece there
+		for (int yPos = PY + 1; yPos < pieces[0].length; yPos++) {
+			Piece possible = pieces[PX][yPos];
 			if (possible != null) {
 				if (possible.getColor() == p.getColor()) {
-					topSameColor = pieces[xPos][yPos];
-					destroyed.addAll(possibleDestroy);
-					possibleFormed = new Laser(p.getXCoord(), p.getYCoord(),
-							xPos, yPos, p.getColor());
-
+					if (destroyPossible) {
+						return true;
+					}
+					break;
 				} else {
-					possibleDestroy.add(possible);
+					destroyPossible = true;
 				}
 			}
 		}
-		// Lasers on both sides. Remove!
-		if (botSameColor != null && topSameColor != null) {
-			possibleFormed = null;
-
-		}
-		// If it's still possible, it was formed
-		if (possibleFormed != null
-				&& (originalColor != p.getColor() || horizontalMove)) {
-			lasersCreated.add(possibleFormed);
-		}
-		possibleFormed = null;
-
-		return destroyed;
+		return false;
 	}
 
-	public boolean checkIfPieceDestroyed(Piece[][] pieces, Piece p) {
+	private boolean isPieceDestroyed(Piece[][] pieces, Piece p) {
 
 		// Check if p is destroyed. First, horizontally
 		Color leftColor = Color.NONE;
