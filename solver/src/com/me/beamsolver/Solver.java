@@ -46,7 +46,6 @@ public class Solver {
 	private boolean solved;
 	private Piece[][] originalPieces;
 	private Piece[][] solution;
-	private boolean[][] glass;
 	private int highestDepthPrinted;
 	private int cutoffs;
 	private long startTime;
@@ -58,7 +57,7 @@ public class Solver {
 				"../beam-android/assets/data/levels/levels.xml", levelOrderer,
 				true);
 
-		int ordinal = 44;
+		int ordinal = 38;
 		int index = ordinal - 1;
 		Board toSolve = levelLoader.getLevel(index);
 		printPieces(toSolve.getPieces());
@@ -77,14 +76,6 @@ public class Solver {
 		this.solution = null;
 		this.highestDepthPrinted = 0;
 		this.cutoffs = 0;
-		int w = board.getNumHorizontalTiles();
-		int h = board.getNumVerticalTiles();
-		glass = new boolean[w][h];
-		for (int i = 0; i < w; i++) {
-			for (int j = 0; j < h; j++) {
-				glass[i][j] = board.getTileAtBoardPosition(i, j).isGlass;
-			}
-		}
 	}
 
 	public int getMovesNeeded() {
@@ -184,9 +175,6 @@ public class Solver {
 		int count = 0;
 		for (int x = 0; x < pieces.length; x++) {
 			for (int y = 0; y < pieces[0].length; y++) {
-				if (glass[x][y]) {
-					continue;
-				}
 				if (pieces[x][y] == null) {
 					count++;
 				} else {
@@ -218,10 +206,6 @@ public class Solver {
 	private void setSymmetry() {
 		horizontalSymmetry = isHSym();
 		verticalSymmetry = isVSym();
-		// */
-		/*
-		 * horizontalSymmetry = false; verticalSymmetry = false; //
-		 */
 	}
 
 	private boolean isHSym() {
