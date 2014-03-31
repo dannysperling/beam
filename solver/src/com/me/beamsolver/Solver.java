@@ -125,6 +125,7 @@ public class Solver {
 		this.startTime = System.currentTimeMillis();
 		while (searchQueue.size() > 0 && !this.solved) {
 			QueueEntry qe = searchQueue.poll();
+			monitor(qe.moves);
 			expand(qe.pieces, qe.moves);
 		}
 	}
@@ -138,6 +139,13 @@ public class Solver {
 
 		// printBoard(pieces);
 		Set<Piece[][]> possibleMoves = getAllMoves(pieces);
+		int moves = safeGet(pieces);
+		for (Piece[][] p : possibleMoves) {
+			addToQueue(p, moves + 1);
+		}
+	}
+
+	private void monitor(int searchDepth) {
 		if (searchDepth > this.highestDepthPrinted) {
 			double timeToSolveSeconds = (System.currentTimeMillis() - startTime) / 1000.0;
 			System.out.println("At least " + searchDepth + " moves with "
@@ -147,10 +155,6 @@ public class Solver {
 			this.highestDepthPrinted = searchDepth;
 			this.cutoffs = 0;
 			this.startTime = System.currentTimeMillis();
-		}
-		int moves = safeGet(pieces);
-		for (Piece[][] p : possibleMoves) {
-			addToQueue(p, moves + 1);
 		}
 	}
 
@@ -303,8 +307,7 @@ public class Solver {
 		if (!this.board.isTilePassable(p.getXCoord(), p.getYCoord(), pieces)) {
 			return false;
 		}
-		if (!doesPieceDestroy(pieces, p)
-				&& !isPieceDestroyed(pieces, p)) {
+		if (!doesPieceDestroy(pieces, p) && !isPieceDestroyed(pieces, p)) {
 			return true;
 		}
 		return false;
@@ -345,14 +348,14 @@ public class Solver {
 
 		while (searchQueue.size() > 0) {
 			Point tempPoint = searchQueue.remove(0);
-			
+
 			Point up_point = new Point(tempPoint.x, tempPoint.y + 1);
 			Piece up = new Piece(up_point, p.getColor());
 			if (isPlaceSafe(pieces, up) && !contiguousPoints.contains(up_point)) {
 				searchQueue.add(up_point);
 				contiguousPoints.add(up_point);
 			}
-			
+
 			Point down_point = new Point(tempPoint.x, tempPoint.y - 1);
 			Piece down = new Piece(down_point, p.getColor());
 			if (isPlaceSafe(pieces, down)
@@ -360,7 +363,7 @@ public class Solver {
 				searchQueue.add(down_point);
 				contiguousPoints.add(down_point);
 			}
-			
+
 			Point left_point = new Point(tempPoint.x - 1, tempPoint.y);
 			Piece left = new Piece(left_point, p.getColor());
 			if (isPlaceSafe(pieces, left)
@@ -368,7 +371,7 @@ public class Solver {
 				searchQueue.add(left_point);
 				contiguousPoints.add(left_point);
 			}
-			
+
 			Point right_point = new Point(tempPoint.x + 1, tempPoint.y);
 			Piece right = new Piece(right_point, p.getColor());
 			if (isPlaceSafe(pieces, right)
@@ -382,7 +385,7 @@ public class Solver {
 
 	private boolean doesPieceDestroy(Piece[][] pieces, Piece p) {
 		boolean destroyPossible = false;
-		
+
 		final int PX = p.getXCoord();
 		final int PY = p.getYCoord();
 
