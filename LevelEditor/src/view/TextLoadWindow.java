@@ -16,6 +16,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
@@ -57,11 +58,19 @@ public class TextLoadWindow extends JDialog {
 
 		buttonLoad.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				m.b = m.levelIO.buildBoard(inputArea.getText().trim());
+				Board b = m.levelIO.buildBoard(inputArea.getText().trim());
+				if (b != null) {
+					m.b = b;
+				} else {
+					JOptionPane.showMessageDialog(TextLoadWindow.this,
+									"Invalid level file. Please make sure the id is positive.\nIf you do not have an id in mind use 0.",
+									"Syntax error!", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
 				dispose();
 			}
 		});
-		///
+		// /
 		getContentPane().setLayout(
 				new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		this.add(inputArea);
