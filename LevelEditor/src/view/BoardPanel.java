@@ -40,6 +40,10 @@ public class BoardPanel extends JPanel{
 			return new Color(.133f, .337f, 1, 1);
 		case GREEN:
 			return new Color(.133f, 1, .177f, 1);
+		case ORANGE:
+			return new Color(255,150,20);
+		case PURPLE:
+			return Color.magenta.darker();
 		default:
 			return new Color(0, 0, 0, 0);	
 		}
