@@ -470,4 +470,9 @@ public class Board {
 		}
 	}
 
+	//TODO return true iff no piece is in destroyed state
+	public boolean validate() {
+		return true;
+	}
+
 }

@@ -58,6 +58,10 @@ public class FinalizationWindow extends JDialog{
 				String name = textTitle.getText();
 				String author = textAuthor.getText();
 				int id = -1;
+				if (!m.b.validate()){
+					JOptionPane.showMessageDialog(FinalizationWindow.this, "Level is invalid, I refeuse to save!", "Invalid level!", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
 				try {
 					id = m.levelIO.saveBoard(m.b, name, author);
 				} catch (Exception e) {

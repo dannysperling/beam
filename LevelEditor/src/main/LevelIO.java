@@ -76,7 +76,7 @@ public class LevelIO {
 	}
 
 	// Abandon hope, all ye who try and read this
-	private Board buildBoard(String spec) {
+	public Board buildBoard(String spec) {
 		Pattern pat = Pattern.compile(FULL_LEVEL_REGEX, Pattern.UNIX_LINES);
 		Matcher match = pat.matcher(spec.trim());
 		if (!match.matches()) {
@@ -227,13 +227,7 @@ public class LevelIO {
 		} else { // otherwise get lowest positive id available
 			b.id = generateNewId();
 		}
-		String header = "<level id=" + b.id + " par=" + b.par + " perfect="
-				+ b.perfect + ">" + "\n" + "<attribution name=\"" + title
-				+ "\" author=\"" + author + "\"/>" + "\n";
-		String beamGoals = generateBeamGoalSpec();
-		String boardSpec = generateSpec(b);
-		String footer = "</level>\n";
-		String newFile = existingFile +"\n"+ header+beamGoals+boardSpec+footer;
+		String newFile = existingFile +"\n"+ generateXML(b, title, author);
 		File f = new File(file);
 		System.out.println("Old file deleted? - "+f.delete());
 		f.createNewFile();
@@ -244,6 +238,16 @@ public class LevelIO {
 		System.out.println("\n"+file);
 		System.out.println("\n\n"+newFile);
 		return b.id;
+	}
+	
+	public String generateXML(Board b, String title, String author) {
+		String header = "<level id=" + b.id + " par=" + b.par + " perfect="
+				+ b.perfect + ">" + "\n" + "<attribution name=\"" + title
+				+ "\" author=\"" + author + "\"/>" + "\n";
+		String beamGoals = generateBeamGoalSpec();
+		String boardSpec = generateSpec(b);
+		String footer = "</level>\n";
+		return header+beamGoals+boardSpec+footer;
 	}
 
 	private String generateBeamGoalSpec() {
@@ -299,5 +303,25 @@ public class LevelIO {
 			sb.append("\n");
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Returns id of level with given name
+	 * Returns -1 if level not found.
+	 * @param retVal
+	 * @return
+	 */
+	public int idlookup(String target) {
+		String text = fileContent(file);
+		Pattern pat = Pattern.compile("<level id=(\\d+).*\\n.*name=\\\"(.+?)\\\"(.|\\n)*?/level>",
+				Pattern.UNIX_LINES);
+		Matcher match = pat.matcher(text);
+		while (match.find()) {
+			System.out.println("Id lookup: id:"+match.group(1)+" name: "+match.group(2));
+			if (match.group(2).equalsIgnoreCase(target.trim())) {
+				return Integer.parseInt(match.group(1));
+			}
+		}
+		return -1;
 	}
 }
