@@ -31,7 +31,7 @@ public class DrawGame {
 	private Sprite bangSprite;
 	private Texture starTexture;
 	private Sprite starSprite;
-	private ShapeRenderer shapes;
+	public ShapeRenderer shapes;
 	public final static Color BOARD_COLOR = new Color(.95f, .95f, .9f, .85f);
 	public final static Color LINE_COLOR = new Color(.1f, .1f, .1f, 1);
 

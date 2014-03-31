@@ -80,13 +80,13 @@ public class Menu {
 	
 	static final float worldItemPercent = 1/(3.0f);
 	
-	private static final Color[] WORLD_COLORS = 
-		{	Color.BLUE,
-		 	Color.GREEN,
-		 	Color.ORANGE,
-		 	Color.RED,
-		 	Color.MAGENTA,
-		 	Color.CYAN,
+	public static final Color[] WORLD_COLORS = 
+		{	colorFromRGB(75,125,204),
+			colorFromRGB(121,224,224),
+			colorFromRGB(34,233,38),
+			colorFromRGB(240,128,10),
+			colorFromRGB(240,22,22),
+			colorFromRGB(212,60,204)
 		 	};
 	
 	//This indicates how far down the menu has been scrolled. 0 indicates none at
@@ -111,6 +111,10 @@ public class Menu {
 	}
 	
 	
+	private static Color colorFromRGB(int i, int j, int k) {
+		return new Color(i/255.0f, j/255.0f,k/255.0f,1);
+	}
+
 	private final float PERCENT_OFF_SCROLL = 0.2f;
 	private final float RESCROLL_BOUNCE = 0.01f;
 	
@@ -274,6 +278,7 @@ public class Menu {
 	}
 	
 	public int getHorizontalScrollAmount(int world){
+		if (world < 0 || world>=worldScrollAmounts.length) return 0;
 		return worldScrollAmounts[world];
 	}
 	
@@ -369,5 +374,18 @@ public class Menu {
 		ret.mul(factor);
 		ret.a = 1;
 		return ret;
+	}
+
+	public int sizeOfWorld(int world) {
+		if (world < 0 || world >= worldSizes.size()) return 0;
+		return worldSizes.get(world);
+	}
+
+	public static Color colorOfWorld(int world) {
+		if (world < 0)
+			return Color.BLACK.cpy();
+		if (world >= WORLD_COLORS.length)
+			return Color.WHITE.cpy();
+		return WORLD_COLORS[world].cpy();
 	}
 }
