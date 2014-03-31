@@ -3,6 +3,7 @@ package com.me.beam;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 
 public class Menu {
 
@@ -78,6 +79,15 @@ public class Menu {
 	}
 	
 	static final float worldItemPercent = 1/(3.0f);
+	
+	private static final Color[] WORLD_COLORS = 
+		{	Color.BLUE,
+		 	Color.GREEN,
+		 	Color.ORANGE,
+		 	Color.RED,
+		 	Color.MAGENTA,
+		 	Color.CYAN,
+		 	};
 	
 	//This indicates how far down the menu has been scrolled. 0 indicates none at
 	//all; the first few levels should be showing. The max value of scrollDownAmount
@@ -331,11 +341,16 @@ public class Menu {
 	
 	//Gets the position of the index within its world
 	public int getPositionInWorld(int index){
+		int world = getWorld(index);
+		return index - worldStartIndices.get(world) + 1;
+	}
+	
+	public int getWorld(int index){
 		int world = 0;
 		while (world < worldSizes.size() - 1 && index >= worldStartIndices.get(world + 1) ){
 			world++;
 		}
-		return index - worldStartIndices.get(world) + 1;
+		return world;
 	}
 	
 	public int getItemHeight(){
@@ -344,5 +359,15 @@ public class Menu {
 	
 	public int getItemWidth(){
 		return (int)(getItemHeight() * boardHeightPercent * 1.1f);
+	}
+
+	public Color colorOfLevel(int index) {
+		int world = getWorld(index);
+		Color ret = WORLD_COLORS[world].cpy();
+		float factor = 1.0f - 0.75f*((float)getPositionInWorld(index)/(float)worldSizes.get(world));
+		
+		ret.mul(factor);
+		ret.a = 1;
+		return ret;
 	}
 }

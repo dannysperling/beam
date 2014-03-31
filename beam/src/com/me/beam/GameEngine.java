@@ -405,7 +405,7 @@ public class GameEngine implements ApplicationListener {
 
 		// Draw the game or menu
 		if (!mainMenuShowing)
-			dg.draw(b, state, currentAnimationState, currentLevel);
+			dg.draw(b, state, currentAnimationState, currentLevel, menu.colorOfLevel(currentLevel));
 		else
 			dm.draw(dg, allBoards, b, currentLevel);
 	}
