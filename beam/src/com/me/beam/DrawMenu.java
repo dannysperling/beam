@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
 public class DrawMenu {
 
@@ -39,7 +41,21 @@ public class DrawMenu {
 		//Loop until the item wouldn't show at all
 		String stringNumber;
 		while(itemTopY > 0){
-		
+			//Try to draw world colors? This loop is strange to me
+			//Am I drawing upside down?
+			ShapeRenderer shape = dg.shapes;
+			shape.begin(ShapeType.Filled);
+			Color start = Menu.colorOfWorld(world).mul(1.1f);//change mul factor to lighten startpoint
+			Color dark = Menu.colorOfWorld(world).mul(.25f);//change mul factor to lighten endpoint
+			//Draw main backgroun:
+			shape.rect(-menu.getHorizontalScrollAmount(world), itemTopY-itemHeight, itemWidth*menu.sizeOfWorld(world), itemHeight, start, dark, dark, start);
+			//Now draw overflow boxes:
+			shape.setColor(start);
+			shape.rect(-menu.getHorizontalScrollAmount(world) - 100, itemTopY-itemHeight, 100, itemHeight);
+			shape.setColor(dark);
+			shape.rect(-menu.getHorizontalScrollAmount(world)+itemWidth*menu.sizeOfWorld(world), itemTopY-itemHeight, 100, itemHeight);
+			//Alpha broken :(//shape.rect(-menu.getHorizontalScrollAmount(world), itemTopY-itemHeight, itemWidth*menu.sizeOfWorld(world), itemHeight/10.0f, Color.WHITE, Color.WHITE, new Color(1,1,1,0.0f), new Color(1,1,1,0.5f));
+			shape.end();
 			//Ensure world in bounds
 			if (menu.worldInBounds(world)){
 				//Loop through horizontally as well
@@ -47,8 +63,8 @@ public class DrawMenu {
 				int itemLeftX = -(horizontalScrolled % itemWidth);
 				int itemBotY = itemTopY - itemHeight;
 				int index = menu.getLevelAtPosition(itemLeftX + itemWidth / 2, itemTopY - itemHeight / 2);
-				
 				boolean worldUnlocked = menu.isWorldUnlocked(world);
+				
 				
 				while (itemLeftX < width - 1){
 					//Ensure index in bounds

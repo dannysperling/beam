@@ -31,7 +31,9 @@ public class DrawGame {
 	private Sprite bangSprite;
 	private Texture starTexture;
 	private Sprite starSprite;
-	private ShapeRenderer shapes;
+	public ShapeRenderer shapes;
+	public final static Color BOARD_COLOR = new Color(.95f, .95f, .9f, .85f);
+	public final static Color LINE_COLOR = new Color(.1f, .1f, .1f, 1);
 
 	private GameProgress gameProgress;
 
@@ -49,8 +51,12 @@ public class DrawGame {
 			return new Color(.133f, .337f, 1, 1);
 		case GREEN:
 			return new Color(.133f, 1, .177f, 1);
+		case ORANGE:
+			return new Color(255/255.0f,150/255.0f,20/255.0f, 1);
+		case PURPLE:
+			return new Color(.6f, 0, .6f, 1);
 		default:
-			return new Color(0, 0, 0, 0);
+			return new Color(0, 0, 0, 0);	
 		}
 	}
 
@@ -90,11 +96,16 @@ public class DrawGame {
 	}
 
 	public void draw(Board b, GameEngine.GameState state,
-		GameEngine.AnimationState aState, int currentLevel) {
+		GameEngine.AnimationState aState, int currentLevel, Color bg) {
 		int bx = b.getBotLeftX();
 		int by = b.getBotLeftY();
 		int tilesize = b.getTileSize();
-		Color curBG = new Color(.1f, .1f, .1f, 1);
+		Color curBG = /*new Color(.1f, .1f, .1f, 1)*/bg;
+		/*//Random color fun times!
+		curBG.r = (float) (((2577 + Math.pow(13, currentLevel))%255)/255.0)
+		curBG.b = (float) (((5648 + Math.pow(7, currentLevel))%255)/255.0);
+		curBG.g = (float) (((1124 + Math.pow(17, currentLevel))%255)/255.0);
+		*/
 		if (state == GameState.DESTROYED) {
 			curBG = new Color(.5f, 0, 0, 1);
 		}
@@ -106,11 +117,17 @@ public class DrawGame {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		List<Piece> pieces = b.getAllPieces();
 		List<Tile> tiles = b.getAllTiles();
+		
+		//Draw Board Background
+		shapes.begin(ShapeType.Filled);
+		shapes.setColor(BOARD_COLOR);
+		shapes.rect(bx, by, b.getNumHorizontalTiles() * tilesize, b.getNumVerticalTiles() * tilesize);
+		shapes.end();
 
 		// Draw the basic grid
 		shapes.begin(ShapeType.Line);
-		shapes.setColor(Color.WHITE);
-		Gdx.gl.glLineWidth(1);
+		shapes.setColor(LINE_COLOR);
+		Gdx.gl.glLineWidth(2);
 		for (int i = 0; i <= b.getNumHorizontalTiles(); i++) {
 			shapes.line(bx + (i * tilesize), by, bx + (i * tilesize),
 					by + (b.getNumVerticalTiles() * tilesize));
@@ -126,7 +143,7 @@ public class DrawGame {
 		shapes.begin(ShapeType.Line);
 		for (Tile t : tiles) {
 			if (t.isGlass) {
-				shapes.setColor(Color.WHITE);
+				shapes.setColor(LINE_COLOR);
 				int glassX = bx + (t.getXCoord() * tilesize);
 				int glassY = by + (t.getYCoord() * tilesize);
 				shapes.line(glassX, glassY + (0.25f * tilesize), glassX
@@ -154,7 +171,7 @@ public class DrawGame {
 				shapes.setColor(translateColor(t.getGoalColor()));
 				shapes.rect(goalX + (0.05f * tilesize), goalY
 						+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
-				shapes.setColor(curBG);
+				shapes.setColor(BOARD_COLOR);
 				shapes.rect(goalX + (0.12f * tilesize), goalY
 						+ (0.12f * tilesize), 0.76f * tilesize, 0.76f * tilesize);
 			}
@@ -818,10 +835,16 @@ public class DrawGame {
 		
 			List<Piece> pieces = b.getAllPieces();
 			List<Tile> tiles = b.getAllTiles();
+			
+			//Draw Board Background
+			shapes.begin(ShapeType.Filled);
+			shapes.setColor(BOARD_COLOR);
+			shapes.rect(bx, by, b.getNumHorizontalTiles() * tilesize, b.getNumVerticalTiles() * tilesize);
+			shapes.end();
 
 			// Draw the basic grid
 			shapes.begin(ShapeType.Line);
-			shapes.setColor(Color.WHITE);
+			shapes.setColor(LINE_COLOR);
 			Gdx.gl.glLineWidth(1);
 			for (int i = 0; i <= b.getNumHorizontalTiles(); i++) {
 				shapes.line(bx + (i * tilesize), by, bx + (i * tilesize),
@@ -838,7 +861,7 @@ public class DrawGame {
 			shapes.begin(ShapeType.Line);
 			for (Tile t : tiles) {
 				if (t.isGlass) {
-					shapes.setColor(Color.WHITE);
+					shapes.setColor(LINE_COLOR);
 					int glassX = bx + (t.getXCoord() * tilesize);
 					int glassY = by + (t.getYCoord() * tilesize);
 					shapes.line(glassX, glassY + (0.25f * tilesize), glassX
@@ -866,7 +889,7 @@ public class DrawGame {
 					shapes.setColor(translateColor(t.getGoalColor()));
 					shapes.rect(goalX + (0.05f * tilesize), goalY
 							+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
-					shapes.setColor(curBG);
+					shapes.setColor(BOARD_COLOR);
 					shapes.rect(goalX + (0.12f * tilesize), goalY
 							+ (0.12f * tilesize), 0.76f * tilesize, 0.76f * tilesize);
 				}
