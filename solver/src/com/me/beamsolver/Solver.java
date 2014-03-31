@@ -345,28 +345,32 @@ public class Solver {
 
 		while (searchQueue.size() > 0) {
 			Point tempPoint = searchQueue.remove(0);
-			Piece up = new Piece(tempPoint.x, tempPoint.y + 1, p.getColor());
+			
 			Point up_point = new Point(tempPoint.x, tempPoint.y + 1);
+			Piece up = new Piece(up_point, p.getColor());
 			if (isPlaceSafe(pieces, up) && !contiguousPoints.contains(up_point)) {
 				searchQueue.add(up_point);
 				contiguousPoints.add(up_point);
 			}
-			Piece down = new Piece(tempPoint.x, tempPoint.y - 1, p.getColor());
+			
 			Point down_point = new Point(tempPoint.x, tempPoint.y - 1);
+			Piece down = new Piece(down_point, p.getColor());
 			if (isPlaceSafe(pieces, down)
 					&& !contiguousPoints.contains(down_point)) {
 				searchQueue.add(down_point);
 				contiguousPoints.add(down_point);
 			}
-			Piece left = new Piece(tempPoint.x - 1, tempPoint.y, p.getColor());
+			
 			Point left_point = new Point(tempPoint.x - 1, tempPoint.y);
+			Piece left = new Piece(left_point, p.getColor());
 			if (isPlaceSafe(pieces, left)
 					&& !contiguousPoints.contains(left_point)) {
 				searchQueue.add(left_point);
 				contiguousPoints.add(left_point);
 			}
-			Piece right = new Piece(tempPoint.x + 1, tempPoint.y, p.getColor());
+			
 			Point right_point = new Point(tempPoint.x + 1, tempPoint.y);
+			Piece right = new Piece(right_point, p.getColor());
 			if (isPlaceSafe(pieces, right)
 					&& !contiguousPoints.contains(right_point)) {
 				searchQueue.add(right_point);

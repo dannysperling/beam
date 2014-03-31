@@ -1,5 +1,7 @@
 package com.me.beam;
 
+import java.awt.Point;
+
 public class Piece {
 
 	//These are in terms of grid squares!
@@ -11,7 +13,12 @@ public class Piece {
 	public Piece(int xCoord, int yCoord, GameEngine.Color color){
 		this.xCoord = xCoord;
 		this.yCoord = yCoord;
-		
+		this.color = color;
+	}
+	
+	public Piece(Point point, GameEngine.Color color) {
+		this.xCoord = point.x;
+		this.yCoord = point.y;
 		this.color = color;
 	}
 	
