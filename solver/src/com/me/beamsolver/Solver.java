@@ -44,6 +44,7 @@ public class Solver {
 	private boolean horizontalSymmetry;
 	private boolean verticalSymmetry;
 	private boolean solved;
+	private Piece[][] originalPieces;
 	private Piece[][] solution;
 	private int highestDepthPrinted;
 	private int cutoffs;
@@ -56,13 +57,14 @@ public class Solver {
 				"../beam-android/assets/data/levels/levels.xml", levelOrderer,
 				true);
 
-		int ordinal = 36;
+		int ordinal = 44;
 		int index = ordinal - 1;
 		Board toSolve = levelLoader.getLevel(index);
 		printPieces(toSolve.getPieces());
 		System.out.println("Solving level " + ordinal);
 		Solver solver = new Solver(toSolve);
 		System.out.println("Moves: " + solver.getMovesNeeded());
+		solver.printSolutionTrace();
 	}
 
 	public Solver(Board board) {
@@ -89,9 +91,38 @@ public class Solver {
 		}
 		return solution;
 	}
+	
+	public void printSolutionTrace() {
+		if (!solved) {
+			solve();
+		}
+		List<Piece[][]> solutionTrace = new ArrayList<Piece[][]>();
+		solutionTrace.add(solution);
+		Piece[][] pieces = solution;
+		for (int moves = getMovesNeeded() - 1; moves > 0; moves--) {
+			Set<Piece[][]> possibleMoves = getAllMoves(pieces);
+			for (Piece[][] move : possibleMoves) {
+				Integer temp = safeGet(move);
+				if (temp == null) {
+					continue;
+				}
+				if (temp == moves) {
+					solutionTrace.add(move);
+					pieces = move;
+					break;
+				}
+			}
+		}
+		solutionTrace.add(originalPieces);
+		for (int i = solutionTrace.size() - 1; i >= 0; i--) {
+			System.out.println("Move: " + (solutionTrace.size() - 1 - i));
+			printPieces(solutionTrace.get(i));
+		}
+	}
 
 	private void solve() {
-		addToQueue(board.getPieces(), 0);
+		this.originalPieces = board.getPieces();
+		addToQueue(originalPieces, 0);
 		this.startTime = System.currentTimeMillis();
 		while (searchQueue.size() > 0 && !this.solved) {
 			QueueEntry qe = searchQueue.poll();
