@@ -46,6 +46,7 @@ public class Solver {
 	private boolean solved;
 	private Piece[][] originalPieces;
 	private Piece[][] solution;
+	private boolean[][] glass;
 	private int highestDepthPrinted;
 	private int cutoffs;
 	private long startTime;
@@ -76,6 +77,14 @@ public class Solver {
 		this.solution = null;
 		this.highestDepthPrinted = 0;
 		this.cutoffs = 0;
+		int w = board.getNumHorizontalTiles();
+		int h = board.getNumVerticalTiles();
+		glass = new boolean[w][h];
+		for (int i = 0; i < w; i++) {
+			for (int j = 0; j < h; j++) {
+				glass[i][j] = board.getTileAtBoardPosition(i, j).isGlass;
+			}
+		}
 	}
 
 	public int getMovesNeeded() {
@@ -170,19 +179,22 @@ public class Solver {
 		return temp;
 	}
 
-	private static String piecesStringDense(Piece[][] pieces) {
+	private String piecesStringDense(Piece[][] pieces) {
 		String temp = "";
 		int count = 0;
-		for (int i = pieces[0].length - 1; i >= 0; i--) {
-			for (int j = 0; j < pieces.length; j++) {
-				if (pieces[j][i] == null) {
+		for (int x = 0; x < pieces.length; x++) {
+			for (int y = 0; y < pieces[0].length; y++) {
+				if (glass[x][y]) {
+					continue;
+				}
+				if (pieces[x][y] == null) {
 					count++;
 				} else {
 					if (count > 0) {
 						temp += count;
 						count = 0;
 					}
-					temp += pieces[j][i].toString();
+					temp += pieces[x][y].toString();
 				}
 			}
 		}
