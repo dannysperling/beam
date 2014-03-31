@@ -62,6 +62,7 @@ public class Solver {
 		printPieces(toSolve.getPieces());
 		System.out.println("Solving level " + ordinal);
 		Solver solver = new Solver(toSolve);
+		solver.solve();
 		System.out.println("Moves: " + solver.getMovesNeeded());
 		solver.printSolutionTrace();
 	}
@@ -119,7 +120,7 @@ public class Solver {
 		}
 	}
 
-	private void solve() {
+	public void solve() {
 		this.originalPieces = board.getPieces();
 		addToQueue(originalPieces, 0);
 		this.startTime = System.currentTimeMillis();
