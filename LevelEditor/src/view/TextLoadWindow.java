@@ -21,8 +21,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import main.EditorModel;
+import model.Board;
 
-import com.me.beam.Board;
 
 public class TextLoadWindow extends JDialog {
 	JTextArea inputArea;

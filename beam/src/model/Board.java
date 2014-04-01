@@ -1,4 +1,4 @@
-package com.me.beam;
+package model;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,11 +8,9 @@ import java.util.List;
 import java.util.Set;
 
 import com.badlogic.gdx.Gdx;
-import com.me.beam.GameEngine;
-import com.me.beam.Laser;
-import com.me.beam.Piece;
-import com.me.beam.Tile;
-import com.me.beam.GameEngine.Color;
+
+import controller.GameEngine;
+import controller.GameEngine.Color;
 
 public class Board {
 

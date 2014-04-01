@@ -3,10 +3,11 @@ package main;
 import java.io.File;
 import java.io.IOException;
 
-import com.me.beam.Board;
-import com.me.beam.Laser;
-import com.me.beam.Piece;
-import com.me.beam.Tile;
+import model.Board;
+import model.Laser;
+import model.Piece;
+import model.Tile;
+
 
 public class EditorModel {
 	public Board b;

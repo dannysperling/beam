@@ -1,33 +1,36 @@
-package com.me.beam;
+package model;
 
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 
+import controller.GameEngine;
+import controller.GameProgress;
+
 public class Menu {
 
 	//Measured in terms of percentage of screen
-	static final float buttonBotY = GameEngine.botBarSize*0.2f;
-	static final float buttonHeight = GameEngine.botBarSize*0.7f;
+	public static final float buttonBotY = GameEngine.botBarSize*0.2f;
+	public static final float buttonHeight = GameEngine.botBarSize*0.7f;
 
 	//Undo first
-	static final float undoButtonLeftX = 0.02f;
-	static final float undoButtonWidth = 0.31f;
+	public static final float undoButtonLeftX = 0.02f;
+	public static final float undoButtonWidth = 0.31f;
 
 	//Reset second
-	static final float resetButtonLeftX = 0.39f;
-	static final float resetButtonWidth = 0.20f;
+	public static final float resetButtonLeftX = 0.39f;
+	public static final float resetButtonWidth = 0.20f;
 
 	//Then redo
-	static final float redoButtonLeftX = 0.67f;
-	static final float redoButtonWidth = 0.31f;
+	public static final float redoButtonLeftX = 0.67f;
+	public static final float redoButtonWidth = 0.31f;
 	
 	//Menu button: Top Left corner
-	static final float menuButtonBotY = 1 - GameEngine.topBarSize*0.25f;
-	static final float menuButtonLeftX = 0.02f;
-	static final float menuButtonWidth = 0.15f;
-	static final float menuButtonHeight = GameEngine.topBarSize*0.2f;
+	public static final float menuButtonBotY = 1 - GameEngine.topBarSize*0.25f;
+	public static final float menuButtonLeftX = 0.02f;
+	public static final float menuButtonWidth = 0.15f;
+	public static final float menuButtonHeight = GameEngine.topBarSize*0.2f;
 
 	//Get which button a pixel is inside of
 	public static GameEngine.ButtonPress containingButtonOfPixel(int x, int y){

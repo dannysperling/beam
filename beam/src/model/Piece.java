@@ -1,6 +1,8 @@
-package com.me.beam;
+package model;
 
 import java.awt.Point;
+
+import controller.GameEngine;
 
 public class Piece {
 

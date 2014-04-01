@@ -7,9 +7,9 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
-import com.me.beam.Board;
 
 import main.EditorModel;
+import model.Board;
 
 public class NewWindow extends JDialog {
 	/**

@@ -9,11 +9,12 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 
-import com.me.beam.Board;
-import com.me.beam.GameEngine.Color;
-import com.me.beam.LevelLoader;
-import com.me.beam.LevelOrderer;
-import com.me.beam.Piece;
+import model.Board;
+import model.Piece;
+
+import controller.LevelLoader;
+import controller.LevelOrderer;
+import controller.GameEngine.Color;
 
 public class Solver {
 

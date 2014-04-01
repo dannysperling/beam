@@ -1,9 +1,15 @@
-package com.me.beam;
+package view;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Set;
+
+import model.Board;
+import model.Laser;
+import model.Menu;
+import model.Piece;
+import model.Tile;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -18,8 +24,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.me.beam.GameEngine.AnimationState;
-import com.me.beam.GameEngine.GameState;
+
+import controller.GameEngine;
+import controller.GameProgress;
+import controller.GameEngine.AnimationState;
+import controller.GameEngine.GameState;
 
 public class DrawGame {
 	private static final float beamThickness = 0.1f; //This is measured in units of square size

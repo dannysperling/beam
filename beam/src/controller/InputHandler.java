@@ -1,11 +1,17 @@
-package com.me.beam;
+package controller;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Board;
+import model.Menu;
+import model.Piece;
+import model.Tile;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.me.beam.GameEngine.GameState;
+
+import controller.GameEngine.GameState;
 
 public class InputHandler {
 

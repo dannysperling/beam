@@ -1,4 +1,4 @@
-package com.me.beam;
+package controller;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

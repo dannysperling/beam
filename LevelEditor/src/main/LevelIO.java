@@ -9,11 +9,12 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.me.beam.Board;
-import com.me.beam.GameEngine;
-import com.me.beam.GameEngine.Color;
-import com.me.beam.Piece;
-import com.me.beam.Tile;
+import model.Board;
+import model.Piece;
+import model.Tile;
+
+import controller.GameEngine;
+import controller.GameEngine.Color;
 
 /**
  * This is the Level Editor board load/save tool, and is not compatible with the

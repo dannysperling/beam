@@ -1,4 +1,4 @@
-package com.me.beam;
+package controller;
 
 import java.util.List;
 import java.util.Map;
@@ -7,7 +7,8 @@ import java.util.regex.Pattern;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.me.beam.Logger.LogType;
+
+import controller.Logger.LogType;
 
 public class GameProgress {
 

@@ -34,11 +34,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import main.EditorModel;
+import model.Board;
+import model.Piece;
+import model.Tile;
 
-import com.me.beam.Board;
-import com.me.beam.GameEngine;
-import com.me.beam.Piece;
-import com.me.beam.Tile;
+import controller.GameEngine;
 
 public class MainWindow extends JFrame implements MouseListener {
 	/**

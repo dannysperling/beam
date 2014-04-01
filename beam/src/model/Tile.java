@@ -1,4 +1,6 @@
-package com.me.beam;
+package model;
+
+import controller.GameEngine;
 
 public class Tile {
 	

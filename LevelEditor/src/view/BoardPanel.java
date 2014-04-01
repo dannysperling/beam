@@ -7,11 +7,11 @@ import java.util.Set;
 import javax.swing.JPanel;
 
 import main.EditorModel;
+import model.Laser;
+import model.Piece;
+import model.Tile;
 
-import com.me.beam.GameEngine;
-import com.me.beam.Laser;
-import com.me.beam.Piece;
-import com.me.beam.Tile;
+import controller.GameEngine;
 
 
 public class BoardPanel extends JPanel{

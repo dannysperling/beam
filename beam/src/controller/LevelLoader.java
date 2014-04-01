@@ -1,12 +1,17 @@
-package com.me.beam;
+package controller;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.regex.*;
 
+import model.Board;
+import model.Piece;
+import model.Tile;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.me.beam.GameEngine.Color;
+
+import controller.GameEngine.Color;
 
 public class LevelLoader {
 	private String file;
