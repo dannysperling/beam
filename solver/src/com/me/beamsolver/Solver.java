@@ -51,17 +51,21 @@ public class Solver {
 	private long startTime;
 
 	public static void main(String[] args) {
+		
+		//Neither the level orderer nor loader should use GDX in this application
 		LevelOrderer levelOrderer = new LevelOrderer(
-				"../beam-android/assets/data/levels/levelOrder.txt", true);
+				"../beam-android/assets/data/levels/levelOrder.txt", false);
 		LevelLoader levelLoader = new LevelLoader(
 				"../beam-android/assets/data/levels/levels.xml", levelOrderer,
-				true);
+				false);
 
-		int ordinal = 38;
-		int index = ordinal - 1;
-		Board toSolve = levelLoader.getLevel(index);
+		
+		//Load level 1-1 for now
+		int world = 1;
+		int ordinalInWorld = 1;
+		Board toSolve = levelLoader.getLevel(world, ordinalInWorld);
 		printPieces(toSolve.getPieces());
-		System.out.println("Solving level " + ordinal);
+		System.out.println("Solving level " + world + "-" + ordinalInWorld);
 		Solver solver = new Solver(toSolve);
 		solver.solve();
 		System.out.println("Moves: " + solver.getMovesNeeded());

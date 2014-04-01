@@ -6,7 +6,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 
 import controller.GameEngine;
-import controller.GameProgress;
 
 public class Menu {
 
@@ -99,16 +98,13 @@ public class Menu {
 	private int[] worldScrollAmounts;
 	private int numWorlds;
 	private List<Integer> worldSizes;
-	private List<Integer> worldStartIndices;
 	private GameProgress progress;
 	
 	public final float boardHeightPercent = 0.6f;
 	
-	public Menu(List<Integer> worldSizes, List<Integer> worldStartIndices,
-			GameProgress progress){
+	public Menu(List<Integer> worldSizes, GameProgress progress){
 		this.numWorlds = worldSizes.size();
 		this.worldSizes = worldSizes;
-		this.worldStartIndices = worldStartIndices;
 		worldScrollAmounts = new int[numWorlds];
 		this.progress = progress;
 	}
@@ -194,21 +190,24 @@ public class Menu {
 		if (!worldInBounds(world))
 			return false;
 		
+		int worldIndex = world - 1;
+		
 		int width = Gdx.graphics.getWidth();
 		int itemWidth = getItemWidth();
+		int maxWidth =  Math.max(itemWidth * worldSizes.get(worldIndex) - width - 1, 0);
 		
-		int maxWidth =  Math.max(itemWidth * worldSizes.get(world) - width - 1, 0);
-		if (worldScrollAmounts[world] > maxWidth){
+		//Account for the fact that world is an ordinal
+		if (worldScrollAmounts[worldIndex] > maxWidth){
 			//Take the scroll right amount past the right side
-			scrollRightAmount -= Math.max(maxWidth - worldScrollAmounts[world], 0);
+			scrollRightAmount -= Math.max(maxWidth - worldScrollAmounts[worldIndex], 0);
 			
 			//Scroll to right if not there
-			boolean wasRight = worldScrollAmounts[world] < maxWidth;
+			boolean wasRight = worldScrollAmounts[worldIndex] < maxWidth;
 			if (wasRight)
-				worldScrollAmounts[world] = maxWidth;
+				worldScrollAmounts[worldIndex] = maxWidth;
 			
 			//Get reduced amount based on how close to end currently
-			scrollRightAmount *= determineScrollAmount(maxWidth, worldScrollAmounts[world], width);
+			scrollRightAmount *= determineScrollAmount(maxWidth, worldScrollAmounts[worldIndex], width);
 			
 			//Figure out reverse effect if not held
 			boolean turned = false;
@@ -218,19 +217,19 @@ public class Menu {
 				turned = (scrollRightAmount <= 0);
 			}
 			//And scroll.
-			worldScrollAmounts[world] += scrollRightAmount;
+			worldScrollAmounts[worldIndex] += scrollRightAmount;
 			return turned;
-		} else if (worldScrollAmounts[world] < 0){
+		} else if (worldScrollAmounts[worldIndex] < 0){
 			//Take the scroll down amount up past the top
-			scrollRightAmount += Math.min(-worldScrollAmounts[world], 0);
+			scrollRightAmount += Math.min(-worldScrollAmounts[worldIndex], 0);
 			
 			//Scroll up to top if not there
-			boolean wasLeft = worldScrollAmounts[world] > 0;
+			boolean wasLeft = worldScrollAmounts[worldIndex] > 0;
 			if (wasLeft)
-				worldScrollAmounts[world] = 0;
+				worldScrollAmounts[worldIndex] = 0;
 			
 			//Get reduced amount based on how close to end currently
-			scrollRightAmount *= determineScrollAmount(0, worldScrollAmounts[world], width);
+			scrollRightAmount *= determineScrollAmount(0, worldScrollAmounts[worldIndex], width);
 			
 			//Figure out reverse effect if not held
 			boolean turned = false;
@@ -240,24 +239,20 @@ public class Menu {
 				turned = (scrollRightAmount >= 0);
 			}
 			//And scroll.
-			worldScrollAmounts[world] += scrollRightAmount;
+			worldScrollAmounts[worldIndex] += scrollRightAmount;
 			return turned;
 		} else {
-			worldScrollAmounts[world] += scrollRightAmount;
+			worldScrollAmounts[worldIndex] += scrollRightAmount;
 		}
 		return false;
 	}
 	
 	//Scrolls to a specific level
-	public void scrollToLevel(int index){
+	public void scrollToLevel(int world, int ordinalInWorld){
 		
-		int prevLevels = 0;
-		boolean foundAlready = false;
 		//Scroll all the things
 		for (int i = 0; i < worldSizes.size(); i++){
-			if (!foundAlready && worldSizes.get(i) + prevLevels > index){
-				foundAlready = true;
-				
+			if (world - 1 == i){
 				//Scroll down
 				int scrollToY = Math.max(i - 1, 0);
 				int itemHeight = getItemHeight();
@@ -265,13 +260,12 @@ public class Menu {
 				downScrollAmount = Math.min(itemHeight * scrollToY, maxHeight - 1);
 				
 				//And over
-				int over = index - prevLevels;
+				int over = ordinalInWorld - 1;
 				int itemWidth = getItemWidth();
 				worldScrollAmounts[i] = Math.max((over - 1) * itemWidth, 0);
 			} else {
 				worldScrollAmounts[i] = 0;
 			}
-			prevLevels += worldSizes.get(i);
 		}
 	}
 	
@@ -281,21 +275,22 @@ public class Menu {
 	}
 	
 	public int getHorizontalScrollAmount(int world){
-		if (world < 0 || world>=worldScrollAmounts.length) return 0;
-		return worldScrollAmounts[world];
+		if (world < 1 || world>worldScrollAmounts.length) 
+			return 0;
+		return worldScrollAmounts[world - 1];
 	}
 	
 	public boolean worldInBounds(int world){
-		return world >= 0 && world < numWorlds;
+		return world >= 1 && world <= numWorlds;
 	}
 	
 	//Allow some read-through to the game progress
-	public int getLevelMoves(int index){
-		return progress.getLevelMoves(index);
+	public int getLevelMoves(int world, int ordinalInWorld){
+		return progress.getLevelMoves(world, ordinalInWorld);
 	}
 	
-	public int getLevelStars(int index){
-		return progress.getLevelStars(index);
+	public int getLevelStars(int world, int ordinalInWorld){
+		return progress.getLevelStars(world, ordinalInWorld);
 	}
 	
 	public boolean isWorldUnlocked(int world){
@@ -306,59 +301,34 @@ public class Menu {
 		return progress.isBonusLevelUnlocked(world);
 	}
 
-	public boolean isBonus(int world, int levelIndex){
-		return (levelIndex - worldStartIndices.get(world) + 1) == worldSizes.get(world);
+	public boolean isBonus(int world, int ordinalInWorld){
+		return worldSizes.get(world - 1) == ordinalInWorld;
 	}
 	
-	//Returns the index of the selected level, or -1 if selected level is locked.
-	public int getSelectedLevel(int screenXPos, int screenYPos){
-		int world = getWorldAtPosition(screenYPos);
-		if (progress.isWorldUnlocked(world)){
-			int levelIndex = getLevelAtPosition(screenXPos, screenYPos);
-			
-			//Determines if the world is bonus 
-			boolean isBonus = isBonus(world, levelIndex);
-			if (!isBonus || progress.isBonusLevelUnlocked(world)){
-				return levelIndex;
-			}
-		}
-		return -1;
+	public boolean isLevelUnlocked(int world, int ordinalInWorld){
+		return isWorldUnlocked(world) && (!isBonus(world, ordinalInWorld) || isBonusLevelUnlocked(world));
 	}
 	
 	//Returns the world of the level at the given position
 	public int getWorldAtPosition(int screenYPos){
 		int selectedY = downScrollAmount - screenYPos + Gdx.graphics.getHeight() + 1;
 		int itemHeight = getItemHeight();
-		return (selectedY / itemHeight);
+		return (selectedY / itemHeight) + 1;
 	}
 	
-	//Returns the index of the level at the given position, INCLUDING LOCKED levels
-	public int getLevelAtPosition(int screenXPos, int screenYPos){
+	//Returns the ordinalInWorld of the level at the given position, INCLUDING LOCKED levels
+	public int getLevelAtPositionInWorld(int world, int screenXPos){
 		
-		int world = getWorldAtPosition(screenYPos);
-		int selectedX = worldScrollAmounts[world] + screenXPos;
+		int worldIndex = world - 1;
+		int selectedX = worldScrollAmounts[worldIndex] + screenXPos;
 		int itemWidth = getItemWidth();
 		
-		int withinWorld = (selectedX / itemWidth);
-		if (withinWorld < 0 || withinWorld >= worldSizes.get(world)){
+		int ordinalInWorld = (selectedX / itemWidth) + 1;
+		if (ordinalInWorld < 1 || ordinalInWorld > worldSizes.get(worldIndex)){
 			return -1;
 		}
 		
-		return worldStartIndices.get(world) + withinWorld;
-	}
-	
-	//Gets the position of the index within its world
-	public int getPositionInWorld(int index){
-		int world = getWorld(index);
-		return index - worldStartIndices.get(world) + 1;
-	}
-	
-	public int getWorld(int index){
-		int world = 0;
-		while (world < worldSizes.size() - 1 && index >= worldStartIndices.get(world + 1) ){
-			world++;
-		}
-		return world;
+		return ordinalInWorld;
 	}
 	
 	public int getItemHeight(){
@@ -369,10 +339,9 @@ public class Menu {
 		return (int)(getItemHeight() * boardHeightPercent * 1.1f);
 	}
 
-	public Color colorOfLevel(int index) {
-		int world = getWorld(index);
-		Color ret = WORLD_COLORS[world].cpy();
-		float factor = 1.0f - 0.75f*((float)getPositionInWorld(index)/(float)worldSizes.get(world));
+	public Color colorOfLevel(int world, int ordinalInWorld) {
+		Color ret = WORLD_COLORS[world - 1].cpy();
+		float factor = 1.0f - 0.75f*((float)(ordinalInWorld - 1)/(float)worldSizes.get(world));
 		
 		ret.mul(factor);
 		ret.a = 1;
@@ -380,15 +349,16 @@ public class Menu {
 	}
 
 	public int sizeOfWorld(int world) {
-		if (world < 0 || world >= worldSizes.size()) return 0;
-		return worldSizes.get(world);
+		if (world < 1 || world > worldSizes.size()) 
+			return 0;
+		return worldSizes.get(world - 1);
 	}
 
 	public static Color colorOfWorld(int world) {
-		if (world < 0)
+		if (world < 1)
 			return Color.BLACK.cpy();
-		if (world >= WORLD_COLORS.length)
+		if (world > WORLD_COLORS.length)
 			return Color.WHITE.cpy();
-		return WORLD_COLORS[world].cpy();
+		return WORLD_COLORS[world - 1].cpy();
 	}
 }

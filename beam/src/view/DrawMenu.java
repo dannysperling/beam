@@ -27,7 +27,7 @@ public class DrawMenu {
 		initFonts();
 	}
 
-	public void draw(DrawGame dg, List<Board> boardList, Board curBoard, int curLevel){
+	public void draw(DrawGame dg, List<List<Board>> allBoards, Board curBoard, int curWorld, int curOrdinalInWorld){
 		Gdx.gl.glClearColor(.1f, .1f, .1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
@@ -49,7 +49,7 @@ public class DrawMenu {
 			ShapeRenderer shape = dg.shapes;
 			shape.begin(ShapeType.Filled);
 			Color start = Menu.colorOfWorld(world).mul(1.1f);//change mul factor to lighten startpoint
-			Color dark = Menu.colorOfWorld(world).mul(.25f);//change mul factor to lighten endpoint
+			Color dark = Menu.colorOfWorld(world ).mul(.25f);//change mul factor to lighten endpoint
 			//Draw main backgroun:
 			shape.rect(-menu.getHorizontalScrollAmount(world), itemTopY-itemHeight, itemWidth*menu.sizeOfWorld(world), itemHeight, start, dark, dark, start);
 			//Now draw overflow boxes:
@@ -61,22 +61,22 @@ public class DrawMenu {
 			shape.end();
 			//Ensure world in bounds
 			if (menu.worldInBounds(world)){
+				
 				//Loop through horizontally as well
 				int horizontalScrolled = menu.getHorizontalScrollAmount(world);
 				int itemLeftX = -(horizontalScrolled % itemWidth);
 				int itemBotY = itemTopY - itemHeight;
-				int index = menu.getLevelAtPosition(itemLeftX + itemWidth / 2, itemTopY - itemHeight / 2);
+				int ordinalInWorld = menu.getLevelAtPositionInWorld(world, itemLeftX + itemWidth / 2);
 				boolean worldUnlocked = menu.isWorldUnlocked(world);
-				
-				
+					
 				while (itemLeftX < width - 1){
 					//Ensure index in bounds
-					if (index != -1){
+					if (ordinalInWorld != -1){
 						//Figure out how to draw the item
-						if (!worldUnlocked || (menu.isBonus(world, index) && !menu.isBonusLevelUnlocked(world))){
+						if (!worldUnlocked || (menu.isBonus(world, ordinalInWorld) && !menu.isBonusLevelUnlocked(world))){
 							numberFont.setColor(Color.RED);
 						} else {
-							int bestMoves = menu.getLevelMoves(index);
+							int bestMoves = menu.getLevelMoves(world, ordinalInWorld);
 							if (bestMoves != 0){
 								numberFont.setColor(Color.GREEN);
 							} else {
@@ -85,7 +85,11 @@ public class DrawMenu {
 						}
 						
 						//Either draw current state or entire board
-						Board b = (index == curLevel) ? curBoard : boardList.get(index);
+						Board b;
+						if (ordinalInWorld == curOrdinalInWorld && world == curWorld)
+							b = curBoard;
+						else 
+							b = allBoards.get(world - 1).get(ordinalInWorld - 1);
 						
 						// Get board dimensions
 						Color curBG = new Color(.1f, .1f, .1f, 1);
@@ -97,7 +101,7 @@ public class DrawMenu {
 						
 						//Draw number on top
 						batch.begin();
-						stringNumber = (world + 1) + "-" + menu.getPositionInWorld(index);
+						stringNumber =  world + "-" + ordinalInWorld;
 						tb = numberFont.getBounds(stringNumber);
 						numberFont.draw(batch, stringNumber, itemLeftX + (itemWidth - tb.width)/2, 
 								itemTopY - ((itemHeight * (1-menu.boardHeightPercent) * 3/4) - tb.height) / 2);
@@ -105,7 +109,7 @@ public class DrawMenu {
 					}
 					
 					itemLeftX += itemWidth;
-					index = menu.getLevelAtPosition(itemLeftX + itemWidth / 2, itemTopY - itemHeight / 2);
+					ordinalInWorld = menu.getLevelAtPositionInWorld(world, itemLeftX + itemWidth / 2);
 				}
 			}
 

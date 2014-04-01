@@ -80,8 +80,11 @@ public class InputHandler {
 	//For logging purposes
 	private int timeHeld = 0;
 	private final int timeForLoggingReset = 240;
+	
+	private int mostRecentlySelectedWorld = -1;
+	private int mostRecentlySelectedOrdinalInWorld = -1;
 
-	//Returns the level index selected, -1 if no unlocked level selected, -2 if exiting game
+	//Returns 0 if level selected, -1 if nothing selected, -2 if exiting game, -3 if logging reset
 	public int handleMainMenuInput(Menu menu){
 		
 		if (backClicked){
@@ -148,11 +151,18 @@ public class InputHandler {
 			if (firstTouchHeight != -1){
 				firstTouchHeight = -1;
 				if (!movedTooFar){
-					int selected = menu.getSelectedLevel(lastTouchX, lastTouchHeight);
+					int selected = menu.getLevelAtPositionInWorld(world, lastTouchX);
+					
 					lastTouchX = -1;
 					lastTouchHeight = -1;
 					movedTooFar = false;
-					return selected;
+					if (selected != -1){
+						mostRecentlySelectedOrdinalInWorld = selected;
+						mostRecentlySelectedWorld = world;
+						return 0;
+					} else {
+						return -1;
+					}
 				} else {
 					lastTouchX = -1;
 					lastTouchHeight = -1;
@@ -184,6 +194,14 @@ public class InputHandler {
 		}
 
 		return -1;
+	}
+	
+	public int getMostRecentlySelectedWorld(){
+		return mostRecentlySelectedWorld;
+	}
+	
+	public int getMostRecentlySelectedOrdinalInWorld(){
+		return mostRecentlySelectedOrdinalInWorld;
 	}
 
 	private GameState onRelease() {

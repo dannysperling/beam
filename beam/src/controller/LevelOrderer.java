@@ -3,9 +3,7 @@ package controller;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,51 +12,40 @@ import com.badlogic.gdx.files.FileHandle;
 
 public class LevelOrderer {
 
-	private List<Integer> mapping = new ArrayList<Integer>();
-	private List<Integer> worldSizes = new ArrayList<Integer>();
-	private List<Integer> worldStartIndices = new ArrayList<Integer>();
+	/**
+	 * Maps from positions in the world order to ID's in the level file
+	 */
+	private List<List<Integer>> mapping = new ArrayList<List<Integer>>();
 
-	// Initializes the level orderer with the correct file
-	public LevelOrderer(String fon) {
-		FileHandle fh = Gdx.files.internal(fon);
-		String text = fh.readString();
-
-		// Match for each of the worlds
-		Pattern pat = Pattern
-				.compile("###\\s*WORLDSTART:.*###([^#]+)###\\s*WORLDEND\\s*###");
-		Matcher mat = pat.matcher(text);
-		while (mat.find()) {
-			String[] parsed = mat.group(1).split("\\s+");
-
-			int numInWorld = 0;
-
-			for (int i = 0; i < parsed.length; i++) {
-				try {
-					int uniqueId = Integer.parseInt(parsed[i]);
-					mapping.add(uniqueId);
-					numInWorld++;
-				} catch (Exception e) {
-				}
-			}
-			worldSizes.add(numInWorld);
-		}
-		worldStartIndices.add(0);
-		for (int i = 0; i < worldSizes.size() - 1; i++){
-			worldStartIndices.add(worldStartIndices.get(i) + worldSizes.get(i));
-		}
-	}
-
-	public LevelOrderer(String file, boolean pointless) {
+	/**
+	 * Create a LevelOrderer based on the ordering found in the level order file.
+	 * 
+	 * @param fon
+	 * 			The path to the level order file
+	 * @param useGDX
+	 * 			Whether to use GDX to load the level or a buffered reader
+	 */
+	public LevelOrderer(String fon, boolean useGDX) {
+		
 		String text = "";
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			String line = null;
-			while ((line = reader.readLine()) != null) {
-				text += line + "\n";
+		
+		//Simply use the gdx file handle if using Gdx
+		if (useGDX){
+			FileHandle fh = Gdx.files.internal(fon);
+			text = fh.readString();
+		} 
+		//Otherwise use a buffered reader
+		else {
+			try {
+				BufferedReader reader = new BufferedReader(new FileReader(fon));
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					text += line + "\n";
+				}
+				reader.close();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			reader.close();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 
 		// Match for each of the worlds
@@ -66,59 +53,99 @@ public class LevelOrderer {
 				.compile("###\\s*WORLDSTART:.*###([^#]+)###\\s*WORLDEND\\s*###");
 		Matcher mat = pat.matcher(text);
 		while (mat.find()) {
+			
+			//Split on white space - search for numbers
 			String[] parsed = mat.group(1).split("\\s+");
 
-			int numInWorld = 0;
+			//Levels IDs in the current world
+			List<Integer> currentWorldLevels = new ArrayList<Integer>();
 
 			for (int i = 0; i < parsed.length; i++) {
 				try {
 					int uniqueId = Integer.parseInt(parsed[i]);
-					mapping.add(uniqueId);
-					numInWorld++;
+					currentWorldLevels.add(uniqueId);
 				} catch (Exception e) {
 				}
 			}
-			worldSizes.add(numInWorld);
+			//Add the world to the mapping
+			mapping.add(currentWorldLevels);
 		}
 	}
 
-	// Get the unique id for an index
-	public int getUniqueId(int index) {
-		if (index >= 0 && index < mapping.size())
-			return mapping.get(index);
-		return 0;
-	}
 
-	public int getNumLevels() {
-		return mapping.size();
-	}
-
-	public List<Integer> getWorldSizes() {
-		return worldSizes;
+	/**
+	 * Get the loader ID of a level based on its world and ordinal.
+	 * i.e., world = 2, ordinalInWorld = 3 would load level 2-3
+	 * 
+	 * @param world
+	 * 				World of the level, 1 <= world <= numWorlds
+	 * @param ordinalInWorld
+	 * 				Ordinal of level in world, 1 <= ordinalInWorld <= numLevelsInWorld
+	 * @return ID of the level, or -1 if out of bounds
+	 */
+	public int getUniqueId(int world, int ordinalInWorld) {
+		
+		//Check to make sure world is in bounds
+		if (world >= 1 && world <= mapping.size()){
+			
+			//Subtract 1 from the world to get the index
+			List<Integer> worldIDs = mapping.get(world - 1);
+			
+			//Check to make sure ordinal is in bounds
+			if (ordinalInWorld >= 1 && ordinalInWorld <= worldIDs.size()){
+				
+				//Subtract 1 from the ordinal to get the index
+				return worldIDs.get(ordinalInWorld - 1);
+			}
+		}
+		
+		//If out of bounds, return -1
+		return -1;
 	}
 	
-	public List<Integer> getWorldStartIndices(){
-		return worldStartIndices;
+	/**
+	 * Gets the number of worlds in the game
+	 * 
+	 * @return the number of worlds
+	 */
+	public int getNumWorlds(){
+		return mapping.size();
+	}
+	
+	/**
+	 * Gets the size of a given world, or -1 if out of bounds
+	 * 1 <= world <= numWorlds
+	 * 
+	 * @return the size of the world
+	 */
+	public int getWorldSize(int world){
+		if (world >= 1 && world <= getNumWorlds()){
+			return mapping.get(world - 1).size();
+		}
+		return -1;
 	}
 
-	// Get the map in reverse for purposes of populating save game file
-	public Map<Integer, Integer> getInverseMapping() {
-		Map<Integer, Integer> inverseMap = new HashMap<Integer, Integer>();
-
-		for (int i = 0; i < mapping.size(); i++) {
-			inverseMap.put(mapping.get(i), i);
+	/**
+	 * Gets the size of every world in a list
+	 * 
+	 * @return List of the sizes of every world
+	 */
+	public List<Integer> getWorldSizes() {
+		
+		List<Integer> worldSizes = new ArrayList<Integer>();
+		
+		for (int i = 1; i <= getNumWorlds(); i++){
+			worldSizes.add(getWorldSize(i));
 		}
-
-		return inverseMap;
+		
+		return worldSizes;
 	}
 
-	// Get an array of all unique ids
-	public int[] getUniqueIds() {
-		int[] uniqueIds = new int[mapping.size()];
-
-		for (int i = 0; i < mapping.size(); i++) {
-			uniqueIds[i] = mapping.get(i);
-		}
-		return uniqueIds;
+	/**
+	 * Gets the full mapping for logging purposes
+	 * @return the mapping to unique IDs
+	 */
+	public List<List<Integer>> getMapping() {
+		return mapping;
 	}
 }

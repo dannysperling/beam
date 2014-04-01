@@ -8,6 +8,7 @@ import view.DrawGame;
 import view.DrawMenu;
 
 import model.Board;
+import model.GameProgress;
 import model.Laser;
 import model.Menu;
 import model.Piece;
@@ -32,9 +33,10 @@ public class GameEngine implements ApplicationListener {
 	private GameProgress progress;
 	private LevelOrderer levelOrderer;
 	
-	private List<Board> allBoards = new ArrayList<Board>();
+	private List<List<Board>> allBoards = new ArrayList<List<Board>>();
 	
-	private int currentLevel = -1;
+	private int currentWorld = -1;
+	private int currentOrdinalInWorld = -1;
 	private static int moveCounter = 0;
 
 	public static Piece movingPiece = null;
@@ -150,12 +152,13 @@ public class GameEngine implements ApplicationListener {
 	@Override
 	public void create() {
 
-		levelOrderer = new LevelOrderer("data/levels/levelOrder.txt");
-		levelLoader = new LevelLoader("data/levels/levels.xml", levelOrderer);
+		//Use GDX for both the orderer and the loader
+		levelOrderer = new LevelOrderer("data/levels/levelOrder.txt", true);
+		levelLoader = new LevelLoader("data/levels/levels.xml", levelOrderer, true);
 		progress = new GameProgress(levelOrderer);
 
 		dg = new DrawGame(progress);
-		menu = new Menu(levelOrderer.getWorldSizes(), levelOrderer.getWorldStartIndices(), progress);
+		menu = new Menu(levelOrderer.getWorldSizes(), progress);
 		dm = new DrawMenu(menu);
 		dg.initFonts();
 		inputHandler = new InputHandler();
@@ -167,14 +170,24 @@ public class GameEngine implements ApplicationListener {
 		tempFile = Gdx.files.local(tempData);
 		
 		if (LOGGING)
-			Logger.initialize(levelOrderer.getUniqueIds());
+			Logger.initialize(levelOrderer.getMapping());
 	}
 	
 	private void initializeBoards(){
-		for (int i = 0; i < levelOrderer.getNumLevels(); i++){
-			Board cur = levelLoader.getLevel(i);
-			initializeLasers(cur);
-			allBoards.add(cur);
+		
+		int numWorlds = levelOrderer.getNumWorlds();
+		for (int world = 1; world <= numWorlds; world++){
+			
+			//Add the world of boards
+			List<Board> curWorldBoards = new ArrayList<Board>();
+			
+			int worldSize = levelOrderer.getWorldSize(world);
+			for (int ordinalInWorld = 1; ordinalInWorld <= worldSize; ordinalInWorld++){
+				Board cur = levelLoader.getLevel(world, ordinalInWorld);
+				initializeLasers(cur);
+				curWorldBoards.add(cur);
+			}
+			allBoards.add(curWorldBoards);
 		}
 	}
 
@@ -210,22 +223,34 @@ public class GameEngine implements ApplicationListener {
 			}
 
 			//Picked a level
-			if (selected >= 0){
-				//Only reset if different level
-				mainMenuShowing = false;
-				if (selected != currentLevel){
-					if (LOGGING){
-						if (currentLevel != -1){
-							logEnd();
+			if (selected == 0){
+				
+				int selectedWorld = inputHandler.getMostRecentlySelectedWorld();
+				int selectedOrdinalInWorld = inputHandler.getMostRecentlySelectedOrdinalInWorld();
+				
+				//Check that it's unlocked
+				boolean unlocked = menu.isLevelUnlocked(selectedWorld, selectedOrdinalInWorld);
+				
+				if (unlocked){
+					//Enter the level if it's unlocked
+					mainMenuShowing = false;
+					
+					//Only reset if different level
+					if (selectedOrdinalInWorld != currentOrdinalInWorld || selectedWorld != currentWorld){
+						if (LOGGING){
+							if (currentWorld != -1){
+								logEnd();
+							}
+							Logger.enteredLevel(selectedWorld, selectedOrdinalInWorld);
 						}
-						Logger.log(LogType.ENTERED_LEVEL, selected);
+						currentWorld = selectedWorld;
+						currentOrdinalInWorld = selectedOrdinalInWorld;
+						loadLevel(currentWorld, currentOrdinalInWorld);
 					}
-					currentLevel = selected;
-					loadLevel(currentLevel);
 				}
 			}
 
-			dm.draw(dg, allBoards, b, currentLevel);
+			dm.draw(dg, allBoards, b, currentWorld, currentOrdinalInWorld);
 			return;
 		}
 
@@ -257,16 +282,29 @@ public class GameEngine implements ApplicationListener {
 						if (LOGGING){
 							logEnd();
 						}
-						currentLevel++;
-						if (currentLevel < levelOrderer.getNumLevels()){
-							loadLevel(currentLevel);
+						
+						//TODO: Handle bonus levels and locked levels
+						
+						//Increment level and possibly world
+						currentOrdinalInWorld++;
+						if (currentOrdinalInWorld > levelOrderer.getWorldSize(currentWorld)){
+							currentOrdinalInWorld = 1;
+							currentWorld++;
+						}
+						
+						//Check that there are remaining levels
+						if (currentWorld < levelOrderer.getNumWorlds()){
+							loadLevel(currentWorld, currentOrdinalInWorld);
 							
 							if (LOGGING){
-								Logger.log(LogType.ENTERED_LEVEL, currentLevel);
+								Logger.enteredLevel(currentWorld, currentOrdinalInWorld);
 							}
-						} else {
-							currentLevel--;
-							menu.scrollToLevel(currentLevel);
+						} 
+						//No levels remaining
+						else {
+							currentWorld--;
+							currentOrdinalInWorld = levelOrderer.getWorldSize(currentWorld);
+							menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
 							mainMenuShowing=true;
 						}
 						pushedButton = true;
@@ -284,7 +322,7 @@ public class GameEngine implements ApplicationListener {
 
 			else if (button == ButtonPress.MENU){
 				mainMenuShowing = true;
-				menu.scrollToLevel(currentLevel);
+				menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
 				pushedButton = true;
 			}
 		}
@@ -398,7 +436,7 @@ public class GameEngine implements ApplicationListener {
 									} else if (moveCounter <= b.par){
 										numStars = 2;
 									}
-									progress.setLevelScore(currentLevel, moveCounter, numStars);
+									progress.setLevelScore(currentWorld, currentOrdinalInWorld, moveCounter, numStars);
 								}
 							}
 						} 
@@ -415,14 +453,15 @@ public class GameEngine implements ApplicationListener {
 
 		// Draw the game or menu
 		if (!mainMenuShowing)
-			dg.draw(b, state, currentAnimationState, currentLevel, menu.colorOfLevel(currentLevel));
+			dg.draw(b, state, currentAnimationState, currentWorld, currentOrdinalInWorld, menu.colorOfLevel(currentWorld, currentOrdinalInWorld));
 		else
-			dm.draw(dg, allBoards, b, currentLevel);
+			dm.draw(dg, allBoards, b, currentWorld, currentOrdinalInWorld);
 	}
 	
 	//Removes all user data. Be careful if you call this.
 	private void clearAllData() {
-		currentLevel = -1;
+		currentWorld = -1;
+		currentOrdinalInWorld = -1;
 		progress.clearAllData();
 	}
 
@@ -524,10 +563,10 @@ public class GameEngine implements ApplicationListener {
 	}
 
 	// Loads a level, and handles initializations
-	private void loadLevel(int levelNumber) {
+	private void loadLevel(int world, int ordinalInWorld) {
 
 		// Load the world
-		b = levelLoader.getLevel(levelNumber);
+		b = levelLoader.getLevel(world, ordinalInWorld);
 		if (b == null) {
 			debug("No further levels exist.");
 			System.exit(1);
@@ -940,8 +979,8 @@ public class GameEngine implements ApplicationListener {
 
 	@Override
 	public void pause() {
-		if (currentLevel != -1){
-			String toSave = currentLevel + ";" + moveCounter + ";" + mainMenuShowing + ";";
+		if (currentWorld != -1){
+			String toSave = currentWorld + ";" + currentOrdinalInWorld + ";" + moveCounter + ";" + mainMenuShowing + ";";
 			for (Collection<Short> curBoard : boardStack){
 				for (Short s : curBoard){
 					toSave += s + "--";
@@ -970,16 +1009,17 @@ public class GameEngine implements ApplicationListener {
 			String[] parts = fromTemp.split(";");
 
 			//Get the level
-			currentLevel = Integer.parseInt(parts[0]);
-			loadLevel(currentLevel);
+			currentWorld = Integer.parseInt(parts[0]);
+			currentOrdinalInWorld = Integer.parseInt(parts[1]);
+			loadLevel(currentWorld, currentOrdinalInWorld);
 
 			//Set up moves and menu
-			moveCounter = Integer.parseInt(parts[1]);
-			mainMenuShowing = Boolean.parseBoolean(parts[2]);
+			moveCounter = Integer.parseInt(parts[2]);
+			mainMenuShowing = Boolean.parseBoolean(parts[3]);
 
 			//Set up the stack
 			boardStack.clear();
-			for (int i = 3; i < parts.length; i++){
+			for (int i = 4; i < parts.length; i++){
 				List<Short> move = new ArrayList<Short>();
 				String[] subParts = parts[i].split("--");
 				for (String s : subParts){
@@ -996,7 +1036,7 @@ public class GameEngine implements ApplicationListener {
 				state = GameState.WON;
 				timeWon = wonAnimationUnit * 10;
 			}
-			menu.scrollToLevel(currentLevel);
+			menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
 		}
 	}
 
@@ -1037,12 +1077,12 @@ public class GameEngine implements ApplicationListener {
 	}
 	
 	private void logEnd(){
-		if (currentLevel != -1){
+		if (currentWorld != -1){
 			Logger.log(LogType.UNDO, undoTimes);
 			Logger.log(LogType.RESET, resetTimes);
 			Logger.log(LogType.REDO, redoTimes);
 			Logger.log(LogType.DEATH, deaths);
-			Logger.log(LogType.EXITED_LEVEL, currentLevel);
+			Logger.exitedLevel();
 			undoTimes = 0;
 			resetTimes = 0;
 			redoTimes = 0;

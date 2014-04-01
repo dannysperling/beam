@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import model.Board;
+import model.GameProgress;
 import model.Laser;
 import model.Menu;
 import model.Piece;
@@ -26,7 +27,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
 import controller.GameEngine;
-import controller.GameProgress;
 import controller.GameEngine.AnimationState;
 import controller.GameEngine.GameState;
 
@@ -105,7 +105,9 @@ public class DrawGame {
 	}
 
 	public void draw(Board b, GameEngine.GameState state,
-		GameEngine.AnimationState aState, int currentLevel, Color bg) {
+		GameEngine.AnimationState aState, int currentWorld,
+		int currentOrdinalInWorld, Color bg) {
+		
 		int bx = b.getBotLeftX();
 		int by = b.getBotLeftY();
 		int tilesize = b.getTileSize();
@@ -478,7 +480,7 @@ public class DrawGame {
 		titleFont.setColor(Color.WHITE);
 		titleFontNoBest.setColor(Color.WHITE);
 		String toPrint;
-		int moves = gameProgress.getLevelMoves(currentLevel);
+		int moves = gameProgress.getLevelMoves(currentWorld, currentOrdinalInWorld);
 		float movesAdjust = 0.0f;
 		if (moves != -1) {
 			movesAdjust = 0.15f;

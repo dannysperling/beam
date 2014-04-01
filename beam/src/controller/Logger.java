@@ -1,5 +1,9 @@
 package controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,7 +15,6 @@ public class Logger {
 	private static String logFolder = "beamLogging/";
 
 	private static FileHandle userIds = Gdx.files.external(logFolder + "userIds.txt");
-
 
 	//All the csv files
 	private static FileHandle levelTimes = Gdx.files.external(logFolder + "totalLevelTimes.csv");
@@ -29,35 +32,59 @@ public class Logger {
 	private static FileHandle currentUserFile;
 
 	private static long currentUserId = -1;
-	private static int currentLevel = -1;
+	private static int currentWorld = -1;
+	private static int currentOrdinalInWorld = -1;
 	private static long timeEnteredLevel = -1;
 	private static long lastBeatLevelTime = -1;
 
 	private static int numLevels;
 	private static int[] scoresOnLevels;
+	
+	/**
+	 * Maps strings representing worlds to the correct index
+	 */
+	private static Map<String, Integer> worldToIndex = new HashMap<String, Integer>();
 
-	public static void initialize(int[] uniqueIds){
-		numLevels = uniqueIds.length;
-
+	public static void initialize(List<List<Integer>> mapping){
+		
+		//First put together the string mapping
+		List<Integer> uniqueIds = new ArrayList<Integer>();
+		List<String> stringOrdinals = new ArrayList<String>();
+		int index = 0;
+		for (int world = 1; world <= mapping.size(); world++){
+			List<Integer> curWorld = mapping.get(world - 1);
+			
+			//Add both the unique id and the world mapping
+			for (int ordinalInWorld = 1; ordinalInWorld <= curWorld.size(); ordinalInWorld++){
+				uniqueIds.add(curWorld.get(ordinalInWorld - 1));
+				worldToIndex.put(world + "-" + ordinalInWorld, index);
+				stringOrdinals.add(world + "-" + ordinalInWorld);
+				index++;
+			}
+		}
+		
+		numLevels = uniqueIds.size();
+		
+		//Get the current user id if there is one
 		if (userIds.exists()){
 			String[] ids = userIds.readString().split("\\s+");
 			currentUserId = Long.parseLong(ids[ids.length - 1]);
 		}
-		//Initialize all the files
+		//Otherwise initialize all the files
 		else {
 			currentUserId = time();
 			write(userIds, currentUserId + "", false);
 			String uniques = "unique,";
-			String ordinals = "ordinals,";
-			for (int i = 0; i < uniqueIds.length - 1; i++){
-				uniques += uniqueIds[i] + ",";
-				ordinals += (i+1) + ",";
+			String ordinals = "levelOrdinals,";
+			for (int i = 0; i < uniqueIds.size() - 1; i++){
+				uniques += uniqueIds.get(i) + ",";
+				ordinals += stringOrdinals.get(i) + ",";
 			}
-			uniques += uniqueIds[uniqueIds.length - 1];
-			ordinals += uniqueIds.length;
+			uniques += uniqueIds.get(uniqueIds.size() - 1);
+			ordinals += stringOrdinals.get(uniqueIds.size() - 1);
 			String toWrite = uniques + "\r\n" + ordinals;
 
-			//Init all
+			//Init all csv files
 			write(levelTimes, toWrite, false);
 			write(timeToSolve, toWrite, false);
 			write(levelMoves, toWrite, false);
@@ -72,7 +99,7 @@ public class Logger {
 	}
 
 	public static void startNewSession(){
-		//Compile the data from the current user
+		//Compile the data from the current user, if there is one
 		if (currentUserFile.exists()){
 			String userData = currentUserFile.readString();
 			Pattern pat;
@@ -81,24 +108,24 @@ public class Logger {
 
 			//Level times
 			data = new int[numLevels];
-			pat = Pattern.compile(LEVEL_TIME + "(\\d+)" + SEP + "(\\d+)");
+			pat = Pattern.compile(LEVEL_TIME + "(\\d+-\\d+)" + SEP + "(\\d+)");
 			mat = pat.matcher(userData);
 			while (mat.find()){
-				int levelNumber = Integer.parseInt(mat.group(1));
+				int index = worldToIndex.get(mat.group(1));
 				int time = Integer.parseInt(mat.group(2));
-				data[levelNumber - 1] += time;
+				data[index] += time;
 			}
 			writeToCSV(data, levelTimes, false);
 
 			//Time to solve
 			data = new int[numLevels];
-			pat = Pattern.compile(SOLVED + "(\\d+)" + SEP + "(\\d+)");
+			pat = Pattern.compile(SOLVED + "(\\d+-\\d+)" + SEP + "(\\d+)");
 			mat = pat.matcher(userData);
 			while (mat.find()){
-				int levelNumber = Integer.parseInt(mat.group(1));
+				int index = worldToIndex.get(mat.group(1));
 				int time = Integer.parseInt(mat.group(2));
-				if (data[levelNumber - 1] == 0){
-					data[levelNumber - 1] = time;
+				if (data[index] == 0){
+					data[index] = time;
 				}
 			}
 			writeToCSV(data, timeToSolve, false);
@@ -106,19 +133,19 @@ public class Logger {
 			//Level Moves
 			data = new int[numLevels];
 			int[] data2 = new int[numLevels];
-			pat = Pattern.compile(MOVES + "(\\d+)" + SEP + "(\\d+)");
+			pat = Pattern.compile(MOVES + "(\\d+-\\d+)" + SEP + "(\\d+)");
 			mat = pat.matcher(userData);
 			while (mat.find()){
-				int levelNumber = Integer.parseInt(mat.group(1));
+				int index = worldToIndex.get(mat.group(1));
 				int numMoves = Integer.parseInt(mat.group(2));
 				//First
-				if (data2[levelNumber - 1] == 0){
-					data2[levelNumber - 1] = numMoves;
-					data[levelNumber - 1] = numMoves;
+				if (data2[index] == 0){
+					data2[index] = numMoves;
+					data[index] = numMoves;
 				}
 				//Best
-				if (numMoves < data[levelNumber - 1])
-					data[levelNumber - 1] = numMoves;
+				if (numMoves < data[index])
+					data[index] = numMoves;
 			}
 			scoresOnLevels = data;
 			writeToCSV(data, levelMoves, false);
@@ -126,69 +153,69 @@ public class Logger {
 
 			//Stars
 			data = new int[numLevels];
-			pat = Pattern.compile(STARS + "(\\d+)" + SEP + "(\\d+)");
+			pat = Pattern.compile(STARS + "(\\d+-\\d+)" + SEP + "(\\d+)");
 			mat = pat.matcher(userData);
 			while (mat.find()){
-				int levelNumber = Integer.parseInt(mat.group(1));
+				int index = worldToIndex.get(mat.group(1));
 				int stars = Integer.parseInt(mat.group(2));
-				data[levelNumber - 1] = stars;
+				data[index] = stars;
 			}
 			writeToCSV(data, starsOnLevel, false);
 
 			//Clicks
 			//Undo
 			data = new int[numLevels];
-			pat = Pattern.compile(UNDO + "(\\d+)" + SEP + "(\\d+)");
+			pat = Pattern.compile(UNDO + "(\\d+-\\d+)" + SEP + "(\\d+)");
 			mat = pat.matcher(userData);
 			while (mat.find()){
-				int levelNumber = Integer.parseInt(mat.group(1));
+				int index = worldToIndex.get(mat.group(1));
 				int undos = Integer.parseInt(mat.group(2));
-				data[levelNumber - 1] += undos;
+				data[index] += undos;
 			}
 			writeToCSV(data, undoClicks, true);
 
 			//Reset
 			data = new int[numLevels];
-			pat = Pattern.compile(RESET + "(\\d+)" + SEP + "(\\d+)");
+			pat = Pattern.compile(RESET + "(\\d+-\\d+)" + SEP + "(\\d+)");
 			mat = pat.matcher(userData);
 			while (mat.find()){
-				int levelNumber = Integer.parseInt(mat.group(1));
+				int index = worldToIndex.get(mat.group(1));
 				int resets = Integer.parseInt(mat.group(2));
-				data[levelNumber - 1] += resets;
+				data[index] += resets;
 			}
 			writeToCSV(data, resetClicks, true);
 
 			//Redo
 			data = new int[numLevels];
-			pat = Pattern.compile(REDO + "(\\d+)" + SEP + "(\\d+)");
+			pat = Pattern.compile(REDO + "(\\d+-\\d+)" + SEP + "(\\d+)");
 			mat = pat.matcher(userData);
 			while (mat.find()){
-				int levelNumber = Integer.parseInt(mat.group(1));
+				int index = worldToIndex.get(mat.group(1));
 				int redos = Integer.parseInt(mat.group(2));
-				data[levelNumber - 1] += redos;
+				data[index] += redos;
 			}
 			writeToCSV(data, redoClicks, true);
 
 			//And destructions
 			data = new int[numLevels];
-			pat = Pattern.compile(DEATH + "(\\d+)" + SEP + "(\\d+)");
+			pat = Pattern.compile(DEATH + "(\\d+-\\d+)" + SEP + "(\\d+)");
 			mat = pat.matcher(userData);
 			while (mat.find()){
-				int levelNumber = Integer.parseInt(mat.group(1));
+				int index = worldToIndex.get(mat.group(1));
 				int deaths = Integer.parseInt(mat.group(2));
-				data[levelNumber - 1] += deaths;
+				data[index] += deaths;
 			}
 			writeToCSV(data, destructions, true);
 		}
 
-		//Switch to the next user
+		//Switch to the next user and create their file
 		currentUserId = time();
 		write(userIds, currentUserId + "");
 		currentUserFile = Gdx.files.external(userFiles + currentUserId + ".txt");
 	}
 
 	public enum LogType {
-		ENTERED_LEVEL, EXITED_LEVEL, BEAT_LEVEL_MOVES, BEAT_LEVEL_STARS, UNDO, RESET, REDO, DEATH
+		BEAT_LEVEL_MOVES, BEAT_LEVEL_STARS, UNDO, RESET, REDO, DEATH
 	}
 
 	private static String LEVEL_TIME = "TIME spent on level ";
@@ -201,44 +228,51 @@ public class Logger {
 	private static String DEATH = "DESTRUCTIONS on level ";
 
 	private static String SEP = ": ";
+	
+	public static void enteredLevel(int world, int ordinalInWorld){
+		timeEnteredLevel = time();
+		currentWorld = world;
+		currentOrdinalInWorld = ordinalInWorld;
+		write(currentUserFile, "Entered level " + currentLevel());
+	}
+	
+	public static void exitedLevel(){
+		int timeInSecs = (int) ((time() - timeEnteredLevel) / 1000);
+		write(currentUserFile, LEVEL_TIME + currentLevel() + SEP + timeInSecs + " seconds\r\n\r\n");
+		lastBeatLevelTime = -1;
+	}
 
 	public static void log(LogType type, int appropriateState){
 		//Log based on what was given
 		switch(type){
-		case ENTERED_LEVEL:
-			timeEnteredLevel = time();
-			currentLevel = appropriateState + 1;
-			write(currentUserFile, "Entered level " + currentLevel);
-			break;
 		case BEAT_LEVEL_MOVES:
 			if (lastBeatLevelTime == -1){
 				int timeInSecs = (int) ((time() - timeEnteredLevel) / 1000);
-				write(currentUserFile, SOLVED + currentLevel + SEP + timeInSecs + " seconds");
+				write(currentUserFile, SOLVED + currentLevel() + SEP + timeInSecs + " seconds");
 			}
-			write(currentUserFile, MOVES + currentLevel + SEP + appropriateState);
+			write(currentUserFile, MOVES + currentLevel() + SEP + appropriateState);
 			lastBeatLevelTime = time();
 			break;
 		case BEAT_LEVEL_STARS:
-			write(currentUserFile, STARS + currentLevel + SEP + appropriateState);
-			break;
-		case EXITED_LEVEL:
-			int timeInSecs = (int) ((time() - timeEnteredLevel) / 1000);
-			write(currentUserFile, LEVEL_TIME + currentLevel + SEP + timeInSecs + " seconds\r\n\r\n");
-			lastBeatLevelTime = -1;
+			write(currentUserFile, STARS + currentLevel() + SEP + appropriateState);
 			break;
 		case REDO:
-			write(currentUserFile, REDO + currentLevel + SEP + appropriateState);
+			write(currentUserFile, REDO + currentLevel() + SEP + appropriateState);
 			break;
 		case RESET:
-			write(currentUserFile, RESET + currentLevel + SEP + appropriateState);
+			write(currentUserFile, RESET + currentLevel() + SEP + appropriateState);
 			break;
 		case UNDO:
-			write(currentUserFile, UNDO + currentLevel + SEP + appropriateState);
+			write(currentUserFile, UNDO + currentLevel() + SEP + appropriateState);
 			break;
 		case DEATH:
-			write(currentUserFile, DEATH + currentLevel + SEP + appropriateState);
+			write(currentUserFile, DEATH + currentLevel() + SEP + appropriateState);
 			break;
 		}
+	}
+	
+	private static String currentLevel(){
+		return currentWorld + "-" + currentOrdinalInWorld;
 	}
 
 	private static long time(){

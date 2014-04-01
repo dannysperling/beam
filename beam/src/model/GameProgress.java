@@ -1,6 +1,6 @@
-package controller;
+package model;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,6 +8,9 @@ import java.util.regex.Pattern;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 
+import controller.GameEngine;
+import controller.LevelOrderer;
+import controller.Logger;
 import controller.Logger.LogType;
 
 public class GameProgress {
@@ -15,10 +18,12 @@ public class GameProgress {
 	private String fileString = "saveFile.xml";
 	private FileHandle saveFile;
 
-	private int[] scores;
-	private int[] stars;
-	private int[] uniqueIds;
-	private String[] xmlTags;
+	/**
+	 * Map from unique IDs to the appropriate field
+	 */
+	private Map<Integer, Integer> scores;
+	private Map<Integer, Integer> stars;
+	private Map<Integer, String> xmlTags;
 
 	private int playMusic;
 	private int playFX;
@@ -44,35 +49,31 @@ public class GameProgress {
 
 	public void init(){
 		//Keep track of progress on levels
-		int numLevels = levelOrderer.getNumLevels();
-		scores = new int[numLevels];
-		stars = new int[numLevels];
-		xmlTags = new String[numLevels];
-		uniqueIds = new int[numLevels];
-		for (int i = 0; i < numLevels; i++){
-			scores[i] = 0;
-			stars[i] = 0;
-			xmlTags[i] = "";
-			uniqueIds[i] = -1;
-		}
+		scores = new HashMap<Integer, Integer>();
+		stars = new HashMap<Integer, Integer>();
+		xmlTags = new HashMap<Integer, String>();
 
 		load();
 	}
 
 	//Returns if the new score was better
-	public boolean setLevelScore(int index, int moves, int levelStars){
+	public boolean setLevelScore(int world, int ordinalInWorld, int moves, int levelStars){
 		if (GameEngine.LOGGING){
 			Logger.log(LogType.BEAT_LEVEL_MOVES, moves);
 		}
-		if (scores[index] == 0 || moves < scores[index]){
+		
+		int uniqueId = levelOrderer.getUniqueId(world, ordinalInWorld);
+		Integer pastMoves = scores.get(uniqueId);
+		
+		//See if we've beat for the first time or improved
+		if (pastMoves == null|| moves < pastMoves){
 			//Only store stars if better moves
 			if (GameEngine.LOGGING){
 				Logger.log(LogType.BEAT_LEVEL_STARS, levelStars);
 			}
-			uniqueIds[index] = levelOrderer.getUniqueId(index);
-			scores[index] = moves;
-			stars[index] = levelStars;
-			setXmlTag(index);
+			scores.put(uniqueId, moves);
+			stars.put(uniqueId, levelStars);
+			setXmlTag(uniqueId);
 			save();
 
 			return true;
@@ -91,13 +92,11 @@ public class GameProgress {
 	//Returns -1 if world is out of bounds
 	public int getBaseWorldStars(int world){
 		
-		List<Integer> worldSizes = levelOrderer.getWorldSizes();
-		if (world >= 0 && world < worldSizes.size()){
-			List<Integer> worldStartIndices = levelOrderer.getWorldStartIndices();
+		int numWorlds = levelOrderer.getNumWorlds();
+		if (world >= 1 && world <= numWorlds){
 			int numStars = 0;
-			int startIndex = worldStartIndices.get(world);
-			for (int i = 0; i < worldSizes.get(world) - 1; i++){
-				numStars += getLevelStars(startIndex + i);
+			for (int ordinalInWorld = 1; ordinalInWorld < levelOrderer.getWorldSize(world); ordinalInWorld++){
+				numStars += getLevelStars(world, ordinalInWorld);
 			}
 			return numStars;
  		}
@@ -106,22 +105,26 @@ public class GameProgress {
 	
 	//Check to see if a world is unlocked. Returns false if out of bounds
 	public boolean isWorldUnlocked(int world){
-		//World zero is always unlocked
-		if (world == 0){
+		//World one is always unlocked
+		if (world == 1){
 			return true;
 		} else {
-			List<Integer> worldSizes = levelOrderer.getWorldSizes();
-			if (world > 0 && world < worldSizes.size()){
+			int numWorlds = levelOrderer.getNumWorlds();
+			if (world >= 2 && world <= numWorlds){
 				
 				//Future world needs to average WORLD_UNLOCK_STARS
 				int previousWorldProgress = getBaseWorldStars(world - 1);
-				boolean averageTwo = (previousWorldProgress >= (worldSizes.get(world - 1) - 1) * WORLD_UNLOCK_STARS);
-				if (averageTwo){
+				
+				int numConsideredLevels = levelOrderer.getWorldSize(world - 1) - 1;
+				int required = numConsideredLevels * WORLD_UNLOCK_STARS;
+				boolean averageRequired = (previousWorldProgress >= required);
+				
+				//At least the average
+				if (averageRequired){
 					
 					//And have completed every level
-					int startIndex = levelOrderer.getWorldStartIndices().get(world - 1);
-					for (int i = 0; i < worldSizes.get(world - 1) - 1; i++){
-						if (getLevelMoves(startIndex + i) == 0){
+					for (int ordinalInWorld = 1; ordinalInWorld <= numConsideredLevels; ordinalInWorld++){
+						if (getLevelMoves(world - 1, ordinalInWorld) == 0){
 							return false;
 						}	
 					}
@@ -133,23 +136,28 @@ public class GameProgress {
 	}
 	
 	public boolean isBonusLevelUnlocked(int world){
-		List<Integer> worldSizes = levelOrderer.getWorldSizes();
-		if (world >= 0 && world < worldSizes.size()){
+		int numWorlds = levelOrderer.getNumWorlds();
+		if (world >= 1 && world <= numWorlds){
 			int currentWorldProgress = getBaseWorldStars(world);
-			return (currentWorldProgress >= (worldSizes.get(world) - 1) * BONUS_UNLOCK_STARS);
+			int numConsideredLevels = levelOrderer.getWorldSize(world) - 1;
+			return (currentWorldProgress >= numConsideredLevels * BONUS_UNLOCK_STARS);
 		} else {
 			return false;
 		}
 	}
 
 	//Returns the number of moves done on this level, or 0 if not completed
-	public int getLevelMoves(int index){
-		return scores[index];
+	public int getLevelMoves(int world, int ordinalInWorld){
+		int uniqueId = levelOrderer.getUniqueId(world, ordinalInWorld);
+		Integer moves = scores.get(uniqueId);
+		return (moves == null) ? 0 : moves;
 	}
 
 	//Returns the number of stars earned on this level, or 0 if not completed
-	public int getLevelStars(int index){
-		return stars[index];
+	public int getLevelStars(int world, int ordinalInWorld){
+		int uniqueId = levelOrderer.getUniqueId(world, ordinalInWorld);
+		Integer starCount = stars.get(uniqueId);
+		return (starCount == null) ? 0 : starCount;
 	}
 
 	public void setMusic(boolean isPlaying){
@@ -170,7 +178,7 @@ public class GameProgress {
 
 	private void save(){
 		String toSave = "";
-		for (String s : xmlTags){
+		for (String s : xmlTags.values()){
 			toSave += s;
 		}
 		toSave += "<sound music=" + playMusic + " fx=" + playFX + "/>";
@@ -182,17 +190,11 @@ public class GameProgress {
 		Pattern pat = Pattern.compile("<level\\s*id=(\\d+)\\s*score=(\\d+)\\s*stars=(\\d+)\\s*/>");
 		Matcher mat = pat.matcher(toMatch.trim());
 
-		Map<Integer,Integer> inverseIndexMap = levelOrderer.getInverseMapping();
 		while (mat.find()){
 			int uniqueId = Integer.parseInt(mat.group(1));
-			Integer indexObj = inverseIndexMap.get(uniqueId);
-			if (indexObj != null){
-				int index = indexObj;
-				scores[index] = Integer.parseInt(mat.group(2));
-				stars[index] = Integer.parseInt(mat.group(3));
-				uniqueIds[index] = uniqueId;
-				setXmlTag(index);
-			}
+			scores.put(uniqueId, Integer.parseInt(mat.group(2)));
+			stars.put(uniqueId, Integer.parseInt(mat.group(3)));
+			setXmlTag(uniqueId);
 		}
 
 		pat = Pattern.compile("<sound\\s*music=(\\d+)\\s*fx=(\\d+)/>");
@@ -202,9 +204,9 @@ public class GameProgress {
 		playFX = Integer.parseInt(mat.group(2));
 	}
 
-	private void setXmlTag(int index){
-		xmlTags[index] = "<level id=" + uniqueIds[index] + 
-				" score=" + scores[index] + 
-				" stars=" + stars[index] +" />\n";
+	private void setXmlTag(int uniqueId){
+		xmlTags.put(uniqueId, "<level id=" + uniqueId + 
+				" score=" + scores.get(uniqueId) + 
+				" stars=" + stars.get(uniqueId) +" />\n");
 	}
 }
