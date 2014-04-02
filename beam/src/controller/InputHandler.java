@@ -15,12 +15,37 @@ import controller.GameEngine.GameState;
 
 public class InputHandler {
 
+	/**
+	 * Stores what button the user has pressed, so all other input can proceed
+	 * accordingly.
+	 */
 	private GameEngine.ButtonPress buttonDown = GameEngine.ButtonPress.NONE;
-	private int lastX = -1;
-	private int lastY = -1;
+	
+	/**
+	 * Private helper methods to get the current relevant (x,y) touch position
+	 * of the user.
+	 */
+	private int getY() {
+		int y = Gdx.graphics.getHeight() - Gdx.input.getY() - 1;
+		return Math.min(Math.max(y, 0), Gdx.graphics.getHeight() - 1);
+	}
+	private int getX() {
+		return Gdx.input.getX();
+	}
 
-	private boolean gameWonPressed = false;
 
+	/**
+	 * Primary input handler for the game while its being played. Builds up moves
+	 * by the user, and reflects these back to the game engine.
+	 * 
+	 * @param b
+	 * 			The current board being input onto
+	 * @param state
+	 * 			The state of the game. Most game input only accepted while the
+	 * 			game is IDLE or DECIDING (user choosing where to go).
+	 * @return
+	 * 			The new state of the game, based on the input received.
+	 */
 	public GameEngine.GameState handleGameInput(Board b, GameEngine.GameState state) {
 
 		/* Handles inputs starting from a level with no player input. */
@@ -28,235 +53,40 @@ public class InputHandler {
 				&& buttonDown == GameEngine.ButtonPress.NONE) {
 			return selectPiece(b);
 		}
-		
+
+		/* Handles input when a level is in its intro screen */
 		if(state == GameState.INTRO && Gdx.input.isTouched()){
 			return GameState.IDLE;
 		}
 
 		/* Handles input if the player is already touching a piece. */
 		if (state == GameEngine.GameState.DECIDING) {
+			//Either still touching - set path
 			if (Gdx.input.isTouched()) {
 				return setPath(b);
-
-			} else {
+			}
+			//Or released - handle release
+			else {
 				return onRelease();
-
 			}
 		}
+		
+		//If no input, return the same state
 		return state;
 	}
 	
-	//Sets a flag if the back button has been pressed. Or just doesn't.
-	private boolean backClicked = false;
-	private boolean backDown = false;
-	public void checkBackPressed(){
-		if (Gdx.input.isKeyPressed(Keys.BACK)){
-			backDown = true;
-		} else {
-			if (backDown){
-				backClicked = true;
-			}
-			backDown = false;
-		}
-	}
-
-	private int firstTouchHeight = -1;
-	private int lastTouchHeight = -1;
-	private int firstTouchX = -1;
-	private int lastTouchX = -1;
-	private int world = -1;
-	private final int maxDiffClick = 15;
-	private boolean movedTooFar = false;
-	
-	private float momentumY = 0;
-	private float momentumX = 0;
-	private final float momentumDropOff = 0.10f;
-	
-	private final int vertMoveBounds = 20;
-	private final int horizMoveBounds = 10;
-	private boolean movingVertically = false;
-	private boolean movingHorizontally = false;
-	
-	//For logging purposes
-	private int timeHeld = 0;
-	private final int timeForLoggingReset = 240;
-	
-	private int mostRecentlySelectedWorld = -1;
-	private int mostRecentlySelectedOrdinalInWorld = -1;
-
-	//Returns 0 if level selected, -1 if nothing selected, -2 if exiting game, -3 if logging reset
-	public int handleMainMenuInput(Menu menu){
-		
-		if (backClicked){
-			return -2;
-		}
-		
-		if (GameEngine.LOGGING){
-			if (Gdx.input.isTouched(3)){
-				timeHeld++;
-			} else {
-				timeHeld = 0;
-			}
-			if (timeHeld == timeForLoggingReset){
-				return -3;
-			}
-		}
-
-		if (Gdx.input.isTouched()){
-			int y = getY();
-			int x = getX();
-
-			//Check for the first press
-			if (firstTouchHeight == -1){
-				firstTouchHeight = y;
-				firstTouchX = x;
-				world = menu.getWorldAtPosition(y);
-				momentumX = 0;
-				momentumY = 0;
-			} 
-			//Otherwise update momentum
-			else {
-				//Only allow one direction of motion
-				if (!movingVertically && !movingHorizontally){
-					if (Math.abs(firstTouchHeight - y) > vertMoveBounds){
-						movingVertically = true;
-						momentumY = (y - lastTouchHeight);
-						menu.scrollUpDown(y - firstTouchHeight, true);
-					} else if (Math.abs(firstTouchX - x) > horizMoveBounds){
-						movingHorizontally = true;
-						momentumX = (x - lastTouchX);
-						menu.scrollLeftRight(world, firstTouchX - x, true);
-					} 
-				}
-				else if (movingVertically){
-					momentumY = (y - lastTouchHeight);
-					menu.scrollUpDown((int)momentumY, true);
-				} else {
-					momentumX = -(x - lastTouchX);
-					menu.scrollLeftRight(world, (int)momentumX, true);
-				}
-			}
-
-			//Update where we are now
-			lastTouchHeight = y;
-			lastTouchX = x;
-			if ((firstTouchHeight - lastTouchHeight)*(firstTouchHeight - lastTouchHeight) + 
-					(firstTouchX - lastTouchX)*(firstTouchX - lastTouchX) > maxDiffClick * maxDiffClick)
-				movedTooFar = true;
-
-		} else {
-			//Check if clicked a place
-			movingVertically = false;
-			movingHorizontally = false;
-			if (firstTouchHeight != -1){
-				firstTouchHeight = -1;
-				if (!movedTooFar){
-					int selected = menu.getLevelAtPositionInWorld(world, lastTouchX);
-					
-					lastTouchX = -1;
-					lastTouchHeight = -1;
-					movedTooFar = false;
-					if (selected != -1){
-						mostRecentlySelectedOrdinalInWorld = selected;
-						mostRecentlySelectedWorld = world;
-						return 0;
-					} else {
-						return -1;
-					}
-				} else {
-					lastTouchX = -1;
-					lastTouchHeight = -1;
-					movedTooFar = false;
-				}
-			}
-			if (momentumY != 0){
-				boolean turned = menu.scrollUpDown((int)momentumY, false);
-				momentumY = momentumY * (1 - momentumDropOff);
-				
-				//If we passed zero or hit the wall
-				if (Math.abs(momentumY) < 2 || turned){
-					momentumY = 0;
-				}
-			} else {
-				menu.scrollUpDown(0, false);
-			}
-			if (momentumX != 0){
-				boolean turned = menu.scrollLeftRight(world, (int)momentumX, false);
-				momentumX = momentumX * (1 - momentumDropOff);
-				
-				//If we passed zero or hit the wall
-				if (Math.abs(momentumX) < 2 || turned){
-					momentumX = 0;
-				}
-			} else {
-				menu.scrollLeftRight(world, 0, false);
-			}
-		}
-
-		return -1;
-	}
-	
-	public int getMostRecentlySelectedWorld(){
-		return mostRecentlySelectedWorld;
-	}
-	
-	public int getMostRecentlySelectedOrdinalInWorld(){
-		return mostRecentlySelectedOrdinalInWorld;
-	}
-
-	private GameState onRelease() {
-		if (GameEngine.movePath.size() > 1) {
-			/* If they let go with moves queued, make them */
-			return GameEngine.GameState.MOVING;
-		} else {
-			/* If they let go without moves queued, idle */
-			GameEngine.movePath.clear();
-			return GameEngine.GameState.IDLE;
-		}
-	}
-
-	private GameState setPath(Board b) {
-		if (b.getTileAtClickPosition(getX(), getY()) != null) {
-			Tile source = GameEngine.movePath
-					.get(GameEngine.movePath.size() - 1);
-			Tile destination = b.getTileAtClickPosition(getX(), getY());
-
-			// If the destination is on the path, short circuit the
-			// path.
-			int i = GameEngine.movePath.indexOf(destination);
-			if (i != -1 && i != GameEngine.movePath.size() - 1) {
-				
-				//REPLACING SUBLIST
-				List<Tile> newPath = new ArrayList<Tile>();
-				for (int j = 0; j < i + 1; j++){
-					newPath.add(GameEngine.movePath.get(j));
-				}
-				GameEngine.movePath = newPath;
-			}
-
-			Tile intervening = findValidDiagonal(b, source, destination);
-			if (isValidMove(b, source, destination)) {
-				GameEngine.movePath.add(destination);
-			} else if (intervening != null) {
-				i = GameEngine.movePath.indexOf(intervening);
-				if (i != -1) {
-					//REPLACING SUBLIST
-					List<Tile> newPath = new ArrayList<Tile>();
-					for (int j = 0; j < i + 1; j++){
-						newPath.add(GameEngine.movePath.get(j));
-					}
-					GameEngine.movePath = newPath;
-					GameEngine.movePath.add(destination);
-				} else {
-					GameEngine.movePath.add(intervening);
-					GameEngine.movePath.add(destination);
-				}
-			}
-		}
-		return GameEngine.GameState.DECIDING;
-	}
-
+	/**
+	 * Handles the user's first press down onto the board. If the user touches a piece,
+	 * select it and enter deciding state.
+	 * 
+	 * @param b
+	 * 			The board to select a piece from
+	 * @return
+	 * 			The new state. IDLE if no piece was touched, or DECIDING if piece touched
+	 */
 	private GameState selectPiece(Board b) {
+		
+		/* Check first if the screen is even being touched on a valid tile */
 		if (Gdx.input.isTouched()
 				&& b.getTileAtClickPosition(getX(), getY()) != null) {
 			Tile t = b.getTileAtClickPosition(getX(), getY());
@@ -277,18 +107,213 @@ public class InputHandler {
 		return GameEngine.GameState.IDLE;
 	}
 
-	// Returns which button was pressed, or none
+	/**
+	 * When the player releases, check to see if they'd moved places. If so,
+	 * indicate such. Otherwise, nothing to do - clear past moves.
+	 * 
+	 * @return
+	 * 			The new game state. MOVING if the player had places they were going,
+	 * 			or IDLE if still holding in original position.
+	 */
+	private GameState onRelease() {
+		if (GameEngine.movePath.size() > 1) {
+			/* If they let go with moves queued, make them */
+			return GameEngine.GameState.MOVING;
+		} else {
+			/* If they let go without moves queued, idle */
+			GameEngine.movePath.clear();
+			return GameEngine.GameState.IDLE;
+		}
+	}
+
+	/**
+	 * Called when the user is still holding on the screen, having already started
+	 * a valid move for a piece. Handles continuing the move.
+	 * 
+	 * @param b
+	 * 			The board being moved on, for reference
+	 * @return
+	 * 			GameState.DECIDING, as the state at present can't change in this method.
+	 */
+	private GameState setPath(Board b) {
+		
+		// Ensure the user is still pressing on a valid tile.
+		if (b.getTileAtClickPosition(getX(), getY()) != null) {
+			
+			//Get where they were and where they're going
+			Tile source = GameEngine.movePath.get(GameEngine.movePath.size() - 1);
+			Tile destination = b.getTileAtClickPosition(getX(), getY());
+
+			// If the destination is on the path, short circuit the
+			// path.
+			boolean onPath = false;
+			int i = GameEngine.movePath.indexOf(destination);
+			if (i != -1){
+				onPath = true;
+				//Shorten the list down to the past occurrence of that location, if need be
+				if (i != GameEngine.movePath.size() - 1) {
+					List<Tile> newPath = new ArrayList<Tile>();
+					for (int j = 0; j < i + 1; j++){
+						newPath.add(GameEngine.movePath.get(j));
+					}
+					GameEngine.movePath = newPath;
+				}
+			}
+
+			//Only do remaining checks if the tile wasn't on the path. Fixes the
+			//headless arrow bug.
+			if (!onPath){
+				//Check for regular or diagonal moves
+				Tile intervening = findValidDiagonal(b, source, destination);
+				if (isValidMove(b, source, destination)) {
+					GameEngine.movePath.add(destination);
+				} else if (intervening != null) {
+					
+					//If intervening was already on the path, chop back to that point
+					i = GameEngine.movePath.indexOf(intervening);
+					if (i != -1) {
+						List<Tile> newPath = new ArrayList<Tile>();
+						for (int j = 0; j < i + 1; j++){
+							newPath.add(GameEngine.movePath.get(j));
+						}
+						GameEngine.movePath = newPath;
+						GameEngine.movePath.add(destination);
+					} 
+					//Otherwise simply add the intervening and destination tile
+					else {
+						GameEngine.movePath.add(intervening);
+						GameEngine.movePath.add(destination);
+					}
+				}
+			}
+		}
+		//Always still in the deciding state, for now.
+		return GameEngine.GameState.DECIDING;
+	}
+
+	/**
+	 * Checks if a tile is empty on the given board
+	 */
+	private boolean isEmptyTile(Board b, Tile t) {
+		return (!t.hasGlass())
+				&& ((b.getPieceOnTile(t) == null) || b.getPieceOnTile(t) == GameEngine.movingPiece);
+	}
+
+	/**
+	 * Checks if a move from source to destination is valid. Must be
+	 * adjacent tiles, and the tile moved to must be empty.
+	 */
+	private boolean isValidMove(Board b, Tile source, Tile destination) {
+		return isEmptyTile(b, destination)
+				&& isMoveAdjacent(source, destination);
+	}
+
+	/**
+	 * Attempts to see if there exists a valid diagonal move from source to
+	 * destination. If so, returns the valid, empty intervening tile. Otherwise,
+	 * returns null.
+	 */
+	private Tile findValidDiagonal(Board b, Tile source, Tile destination) {
+		
+		//Check to ensure the destination is empty and the move from the source to
+		//the destination is in fact diagonal
+		if (!(isEmptyTile(b, destination) && isMoveDiagonal(source, destination))) {
+			return null;
+		}
+
+		// Ties go to vertical first path.
+		Tile verticalIntervening = b.getTileAtBoardPosition(source.getXCoord(),
+				destination.getYCoord());
+		if (isEmptyTile(b, verticalIntervening)) {
+			return verticalIntervening;
+		}
+		
+		//Then check horizontal path
+		Tile horizontalIntervening = b.getTileAtBoardPosition(
+				destination.getXCoord(), source.getYCoord());
+		if (isEmptyTile(b, horizontalIntervening)) {
+			return horizontalIntervening;
+		}
+		return null;
+	}
+
+	/**
+	 * Checks if tile t1 and t2 are a diagonal move away from each other
+	 */
+	private boolean isMoveDiagonal(Tile t1, Tile t2) {
+		return (Math.abs(t1.getXCoord() - t2.getXCoord()) == 1)
+				&& (Math.abs(t1.getYCoord() - t2.getYCoord()) == 1);
+	}
+
+	/**
+	 * Checks if tile t1 and t2 are a horizontal or vertical move from each other
+	 */
+	private boolean isMoveAdjacent(Tile t1, Tile t2) {
+		return (Math.abs(t1.getXCoord() - t2.getXCoord()) == 1 && t1
+				.getYCoord() == t2.getYCoord())
+				|| (Math.abs(t2.getYCoord() - t1.getYCoord()) == 1 && t1
+				.getXCoord() == t2.getXCoord());
+	}
+	
+	
+	
+	
+	
+	/*******************************************************************************/
+
+	
+	
+	
+
+	/**
+	 * Code in this section handles button presses during the game or win menu
+	 */
+	private boolean backClicked = false;
+	private boolean backDown = false;
+	
+	/**
+	 * Handle pressing the back button. Consider a press-release to be a valid
+	 * back button press, even if the user moved their finger off of the back
+	 * button instead of actually releasing it.
+	 */
+	public void checkBackPressed(){
+		if (Gdx.input.isKeyPressed(Keys.BACK)){
+			backDown = true;
+		} else {
+			if (backDown){
+				backClicked = true;
+			}
+			backDown = false;
+		}
+	}
+
+	/**
+	 * Keep indications of previous press information to know if the user
+	 * pressed and released on the same button.
+	 */
+	private int lastX = -1;
+	private int lastY = -1;
+
+	/**
+	 * Check to see if a button has been pressed, both during the standard level as
+	 * well as when the menu is showing.
+	 * 
+	 * @param state	
+	 * 				What state the game is in
+	 * @return
+	 * 				Which button was pressed, if any
+	 */
 	public GameEngine.ButtonPress checkForButtonPress(GameState state) {
 
-		GameEngine.ButtonPress returnedButton;
-		
-		//Check to see if back was pressed
+		//Short circuit if back had been pressed
 		if (backClicked){
 			backClicked = false;
 			return GameEngine.ButtonPress.MENU;
 		}
-
-		// Button pushed
+		
+		GameEngine.ButtonPress returnedButton;
+		
+		// If screen just being touched, possibly starting a button push
 		if (Gdx.input.isTouched()) {
 			// Get inputs
 			int xPress = getX();
@@ -302,11 +327,16 @@ public class InputHandler {
 					buttonDown = Menu.containingButtonOfPixelWonScreen(xPress, yPress);
 				}
 			}
+			
+			//Indicate the user is clicking on the screen, so can't slide onto a different
+			//button during a single press
 			lastX = xPress;
 			lastY = yPress;
+			
+			//While pushing down, nothing pressed yet.
 			returnedButton = GameEngine.ButtonPress.NONE;
 		}
-		// Button not pushed
+		// Screen not touched - could be removing touch
 		else {
 			// Look for removed input
 			if (buttonDown != GameEngine.ButtonPress.NONE && lastX != -1) {
@@ -315,72 +345,262 @@ public class InputHandler {
 				} else {
 					returnedButton = Menu.containingButtonOfPixelWonScreen(lastX, lastY);
 				}
+				
+				//Check to make sure they were still pressing the same button as originally
 				if (returnedButton != buttonDown) {
 					returnedButton = GameEngine.ButtonPress.NONE;
 				}
-			}
-			// HACK HERE TO GET GAME WINNING HAPPENING ON TOUCH
-			else if (lastX != -1 && gameWonPressed) {
-				returnedButton = GameEngine.ButtonPress.NEXT_LEVEL;
 			} else {
 				returnedButton = GameEngine.ButtonPress.NONE;
 			}
-			// Rest lastX and LastY
+			// Reset lastX and LastY
 			lastX = -1;
 			lastY = -1;
 			buttonDown = GameEngine.ButtonPress.NONE;
 		}
 		return returnedButton;
 	}
+	
+	
+	
+	
+	
+	
+	/*******************************************************************************/
 
-	private int getY() {
-		int y = Gdx.graphics.getHeight() - Gdx.input.getY() - 1;
-		return Math.min(Math.max(y, 0), Gdx.graphics.getHeight() - 1);
-	}
+	
+	
+	
 
-	private int getX() {
-		return Gdx.input.getX();
-	}
+	/**
+	 * Remainder below here is to handle input into the menu. Various fields to see
+	 * where had been clicked.
+	 */
+	private int firstTouchX = -1;
+	private int firstTouchY = -1;
+	private int lastTouchX = -1;
+	private int lastTouchY = -1;
+	private int worldTouched = -1;
+	
+	/**
+	 * Determines if what the user did counts as a click.
+	 * MAX_DIFF_CLICK indicates how far the user can have
+	 * moved their finger and still count as a "click"
+	 */
+	private boolean movedTooFar = false;
+	private final int MAX_DIFF_CLICK = 15;
 
-	private boolean isEmptyTile(Board b, Tile t) {
-		return (!t.hasGlass())
-				&& ((b.getPieceOnTile(t) == null) || b.getPieceOnTile(t) == GameEngine.movingPiece);
-	}
+	/**
+	 * Determines the amount the screen should be scrolling
+	 * in terms of X and Y. Can only move one way at once
+	 * for now.
+	 * MOMENTUM_DROP_OFF indicates what percentage of momentum
+	 * should be removed each cycle after the user has released
+	 * the screen.
+	 * MIN_MOMENTUM is the smallest momentum is allowed to get
+	 * before it is set back to zero to stop movement. 
+	 */
+	private float momentumY = 0;
+	private float momentumX = 0;
+	private final float MOMENTUM_DROP_OFF = 0.10f;
+	private final int MIN_MOMENTUM = 2;
 
-	private boolean isValidMove(Board b, Tile source, Tile destination) {
-		return isEmptyTile(b, destination)
-				&& isMoveAdjacent(source, destination);
-	}
+	/**
+	 * Determine if the screen should be scrolling vertically
+	 * or horizontally.
+	 * VERT_MOVE_BOUNDS and HORIZ_MOVE_BOUNDS indicate how
+	 * far, in pixels, the user needs to move before they are
+	 * considered to be scrolling in that direction. Can only
+	 * scroll in one direction at once right now.
+	 */
+	private boolean movingVertically = false;
+	private boolean movingHorizontally = false;
+	private final int VERT_MOVE_BOUNDS = 20;
+	private final int HORIZ_MOVE_BOUNDS = 15;
 
-	// Returns null if illegal, or appropriate intervening tile if legal.
-	private Tile findValidDiagonal(Board b, Tile source, Tile destination) {
-		if (!(isEmptyTile(b, destination) && isMoveDiagonal(source, destination))) {
-			return null;
+	/**
+	 * Allows a four finger press for TIME_FOR_LOGGING_RESET
+	 * cycles to reset logging
+	 */
+	private int timeHeld = 0;
+	private final int TIME_FOR_LOGGING_RESET = 240;
+	
+	/**
+	 * Allows a click on a level to be stored, so both the world
+	 * and ordinal can be selected afterward.
+	 */
+	private int mostRecentlySelectedWorld = -1;
+	private int mostRecentlySelectedOrdinalInWorld = -1;
+
+	/**
+	 * Primary method for handling input on the menu screen. Returns based on what was
+	 * pressed.
+	 * 
+	 * @param menu
+	 * 			The menu object storing information about the locations and information
+	 * 			on all of the levels
+	 * @return
+	 * 			0 if a level was selected, -1 if nothing was selected, -2 if exiting the game,
+	 * 			or -3 if logging is enabled and a logging reset occurred.
+	 */
+	public int handleMainMenuInput(Menu menu){
+
+		//Check if back was pressed - exit the game
+		if (backClicked){
+			return -2;
 		}
 
-		// Ties go to vertical first path.
-		Tile verticalIntervening = b.getTileAtBoardPosition(source.getXCoord(),
-				destination.getYCoord());
-		if (isEmptyTile(b, verticalIntervening)) {
-			return verticalIntervening;
+		//Check if logging is enabled and four fingers have been pressed for long enough
+		if (GameEngine.LOGGING){
+			if (Gdx.input.isTouched(3)){
+				timeHeld++;
+			} else {
+				timeHeld = 0;
+			}
+			if (timeHeld == TIME_FOR_LOGGING_RESET){
+				return -3;
+			}
 		}
-		Tile horizontalIntervening = b.getTileAtBoardPosition(
-				destination.getXCoord(), source.getYCoord());
-		if (isEmptyTile(b, horizontalIntervening)) {
-			return horizontalIntervening;
+
+		//Otherwise, check for standard input
+		//Pressing on the screen
+		if (Gdx.input.isTouched()){
+			int y = getY();
+			int x = getX();
+
+			//Check for the first press - store info about where it happened
+			if (firstTouchY == -1){
+				firstTouchY = y;
+				firstTouchX = x;
+				worldTouched = menu.getWorldAtPosition(y);
+				momentumX = 0;
+				momentumY = 0;
+			} 
+			//Otherwise update momentum
+			else {
+				//Only allow one direction of motion
+				if (!movingVertically && !movingHorizontally){
+					
+					//If we've moved far enough vertically, start movement that way
+					if (Math.abs(firstTouchY - y) > VERT_MOVE_BOUNDS){
+						movingVertically = true;
+						momentumY = (y - lastTouchY);
+						
+						//Scroll up down, while saying we are still holding the screen
+						menu.scrollUpDown(y - firstTouchY, true);
+					} 
+					//Otherwise, same thing for moving horizontally
+					else if (Math.abs(firstTouchX - x) > HORIZ_MOVE_BOUNDS){
+						movingHorizontally = true;
+						momentumX = (lastTouchX - x);
+						
+						//Scroll the world, while saying we are still holding the screen
+						menu.scrollLeftRight(worldTouched, firstTouchX - x, true);
+					} 
+				}
+				//Otherwise, already moving vertically or horizontally. Continue
+				else if (movingVertically){
+					momentumY = (y - lastTouchY);
+					
+					//Scroll up down, while saying we are still holding the screen
+					menu.scrollUpDown((int)momentumY, true);
+				} else {
+					momentumX = (lastTouchX - x);
+					
+					//Scroll the world, while saying we are still holding the screen
+					menu.scrollLeftRight(worldTouched, (int)momentumX, true);
+				}
+			}
+
+			//Update where we are now
+			lastTouchY = y;
+			lastTouchX = x;
+			
+			//Check if we've moved too far to be considered a click
+			int yMoveDistSq = (firstTouchY - lastTouchY)*(firstTouchY - lastTouchY);
+			int xMoveDistSq = (firstTouchX - lastTouchX)*(firstTouchX - lastTouchX);
+			int maxDistSq = MAX_DIFF_CLICK * MAX_DIFF_CLICK;
+			if (xMoveDistSq + yMoveDistSq > maxDistSq){
+				movedTooFar = true;
+			}
+				
+		} 
+		//Not pressing the screen anymore - may have clicked a place
+		//May still have momentum
+		else {
+			//Check if clicked a place
+			movingVertically = false;
+			movingHorizontally = false;
+			
+			//Just released the screen
+			if (firstTouchY != -1){
+				firstTouchY = -1;
+				
+				//Didn't move too far - clicked wherever we last were
+				if (!movedTooFar){
+					int selected = menu.getLevelAtPositionInWorld(worldTouched, lastTouchX);
+
+					//Reset other variables for later
+					lastTouchX = -1;
+					lastTouchY = -1;
+					movedTooFar = false;
+					
+					//If we did select a level, indicate such
+					if (selected != -1){
+						mostRecentlySelectedOrdinalInWorld = selected;
+						mostRecentlySelectedWorld = worldTouched;
+						return 0;
+					} 
+					//Otherwise, pressed nothing
+					else {
+						return -1;
+					}
+				} else {
+					//Reset variables even if we didn't click
+					lastTouchX = -1;
+					lastTouchY = -1;
+					movedTooFar = false;
+				}
+			}
+			
+			//Handle remaining vertical momentum
+			if (momentumY != 0){
+				//Scroll and decrease momentum
+				boolean turned = menu.scrollUpDown((int)momentumY, false);
+				momentumY = momentumY * (1 - MOMENTUM_DROP_OFF);
+
+				//If our momentum has dropped off or we've been turned by the bounce back
+				if (Math.abs(momentumY) < MIN_MOMENTUM || turned){
+					momentumY = 0;
+				}
+			} else {
+				//Even without momentum, call screen scrolling, so it can potentially bounce back
+				menu.scrollUpDown(0, false);
+			}
+			
+			//Handle remaing world momentum
+			if (momentumX != 0){
+				//Scroll and decrease momentum
+				boolean turned = menu.scrollLeftRight(worldTouched, (int)momentumX, false);
+				momentumX = momentumX * (1 - MOMENTUM_DROP_OFF);
+
+				//If our momentum has dropped off or we've been turned by the bounce back
+				if (Math.abs(momentumX) < 2 || turned){
+					momentumX = 0;
+				}
+			} else {
+				//Even without momentum, call screen scrolling, so it can potentially bounce back
+				menu.scrollLeftRight(worldTouched, 0, false);
+			}
 		}
-		return null;
+		//If we get to this point, nothing was pressed.
+		return -1;
 	}
 
-	private boolean isMoveDiagonal(Tile t1, Tile t2) {
-		return (Math.abs(t1.getXCoord() - t2.getXCoord()) == 1)
-				&& (Math.abs(t1.getYCoord() - t2.getYCoord()) == 1);
-	}
-
-	private boolean isMoveAdjacent(Tile t1, Tile t2) {
-		return (Math.abs(t1.getXCoord() - t2.getXCoord()) == 1 && t1
-				.getYCoord() == t2.getYCoord())
-				|| (Math.abs(t2.getYCoord() - t1.getYCoord()) == 1 && t1
-				.getXCoord() == t2.getXCoord());
-	}
+	/**
+	 * Allows the game engine to get which world and ordinal had been selected if a level was
+	 * in fact selected.
+	 */
+	public int getMostRecentlySelectedWorld(){return mostRecentlySelectedWorld;}
+	public int getMostRecentlySelectedOrdinalInWorld(){return mostRecentlySelectedOrdinalInWorld;}
 }
