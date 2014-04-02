@@ -319,7 +319,7 @@ public class MainWindow extends JFrame implements MouseListener {
 				for (Tile t : m.b.getAllTiles()) {
 					int x = t.getXCoord();
 					int y = t.getYCoord();
-					nb.setGlass(x, y, t.isGlass);
+					nb.setGlass(x, y, t.hasGlass());
 					nb.setGoal(x, y, t.getGoalColor());
 					nb.setPainter(x, y, t.getPainterColor());
 
@@ -356,7 +356,7 @@ public class MainWindow extends JFrame implements MouseListener {
 				for (Tile t : m.b.getAllTiles()) {
 					int x = t.getXCoord();
 					int y = t.getYCoord();
-					nb.setGlass(x, y, t.isGlass);
+					nb.setGlass(x, y, t.hasGlass());
 					nb.setGoal(x, y, t.getGoalColor());
 					nb.setPainter(x, y, t.getPainterColor());
 
@@ -399,7 +399,7 @@ public class MainWindow extends JFrame implements MouseListener {
 						continue;
 					if (y >= nb.getNumVerticalTiles())
 						continue;
-					nb.setGlass(x, y, t.isGlass);
+					nb.setGlass(x, y, t.hasGlass());
 					nb.setGoal(x, y, t.getGoalColor());
 					nb.setPainter(x, y, t.getPainterColor());
 
@@ -439,7 +439,7 @@ public class MainWindow extends JFrame implements MouseListener {
 						continue;
 					if (y >= nb.getNumVerticalTiles())
 						continue;
-					nb.setGlass(x, y, t.isGlass);
+					nb.setGlass(x, y, t.hasGlass());
 					nb.setGoal(x, y, t.getGoalColor());
 					nb.setPainter(x, y, t.getPainterColor());
 

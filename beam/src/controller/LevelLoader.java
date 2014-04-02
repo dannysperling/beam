@@ -157,7 +157,7 @@ public class LevelLoader {
 					if (s.equals("e"))
 						break;
 					if (s.equals("glass")) {
-						t.isGlass = true;
+						t.setGlass(true);
 						break;
 					}
 					//For goals, painters, and pieces, need to look up the

@@ -61,8 +61,8 @@ public class Solver {
 
 		
 		//Load level 1-1 for now
-		int world = 1;
-		int ordinalInWorld = 1;
+		int world = 6;
+		int ordinalInWorld = 2;
 		Board toSolve = levelLoader.getLevel(world, ordinalInWorld);
 		printPieces(toSolve.getPieces());
 		System.out.println("Solving level " + world + "-" + ordinalInWorld);

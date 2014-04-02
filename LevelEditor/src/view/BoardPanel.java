@@ -85,7 +85,7 @@ public class BoardPanel extends JPanel{
 
 		// Draw the tiles
 		for (Tile t : tiles) {
-			if (t.isGlass) {
+			if (t.hasGlass()) {
 				g.setColor(this.getForeground());
 				int glassX = bx + (t.getXCoord() * tilesize);
 				int glassY = by + (t.getYCoord() * tilesize);

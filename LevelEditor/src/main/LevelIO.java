@@ -106,7 +106,7 @@ public class LevelIO {
 					if (s.equals("e"))
 						break;
 					if (s.equals("glass")) {
-						t.isGlass = true;
+						t.setGlass(true);
 						break;
 					}
 					if (s.startsWith("goal_")) {
@@ -284,7 +284,7 @@ public class LevelIO {
 				Tile t = b.getTileAtBoardPosition(x, y);
 				Piece p = b.getPieceOnTile(t);
 				String tileText = "";
-				if (t.isGlass)
+				if (t.hasGlass())
 					tileText = "glass";
 				else {
 					if (t.hasGoal()) {

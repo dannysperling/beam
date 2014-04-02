@@ -12,39 +12,65 @@ import com.badlogic.gdx.files.FileHandle;
 
 public class Logger {
 
+	/**
+	 * Folder for the data storage
+	 */
 	private static String logFolder = "beamLogging/";
 
+	/**
+	 * File storing all user IDs that have been created on this device during the session.
+	 * This allows for simple pick-up through a new session.
+	 */
 	private static FileHandle userIds = Gdx.files.external(logFolder + "userIds.txt");
 
-	//All the csv files
+	/**
+	 * The names of all the .csv files created for convenient data comparisons
+	 */
 	private static FileHandle levelTimes = Gdx.files.external(logFolder + "totalLevelTimes.csv");
 	private static FileHandle timeToSolve = Gdx.files.external(logFolder + "timesToFirstSolve.csv");
 	private static FileHandle levelMoves = Gdx.files.external(logFolder + "bestMovesOnLevels.csv");
 	private static FileHandle firstSolveMoves = Gdx.files.external(logFolder + "firstMovesOnLevels.csv");
 	private static FileHandle starsOnLevel = Gdx.files.external(logFolder + "starsOnLevels.csv");
-
 	private static FileHandle undoClicks = Gdx.files.external(logFolder + "timesUndoPressed.csv");
 	private static FileHandle redoClicks = Gdx.files.external(logFolder + "timesRedoPressed.csv");
 	private static FileHandle resetClicks = Gdx.files.external(logFolder + "timesResetPressed.csv");
 	private static FileHandle destructions = Gdx.files.external(logFolder + "timesDestroyed.csv");
 
+	/**
+	 * Store the current user's data in its own file, so it can all be transfered to the log
+	 * file at once.
+	 */
 	private static String userFiles = logFolder + "userLogs/";
 	private static FileHandle currentUserFile;
 
+	/**
+	 * Information about the current user
+	 */
 	private static long currentUserId = -1;
 	private static int currentWorld = -1;
 	private static int currentOrdinalInWorld = -1;
 	private static long timeEnteredLevel = -1;
 	private static long lastBeatLevelTime = -1;
-
-	private static int numLevels;
 	private static int[] scoresOnLevels;
+
+	/**
+	 * General info about the game to make logging easier
+	 */
+	private static int numLevels;
 	
 	/**
 	 * Maps strings representing worlds to the correct index
 	 */
 	private static Map<String, Integer> worldToIndex = new HashMap<String, Integer>();
 
+	/**
+	 * Sets up all the static variables for logging. Should be called once
+	 * when the device turns on if logging is enabled.
+	 * 
+	 * @param mapping
+	 * 			The mapping of level positions in worlds to their unique ids
+	 * 			found in the level orderer.
+	 */
 	public static void initialize(List<List<Integer>> mapping){
 		
 		//First put together the string mapping
@@ -98,6 +124,11 @@ public class Logger {
 		currentUserFile = Gdx.files.external(userFiles + currentUserId + ".txt");
 	}
 
+	/**
+	 * Called when changing from one user to the next. Compiles all the current
+	 * user data into the csv files, if there is a current user. Then starts the
+	 * next user's data.
+	 */
 	public static void startNewSession(){
 		//Compile the data from the current user, if there is one
 		if (currentUserFile.exists()){
@@ -214,10 +245,18 @@ public class Logger {
 		currentUserFile = Gdx.files.external(userFiles + currentUserId + ".txt");
 	}
 
+	/**
+	 * The various types of logging that can be done, at present
+	 */
 	public enum LogType {
 		BEAT_LEVEL_MOVES, BEAT_LEVEL_STARS, UNDO, RESET, REDO, DEATH
 	}
 
+	/**
+	 * First portions of the logging for each of the types of logging that
+	 * can be done. This makes the file much more human readable, but still
+	 * easy to parse using regex.
+	 */
 	private static String LEVEL_TIME = "TIME spent on level ";
 	private static String SOLVED = "TIME to first solve level ";
 	private static String MOVES = "MOVES to finish level ";
@@ -229,6 +268,14 @@ public class Logger {
 
 	private static String SEP = ": ";
 	
+	/**
+	 * Explicit method for entry, as two arguments are necessary
+	 * 
+	 * @param world
+	 * 			The world of the level entered
+	 * @param ordinalInWorld
+	 * 			The ordinal of the level entered in that world
+	 */
 	public static void enteredLevel(int world, int ordinalInWorld){
 		timeEnteredLevel = time();
 		currentWorld = world;
@@ -236,12 +283,24 @@ public class Logger {
 		write(currentUserFile, "Entered level " + currentLevel());
 	}
 	
+	/**
+	 * Explict method for completing a level, as it needs no arguments
+	 */
 	public static void exitedLevel(){
 		int timeInSecs = (int) ((time() - timeEnteredLevel) / 1000);
 		write(currentUserFile, LEVEL_TIME + currentLevel() + SEP + timeInSecs + " seconds\r\n\r\n");
 		lastBeatLevelTime = -1;
 	}
 
+	/**
+	 * Writes the appropriate log data to the current user's file.
+	 * 
+	 * @param type
+	 * 			Which type of logging is being done, i.e. BEAT_LEVEL_MOVES or RESET
+	 * @param appropriateState
+	 * 			The appropriate number for that logging, i.e., number of moves or
+	 * 			number of times reset was pressed.
+	 */
 	public static void log(LogType type, int appropriateState){
 		//Log based on what was given
 		switch(type){
@@ -271,22 +330,66 @@ public class Logger {
 		}
 	}
 	
+	/**
+	 * Gets the string representation of the current level
+	 * 
+	 * @return
+	 * 			The string representation of the current level, i.e. "3-7"
+	 */
 	private static String currentLevel(){
 		return currentWorld + "-" + currentOrdinalInWorld;
 	}
 
+	/**
+	 * Wrapper to get the current time more conveniently
+	 * 
+	 * @return
+	 * 			Current time as a long in miliseconds
+	 */
 	private static long time(){
 		return System.currentTimeMillis();
 	}
 
+	/**
+	 * Appends a string to a given file
+	 * 
+	 * @param fh
+	 * 				The file handle to write to
+	 * @param toWrite
+	 * 				What to append
+	 */
 	private static void write(FileHandle fh, String toWrite){
 		write(fh, toWrite, true);
 	}
 
+	/**
+	 * Writes a string to a given file. May append or overwrite. Writes
+	 * a new line after it.
+	 * 
+	 * @param fh
+	 * 				The file handle to write to
+	 * @param toWrite
+	 * 				The string to write
+	 * @param append
+	 * 				Whether to append (true) or overwrite (false)
+	 */
 	private static void write(FileHandle fh, String toWrite, boolean append){
 		fh.writeString(toWrite + "\r\n", append);
 	}
 
+	/**
+	 * Writes integer data to the appropriate csv. Depending on the data type,
+	 * it may write zeros as well, when the score on the level is not equal to
+	 * zero. This allows zero data to be written for button presses.
+	 * 
+	 * @param data
+	 * 				The integer data to write to the csv
+	 * @param fh
+	 * 				The csv file to write to
+	 * @param useZeros
+	 * 				True to write zeros when the user has completed the level,
+	 * 				false otherwise.
+	 */
 	private static void writeToCSV(int[] data, FileHandle fh, boolean useZeros) {
 		String toWrite = currentUserId + "";
 		for (int i = 0; i < data.length; i++){

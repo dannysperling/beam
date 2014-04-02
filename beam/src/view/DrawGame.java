@@ -153,7 +153,7 @@ public class DrawGame {
 		// Draw the tiles
 		shapes.begin(ShapeType.Line);
 		for (Tile t : tiles) {
-			if (t.isGlass) {
+			if (t.hasGlass()) {
 				shapes.setColor(LINE_COLOR);
 				int glassX = bx + (t.getXCoord() * tilesize);
 				int glassY = by + (t.getYCoord() * tilesize);
@@ -486,7 +486,7 @@ public class DrawGame {
 			movesAdjust = 0.15f;
 		}
 		if (b.getBeamObjectiveSet().isEmpty()) {
-			toPrint = b.getNumGoalsFilled() + " out of " + b.goalTiles.size()
+			toPrint = b.getNumGoalsFilled() + " out of " + b.getNumGoalTiles()
 					+ " goals filled.";
 			tb = titleFont.getBounds(toPrint);
 			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
@@ -583,7 +583,7 @@ public class DrawGame {
 			float progress = GameEngine.getIntroProgress();
 			GameEngine.debug("intro: " + progress + " " + height + " ");
 			if(b.getBeamObjectiveSet().isEmpty()){
-				String message = "FILL " + b.goalTiles.size() + " " + (b.goalTiles.size()==1?"GOAL":"GOALS");
+				String message = "FILL " + b.getNumGoalTiles() + " " + (b.getNumGoalTiles()==1?"GOAL":"GOALS");
 				drawOverlayBeam(progress, ibeamheight, screenHeight / 2.0f, translateColor(baseColor), message, introFont);
 			} else {
 				int totalBeams = 0;
@@ -876,7 +876,7 @@ public class DrawGame {
 			// Draw the tiles
 			shapes.begin(ShapeType.Line);
 			for (Tile t : tiles) {
-				if (t.isGlass) {
+				if (t.hasGlass()) {
 					shapes.setColor(LINE_COLOR);
 					int glassX = bx + (t.getXCoord() * tilesize);
 					int glassY = by + (t.getYCoord() * tilesize);

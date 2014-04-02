@@ -343,7 +343,7 @@ public class InputHandler {
 	}
 
 	private boolean isEmptyTile(Board b, Tile t) {
-		return (t.isGlass == false)
+		return (!t.hasGlass())
 				&& ((b.getPieceOnTile(t) == null) || b.getPieceOnTile(t) == GameEngine.movingPiece);
 	}
 
