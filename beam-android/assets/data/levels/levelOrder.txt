@@ -69,6 +69,7 @@ x - gap
 ### WORLDSTART: CHALLENGE! ###
 17
 28
+50
 30
 34
 31
