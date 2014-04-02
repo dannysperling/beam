@@ -80,10 +80,18 @@ public class Menu {
 		return GameEngine.ButtonPress.NONE;
 	}
 	
+	
+	
+	
+	
+	/*******************************************************************************/
+	
+	
+	
+	
 	/**
 	 * Next, static variables and a method for use on the "Won level" screen
 	 */
-	
 	//All buttons at the same bottom with same height
 	public static final float wonButtonBotY = 7 / 32.0f;
 	public static final float wonButtonHeight = 3 / 16.0f;
@@ -136,6 +144,14 @@ public class Menu {
 		//No button was pressed - user skipping through the win screen
 		return GameEngine.ButtonPress.SKIPWIN;
 	}
+	
+	
+	
+	
+	/*******************************************************************************/
+
+	
+	
 	
 	/**
 	 * This indicates how far down the menu has been scrolled. 0 indicates none at
@@ -580,6 +596,13 @@ public class Menu {
 			return 0;
 		return worldSizes.get(world - 1);
 	}
+	
+	
+	
+	
+	/*******************************************************************************/
+	
+	
 	
 	
 	/**
