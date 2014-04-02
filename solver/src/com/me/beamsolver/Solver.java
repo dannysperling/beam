@@ -41,8 +41,8 @@ public class Solver {
 	private Map<String, Integer> table;
 	private PriorityQueue<QueueEntry> searchQueue;
 	private Board board;
-	private boolean horizontalSymmetry;
-	private boolean verticalSymmetry;
+	private final boolean horizontalSymmetry;
+	private final boolean verticalSymmetry;
 	private boolean solved;
 	private Piece[][] originalPieces;
 	private Piece[][] solution;
@@ -60,8 +60,7 @@ public class Solver {
 				false);
 
 		
-		//Load level 1-1 for now
-		int world = 6;
+		int world = 4;
 		int ordinalInWorld = 2;
 		Board toSolve = levelLoader.getLevel(world, ordinalInWorld);
 		printPieces(toSolve.getPieces());
@@ -75,7 +74,8 @@ public class Solver {
 	public Solver(Board board) {
 		table = new HashMap<String, Integer>();
 		this.board = board;
-		setSymmetry();
+		horizontalSymmetry = isHSym();
+		verticalSymmetry = isVSym();
 		searchQueue = new PriorityQueue<QueueEntry>();
 		this.solved = false;
 		this.solution = null;
@@ -87,7 +87,7 @@ public class Solver {
 		if (!solved) {
 			solve();
 		}
-		return safeGet(solution);
+		return getMovesToReach(solution);
 	}
 
 	public Piece[][] getSolution() {
@@ -107,7 +107,7 @@ public class Solver {
 		for (int moves = getMovesNeeded() - 1; moves > 0; moves--) {
 			Set<Piece[][]> possibleMoves = getAllMoves(pieces);
 			for (Piece[][] move : possibleMoves) {
-				Integer temp = safeGet(move);
+				Integer temp = getMovesToReach(move);
 				if (temp == null) {
 					continue;
 				}
@@ -145,7 +145,7 @@ public class Solver {
 
 		// printBoard(pieces);
 		Set<Piece[][]> possibleMoves = getAllMoves(pieces);
-		int moves = safeGet(pieces);
+		int moves = getMovesToReach(pieces);
 		for (Piece[][] p : possibleMoves) {
 			addToQueue(p, moves + 1);
 		}
@@ -203,18 +203,23 @@ public class Solver {
 	}
 
 	private void addToQueue(Piece[][] pieces, int moves) {
-		if (safeGet(pieces) == null) {
-			int heuristic = board.getNumGoalsUnfilled(pieces);
-			searchQueue.add(new QueueEntry(pieces, moves + heuristic));
+		if (getMovesToReach(pieces) == null) {
+			searchQueue.add(new QueueEntry(pieces, moves + heuristic(pieces)));
 			setMovesToReach(pieces, moves);
 		} else {
 			this.cutoffs++;
 		}
 	}
-
-	private void setSymmetry() {
-		horizontalSymmetry = isHSym();
-		verticalSymmetry = isVSym();
+	
+	private int heuristic(Piece[][] pieces) {
+		int heuristic = board.getNumGoalsUnfilled(pieces);
+		for (Color c : board.getBeamObjectiveSet()) {
+			int laserCount = board.getLaserCount(pieces, c);
+			int objective = board.getBeamObjectiveCount(c);
+			int absDiff = Math.abs(laserCount - objective);
+			heuristic += (int)Math.ceil(absDiff / 2.0);
+		}
+		return heuristic;
 	}
 
 	private boolean isHSym() {
@@ -286,19 +291,29 @@ public class Solver {
 	private void safePut(Piece[][] pieces, int moves) {
 		table.put(piecesStringDense(pieces), moves);
 	}
+	
+	private Integer getMovesToReach(Piece[][] pieces) {
+		Integer ret = safeGet(pieces);
+		if (ret != null) return ret;
+		if (horizontalSymmetry) {
+			Piece[][] horizontallyReflectedPieces = reflectHorizontally(pieces);
+			ret = safeGet(horizontallyReflectedPieces);
+			if (ret != null) return ret;
+			if (verticalSymmetry) {
+				ret = safeGet(reflectVertically(horizontallyReflectedPieces));
+				if (ret != null) return ret;
+				ret = safeGet(reflectVertically(pieces));
+				if (ret != null) return ret;
+			}
+		} else if (verticalSymmetry) {
+			ret = safeGet(reflectVertically(pieces));
+			if (ret != null) return ret;
+		}
+		return null;
+	}
 
 	private void setMovesToReach(Piece[][] pieces, int moves) {
 		safePut(pieces, moves);
-		if (horizontalSymmetry) {
-			Piece[][] horizontallyReflectedPieces = reflectHorizontally(pieces);
-			safePut(horizontallyReflectedPieces, moves);
-			if (verticalSymmetry) {
-				safePut(reflectVertically(horizontallyReflectedPieces), moves);
-				safePut(reflectVertically(pieces), moves);
-			}
-		} else if (verticalSymmetry) {
-			safePut(reflectVertically(pieces), moves);
-		}
 	}
 
 	private boolean isPlaceSafe(Piece[][] pieces, Piece p) {
