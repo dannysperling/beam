@@ -32,9 +32,7 @@ public class GameEngine implements ApplicationListener {
 	private LevelLoader levelLoader;
 	private GameProgress progress;
 	private LevelOrderer levelOrderer;
-	
-	private List<List<Board>> allBoards = new ArrayList<List<Board>>();
-	
+		
 	private int currentWorld = -1;
 	private int currentOrdinalInWorld = -1;
 	private static int moveCounter = 0;
@@ -159,11 +157,12 @@ public class GameEngine implements ApplicationListener {
 
 		dg = new DrawGame(progress);
 		menu = new Menu(levelOrderer.getWorldSizes(), progress);
-		dm = new DrawMenu(menu);
+		
+		List<List<Board>> allBoards = initializeBoards();
+		
+		dm = new DrawMenu(menu, dg, allBoards);
 		dg.initFonts();
 		inputHandler = new InputHandler();
-		
-		initializeBoards();
 
 		Gdx.input.setCatchBackKey(true);
 
@@ -173,8 +172,9 @@ public class GameEngine implements ApplicationListener {
 			Logger.initialize(levelOrderer.getMapping());
 	}
 	
-	private void initializeBoards(){
+	private List<List<Board>> initializeBoards(){
 		
+		List<List<Board>> allBoards = new ArrayList<List<Board>>();
 		int numWorlds = levelOrderer.getNumWorlds();
 		for (int world = 1; world <= numWorlds; world++){
 			
@@ -189,6 +189,8 @@ public class GameEngine implements ApplicationListener {
 			}
 			allBoards.add(curWorldBoards);
 		}
+		
+		return allBoards;
 	}
 
 	@Override
@@ -250,7 +252,7 @@ public class GameEngine implements ApplicationListener {
 				}
 			}
 
-			dm.draw(dg, allBoards, b, currentWorld, currentOrdinalInWorld);
+			dm.draw(b, currentWorld, currentOrdinalInWorld);
 			return;
 		}
 
@@ -455,7 +457,7 @@ public class GameEngine implements ApplicationListener {
 		if (!mainMenuShowing)
 			dg.draw(b, state, currentAnimationState, currentWorld, currentOrdinalInWorld, menu.colorOfLevel(currentWorld, currentOrdinalInWorld));
 		else
-			dm.draw(dg, allBoards, b, currentWorld, currentOrdinalInWorld);
+			dm.draw(b, currentWorld, currentOrdinalInWorld);
 	}
 	
 	//Removes all user data. Be careful if you call this.

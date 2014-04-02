@@ -503,6 +503,7 @@ public class MainWindow extends JFrame implements MouseListener {
 				"You have unsaved changes, would you like to save first?",
 				"Save First?", JOptionPane.YES_NO_OPTION);
 		if (opt == JOptionPane.YES_OPTION) {
+			@SuppressWarnings("unused")
 			FinalizationWindow fw = new FinalizationWindow(model, exitMode);
 		} else if (exitMode == FinalizationWindow.EXIT_ON_CLOSE) {
 			System.exit(0);

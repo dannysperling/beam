@@ -707,22 +707,27 @@ public class DrawGame {
 			shapes.begin(ShapeType.Line);
 			shapes.setColor(new Color(1,1,1,buttonTextProgress));
 			float space = screenWidth / 75.0f;
-			shapes.rect(space, ((screenHeight - screenWidth) / 2.0f) + space, (screenWidth / 3.0f) - (2 * space), (screenWidth / 3.0f) - (2 * space));
-			shapes.rect((screenWidth / 3.0f) + space, ((screenHeight - screenWidth) / 2.0f) + space, (screenWidth / 3.0f) - (2 * space), (screenWidth / 3.0f) - (2 * space));
-			shapes.rect((2 * (screenWidth / 3.0f)) + space, ((screenHeight - screenWidth) / 2.0f) + space, (screenWidth / 3.0f) - (2 * space), (screenWidth / 3.0f) - (2 * space));
+			float buttonWidth = Menu.wonButtonWidth * screenWidth - (2 * space);
+			float buttonHeight = Menu.wonButtonHeight * screenHeight - (2 * space);
+			float buttonBotPos = Menu.wonButtonBotY * screenHeight + space;
+			shapes.rect(Menu.wonRetryButtonLeftX * screenWidth + space, buttonBotPos, buttonWidth, buttonHeight);
+			shapes.rect(Menu.wonMenuButtonLeftX * screenWidth + space, buttonBotPos, buttonWidth, buttonHeight);
+			shapes.rect(Menu.wonNextLevelButtonLeftX * screenWidth + space, buttonBotPos, buttonWidth, buttonHeight);
 			shapes.end();
 			
 			batch.begin();
 			titleFont.setColor(new Color(1,1,1,buttonTextProgress));
+			float centerHeight = (Menu.wonButtonBotY + Menu.wonButtonHeight / 2) * screenHeight;
+			float halfButtonWidth = Menu.wonButtonWidth / 2 * screenWidth;
 			String buttonText = "RETRY";
 			TextBounds buttonTB = titleFont.getBounds(buttonText);
-			titleFont.draw(batch, buttonText, (screenWidth * (1.0f / 6.0f)) - (buttonTB.width / 2.0f), ((screenHeight - screenWidth) / 2.0f) + (screenWidth / 6.0f) + (buttonTB.height / 2.0f));
+			titleFont.draw(batch, buttonText, (screenWidth * Menu.wonRetryButtonLeftX) + halfButtonWidth - (buttonTB.width / 2.0f), centerHeight + (buttonTB.height / 2.0f));
 			buttonText = "MENU";
 			buttonTB = titleFont.getBounds(buttonText);
-			titleFont.draw(batch, buttonText, (screenWidth * (3.0f / 6.0f)) - (buttonTB.width / 2.0f), ((screenHeight - screenWidth) / 2.0f) + (screenWidth / 6.0f) + (buttonTB.height / 2.0f));
+			titleFont.draw(batch, buttonText, (screenWidth * Menu.wonMenuButtonLeftX) + halfButtonWidth - (buttonTB.width / 2.0f), centerHeight + (buttonTB.height / 2.0f));
 			buttonText = "NEXT";
 			buttonTB = titleFont.getBounds(buttonText);
-			titleFont.draw(batch, buttonText, (screenWidth * (5.0f / 6.0f)) - (buttonTB.width / 2.0f), ((screenHeight - screenWidth) / 2.0f) + (screenWidth / 6.0f) + (buttonTB.height / 2.0f));
+			titleFont.draw(batch, buttonText, (screenWidth * Menu.wonNextLevelButtonLeftX) + halfButtonWidth - (buttonTB.width / 2.0f), centerHeight + (buttonTB.height / 2.0f));
 			batch.end();
 			Gdx.gl.glDisable(GL10.GL_BLEND);
 
@@ -1020,6 +1025,9 @@ public class DrawGame {
 			shapes.end();			
 	}
 	
+	/**
+	 * Disposes any batches, textures, and fonts being used
+	 */
 	public void dispose() {
 		batch.dispose();
 		pieceTexture.dispose();
