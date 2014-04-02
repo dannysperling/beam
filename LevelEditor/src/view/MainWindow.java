@@ -34,11 +34,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import main.EditorModel;
+import model.Board;
+import model.Piece;
+import model.Tile;
 
-import com.me.beam.Board;
-import com.me.beam.GameEngine;
-import com.me.beam.Piece;
-import com.me.beam.Tile;
+import controller.GameEngine;
 
 public class MainWindow extends JFrame implements MouseListener {
 	/**
@@ -319,7 +319,7 @@ public class MainWindow extends JFrame implements MouseListener {
 				for (Tile t : m.b.getAllTiles()) {
 					int x = t.getXCoord();
 					int y = t.getYCoord();
-					nb.setGlass(x, y, t.isGlass);
+					nb.setGlass(x, y, t.hasGlass());
 					nb.setGoal(x, y, t.getGoalColor());
 					nb.setPainter(x, y, t.getPainterColor());
 
@@ -356,7 +356,7 @@ public class MainWindow extends JFrame implements MouseListener {
 				for (Tile t : m.b.getAllTiles()) {
 					int x = t.getXCoord();
 					int y = t.getYCoord();
-					nb.setGlass(x, y, t.isGlass);
+					nb.setGlass(x, y, t.hasGlass());
 					nb.setGoal(x, y, t.getGoalColor());
 					nb.setPainter(x, y, t.getPainterColor());
 
@@ -399,7 +399,7 @@ public class MainWindow extends JFrame implements MouseListener {
 						continue;
 					if (y >= nb.getNumVerticalTiles())
 						continue;
-					nb.setGlass(x, y, t.isGlass);
+					nb.setGlass(x, y, t.hasGlass());
 					nb.setGoal(x, y, t.getGoalColor());
 					nb.setPainter(x, y, t.getPainterColor());
 
@@ -439,7 +439,7 @@ public class MainWindow extends JFrame implements MouseListener {
 						continue;
 					if (y >= nb.getNumVerticalTiles())
 						continue;
-					nb.setGlass(x, y, t.isGlass);
+					nb.setGlass(x, y, t.hasGlass());
 					nb.setGoal(x, y, t.getGoalColor());
 					nb.setPainter(x, y, t.getPainterColor());
 
@@ -503,6 +503,7 @@ public class MainWindow extends JFrame implements MouseListener {
 				"You have unsaved changes, would you like to save first?",
 				"Save First?", JOptionPane.YES_NO_OPTION);
 		if (opt == JOptionPane.YES_OPTION) {
+			@SuppressWarnings("unused")
 			FinalizationWindow fw = new FinalizationWindow(model, exitMode);
 		} else if (exitMode == FinalizationWindow.EXIT_ON_CLOSE) {
 			System.exit(0);

@@ -6,7 +6,7 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import view.MainWindow;
 
-public class Main {
+public class LevelEditor {
 	
 	public static void main(String[] args) throws IOException{
 		File dir = new File("src/").getAbsoluteFile();;

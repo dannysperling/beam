@@ -1,9 +1,11 @@
-package com.me.beam;
+package com.moe.beam;
 
 import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
+
+import controller.GameEngine;
 
 public class MainActivity extends AndroidApplication {
     @Override

@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
-import java.awt.Dialog.ModalExclusionType;
-import java.awt.Dialog.ModalityType;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
@@ -21,10 +19,14 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import main.EditorModel;
+import model.Board;
 
-import com.me.beam.Board;
 
 public class TextLoadWindow extends JDialog {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	JTextArea inputArea;
 	JPanel panelButtons = new JPanel();
 	JPanel panelSpinners = new JPanel();

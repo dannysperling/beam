@@ -1,9 +1,16 @@
-package com.me.beam;
+package view;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Set;
+
+import model.Board;
+import model.GameProgress;
+import model.Laser;
+import model.Menu;
+import model.Piece;
+import model.Tile;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -18,8 +25,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.me.beam.GameEngine.AnimationState;
-import com.me.beam.GameEngine.GameState;
+
+import controller.GameEngine;
+import controller.GameEngine.AnimationState;
+import controller.GameEngine.GameState;
 
 public class DrawGame {
 	private static final float beamThickness = 0.1f; //This is measured in units of square size
@@ -96,7 +105,9 @@ public class DrawGame {
 	}
 
 	public void draw(Board b, GameEngine.GameState state,
-		GameEngine.AnimationState aState, int currentLevel, Color bg) {
+		GameEngine.AnimationState aState, int currentWorld,
+		int currentOrdinalInWorld, Color bg) {
+		
 		int bx = b.getBotLeftX();
 		int by = b.getBotLeftY();
 		int tilesize = b.getTileSize();
@@ -142,7 +153,7 @@ public class DrawGame {
 		// Draw the tiles
 		shapes.begin(ShapeType.Line);
 		for (Tile t : tiles) {
-			if (t.isGlass) {
+			if (t.hasGlass()) {
 				shapes.setColor(LINE_COLOR);
 				int glassX = bx + (t.getXCoord() * tilesize);
 				int glassY = by + (t.getYCoord() * tilesize);
@@ -469,13 +480,13 @@ public class DrawGame {
 		titleFont.setColor(Color.WHITE);
 		titleFontNoBest.setColor(Color.WHITE);
 		String toPrint;
-		int moves = gameProgress.getLevelMoves(currentLevel);
+		int moves = gameProgress.getLevelMoves(currentWorld, currentOrdinalInWorld);
 		float movesAdjust = 0.0f;
 		if (moves != -1) {
 			movesAdjust = 0.15f;
 		}
 		if (b.getBeamObjectiveSet().isEmpty()) {
-			toPrint = b.getNumGoalsFilled() + " out of " + b.goalTiles.size()
+			toPrint = b.getNumGoalsFilled() + " out of " + b.getNumGoalTiles()
 					+ " goals filled.";
 			tb = titleFont.getBounds(toPrint);
 			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
@@ -572,7 +583,7 @@ public class DrawGame {
 			float progress = GameEngine.getIntroProgress();
 			GameEngine.debug("intro: " + progress + " " + height + " ");
 			if(b.getBeamObjectiveSet().isEmpty()){
-				String message = "FILL " + b.goalTiles.size() + " " + (b.goalTiles.size()==1?"GOAL":"GOALS");
+				String message = "FILL " + b.getNumGoalTiles() + " " + (b.getNumGoalTiles()==1?"GOAL":"GOALS");
 				drawOverlayBeam(progress, ibeamheight, screenHeight / 2.0f, translateColor(baseColor), message, introFont);
 			} else {
 				int totalBeams = 0;
@@ -696,22 +707,27 @@ public class DrawGame {
 			shapes.begin(ShapeType.Line);
 			shapes.setColor(new Color(1,1,1,buttonTextProgress));
 			float space = screenWidth / 75.0f;
-			shapes.rect(space, ((screenHeight - screenWidth) / 2.0f) + space, (screenWidth / 3.0f) - (2 * space), (screenWidth / 3.0f) - (2 * space));
-			shapes.rect((screenWidth / 3.0f) + space, ((screenHeight - screenWidth) / 2.0f) + space, (screenWidth / 3.0f) - (2 * space), (screenWidth / 3.0f) - (2 * space));
-			shapes.rect((2 * (screenWidth / 3.0f)) + space, ((screenHeight - screenWidth) / 2.0f) + space, (screenWidth / 3.0f) - (2 * space), (screenWidth / 3.0f) - (2 * space));
+			float buttonWidth = Menu.wonButtonWidth * screenWidth - (2 * space);
+			float buttonHeight = Menu.wonButtonHeight * screenHeight - (2 * space);
+			float buttonBotPos = Menu.wonButtonBotY * screenHeight + space;
+			shapes.rect(Menu.wonRetryButtonLeftX * screenWidth + space, buttonBotPos, buttonWidth, buttonHeight);
+			shapes.rect(Menu.wonMenuButtonLeftX * screenWidth + space, buttonBotPos, buttonWidth, buttonHeight);
+			shapes.rect(Menu.wonNextLevelButtonLeftX * screenWidth + space, buttonBotPos, buttonWidth, buttonHeight);
 			shapes.end();
 			
 			batch.begin();
 			titleFont.setColor(new Color(1,1,1,buttonTextProgress));
+			float centerHeight = (Menu.wonButtonBotY + Menu.wonButtonHeight / 2) * screenHeight;
+			float halfButtonWidth = Menu.wonButtonWidth / 2 * screenWidth;
 			String buttonText = "RETRY";
 			TextBounds buttonTB = titleFont.getBounds(buttonText);
-			titleFont.draw(batch, buttonText, (screenWidth * (1.0f / 6.0f)) - (buttonTB.width / 2.0f), ((screenHeight - screenWidth) / 2.0f) + (screenWidth / 6.0f) + (buttonTB.height / 2.0f));
+			titleFont.draw(batch, buttonText, (screenWidth * Menu.wonRetryButtonLeftX) + halfButtonWidth - (buttonTB.width / 2.0f), centerHeight + (buttonTB.height / 2.0f));
 			buttonText = "MENU";
 			buttonTB = titleFont.getBounds(buttonText);
-			titleFont.draw(batch, buttonText, (screenWidth * (3.0f / 6.0f)) - (buttonTB.width / 2.0f), ((screenHeight - screenWidth) / 2.0f) + (screenWidth / 6.0f) + (buttonTB.height / 2.0f));
+			titleFont.draw(batch, buttonText, (screenWidth * Menu.wonMenuButtonLeftX) + halfButtonWidth - (buttonTB.width / 2.0f), centerHeight + (buttonTB.height / 2.0f));
 			buttonText = "NEXT";
 			buttonTB = titleFont.getBounds(buttonText);
-			titleFont.draw(batch, buttonText, (screenWidth * (5.0f / 6.0f)) - (buttonTB.width / 2.0f), ((screenHeight - screenWidth) / 2.0f) + (screenWidth / 6.0f) + (buttonTB.height / 2.0f));
+			titleFont.draw(batch, buttonText, (screenWidth * Menu.wonNextLevelButtonLeftX) + halfButtonWidth - (buttonTB.width / 2.0f), centerHeight + (buttonTB.height / 2.0f));
 			batch.end();
 			Gdx.gl.glDisable(GL10.GL_BLEND);
 
@@ -860,7 +876,7 @@ public class DrawGame {
 			// Draw the tiles
 			shapes.begin(ShapeType.Line);
 			for (Tile t : tiles) {
-				if (t.isGlass) {
+				if (t.hasGlass()) {
 					shapes.setColor(LINE_COLOR);
 					int glassX = bx + (t.getXCoord() * tilesize);
 					int glassY = by + (t.getYCoord() * tilesize);
@@ -1009,6 +1025,9 @@ public class DrawGame {
 			shapes.end();			
 	}
 	
+	/**
+	 * Disposes any batches, textures, and fonts being used
+	 */
 	public void dispose() {
 		batch.dispose();
 		pieceTexture.dispose();

@@ -9,11 +9,12 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 
-import com.me.beam.Board;
-import com.me.beam.GameEngine.Color;
-import com.me.beam.LevelLoader;
-import com.me.beam.LevelOrderer;
-import com.me.beam.Piece;
+import model.Board;
+import model.Piece;
+
+import controller.LevelLoader;
+import controller.LevelOrderer;
+import controller.GameEngine.Color;
 
 public class Solver {
 
@@ -50,17 +51,21 @@ public class Solver {
 	private long startTime;
 
 	public static void main(String[] args) {
+		
+		//Neither the level orderer nor loader should use GDX in this application
 		LevelOrderer levelOrderer = new LevelOrderer(
-				"../beam-android/assets/data/levels/levelOrder.txt", true);
+				"../beam-android/assets/data/levels/levelOrder.txt", false);
 		LevelLoader levelLoader = new LevelLoader(
 				"../beam-android/assets/data/levels/levels.xml", levelOrderer,
-				true);
+				false);
 
-		int ordinal = 38;
-		int index = ordinal - 1;
-		Board toSolve = levelLoader.getLevel(index);
+		
+		//Load level 1-1 for now
+		int world = 6;
+		int ordinalInWorld = 2;
+		Board toSolve = levelLoader.getLevel(world, ordinalInWorld);
 		printPieces(toSolve.getPieces());
-		System.out.println("Solving level " + ordinal);
+		System.out.println("Solving level " + world + "-" + ordinalInWorld);
 		Solver solver = new Solver(toSolve);
 		solver.solve();
 		System.out.println("Moves: " + solver.getMovesNeeded());

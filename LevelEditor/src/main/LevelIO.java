@@ -9,11 +9,12 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.me.beam.Board;
-import com.me.beam.GameEngine;
-import com.me.beam.GameEngine.Color;
-import com.me.beam.Piece;
-import com.me.beam.Tile;
+import model.Board;
+import model.Piece;
+import model.Tile;
+
+import controller.GameEngine;
+import controller.GameEngine.Color;
 
 /**
  * This is the Level Editor board load/save tool, and is not compatible with the
@@ -105,7 +106,7 @@ public class LevelIO {
 					if (s.equals("e"))
 						break;
 					if (s.equals("glass")) {
-						t.isGlass = true;
+						t.setGlass(true);
 						break;
 					}
 					if (s.startsWith("goal_")) {
@@ -283,7 +284,7 @@ public class LevelIO {
 				Tile t = b.getTileAtBoardPosition(x, y);
 				Piece p = b.getPieceOnTile(t);
 				String tileText = "";
-				if (t.isGlass)
+				if (t.hasGlass())
 					tileText = "glass";
 				else {
 					if (t.hasGoal()) {

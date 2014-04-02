@@ -1,4 +1,4 @@
-package com.me.beam;
+package model;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,51 +8,71 @@ import java.util.List;
 import java.util.Set;
 
 import com.badlogic.gdx.Gdx;
-import com.me.beam.GameEngine;
-import com.me.beam.Laser;
-import com.me.beam.Piece;
-import com.me.beam.Tile;
-import com.me.beam.GameEngine.Color;
+
+import controller.GameEngine;
+import controller.GameEngine.Color;
 
 public class Board {
 
-	private Tile[][] tiles;
-
+	/**
+	 * Private data for the pieces and tiles
+	 */
 	private Piece[][] pieces;
+	private Tile[][] tiles;
+	
+	/**
+	 * Explicitly store the goal tiles for convenience
+	 */
+	private List<Tile> goalTiles = new ArrayList<Tile>();
 
+	/**
+	 * Public data on the lasers, id, par, and perfect scores
+	 */
 	public Set<Laser> lasers = new HashSet<Laser>();
-
-	public List<Tile> goalTiles = new ArrayList<Tile>();
-
 	public int id; // ID in its levels file
 	public int par; // Good solution
 	public int perfect; // Optimal solution
 
+	/**
+	 * Private data on what the objectives are for the goals on beam counts
+	 */
 	private EnumMap<Color, Integer> beamObjectives = new EnumMap<Color, Integer>(
 			Color.class);
-
+	
+	/**
+	 * Private data regarding drawing the board
+	 */
 	private int tileSize;
-
 	private int botLeftX;
 	private int botLeftY;
 
-	// In tiles:
+	/**
+	 * Private data on the size of the board
+	 */
 	private int width;
 	private int height;
 
+	/**
+	 * Constructor for a new board
+	 * @param numHorTiles
+	 * 			The width of the board in tiles
+	 * @param numVertTiles
+	 * 			The height of the board in tiles
+	 */
 	public Board(int numHorTiles, int numVertTiles) {
+		
+		//Establish private variables on the board dimensions
 		this.width = numHorTiles;
 		this.height = numVertTiles;
-
 		tiles = new Tile[width][height];
 		pieces = new Piece[width][height];
-
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
 				tiles[i][j] = new Tile(i, j);
 			}
 		}
 
+		//Determine the applicable screen width and height from gdx
 		int screenWidth;
 		int screenHeight;
 		if (Gdx.graphics == null) {
@@ -63,9 +83,9 @@ public class Board {
 			screenHeight = (int) (Gdx.graphics.getHeight() * (1 - GameEngine.topBarSize - GameEngine.botBarSize));
 		}
 
+		//Determine positions of the board for drawing purposes
 		int maxWidth = (int) (screenWidth / width);
 		int maxHeight = (int) (screenHeight / height);
-
 		if (Gdx.graphics != null) {
 			if (maxWidth < maxHeight) {
 				tileSize = maxWidth;
@@ -82,14 +102,35 @@ public class Board {
 
 	}
 
+	/**
+	 * Construct a board from its data
+	 * 
+	 * @param t
+	 * 			The tile set of the board
+	 * @param p
+	 * 			The piece set of the board
+	 * @param id
+	 * 			The unique id of the board
+	 * @param perfect
+	 * 			The perfect score on the board
+	 * @param par
+	 * 			The par score for the board
+	 */
 	public Board(Tile[][] t, Piece[][] p, int id, int perfect, int par) {
+		
+		//Call the other constructor to set up basic constants
 		this(t.length, t[0].length);
+		
+		//Overwrite the tiles and pieces
 		this.tiles = t;
 		this.pieces = p;
+		
+		//Set the id, perfect and par scores
 		this.id = id;
 		this.perfect = perfect;
 		this.par = par;
 
+		//Include the goal tiles
 		for (int i = 0; i < t.length; i++) {
 			for (int j = 0; j < t[i].length; j++) {
 				if (this.tiles[i][j].hasGoal()) {
@@ -99,28 +140,64 @@ public class Board {
 		}
 	}
 
+	/**
+	 * Determine if two tiles are "similar," i.e., they have the same 
+	 * qualities in terms of glass, painters, and goals
+	 * 
+	 * @param x1, y1
+	 * 				Coordinates of first tile
+	 * @param x2, y2
+	 * 				Coordinates of second tile
+	 * @return
+	 * 				True if the tiles are the same with regards to
+	 * 				glass, painter, and goal; false otherwise
+	 */
 	public boolean areTilesSimilar(int x1, int y1, int x2, int y2) {
 		Tile t1 = this.getTileAtBoardPosition(x1, y1);
 		Tile t2 = this.getTileAtBoardPosition(x2, y2);
-		return t1.isGlass == t2.isGlass
+		return t1.hasGlass() == t2.hasGlass()
 				&& t1.getGoalColor() == t2.getGoalColor()
 				&& t1.getPainterColor() == t2.getPainterColor();
 	}
 
-	public void addBeamObjective(Color c, int n) {
-		beamObjectives.put(c, n);
+	/**
+	 * Adds a beam objective to the board, the number of a certain
+	 * color of beam that must be made.
+	 * 
+	 * @param color
+	 * 			The color of the beam objective
+	 * @param number
+	 * 			The number of beams of that color required
+	 */
+	public void addBeamObjective(Color color, int number) {
+		beamObjectives.put(color, number);
 	}
 
+	/**
+	 * Gets the colors that are beam objectives for this level
+	 */
 	public Set<Color> getBeamObjectiveSet() {
 		return beamObjectives.keySet();
 	}
 
-	public int getBeamObjectiveCount(Color c) {
-		if (beamObjectives != null && beamObjectives.containsKey(c))
-			return beamObjectives.get(c);
+	/**
+	 * Get how many beams need to be made of a certain color on this level
+	 * @param color
+	 * 			Which color to get the count for
+	 * @return
+	 * 			How many beams are required of that color, or -1 if that
+	 * 			color isn't a beam objective for this level
+	 */
+	public int getBeamObjectiveCount(Color color) {
+		if (beamObjectives != null && beamObjectives.containsKey(color))
+			return beamObjectives.get(color);
 		return -1;
 	}
 
+	/**
+	 * Accesses the pieces for this board for purposes of the solver.
+	 * Should not be used for main game applications
+	 */
 	public Piece[][] getPieces() {
 		return pieces;
 	}
@@ -134,8 +211,8 @@ public class Board {
 	 * @return whether or not the tile was glass before
 	 */
 	public boolean setGlass(int x, int y, boolean isGlass) {
-		boolean ret = tiles[x][y].isGlass;
-		tiles[x][y].isGlass = isGlass;
+		boolean ret = tiles[x][y].hasGlass();
+		tiles[x][y].setGlass(isGlass);
 		return ret;
 	}
 	
@@ -164,7 +241,9 @@ public class Board {
 	 * or null.
 	 * 
 	 * @param p
+	 * 			The piece being added
 	 * @return
+	 * 			The piece previously at the location p is being added to
 	 */
 	public Piece put(Piece p) {
 		int x = p.getXCoord();
@@ -191,7 +270,7 @@ public class Board {
 	 * This the thing that actually physically moves the piece, assuming you try
 	 * and move it to an adjacent empty non-glass tile.
 	 * 
-	 * @return Success or failure
+	 * @return true if piece moved; false otherwise
 	 */
 	public boolean move(Piece p, Tile t) {
 		if (canMove(p.getXCoord(), p.getYCoord(), t.getXCoord(), t.getYCoord())) {
@@ -214,70 +293,104 @@ public class Board {
 				&& isTilePassable(x2, y2, this.pieces);
 	}
 
-	private static boolean arePlacesAdjacent(int x1, int y1, int x2, int y2) {
+	/**
+	 * Returns true iff (x1,y1) is adjacent to (x2,y2)
+	 */
+	private boolean arePlacesAdjacent(int x1, int y1, int x2, int y2) {
 		return (Math.abs(x1 - x2) == 1 & y1 == y2)
 				| (Math.abs(y2 - y1) == 1 & x1 == x2);
 	}
 
+	/**
+	 * Returns true iff tile at (x1, y1) doesn't have glass or a piece in it
+	 */
 	public boolean isTilePassable(int x, int y, Piece[][] pieces) {
-		return !tiles[x][y].isGlass && pieces[x][y] == null;
+		return !tiles[x][y].hasGlass() && pieces[x][y] == null;
 	}
 
+	/**
+	 * Access the bottom left corner for drawing purposes
+	 */
 	public int getBotLeftX() {
 		return botLeftX;
 	}
-
 	public int getBotLeftY() {
 		return botLeftY;
 	}
-
-	public int getNumHorizontalTiles() {
-		return width;
-	}
-
-	public int getNumVerticalTiles() {
-		return height;
-	}
-
+	
+	/**
+	 * Access the tile size for drawing purposes
+	 */
 	public int getTileSize() {
 		return tileSize;
 	}
 
+	/**
+	 * Access size of the board
+	 */
+	public int getNumHorizontalTiles() {
+		return width;
+	}
+	public int getNumVerticalTiles() {
+		return height;
+	}
+
+	/**
+	 * Gets a tile at certain screen position, as from a click
+	 * @param x, y
+	 * 			The screen position
+	 * @return
+	 * 			The tile at that position, or null if off the board
+	 */
 	public Tile getTileAtClickPosition(int x, int y) {
 
+		//Check if the tile is off the board
 		if (x < botLeftX || x >= botLeftX + tileSize * width || y < botLeftY
 				|| y >= botLeftY + tileSize * height) {
 			return null;
 		}
 
+		//Otherwise compute and return the tile
 		return tiles[(x - botLeftX) / tileSize][(y - botLeftY) / tileSize];
 	}
 
+	/**
+	 * Get the tile at a certain board position. Does not check for out of bounds
+	 */
 	public Tile getTileAtBoardPosition(int x, int y) {
 		return tiles[x][y];
 	}
 
+	/**
+	 * Gets the piece on a given tile, possibly using a different piece set,
+	 * for the convenience of the solver heuristic
+	 */
 	public Piece getPieceOnTile(Tile t) {
 		return getPieceOnTile(t, this.pieces);
 	}
-
 	public Piece getPieceOnTile(Tile t, Piece[][] pieces) {
 		return pieces[t.getXCoord()][t.getYCoord()];
 	}
 
+	/**
+	 * Gets whether the goal is met on a given tile, possibly
+	 * using another piece set for convenience of the solver.
+	 */
 	public boolean isGoalMet(Tile t) {
 		return isGoalMet(t, this.pieces);
 	}
-
 	public boolean isGoalMet(Tile t, Piece[][] pieces) {
 		return getPieceOnTile(t, pieces) != null
 				&& getPieceOnTile(t, pieces).getColor() == t.getGoalColor();
 	}
 
+	/**
+	 * Gets the number of goals filled, possibly using another
+	 * piece set for the convenience of the solver.
+	 */
 	public int getNumGoalsFilled() {
 		return getNumGoalsFilled(this.pieces);
 	}
-
 	public int getNumGoalsFilled(Piece[][] pieces) {
 		int goalsFilled = 0;
 		for (Tile t : goalTiles) {
@@ -288,20 +401,35 @@ public class Board {
 		return goalsFilled;
 	}
 
+	/**
+	 * Gets the number of goals UNfulfilled - the opposite of
+	 * the number of goals filled.
+	 */
 	public int getNumGoalsUnfilled(Piece[][] pieces) {
 		return goalTiles.size() - getNumGoalsFilled(pieces);
 	}
 
-	public int getLaserCount(GameEngine.Color c) {
+	/**
+	 * Determine the number of lasers of a certain color in the board
+	 * 
+	 * @param color
+	 * 			The color to check for
+	 * @return
+	 * 			Number of lasers of that color
+	 */
+	public int getLaserCount(GameEngine.Color color) {
 		int store = 0;
 		for (Laser l : lasers) {
-			if (l.getColor() == c || c == Color.NONE) {
+			if (l.getColor() == color || color == Color.NONE) {
 				store++;
 			}
 		}
 		return store;
 	}
 
+	/**
+	 * Returns all pieces as a list for drawing purposes
+	 */
 	public List<Piece> getAllPieces() {
 		List<Piece> result = new ArrayList<Piece>();
 		for (Piece[] subarray : pieces) {
@@ -314,6 +442,9 @@ public class Board {
 		return result;
 	}
 
+	/**
+	 * Returns all tiles as a list for drawing purposes
+	 */
 	public List<Tile> getAllTiles() {
 		List<Tile> result = new ArrayList<Tile>();
 		for (Tile[] subarray : tiles) {
@@ -325,16 +456,22 @@ public class Board {
 		}
 		return result;
 	}
-
-	// Why does this exist?
-	public boolean isWon() {
-		return isWon(this.pieces);
+	
+	/**
+	 * Gets the number of goal tiles on this board
+	 */
+	public int getNumGoalTiles(){
+		return goalTiles.size();
 	}
 
 	/**
 	 * Returns true iff all goal squares are full of the correct color and all
-	 * beam goals are met.
+	 * beam goals are met. Can be called with a separate piece set to check against
+	 * a different set of pieces. Default call uses the board's pieces.
 	 */
+	public boolean isWon() {
+		return isWon(this.pieces);
+	}
 	public boolean isWon(Piece[][] pieces) {
 		if (getNumGoalsFilled(pieces) != goalTiles.size()) {
 			return false;
@@ -351,8 +488,6 @@ public class Board {
 	/**
 	 * For a board with n pieces, this method returns an n-element list of
 	 * 2-byte shorts. This allows for up 15 colors and up to 63x63 boards.
-	 * 
-	 * @return
 	 */
 	public List<Short> encodePieces() {
 		ArrayList<Short> ret = new ArrayList<Short>();
@@ -391,37 +526,14 @@ public class Board {
 	}
 
 	/**
-	 * Returns the representation of the board in a minimal encoding, intended
-	 * for the undo/redo stack. Each board position is stored in 2 bytes,
-	 * allowing for up to 31 colors and for painters on goals.
+	 * Determine whether the piece is the endpoint of a laser currently
+	 * on the board.
 	 * 
-	 * @return A 2-D array of shorts. A short is 16 bits.
+	 * @param p
+	 * 			The piece to check
+	 * @return
+	 * 			True if the piece forms a laser, false otherwise
 	 */
-	@Deprecated
-	public short[][] toMinimalEncoding() {
-		short[][] ret = new short[width][height];
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				ret[x][y] = 0;
-				if (tiles[x][y].isGlass) {
-					ret[x][y] = (short) 1;
-					continue;
-				}
-				if (pieces[x][y] != null) {
-					ret[x][y] |= ((pieces[x][y].getColor().toIndex() & 0x1f) << 1);
-				}
-				if (tiles[x][y].hasGoal()) {
-					ret[x][y] |= ((tiles[x][y].getGoalColor().toIndex() & 0x1f) << 6);
-				}
-				if (tiles[x][y].hasPainter()) {
-					ret[x][y] |= ((tiles[x][y].getPainterColor().toIndex() & 0x1f) << 11);
-				}
-			}
-		}
-		return ret;
-	}
-
-	// find out if theres a beam at a piece
 	public boolean isPiecePartOfBeam(Piece p) {
 		for (Laser l : lasers) {
 			if ((l.getXStart() == p.getXCoord() && l.getYStart() == p
@@ -435,43 +547,16 @@ public class Board {
 	}
 
 	/**
-	 * Takes an existing board, leaving metadata (par, id, beamGoal) untouched
-	 * and resets the state of the pieces and tiles to the encoded state, which
-	 * I just realized encodes way too much information.
+	 * Gets whether the board is currently in a valid state.
+	 * UNIMPLEMENTED
 	 * 
-	 * @param ecodedStated
-	 *            - The state of the pieces and tiles as generated by
-	 *            toMinimalEncoding
+	 * @return
+	 * 			True if no piece is in a destroyed state, false otherwise
 	 */
-	@Deprecated
-	public void revertToState(short[][] ecodedStated) {
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				Tile t = new Tile(x, y);
-				short s = ecodedStated[x][y];
-				if ((s & 1) == 1) {
-					t.isGlass = true;
-				} else {
-					if ((s & 0x003e) != 0) {
-						pieces[x][y] = new Piece(x, y,
-								Color.lookup((s & 0xe) >> 1));
-					} else {
-						pieces[x][y] = null;
-					}
-					if ((s & 0x07c0) != 0) {
-						t.setGoal(Color.lookup((s & 0x0070) >> 6));
-					}
-					if ((s & 0xf800) != 0) {
-						t.setPainter(Color.lookup((s & 0xf800) >> 11));
-					}
-				}
-				tiles[x][y] = t;
-			}
-		}
-	}
-
-	//TODO return true iff no piece is in destroyed state
 	public boolean validate() {
+		
+		//TODO IMPLEMENT
+		
 		return true;
 	}
 

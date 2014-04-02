@@ -1,11 +1,17 @@
-package com.me.beam;
+package controller;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Board;
+import model.Menu;
+import model.Piece;
+import model.Tile;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.me.beam.GameEngine.GameState;
+
+import controller.GameEngine.GameState;
 
 public class InputHandler {
 
@@ -74,8 +80,11 @@ public class InputHandler {
 	//For logging purposes
 	private int timeHeld = 0;
 	private final int timeForLoggingReset = 240;
+	
+	private int mostRecentlySelectedWorld = -1;
+	private int mostRecentlySelectedOrdinalInWorld = -1;
 
-	//Returns the level index selected, -1 if no unlocked level selected, -2 if exiting game
+	//Returns 0 if level selected, -1 if nothing selected, -2 if exiting game, -3 if logging reset
 	public int handleMainMenuInput(Menu menu){
 		
 		if (backClicked){
@@ -142,11 +151,18 @@ public class InputHandler {
 			if (firstTouchHeight != -1){
 				firstTouchHeight = -1;
 				if (!movedTooFar){
-					int selected = menu.getSelectedLevel(lastTouchX, lastTouchHeight);
+					int selected = menu.getLevelAtPositionInWorld(world, lastTouchX);
+					
 					lastTouchX = -1;
 					lastTouchHeight = -1;
 					movedTooFar = false;
-					return selected;
+					if (selected != -1){
+						mostRecentlySelectedOrdinalInWorld = selected;
+						mostRecentlySelectedWorld = world;
+						return 0;
+					} else {
+						return -1;
+					}
 				} else {
 					lastTouchX = -1;
 					lastTouchHeight = -1;
@@ -178,6 +194,14 @@ public class InputHandler {
 		}
 
 		return -1;
+	}
+	
+	public int getMostRecentlySelectedWorld(){
+		return mostRecentlySelectedWorld;
+	}
+	
+	public int getMostRecentlySelectedOrdinalInWorld(){
+		return mostRecentlySelectedOrdinalInWorld;
 	}
 
 	private GameState onRelease() {
@@ -273,9 +297,9 @@ public class InputHandler {
 			// Look for new button press
 			if (buttonDown == GameEngine.ButtonPress.NONE && lastX == -1) {
 				if(state != GameState.WON){
-					buttonDown = Menu.containingButtonOfPixel(xPress, yPress);
+					buttonDown = Menu.containingButtonOfPixelLevelScreen(xPress, yPress);
 				} else {
-					buttonDown = Menu.containingButtonOfPixelWon(xPress, yPress);
+					buttonDown = Menu.containingButtonOfPixelWonScreen(xPress, yPress);
 				}
 			}
 			lastX = xPress;
@@ -287,9 +311,9 @@ public class InputHandler {
 			// Look for removed input
 			if (buttonDown != GameEngine.ButtonPress.NONE && lastX != -1) {
 				if(state != GameState.WON){
-					returnedButton = Menu.containingButtonOfPixel(lastX, lastY);
+					returnedButton = Menu.containingButtonOfPixelLevelScreen(lastX, lastY);
 				} else {
-					returnedButton = Menu.containingButtonOfPixelWon(lastX, lastY);
+					returnedButton = Menu.containingButtonOfPixelWonScreen(lastX, lastY);
 				}
 				if (returnedButton != buttonDown) {
 					returnedButton = GameEngine.ButtonPress.NONE;
@@ -319,7 +343,7 @@ public class InputHandler {
 	}
 
 	private boolean isEmptyTile(Board b, Tile t) {
-		return (t.isGlass == false)
+		return (!t.hasGlass())
 				&& ((b.getPieceOnTile(t) == null) || b.getPieceOnTile(t) == GameEngine.movingPiece);
 	}
 

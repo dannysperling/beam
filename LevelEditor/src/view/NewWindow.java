@@ -1,15 +1,13 @@
 package view;
 
-import java.awt.Dialog.ModalExclusionType;
-import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
-import com.me.beam.Board;
 
 import main.EditorModel;
+import model.Board;
 
 public class NewWindow extends JDialog {
 	/**
