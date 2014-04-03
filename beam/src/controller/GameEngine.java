@@ -467,6 +467,8 @@ public class GameEngine implements ApplicationListener {
 				switch (button) {
 				case UNDO:
 					//Move back and reset the board
+					timeDead = 0;
+					state = GameState.IDLE;
 					moveCounter = Math.max(moveCounter - 1, 0);
 					if (LOGGING){
 						undoTimes++;
@@ -479,6 +481,7 @@ public class GameEngine implements ApplicationListener {
 					break;
 				case RESET:
 					resetCurrentLevel();
+					timeDead = 0;
 					state = GameState.IDLE;
 					if (LOGGING){
 						resetTimes++;
@@ -500,6 +503,12 @@ public class GameEngine implements ApplicationListener {
 					} 
 					break;
 				case MENU:
+					//Reset the level if going to menu when destroyed
+					if (state == GameState.DESTROYED){
+						timeDead = 0;
+						resetCurrentLevel();
+						state = GameState.IDLE;
+					}
 					mainMenuShowing = true;
 					menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
 					break;
@@ -641,7 +650,6 @@ public class GameEngine implements ApplicationListener {
 		// See which state to transition to. If something was destroyed, transition there.
 		if (wasPieceDestroyed) {
 			state = GameState.DESTROYED;
-			timeDead = 0;
 		} 
 		//Otherwise, we're still in a playable state
 		else {
@@ -1282,6 +1290,9 @@ public class GameEngine implements ApplicationListener {
 				boardStack.add(move);
 			}
 
+			//Indicates we were in the middle of a move
+			if (moveCounter >= boardStack.size())
+				moveCounter--;
 			b.resetPieces(boardStack.get(moveCounter));
 			initializeLasers(b);
 
