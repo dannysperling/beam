@@ -476,13 +476,39 @@ public class Board {
 		if (getNumGoalsFilled(pieces) != goalTiles.size()) {
 			return false;
 		}
-		// TODO: add support to solver for laser objective levels
 		for (Color c : getBeamObjectiveSet()) {
-			if (getLaserCount(c) != getBeamObjectiveCount(c)) {
+			if (getLaserCount(pieces, c) != getBeamObjectiveCount(c)) {
 				return false;
 			}
 		}
 		return true;
+	}
+	
+	public int getLaserCount(Piece[][] pieces, Color c) {
+		int sum = 0;
+		int[] columnCounts = new int[pieces[0].length];
+		for (int j = 0; j < columnCounts.length; j++) {
+			columnCounts[j] = 0;
+		}
+		for (int i = 0; i < pieces.length; i++) {
+			int rowCount = 0;
+			for (int j = 0; j < pieces[0].length; j++) {
+				Piece p = pieces[i][j];
+				if (p != null && p.getColor() == c) {
+					rowCount++;
+					columnCounts[j]++;
+				}
+			}
+			if (rowCount >= 2) {
+				sum += rowCount - 1;
+			}
+		}
+		for (int j = 0; j < columnCounts.length; j++) {
+			if (columnCounts[j] >= 2) {
+				sum += columnCounts[j] - 1;
+			}
+		}
+		return sum;
 	}
 
 	/**
