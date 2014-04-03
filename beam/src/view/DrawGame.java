@@ -620,7 +620,7 @@ public class DrawGame {
 		}
 		
 		if(state == GameState.WON){
-			float au = GameEngine.wonAnimationUnit;
+			float au = GameEngine.getWonAnimationUnit();
 			float timeWon = GameEngine.getTimeWon();
 			float starBeamWidth = screenWidth / 6.0f;
 			float squareSize = 0;
