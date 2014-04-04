@@ -39,7 +39,6 @@ public class DrawMenu {
 		batch = new SpriteBatch();
 		this.dg = dg;
 		this.allBoards = allBoards;
-		initFonts();
 	}
 
 	/**

@@ -482,7 +482,7 @@ public class DrawGame {
 		String toPrint;
 		int moves = gameProgress.getLevelMoves(currentWorld, currentOrdinalInWorld);
 		float movesAdjust = 0.0f;
-		if (moves != -1) {
+		if (moves != 0) {
 			movesAdjust = 0.15f;
 		}
 		if (b.getBeamObjectiveSet().isEmpty()) {
@@ -552,7 +552,7 @@ public class DrawGame {
 		toPrint = "Moves: " + GameEngine.getMoveCount() + " Perfect: "
 				+ b.perfect;
 
-		if (moves != -1) {
+		if (moves != 0) {
 			tb = titleFont.getBounds(toPrint);
 			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
 					* (1 - GameEngine.topBarSize * 0.22f));
@@ -564,7 +564,7 @@ public class DrawGame {
 			// .36
 		}
 
-		if (moves != -1) {
+		if (moves != 0) {
 			toPrint = "Your Best: " + moves;
 			tb = titleFont.getBounds(toPrint);
 
@@ -620,7 +620,7 @@ public class DrawGame {
 		}
 		
 		if(state == GameState.WON){
-			float au = GameEngine.wonAnimationUnit;
+			float au = GameEngine.getWonAnimationUnit();
 			float timeWon = GameEngine.getTimeWon();
 			float starBeamWidth = screenWidth / 6.0f;
 			float squareSize = 0;

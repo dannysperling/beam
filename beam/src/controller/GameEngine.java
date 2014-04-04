@@ -22,26 +22,43 @@ import controller.Logger.LogType;
 
 public class GameEngine implements ApplicationListener {
 
+	/**
+	 * Whether the game is in debug mode (all printing should happen only
+	 * in debug mode), and if logging is enabled. Both should be false in
+	 * the final game version.
+	 */
 	public static final boolean DEBUG_MODE = false;
 	public static final boolean LOGGING = true;
 
-	// Simple Objects for now
+	/**
+	 * Game engine has references to each of the main game elements
+	 */
 	private Board b;
 	private DrawGame dg;
 	private InputHandler inputHandler;
 	private LevelLoader levelLoader;
 	private GameProgress progress;
 	private LevelOrderer levelOrderer;
-		
+	private Menu menu;
+	private DrawMenu dm;
+
+	/**
+	 * Keep a reference to which level we're on
+	 */
 	private int currentWorld = -1;
 	private int currentOrdinalInWorld = -1;
-	private static int moveCounter = 0;
 
+	/**
+	 * Keep data on what's moving and where we've been
+	 */
+	private static int moveCounter = 0;
 	public static Piece movingPiece = null;
 	public static List<Tile> movePath = new ArrayList<Tile>();
 	private static List<Collection<Short>> boardStack = new ArrayList<Collection<Short>>();
 
-	// Animation constants in ticks
+	/**
+	 * All the animation constants and counters
+	 */
 	private static final int timeToMovePiece = 8;
 	private static final int timeToFormBeam = 12;
 	private static final int timeToBreakBeam = 12;
@@ -49,21 +66,22 @@ public class GameEngine implements ApplicationListener {
 	private static final int timeToPaintPiece = 20;
 	private static int timeSpentOnThisAnimation = 0;
 	private static int totalTimeForThisAnimation = 0;
-	
 	private static final int timeForIntro = 300;
 	private static int timeSpentOnIntro = 0;
-	
 	private static final int timeBeforeDeathMessage = 120;
 	private static int timeDead = 0;
-	
+	private static final int wonAnimationUnit = 14;
 	private static int timeWon = 0;
-	public static final int wonAnimationUnit = 14;
-	
-	
+
+	/**
+	 * Keep track of our current animation, and where it's going
+	 */
 	private static AnimationState currentAnimationState = AnimationState.NOTANIMATING;
 	private List<AnimationState> animationStack = new ArrayList<AnimationState>();
 
-	//Keep track of what will happen
+	/**
+	 * Keep track of what will happen, for animation purposes
+	 */
 	private Color originalColor = Color.NONE; 
 	private static List<Piece> piecesDestroyed = new ArrayList<Piece>();
 	private static Laser laserRemoved = null;
@@ -72,11 +90,16 @@ public class GameEngine implements ApplicationListener {
 	private boolean wasPieceDestroyed = false;
 	private Collection<Short> futureBoard;
 
-
+	/**
+	 * Enumeration of each of the states the game can be in
+	 */
 	public enum GameState {
-		PAUSED, IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO
+		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO
 	}
 
+	/**
+	 * Enumeration of each of the animation states the game can currently be in
+	 */
 	public enum AnimationState {
 		FORMING, MOVING, PAINTING, BREAKING, DESTRUCTION, NOTANIMATING;
 		public static int getTime(AnimationState as){
@@ -92,10 +115,16 @@ public class GameEngine implements ApplicationListener {
 		}
 	}
 
+	/**
+	 * Enumeration of all button press types
+	 */
 	public enum ButtonPress {
 		UNDO, RESET, REDO, MENU, NEXT_LEVEL, SKIPWIN, NONE
 	}
 
+	/**
+	 * Enumeration of all colors
+	 */
 	public enum Color {
 		RED, BLUE, GREEN, ORANGE, PURPLE, NONE;
 		public static Color lookup(int i) {
@@ -115,6 +144,7 @@ public class GameEngine implements ApplicationListener {
 			}
 		}
 
+		// Easy conversion from colors to indices
 		public int toIndex() {
 			int i = 0;
 			while (true) {
@@ -125,28 +155,37 @@ public class GameEngine implements ApplicationListener {
 		}
 	}
 
-	// Measured in terms of percentage of screen
+	/**
+	 * Constants representing how much of the screen is used for various applications
+	 */
 	public static final float topBarSize = 0.22f;
 	public static final float botBarSize = 0.13f;
 	public static final float sideEmptySize = 0.02f;
 
+
+	/**
+	 * State of the game
+	 */
 	private GameState state = GameState.IDLE;
-
-	//Menu time
 	private boolean mainMenuShowing = true;
-	private Menu menu;
-	private DrawMenu dm;
 
-	//Restoration
+	/**
+	 * These variables allow our restoration protocol to work
+	 */
 	private String tempData = "level.temp";
 	private FileHandle tempFile;
-	
-	//Logging
+
+	/**
+	 * These variables are for logging purposes
+	 */
 	private int undoTimes = 0;
 	private int resetTimes = 0;
 	private int redoTimes = 0;
 	private int deaths = 0;
-	
+
+	/**
+	 * Initialize the GameEngine. Called once at the very start of the game
+	 */
 	@Override
 	public void create() {
 
@@ -155,32 +194,60 @@ public class GameEngine implements ApplicationListener {
 		levelLoader = new LevelLoader("data/levels/levels.xml", levelOrderer, true);
 		progress = new GameProgress(levelOrderer);
 
+		//Create the drawing
 		dg = new DrawGame(progress);
-		menu = new Menu(levelOrderer.getWorldSizes(), progress);
-		
-		List<List<Board>> allBoards = initializeBoards();
-		
-		dm = new DrawMenu(menu, dg, allBoards);
 		dg.initFonts();
-		inputHandler = new InputHandler();
 
+		//Create the menu
+		menu = new Menu(levelOrderer.getWorldSizes(), progress);
+
+		//Create the menu drawer
+		List<List<Board>> allBoards = initializeBoards();
+		dm = new DrawMenu(menu, dg, allBoards);
+		dm.initFonts();
+
+		//Set up input handling
+		inputHandler = new InputHandler();
 		Gdx.input.setCatchBackKey(true);
 
+		//Set up restoration
 		tempFile = Gdx.files.local(tempData);
-		
+
+		//Set up logging, if applicable
 		if (LOGGING)
 			Logger.initialize(levelOrderer.getMapping());
 	}
-	
+
+	/**
+	 * Called at the end of program execution to dispose of drawing objects
+	 */
+	@Override
+	public void dispose() {
+		dg.dispose();
+		dm.dispose();
+	}
+
+	/**
+	 * Initialize a mapping of all the boards. This is used in the menu
+	 * drawing code to be able to quickly draw all boards.
+	 * 
+	 * @return 
+	 * 			A list of lists of boards. Each inner list represents a
+	 * 			world of levels.
+	 */
 	private List<List<Board>> initializeBoards(){
-		
+
+		//Initialize the boards
 		List<List<Board>> allBoards = new ArrayList<List<Board>>();
 		int numWorlds = levelOrderer.getNumWorlds();
+
+		//Create one inner list per world
 		for (int world = 1; world <= numWorlds; world++){
-			
+
 			//Add the world of boards
 			List<Board> curWorldBoards = new ArrayList<Board>();
-			
+
+			//Get each board based on its position in the mapping
 			int worldSize = levelOrderer.getWorldSize(world);
 			for (int ordinalInWorld = 1; ordinalInWorld <= worldSize; ordinalInWorld++){
 				Board cur = levelLoader.getLevel(world, ordinalInWorld);
@@ -189,15 +256,14 @@ public class GameEngine implements ApplicationListener {
 			}
 			allBoards.add(curWorldBoards);
 		}
-		
+
 		return allBoards;
 	}
 
-	@Override
-	public void dispose() {
-		dg.dispose();
-	}
-
+	/**
+	 * This is the primary game loop. It is called once per cycle. All other program
+	 * execution occurs linearly off from this method.
+	 */
 	@Override
 	public void render() {
 
@@ -205,269 +271,434 @@ public class GameEngine implements ApplicationListener {
 		inputHandler.checkBackPressed();
 
 		//Handle the menu separately
+		boolean wasMenuShowing = mainMenuShowing;
 		if (mainMenuShowing){
-
-			int selected = inputHandler.handleMainMenuInput(menu);
-			
-			if (LOGGING && selected == -3){
-				logEnd();
-				clearAllData();
-				Logger.startNewSession();
-			}
-
-			//Exit to leave
-			if (selected == -2){
-				if (LOGGING){
-					logEnd();
-				}
-				//TODO: Do things to check if the player wants to leave.
-				System.exit(0);
-			}
-
-			//Picked a level
-			if (selected == 0){
-				
-				int selectedWorld = inputHandler.getMostRecentlySelectedWorld();
-				int selectedOrdinalInWorld = inputHandler.getMostRecentlySelectedOrdinalInWorld();
-				
-				//Check that it's unlocked
-				boolean unlocked = menu.isLevelUnlocked(selectedWorld, selectedOrdinalInWorld);
-				
-				if (unlocked){
-					//Enter the level if it's unlocked
-					mainMenuShowing = false;
-					
-					//Only reset if different level
-					if (selectedOrdinalInWorld != currentOrdinalInWorld || selectedWorld != currentWorld){
-						if (LOGGING){
-							if (currentWorld != -1){
-								logEnd();
-							}
-							Logger.enteredLevel(selectedWorld, selectedOrdinalInWorld);
-						}
-						currentWorld = selectedWorld;
-						currentOrdinalInWorld = selectedOrdinalInWorld;
-						loadLevel(currentWorld, currentOrdinalInWorld);
-					}
-				}
-			}
-
-			dm.draw(b, currentWorld, currentOrdinalInWorld);
-			return;
+			handleMainMenu();
 		}
 
+		//Handle the level otherwise
+		else {
+			boolean pushedButton = handleButtonPress();
 
-		boolean pushedButton = false;
+			// Only check for game in this case
+			if (!pushedButton) {
+				
+				// Get input from the user on the level
+				GameState pastState = state;
+				state = inputHandler.handleGameInput(b, state);
 
-		if (state != GameState.DECIDING) {
-			ButtonPress button = inputHandler.checkForButtonPress(state);
-			if(button == ButtonPress.SKIPWIN){
-				timeWon = wonAnimationUnit * 10;
-			} else if (state == GameState.WON){
-				if(button == ButtonPress.RESET || button == ButtonPress.MENU || button == ButtonPress.NEXT_LEVEL){
-					int numStars = 1;
-					if (GameEngine.getMoveCount() <= b.perfect){
-						numStars = 3;
-					} else if (GameEngine.getMoveCount() <= b.par){
-						numStars = 2;
-					}
-					if(timeWon < (numStars + 2) * wonAnimationUnit){
-						timeWon = wonAnimationUnit * 10;
-						button = ButtonPress.SKIPWIN;
-					} else if (button == ButtonPress.MENU){
-						resetCurrentLevel();
-						state = GameState.IDLE;
-					} 
-					// Go to the next level
-					else if (button == ButtonPress.NEXT_LEVEL){
-						state = GameState.IDLE;
-						if (LOGGING){
-							logEnd();
+				//Do various actions depending on the state
+				//Most actions occur while moving
+				//Other states do nothing or increment counters
+				switch (state){
+					case DESTROYED:
+						timeDead++;
+						break;
+					case INTRO:
+						if(timeSpentOnIntro >= timeForIntro){
+							state = GameState.IDLE;
+						} else {
+							timeSpentOnIntro++;
+						}
+					case WON:
+						timeWon++;
+						break;
+					case MOVING:						
+						//Just started to move from deciding
+						if (pastState == GameState.DECIDING){
+							moveCounter++;
+							debug(moveCounter);
+
+							//Prep the animations
+							prepAnimationBeginning();
 						}
 						
-						//TODO: Handle bonus levels and locked levels
-						
-						//Increment level and possibly world
-						currentOrdinalInWorld++;
-						if (currentOrdinalInWorld > levelOrderer.getWorldSize(currentWorld)){
-							currentOrdinalInWorld = 1;
-							currentWorld++;
-						}
-						
-						//Check that there are remaining levels
-						if (currentWorld < levelOrderer.getNumWorlds()){
-							loadLevel(currentWorld, currentOrdinalInWorld);
+						//We're at the start of a move
+						if (currentAnimationState == AnimationState.NOTANIMATING){
 							
-							if (LOGGING){
-								Logger.enteredLevel(currentWorld, currentOrdinalInWorld);
-							}
-						} 
-						//No levels remaining
-						else {
-							currentWorld--;
-							currentOrdinalInWorld = levelOrderer.getWorldSize(currentWorld);
-							menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
-							mainMenuShowing=true;
-						}
-						pushedButton = true;
-					} else {
-						state = GameState.IDLE;
-					}
-				}
-			}
-			
-			if (button == ButtonPress.REDO || button == ButtonPress.RESET || button == ButtonPress.UNDO) {
-				debug(button);
-				pushedButton = true;
-				handleButtonPress(button);
-			}
-
-			else if (button == ButtonPress.MENU){
-				mainMenuShowing = true;
-				menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
-				pushedButton = true;
-			}
-		}
-
-		// Only check for game in this case
-		if (!pushedButton) {
-			// Get input from the user
-			GameState pastState = state;
-			state = inputHandler.handleGameInput(b, state);
-
-			// Increment the moves when appropriate
-			if (pastState == GameState.DECIDING && state == GameState.MOVING) {
-
-				//Precompute the move
-				moveCounter++;
-				debug(moveCounter);
-
-				//Prep the animations
-				prepAnimationBeginning();
-				
-			}
-			if (state == GameState.DESTROYED){
-				timeDead++;
-			} else {
-				timeDead = 0;
-			}
-			
-			if (state == GameState.WON){
-				timeWon++;
-			} else {
-				timeWon = 0;
-			}
-			
-			if (state == GameState.MOVING){
-				
-				//In between steps
-				if (currentAnimationState == AnimationState.NOTANIMATING){
-					// Move the piece
-					movePiece();
-
-					// Update the board state
-					wasPieceDestroyed = updateBoardState();
-					
-					debug("Was piece destroyed? " + wasPieceDestroyed);
-					for (AnimationState as : animationStack)
-						debug(as);
-					
-					currentAnimationState = animationStack.remove(0);
-					totalTimeForThisAnimation = AnimationState.getTime(currentAnimationState);
-					
-					//Record where we got to
-					futureBoard = b.encodePieces();
-					
-					//Put the piece back
-					b.move(movingPiece, movePath.get(0));
-					movingPiece.setColor(originalColor);
-				}
-				
-				//Increment animation time!
-				timeSpentOnThisAnimation++;
-				if (timeSpentOnThisAnimation > totalTimeForThisAnimation){
-					timeSpentOnThisAnimation = 1;
-					
-					//More animations to go!
-					if (!animationStack.isEmpty()){
-						currentAnimationState = animationStack.remove(0);
-						totalTimeForThisAnimation = AnimationState.getTime(currentAnimationState);
-						
-						if (currentAnimationState == AnimationState.DESTRUCTION){
-							deaths++;
-							goBackToTheFuture();
-						}
-					} else {
-						
-						//Get the board where it should be now
-						if (currentAnimationState != AnimationState.DESTRUCTION){
-							goBackToTheFuture();
+							//In which case, precompute the move
+							precomputeMove();
 						}
 						
-						prepAnimationBeginning();
-						
-						// No lockout after move
-						if (movePath.size() == 1 || wasPieceDestroyed) {
-							movingPiece = null;
-							movePath.clear();
-
-							// See which state to transition to
-							if (wasPieceDestroyed) {
-								state = GameState.DESTROYED;
-							} else {
-								// Made a move
-								state = GameState.IDLE;
-
-								// Push the move onto the stack
-								boardStack.add(moveCounter, (b.encodePieces()));
-
-								// Remove the old future, if it exists
-								if (boardStack.size() >= moveCounter + 1){
-									List<Collection<Short>> newStack = new ArrayList<Collection<Short>>();
-									for (int i = 0; i < moveCounter+1; i++)
-										newStack.add(boardStack.get(i));
-									boardStack = newStack; 
-								}
-
-								if (b.isWon()) {
-									state = GameState.WON;
-
-									int numStars = 1;
-									if (moveCounter <= b.perfect){
-										numStars = 3;
-									} else if (moveCounter <= b.par){
-										numStars = 2;
-									}
-									progress.setLevelScore(currentWorld, currentOrdinalInWorld, moveCounter, numStars);
-								}
-							}
-						} 
-					}
-				}
-			} else if (state == GameState.INTRO){
-				if(timeSpentOnIntro >= timeForIntro){
-					state = GameState.IDLE;
-				} else {
-					timeSpentOnIntro++;
+						//Then, handle all animations of the move
+						handleAnimations();
+						break;
+					case IDLE:
+					case DECIDING:
+					default:
+						break;
+				
 				}
 			}
 		}
 
 		// Draw the game or menu
-		if (!mainMenuShowing)
-			dg.draw(b, state, currentAnimationState, currentWorld, currentOrdinalInWorld, menu.colorOfLevel(currentWorld, currentOrdinalInWorld));
-		else
+		if (mainMenuShowing || wasMenuShowing)
 			dm.draw(b, currentWorld, currentOrdinalInWorld);
+		else
+			dg.draw(b, state, currentAnimationState, currentWorld, currentOrdinalInWorld, menu.colorOfLevel(currentWorld, currentOrdinalInWorld));
+			
+	}
+
+	/**
+	 * Handles the main update loop for when the main menu is showing
+	 */
+	private void handleMainMenu(){
+		
+		//Check to see what was pressed on the menu
+		int selected = inputHandler.handleMainMenuInput(menu);
+
+		//Possibly reset logging if the user says to do so
+		if (LOGGING && selected == -3){
+			logEnd();
+			clearAllData();
+			Logger.startNewSession();
+		}
+
+		//Exit to leave
+		if (selected == -2){
+			if (LOGGING){
+				logEnd();
+			}
+			//TODO: Do things to check if the player wants to leave.
+			System.exit(0);
+		}
+
+		//Picked a level
+		if (selected == 0){
+
+			//Figure out which level was selected
+			int selectedWorld = inputHandler.getMostRecentlySelectedWorld();
+			int selectedOrdinalInWorld = inputHandler.getMostRecentlySelectedOrdinalInWorld();
+
+			//Check that it's unlocked
+			boolean unlocked = menu.isLevelUnlocked(selectedWorld, selectedOrdinalInWorld);
+			if (unlocked){
+				//Enter the level if it's unlocked
+				mainMenuShowing = false;
+
+				//Only reset if different level
+				if (selectedOrdinalInWorld != currentOrdinalInWorld || selectedWorld != currentWorld){
+					
+					//Log the change
+					if (LOGGING){
+						if (currentWorld != -1){
+							logEnd();
+						}
+						Logger.enteredLevel(selectedWorld, selectedOrdinalInWorld);
+					}
+					
+					//Change current and load the new level
+					currentWorld = selectedWorld;
+					currentOrdinalInWorld = selectedOrdinalInWorld;
+					loadLevel(currentWorld, currentOrdinalInWorld);
+				}
+			}
+		}
 	}
 	
-	//Removes all user data. Be careful if you call this.
+	/**
+	 * Handles button presses in the regular game execution.
+	 * 
+	 * @return True if a button was pressed, so other input should be ignored
+	 */
+	private boolean handleButtonPress(){
+		
+		boolean pushedButton = false;
+		
+		//Make sure to not check for input if we're in the middle of inputing a move
+		if (state != GameState.DECIDING) {
+			
+			//Get the button that was pressed
+			ButtonPress button = inputHandler.checkForButtonPress(state);
+			
+			//If they've won and pushed a button
+			if (state == GameState.WON && button != ButtonPress.NONE){
+				
+				debug(button);
+				
+				//Indicates that we pushed a button
+				pushedButton = true;
+				
+				//Check to see if not through the animation yet
+				int numStars = 1;
+				if (GameEngine.getMoveCount() <= b.perfect){
+					numStars = 3;
+				} else if (GameEngine.getMoveCount() <= b.par){
+					numStars = 2;
+				}
+				if(timeWon < (numStars + 2) * wonAnimationUnit){
+					button = ButtonPress.SKIPWIN;
+				}
+				
+				//Determine what to do on the press
+				switch(button){
+					case MENU:
+						resetCurrentLevel();
+						state = GameState.IDLE;
+						mainMenuShowing = true;
+						menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
+						break;
+					case NEXT_LEVEL:
+						state = GameState.IDLE;
+						moveToNextLevel();
+						break;
+					case RESET:
+						resetCurrentLevel();
+						state = GameState.IDLE;
+						break;
+					case SKIPWIN:
+						timeWon = wonAnimationUnit * 10;
+						break;
+					default:
+						break;	
+				}
+				
+			} 
+			//Not on the WON screen, but pushed the button
+			else if (button != ButtonPress.NONE){
+
+				debug(button);
+				
+				//Indicate that we pushed a button
+				pushedButton = true;
+				
+				// Do things depending on which button was pressed
+				switch (button) {
+				case UNDO:
+					//Move back and reset the board
+					timeDead = 0;
+					state = GameState.IDLE;
+					moveCounter = Math.max(moveCounter - 1, 0);
+					if (LOGGING){
+						undoTimes++;
+					}
+					b.resetPieces(boardStack.get(moveCounter));
+					movingPiece = null;
+					movePath.clear();
+					prepAnimationBeginning();
+					initializeLasers(b);
+					break;
+				case RESET:
+					resetCurrentLevel();
+					timeDead = 0;
+					state = GameState.IDLE;
+					if (LOGGING){
+						resetTimes++;
+					}
+					break;
+				case REDO:
+					//TODO: Probably going to remove this anyway
+					// Make sure there's a move to go to
+					if (boardStack.size() > moveCounter + 1) {
+						moveCounter++;
+						if (LOGGING){
+							redoTimes++;
+						}
+						b.resetPieces(boardStack.get(moveCounter));
+						movingPiece = null;
+						movePath.clear();
+						prepAnimationBeginning();
+						initializeLasers(b);
+					} 
+					break;
+				case MENU:
+					//Reset the level if going to menu when destroyed
+					if (state == GameState.DESTROYED){
+						timeDead = 0;
+						resetCurrentLevel();
+						state = GameState.IDLE;
+					}
+					mainMenuShowing = true;
+					menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
+					break;
+				default: // Shouldn't occur
+					break;
+				}
+			}
+		}
+		
+		return pushedButton;
+	}
+	
+	/**
+	 * Moves to the next level. Should handle bonus and locked levels but doesn't.
+	 */
+	private void moveToNextLevel(){
+				
+		if (LOGGING){
+			logEnd();
+		}
+
+		//TODO: Handle bonus levels and locked levels
+
+		//Increment level and possibly world
+		currentOrdinalInWorld++;
+		if (currentOrdinalInWorld > levelOrderer.getWorldSize(currentWorld)){
+			currentOrdinalInWorld = 1;
+			currentWorld++;
+		}
+
+		//Check that there are remaining levels
+		if (currentWorld <= levelOrderer.getNumWorlds()){
+			loadLevel(currentWorld, currentOrdinalInWorld);
+
+			if (LOGGING){
+				Logger.enteredLevel(currentWorld, currentOrdinalInWorld);
+			}
+		} 
+		//No levels remaining - go back to the main menu
+		else {
+			currentWorld--;
+			currentOrdinalInWorld = levelOrderer.getWorldSize(currentWorld);
+			menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
+			mainMenuShowing=true;
+		}
+	}
+	
+	/**
+	 * Precomputes a move. This is done right before a piece moves,
+	 * remainder of the move can be handled as animation.
+	 */
+	private void precomputeMove(){
+		// Move the piece
+		movePiece();
+
+		// Update the board state
+		wasPieceDestroyed = updateBoardState();
+
+		//Debugging checks
+		debug("Was piece destroyed? " + wasPieceDestroyed);
+		for (AnimationState as : animationStack)
+			debug(as);
+
+		//Update the animation frame
+		currentAnimationState = animationStack.remove(0);
+		totalTimeForThisAnimation = AnimationState.getTime(currentAnimationState);
+
+		//Record where we got to
+		futureBoard = b.encodePieces();
+
+		//Put the piece back
+		b.move(movingPiece, movePath.get(0));
+		movingPiece.setColor(originalColor);
+	}
+	
+	/**
+	 * Handles all the changes that happen thanks to animations
+	 */
+	private void handleAnimations(){
+		//Increment animation time!
+		timeSpentOnThisAnimation++;
+		
+		//Check if we've gone completed the current animation
+		if (timeSpentOnThisAnimation > totalTimeForThisAnimation){
+			timeSpentOnThisAnimation = 1;
+
+			//More animations to go!
+			if (!animationStack.isEmpty()){
+				moveToNextAnimation();
+			} 
+			//Done animating - move on
+			else {
+				//Get the board where it should be now
+				if (currentAnimationState != AnimationState.DESTRUCTION){
+					goBackToTheFuture();
+				}
+
+				//Reset the animation data
+				prepAnimationBeginning();
+
+				//No more left to move or destroyed
+				if (movePath.size() == 1 || wasPieceDestroyed) {
+					
+					//So, finish the current move
+					handleMoveFinish();
+				} 
+			}
+		}
+	}
+	
+	/**
+	 * Called once one animation is finished, but there are more animations
+	 * left to go. Moves to the next animation. If that's destruction, also
+	 * set the board to where it will be after destruction so the destroyed
+	 * piece isn't drawn.
+	 */
+	private void moveToNextAnimation(){
+		
+		//Get the next animation state
+		currentAnimationState = animationStack.remove(0);
+		totalTimeForThisAnimation = AnimationState.getTime(currentAnimationState);
+
+		//Check to see if that will be destruction, and update accordingly
+		if (currentAnimationState == AnimationState.DESTRUCTION){
+			deaths++;
+			goBackToTheFuture();
+		}
+	}
+	
+	/**
+	 * Perform all required checks at the end of a complete move
+	 */
+	private void handleMoveFinish(){
+		
+		//At this point, nothing is moving anymore
+		movingPiece = null;
+		movePath.clear();
+
+		// See which state to transition to. If something was destroyed, transition there.
+		if (wasPieceDestroyed) {
+			state = GameState.DESTROYED;
+		} 
+		//Otherwise, we're still in a playable state
+		else {
+			// Made a move, so go back to idle
+			state = GameState.IDLE;
+
+			// Push the move onto the stack
+			boardStack.add(moveCounter, (b.encodePieces()));
+
+			// Remove the future REDO stack, if it exists
+			if (boardStack.size() >= moveCounter + 1){
+				List<Collection<Short>> newStack = new ArrayList<Collection<Short>>();
+				for (int i = 0; i < moveCounter+1; i++)
+					newStack.add(boardStack.get(i));
+				boardStack = newStack; 
+			}
+
+			//Check to see if we've beaten the level
+			if (b.isWon()) {
+				
+				//If so, indicate this fact
+				state = GameState.WON;
+				timeWon = 0;
+
+				//Update the game progress based on how well we did
+				int numStars = 1;
+				if (moveCounter <= b.perfect){
+					numStars = 3;
+				} else if (moveCounter <= b.par){
+					numStars = 2;
+				}
+				progress.setLevelScore(currentWorld, currentOrdinalInWorld, moveCounter, numStars);
+			}
+		}
+	}
+
+	/**
+	 * Removes all user data. Useful for logging purposes.
+	 */
 	private void clearAllData() {
 		currentWorld = -1;
 		currentOrdinalInWorld = -1;
 		progress.clearAllData();
 	}
 
-	//Set up animations
+	/**
+	 * Sets up all information for the beginning of an animation,
+	 * or a reseting. Clears all relevant fields.
+	 */
 	private void prepAnimationBeginning(){
 		animationStack.clear();
 		currentAnimationState = AnimationState.NOTANIMATING;
@@ -482,14 +713,22 @@ public class GameEngine implements ApplicationListener {
 			originalColor = Color.NONE;
 		}
 	}
-	
-	//Return to where we should be
+
+	/**
+	 * Called after animation has completed for a given move.
+	 * Puts the board into the state that it's supposed to be at.
+	 */
 	private void goBackToTheFuture(){
+		
+		//Cleans out the current move
 		movePath.remove(0);
+		
+		//Set the board back to the future
 		b.resetPieces(futureBoard);
 
+		//Moving piece is now on the next tile
 		movingPiece = b.getPieceOnTile(movePath.get(0));
-		
+
 		//Remove destroyed pieces here
 		List<Piece> newDestroyed = new ArrayList<Piece>();
 		for (Piece p : piecesDestroyed){
@@ -502,56 +741,15 @@ public class GameEngine implements ApplicationListener {
 			}
 		}
 		piecesDestroyed = newDestroyed;
-		
+
+		//And set the lasers to where they should be now
 		initializeLasers(b);
 	}
 
-	private void handleButtonPress(ButtonPress button) {
 
-		// Do things depending on which button was pressed
-		switch (button) {
-		case UNDO:
-			moveCounter = Math.max(moveCounter - 1, 0);
-			if (LOGGING){
-				undoTimes++;
-			}
-			break;
-		case RESET:
-			resetCurrentLevel();
-			state = GameState.IDLE;
-			if (LOGGING){
-				resetTimes++;
-			}
-			return;
-		case REDO:
-			// Make sure there's a move to go to
-			if (boardStack.size() > moveCounter + 1) {
-				moveCounter++;
-				if (LOGGING){
-					redoTimes++;
-				}
-			} else {
-				// DON'T DO ANYTHING IF THERE'S NOTHING TO REDO
-				return;
-			}
-			break;
-		default: // Shouldn't occur
-			break;
-		}
-
-		// Reset things
-		b.resetPieces(boardStack.get(moveCounter));
-		movingPiece = null;
-		movePath.clear();
-		prepAnimationBeginning();
-		initializeLasers(b);
-		if (b.isWon())
-			state = GameState.WON;
-		else 
-			state = GameState.IDLE;
-	}
-	
-	//Resets the current level to its original state
+	/**
+	 * Resets the current level to its original state
+	 */
 	private void resetCurrentLevel(){
 		moveCounter = 0;
 		List<Collection<Short>> newStack = new ArrayList<Collection<Short>>();
@@ -564,7 +762,9 @@ public class GameEngine implements ApplicationListener {
 		boardStack = newStack;
 	}
 
-	// Loads a level, and handles initializations
+	/**
+	 * Loads a level and handles initializations
+	 */
 	private void loadLevel(int world, int ordinalInWorld) {
 
 		// Load the world
@@ -591,7 +791,9 @@ public class GameEngine implements ApplicationListener {
 		initializeLasers(b);
 	}
 
-	// Moves a piece, and handles changes
+	/**
+	 * Moves a piece, and handles all appropriate changes
+	 */
 	public void movePiece() {
 
 		// Remove previous lasers
@@ -606,14 +808,14 @@ public class GameEngine implements ApplicationListener {
 
 	}
 
-	// Updates the board after the piece has been moved
+	/**
+	 * Update the board state after the piece has been moves
+	 */
 	public boolean updateBoardState() {
+		
 		// Check for piece destroyed
-
 		boolean anyPiecesDestroyed = false;
-
 		if (!checkIfPieceDestroyed(movingPiece)) {
-
 			// Get painted
 			boolean piecePainted = paintPiece(movingPiece);
 			if (piecePainted){
@@ -647,22 +849,23 @@ public class GameEngine implements ApplicationListener {
 		return anyPiecesDestroyed;
 	}
 
-	// Add all lasers to the board
-	public void initializeLasers(Board board) {
+	/**
+	 * Put all lasers onto the current board
+	 */
+	private void initializeLasers(Board board) {
 		board.lasers.clear();
 		for (Piece p1 : board.getAllPieces()) {
 			List<Piece> destroyed = formLasersFromPieceAndDestroy(board, p1, null, true);
 			if (!destroyed.isEmpty()){
-				debug("OH GOD WHY WHAT ARE YOU DOING YOU HEATHEN!" +
-						"\nTHIS WOULD BE BEEPING IF I COULD MAKE IT.");
+				debug("Pieces destroyed in current state.");
 			}
 		}
 	}
 
-
-	// Simple method to paint a piece
+	/**
+	 * Paint the piece, if it's on a painter
+	 */
 	public boolean paintPiece(Piece p) {
-
 		// Is there a painter?
 		Tile pieceTile = b.getTileAtBoardPosition(p.getXCoord(), p.getYCoord());
 
@@ -674,7 +877,17 @@ public class GameEngine implements ApplicationListener {
 		return false;
 	}
 
-	// Removes all lasers connected to the current piece
+	/**
+	 * Remove all lasers connected to the current piece. Depends on where the piece
+	 * will be moving.
+	 * 
+	 * @param p
+	 * 			The piece to remove lasers from
+	 * @param nextTile
+	 * 			Where the piece will be moving, or null if not moving
+	 * @return
+	 * 			True if any laser visually removed; false otherwise
+	 */
 	public boolean removeLasersFromPiece(Piece p, Tile nextTile) {
 		int xPos = p.getXCoord();
 		int yPos = p.getYCoord();
@@ -716,13 +929,31 @@ public class GameEngine implements ApplicationListener {
 		return (laserRemoved != null);
 	}
 
-	// Form lasers from a piece that has just moved return destroyed pieces
+
+	/**
+	 * Forms lasers from a piece that has just moved, and destroy pieces.
+	 * 
+	 * @param board
+	 * 			The board being moved on
+	 * @param p
+	 * 			The piece that just moved
+	 * @param cameFrom
+	 * 			The tile that the piece moved from
+	 * @param addLasers
+	 * 			Whether or not to add created lasers to the board. This
+	 * 			allows initialize lasers to call this method to set up
+	 * 			lasers on the board, while the future calling method won't
+	 * 			actually put new lasers on the board.
+	 * @return
+	 * 			A list of the pieces destroyed
+	 */
 	public List<Piece> formLasersFromPieceAndDestroy(Board board, Piece p, Tile cameFrom, boolean addLasers) {
-		
+
+		//Check whether moving horizontally or vertically
 		boolean horizontalMove = false;
 		if (cameFrom != null)
 			horizontalMove = p.getYCoord() == cameFrom.getYCoord();
-		
+
 		List<Piece> destroyed = new ArrayList<Piece>();
 
 		// For each destruction
@@ -871,7 +1102,7 @@ public class GameEngine implements ApplicationListener {
 			lasersCreated.add(possibleFormed);
 		}
 		possibleFormed = null;
-		
+
 		if (!lasersCreated.isEmpty() && !addLasers){
 			animationStack.add(AnimationState.FORMING);
 		}
@@ -879,7 +1110,11 @@ public class GameEngine implements ApplicationListener {
 		return destroyed;
 	}
 
-	// Pieces in the list of pieces are destroyed
+	/**
+	 * Checks if a piece is destroyed in its current position (has a laser of a
+	 * different color going through it). Assumes no other pieces are in a position
+	 * where they would be destroyed at present.
+	 */
 	public boolean checkIfPieceDestroyed(Piece p) {
 
 		// Check if p is destroyed. First, horizontally
@@ -898,6 +1133,8 @@ public class GameEngine implements ApplicationListener {
 			}
 		}
 
+		//Only need to look right if there's a piece of a different color
+		//on the left.
 		if (leftColor != Color.NONE && leftColor != p.getColor()) {
 			Color rightColor = Color.NONE;
 
@@ -935,6 +1172,8 @@ public class GameEngine implements ApplicationListener {
 			}
 		}
 
+		//Only need to check down if there was a piece of a different color
+		//above the current piece
 		if (topColor != Color.NONE && topColor != p.getColor()) {
 			Color botColor = Color.NONE;
 
@@ -959,31 +1198,45 @@ public class GameEngine implements ApplicationListener {
 		return false;
 	}
 
-	public static int getTotalTicksForAnimation() {
-		return totalTimeForThisAnimation;
-	}
-
-	public static int getTicksSpentOnAnimation() {
-		return timeSpentOnThisAnimation;
-	}
-
+	/**
+	 * Gets the current move count. Used for drawing.
+	 */
 	public static int getMoveCount() {
 		return moveCounter;
 	}
 
-	public static List<Piece> getDestroyedPieces(){
-		return piecesDestroyed;
-	}
-	
+	/**
+	 * What to do when the screen is resized. Currently unimplemented.
+	 */
 	@Override
 	public void resize(int width, int height) {
 	}
 
+	/**
+	 * What the game does when paused. This is the implementation of the restoration
+	 * protocol. Needs to be careful if the game is in a lost state
+	 */
 	@Override
 	public void pause() {
+		//Only save if there's something to save
 		if (currentWorld != -1){
+			
+			List<Collection<Short>> saveStack;
+			//If the game is currently in a destroyed state, undo that
+			if (state == GameState.DESTROYED){
+				moveCounter--;
+				
+				//Only take up to a portion
+				saveStack = boardStack.subList(0, moveCounter + 1);
+				
+			} else {
+				saveStack = boardStack;
+			}
+			
+			//Store the level number, move counter, whether the menu is showing,
+			//and information about the boards in the stack
 			String toSave = currentWorld + ";" + currentOrdinalInWorld + ";" + moveCounter + ";" + mainMenuShowing + ";";
-			for (Collection<Short> curBoard : boardStack){
+			for (Collection<Short> curBoard : saveStack){
 				for (Short s : curBoard){
 					toSave += s + "--";
 				}
@@ -991,20 +1244,27 @@ public class GameEngine implements ApplicationListener {
 			}
 			debug("Writing " + toSave);
 			tempFile.writeString(toSave, false);
-		} else {
+		} 
+		//Otherwise, make sure we won't pick up incorrect data
+		else {
 			tempFile.delete();
 		}
 	}
 
+	/**
+	 * What to do when the game resumes after being paused. Mostly reset the game
+	 * exactly back to where it was, except handle a "WON" case explicitly.
+	 */
 	@Override
 	public void resume() {
+		//Reinitialize the fonts
 		dg.initFonts();
 		dm.initFonts();
-		
+
 		//Check if there's data for to read
 		if (!tempFile.exists())
 			return;
-		
+
 		String fromTemp = tempFile.readString();
 		debug("Read " + fromTemp);
 		if (fromTemp != null){
@@ -1030,9 +1290,12 @@ public class GameEngine implements ApplicationListener {
 				boardStack.add(move);
 			}
 
+			//Indicates we were in the middle of a move
+			if (moveCounter >= boardStack.size())
+				moveCounter--;
 			b.resetPieces(boardStack.get(moveCounter));
 			initializeLasers(b);
-			
+
 			//Handle having won on restarting level
 			if (!mainMenuShowing && b.isWon()){
 				state = GameState.WON;
@@ -1041,43 +1304,44 @@ public class GameEngine implements ApplicationListener {
 			menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
 		}
 	}
+	
+	/**
+	 * Getters for animation values
+	 */
+	public static int getTotalTicksForAnimation() {return totalTimeForThisAnimation;}
+	public static int getTicksSpentOnAnimation() {return timeSpentOnThisAnimation;}
+	
+	public static Laser getBrokenLaser(){return laserRemoved;}
+	public static List<Laser> getFormedLaser(){return lasersCreated;}
+	public static Laser getLaserMovedAlong(){return laserMovedAlong;}
 
-	public static Laser getBrokenLaser(){
-		return laserRemoved;
-	}
+	public static float getIntroProgress(){return ((float)(timeSpentOnIntro)) / timeForIntro;}
 	
-	public static List<Laser> getFormedLaser(){
-		return lasersCreated;
-	}
+	public static int getTimeDead(){return timeDead;}
+	public static int getTimeBeforeDeathBeam(){return timeBeforeDeathMessage;}
 	
-	public static Laser getLaserMovedAlong(){
-		return laserMovedAlong;
-	}
+	public static int getTimeWon(){return timeWon;}
+	public static int getWonAnimationUnit() {return wonAnimationUnit;}
 	
-	public static float getIntroProgress(){
-		return ((float)(timeSpentOnIntro)) / timeForIntro;
-	}
-	
-	public static int getTimeDead(){
-		return timeDead;
-	}
-	
-	public static int getTimeBeforeDeathBeam(){
-		return timeBeforeDeathMessage;
-	}
-	
-	public static int getTimeWon(){
-		return timeWon;
-	}
-	
-	
+	public static List<Piece> getDestroyedPieces(){return piecesDestroyed;}
+
+
+	/**
+	 * Debugging method. Prints anything given to it.
+	 * 
+	 * @param s
+	 * 			Some value to be printed as debugging output.
+	 */
 	public static <T> void debug(T s){
 		if (!DEBUG_MODE){
 			return;
 		}
 		System.out.println(s);
 	}
-	
+
+	/**
+	 * Explicit logging method for what to do when moving on to a new level.
+	 */
 	private void logEnd(){
 		if (currentWorld != -1){
 			Logger.log(LogType.UNDO, undoTimes);
