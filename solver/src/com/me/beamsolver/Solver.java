@@ -48,6 +48,8 @@ public class Solver {
 	private Piece[][] solution;
 	private int highestDepthPrinted;
 	private int cutoffs;
+	private int positionsInQueue;
+	private int positionsExpandedThisDepth;
 	private long startTime;
 
 	public static void main(String[] args) {
@@ -81,6 +83,8 @@ public class Solver {
 		this.solution = null;
 		this.highestDepthPrinted = 0;
 		this.cutoffs = 0;
+		this.positionsInQueue = 0;
+		this.positionsExpandedThisDepth = 1;
 	}
 
 	public int getMovesNeeded() {
@@ -152,14 +156,22 @@ public class Solver {
 	}
 
 	private void monitor(int searchDepth) {
+		this.positionsExpandedThisDepth++;
+		int countdown = this.positionsInQueue - this.positionsExpandedThisDepth;
+		if (this.positionsInQueue > 100000 && countdown % 1000 == 0) {
+			System.out.println(countdown/1000 + "k more to go.");
+		}
 		if (searchDepth > this.highestDepthPrinted) {
 			double timeToSolveSeconds = (System.currentTimeMillis() - startTime) / 1000.0;
-			System.out.println("At least " + searchDepth + " moves with "
-					+ table.size() + " positions evaluated and with "
-					+ this.cutoffs + " cutoffs and took " + timeToSolveSeconds
-					+ " seconds.");
+			this.positionsInQueue = searchQueue.size();
+			System.out.println("At least " + searchDepth + " moves.");
+			System.out.println("\t" + table.size() + " positions evaluated.");
+			System.out.println("\t" + this.cutoffs + " cutoffs.");
+			System.out.println("\t" + positionsInQueue + " positions in queue.");
+			System.out.println("\t" + timeToSolveSeconds + " seconds.");
 			this.highestDepthPrinted = searchDepth;
 			this.cutoffs = 0;
+			this.positionsExpandedThisDepth = 1;
 			this.startTime = System.currentTimeMillis();
 		}
 	}
@@ -184,6 +196,9 @@ public class Solver {
 		int count = 0;
 		for (int x = 0; x < pieces.length; x++) {
 			for (int y = 0; y < pieces[0].length; y++) {
+				if (board.getTileAtBoardPosition(x, y).hasGlass()) {
+					continue;
+				}
 				if (pieces[x][y] == null) {
 					count++;
 				} else {
@@ -213,6 +228,14 @@ public class Solver {
 	
 	private int heuristic(Piece[][] pieces) {
 		int heuristic = board.getNumGoalsUnfilled(pieces);
+		/*if (pieces[3][1] != null && pieces[3][1].getColor() == Color.BLUE) 
+			heuristic++;
+		if (pieces[1][3] != null && pieces[1][3].getColor() == Color.BLUE) 
+			heuristic++;
+		if (pieces[5][3] != null && pieces[5][3].getColor() == Color.BLUE) 
+			heuristic++;
+		if (pieces[3][5] != null && pieces[3][5].getColor() == Color.BLUE) 
+			heuristic++;*/
 		for (Color c : board.getBeamObjectiveSet()) {
 			int laserCount = board.getLaserCount(pieces, c);
 			int objective = board.getBeamObjectiveCount(c);
