@@ -452,3 +452,11 @@ e,1,e
 2,2,2
 2,goal_1,2
 </level>
+
+<level id=52 par=5 perfect=4>
+<attribution name="Start Smart" author="John"/>
+1,e,goal_1
+2,e,goal_2
+goal_2,e,2
+goal_1,e,1
+</level>
