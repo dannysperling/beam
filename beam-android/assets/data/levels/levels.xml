@@ -460,3 +460,10 @@ e,1,e
 goal_2,e,2
 goal_1,e,1
 </level>
+
+<level id=53 par=4 perfect=3>
+<attribution name="easier glass" author="John"/>
+e,goal_1,goal_2
+1,glass,goal_1
+2,1,e
+</level>
