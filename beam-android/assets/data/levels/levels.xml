@@ -467,3 +467,17 @@ e,goal_1,goal_2
 1,glass,goal_1
 2,1,e
 </level>
+
+
+
+<level id=54 par=28 perfect=10>
+<attribution name="Breaker extreme" author="John"/>
+<beamGoal color=1 count=0/>
+<beamGoal color=2 count=0/>
+<beamGoal color=3 count=0/>
+glass,1,1,1,glass
+e,e,1,1,2
+e,e,e,2,2
+e,3,3,2,2
+glass,3,3,3,glass
+</level>

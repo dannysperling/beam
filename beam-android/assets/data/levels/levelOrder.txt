@@ -46,6 +46,7 @@ x - easier painter level
 x - huge intermediate gap
 26
 27
+54
 x - gap
 21
 23
