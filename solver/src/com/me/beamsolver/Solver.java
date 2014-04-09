@@ -51,19 +51,21 @@ public class Solver {
 	private int positionsInQueue;
 	private int positionsExpandedThisDepth;
 	private long startTime;
+	private static final int moveIntervalStart = 100000;
+	private static final int moveInterval = 10000;
 
 	public static void main(String[] args) {
-		
-		//Neither the level orderer nor loader should use GDX in this application
+
+		// Neither the level orderer nor loader should use GDX in this
+		// application
 		LevelOrderer levelOrderer = new LevelOrderer(
 				"../beam-android/assets/data/levels/levelOrder.txt", false);
 		LevelLoader levelLoader = new LevelLoader(
 				"../beam-android/assets/data/levels/levels.xml", levelOrderer,
 				false);
 
-		
 		int world = 4;
-		int ordinalInWorld = 2;
+		int ordinalInWorld = 3;
 		Board toSolve = levelLoader.getLevel(world, ordinalInWorld);
 		printPieces(toSolve.getPieces());
 		System.out.println("Solving level " + world + "-" + ordinalInWorld);
@@ -158,8 +160,10 @@ public class Solver {
 	private void monitor(int searchDepth) {
 		this.positionsExpandedThisDepth++;
 		int countdown = this.positionsInQueue - this.positionsExpandedThisDepth;
-		if (this.positionsInQueue > 100000 && countdown % 1000 == 0) {
-			System.out.println(countdown/1000 + "k more to go.");
+		if (this.positionsInQueue > moveIntervalStart
+				&& countdown % moveInterval == 0) {
+			System.out.println(countdown / moveInterval + "\t" + moveInterval
+					+ "s more to go.");
 		}
 		if (searchDepth > this.highestDepthPrinted) {
 			double timeToSolveSeconds = (System.currentTimeMillis() - startTime) / 1000.0;
@@ -167,7 +171,8 @@ public class Solver {
 			System.out.println("At least " + searchDepth + " moves.");
 			System.out.println("\t" + table.size() + " positions evaluated.");
 			System.out.println("\t" + this.cutoffs + " cutoffs.");
-			System.out.println("\t" + positionsInQueue + " positions in queue.");
+			System.out
+					.println("\t" + positionsInQueue + " positions in queue.");
 			System.out.println("\t" + timeToSolveSeconds + " seconds.");
 			this.highestDepthPrinted = searchDepth;
 			this.cutoffs = 0;
@@ -225,24 +230,45 @@ public class Solver {
 			this.cutoffs++;
 		}
 	}
-	
+
 	private int heuristic(Piece[][] pieces) {
 		int heuristic = board.getNumGoalsUnfilled(pieces);
-		/*if (pieces[3][1] != null && pieces[3][1].getColor() == Color.BLUE) 
-			heuristic++;
-		if (pieces[1][3] != null && pieces[1][3].getColor() == Color.BLUE) 
-			heuristic++;
-		if (pieces[5][3] != null && pieces[5][3].getColor() == Color.BLUE) 
-			heuristic++;
-		if (pieces[3][5] != null && pieces[3][5].getColor() == Color.BLUE) 
-			heuristic++;*/
+
+		// for level 6-1
+		// sum += enforceNotColor(pieces, 3, 1, Color.BLUE);
+		// sum += enforceNotColor(pieces, 1, 3, Color.BLUE);
+		// sum += enforceNotColor(pieces, 3, 5, Color.BLUE);
+		// sum += enforceNotColor(pieces, 5, 3, Color.BLUE);
+		//
+		// sum += enforceNotColor(pieces, 3, 1, Color.GREEN);
+		// sum += enforceNotColor(pieces, 1, 3, Color.GREEN);
+		// sum += enforceNotColor(pieces, 3, 5, Color.GREEN);
+		// sum += enforceNotColor(pieces, 5, 3, Color.GREEN);
+		//
+		// sum += enforceNotColor(pieces, 1, 1, Color.BLUE);
+		// sum += enforceNotColor(pieces, 1, 5, Color.BLUE);
+		// sum += enforceNotColor(pieces, 5, 5, Color.BLUE);
+		// sum += enforceNotColor(pieces, 5, 1, Color.BLUE);
+		//
+		// sum += enforceNotColor(pieces, 1, 1, Color.GREEN);
+		// sum += enforceNotColor(pieces, 1, 5, Color.GREEN);
+		// sum += enforceNotColor(pieces, 5, 5, Color.GREEN);
+		// sum += enforceNotColor(pieces, 5, 1, Color.GREEN);
+
 		for (Color c : board.getBeamObjectiveSet()) {
 			int laserCount = board.getLaserCount(pieces, c);
 			int objective = board.getBeamObjectiveCount(c);
 			int absDiff = Math.abs(laserCount - objective);
-			heuristic += (int)Math.ceil(absDiff / 2.0);
+			heuristic += (int) Math.ceil(absDiff / 2.0);
 		}
+
 		return heuristic;
+	}
+
+	// returns 1 if the piece is the color (which it shouldn't be)
+	private int enforceNotColor(Piece[][] pieces, int x, int y, Color color) {
+		return (pieces[x][y] != null && pieces[x][y].getColor() == color) ? 1
+				: 0;
 	}
 
 	private boolean isHSym() {
@@ -314,23 +340,28 @@ public class Solver {
 	private void safePut(Piece[][] pieces, int moves) {
 		table.put(piecesStringDense(pieces), moves);
 	}
-	
+
 	private Integer getMovesToReach(Piece[][] pieces) {
 		Integer ret = safeGet(pieces);
-		if (ret != null) return ret;
+		if (ret != null)
+			return ret;
 		if (horizontalSymmetry) {
 			Piece[][] horizontallyReflectedPieces = reflectHorizontally(pieces);
 			ret = safeGet(horizontallyReflectedPieces);
-			if (ret != null) return ret;
+			if (ret != null)
+				return ret;
 			if (verticalSymmetry) {
 				ret = safeGet(reflectVertically(horizontallyReflectedPieces));
-				if (ret != null) return ret;
+				if (ret != null)
+					return ret;
 				ret = safeGet(reflectVertically(pieces));
-				if (ret != null) return ret;
+				if (ret != null)
+					return ret;
 			}
 		} else if (verticalSymmetry) {
 			ret = safeGet(reflectVertically(pieces));
-			if (ret != null) return ret;
+			if (ret != null)
+				return ret;
 		}
 		return null;
 	}
