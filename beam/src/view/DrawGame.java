@@ -104,38 +104,10 @@ public class DrawGame {
 		generator.dispose();
 	}
 
-	public void draw(Board b, GameEngine.GameState state,
-		GameEngine.AnimationState aState, int currentWorld,
-		int currentOrdinalInWorld, Color bg) {
-		
-		int bx = b.getBotLeftX();
-		int by = b.getBotLeftY();
-		int tilesize = b.getTileSize();
-		Color curBG = /*new Color(.1f, .1f, .1f, 1)*/bg;
-		/*//Random color fun times!
-		curBG.r = (float) (((2577 + Math.pow(13, currentLevel))%255)/255.0)
-		curBG.b = (float) (((5648 + Math.pow(7, currentLevel))%255)/255.0);
-		curBG.g = (float) (((1124 + Math.pow(17, currentLevel))%255)/255.0);
-		*/
-		if (state == GameState.DESTROYED) {
-			curBG = new Color(.5f, 0, 0, 1);
-		}
-		if (state == GameState.WON) {
-			//curBG = new Color(0, 0.3f, 0, 1);
-		}
-		Gdx.gl.glClearColor(curBG.r, curBG.g, curBG.b, 1);
-
-		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		List<Piece> pieces = b.getAllPieces();
-		List<Tile> tiles = b.getAllTiles();
-		
-		//Draw Board Background
-		shapes.begin(ShapeType.Filled);
-		shapes.setColor(BOARD_COLOR);
-		shapes.rect(bx, by, b.getNumHorizontalTiles() * tilesize, b.getNumVerticalTiles() * tilesize);
-		shapes.end();
-
-		// Draw the basic grid
+	/**
+	 * Draws the grid on which the game is played
+	 */
+	private void drawGrid(int bx, int by, int tilesize, Board b){
 		shapes.begin(ShapeType.Line);
 		shapes.setColor(LINE_COLOR);
 		Gdx.gl.glLineWidth(2);
@@ -149,8 +121,12 @@ public class DrawGame {
 					+ (i * tilesize));
 		}
 		shapes.end();
-		
-		// Draw the tiles
+	}
+
+	/**
+	 * Draws anything that appears in a tile which never moves. This includes glass, painters, and goals
+	 */
+	private void drawTiles(int bx, int by, int tilesize, List<Tile> tiles){
 		shapes.begin(ShapeType.Line);
 		for (Tile t : tiles) {
 			if (t.hasGlass()) {
@@ -212,16 +188,12 @@ public class DrawGame {
 			}
 		}
 		shapes.end();
+	}
 
-		// Draw Paths
-		List<Tile> path = GameEngine.movePath;
-		float moveAnimateTime = 0;
-		if(aState == AnimationState.MOVING){
-			moveAnimateTime =((float)(GameEngine.getTicksSpentOnAnimation()))/(GameEngine.getTotalTicksForAnimation());
-		} else if (aState == AnimationState.PAINTING || aState == AnimationState.FORMING){
-			moveAnimateTime = 1;
-		}
-
+	/**
+	 * Draws the path indicating user input
+	 */
+	private void drawPaths(int bx, int by, int tilesize, List<Tile> path, AnimationState aState, GameState state, float moveAnimateTime){
 		if(aState != AnimationState.DESTRUCTION){
 			shapes.begin(ShapeType.Filled);
 			shapes.setColor(new Color(.9f, .9f, .2f, 1f));
@@ -290,38 +262,12 @@ public class DrawGame {
 			}
 			shapes.end();
 		}
+	}
 
-		// Draw the pieces
-		path = GameEngine.movePath;
-		Color paintColor = new Color(0,0,0,0);
-		if(path.size() > 1){
-			paintColor = translateColor(b.getTileAtBoardPosition(path.get(1).getXCoord(), path.get(1).getYCoord()).getPainterColor());
-		}
-		Laser disbandedLaser = null;
-		Laser movedAlongLaser = null;
-		float breakAnimateTime = 0;
-		float formAnimateTime = 0;
-		float paintAnimateTime = 0;
-		if(state == GameState.MOVING){
-			GameEngine.debug(aState);
-			disbandedLaser = GameEngine.getBrokenLaser();
-
-			movedAlongLaser = GameEngine.getLaserMovedAlong();
-			if(aState == AnimationState.BREAKING){
-				breakAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
-			} else if (aState == AnimationState.MOVING){
-				breakAnimateTime = 1;
-			} else if (aState == AnimationState.PAINTING){
-				breakAnimateTime = 1;
-				paintAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
-			} else if (aState == AnimationState.FORMING){
-				breakAnimateTime = 1;
-				if(!paintColor.equals(new Color(0,0,0,0)) && !paintColor.equals(translateColor(GameEngine.movingPiece.getColor()))){
-					paintAnimateTime = 1;
-				}
-				formAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
-			}
-		}
+	/**
+	 * Draws all of the pieces. Draws them between spaces if they're being animated
+	 */
+	private void drawPieces(int bx, int by, int tilesize, List<Tile> path, Color paintColor, List<Piece> pieces, float paintAnimateTime, float moveAnimateTime){
 		
 		batch.begin();
 		pieceSprite.setSize(tilesize, tilesize);
@@ -347,11 +293,13 @@ public class DrawGame {
 			pieceSprite.draw(batch);
 		}
 		batch.end();
-		
 
-		// Draw Lasers
-		Set<Laser> lasers = b.lasers;
+	}
 
+	/**
+	 * Draws all of the beams between pieces. Also draws intermediate states caused by animations
+	 */
+	private void drawBeams(int bx, int by, int tilesize, Set<Laser> lasers, Laser disbandedLaser, Laser movedAlongLaser, AnimationState aState, List<Tile> path, float moveAnimateTime, float paintAnimateTime, float formAnimateTime, float breakAnimateTime){
 		shapes.begin(ShapeType.Filled);
 		float laserWidth = beamThickness;
 		for (Laser l : lasers) {
@@ -429,33 +377,34 @@ public class DrawGame {
 			}
 		}
 		shapes.end();
-		
+	}
+
+	/**
+	 * Draws the BANG effect where a piece has been destroyed
+	 */
+	private void drawBangs(int bx, int by, int tilesize){
 		batch.begin();
-		
-		//Draw the bangs!
-		if(state == GameState.DESTROYED || aState == AnimationState.DESTRUCTION){
-			List<Piece> destroyedPieces = GameEngine.getDestroyedPieces();
-			if(destroyedPieces.size() > 0){
-				bangSprite.setSize(tilesize, tilesize);
-				for(Piece dp : destroyedPieces){
-					bangSprite.setPosition(bx + (dp.getXCoord() * tilesize),
-							by + (dp.getYCoord() * tilesize));
-					bangSprite.setColor(translateColor(dp.getColor()));
-					bangSprite.draw(batch);
-				}
+		List<Piece> destroyedPieces = GameEngine.getDestroyedPieces();
+		if(destroyedPieces.size() > 0){
+			bangSprite.setSize(tilesize, tilesize);
+			for(Piece dp : destroyedPieces){
+				bangSprite.setPosition(bx + (dp.getXCoord() * tilesize),
+						by + (dp.getYCoord() * tilesize));
+				bangSprite.setColor(translateColor(dp.getColor()));
+				bangSprite.draw(batch);
 			}
 		}
-		
 		batch.end();
-		
+	}
 
-		// Draw the buttons
+	/**
+	 * Draws the control buttons on the HUD
+	 */
+	private void drawButtons(int width, int height, TextBounds tb){
 		batch.begin();
 		buttonFont.setColor(Color.WHITE);
 
-		int width = Gdx.graphics.getWidth();
-		int height = Gdx.graphics.getHeight();
-		TextBounds tb = buttonFont.getBounds("UNDO");
+		tb = buttonFont.getBounds("UNDO");
 
 		float textHeight = height * Menu.buttonBotY
 				+ (Menu.buttonHeight * height + tb.height) / 2;
@@ -474,8 +423,12 @@ public class DrawGame {
 		menuButtonFont.draw(batch, "MENU", Menu.menuButtonLeftX * width
 				+ (Menu.menuButtonWidth * width - tb.width) / 2, textHeight);
 		batch.end();
+	}
 
-		// Drawing progress towards level objectives
+	/**
+	 * Draws the text at the top of the screen explaining the level goals and how near they are to being completed
+	 */
+	private void drawLevelProgress(int width, int height, TextBounds tb, int currentWorld, int currentOrdinalInWorld, Board b){
 		batch.begin();
 		titleFont.setColor(Color.WHITE);
 		titleFontNoBest.setColor(Color.WHITE);
@@ -573,174 +526,167 @@ public class DrawGame {
 			// .525
 		}
 		batch.end();
-		
-		int screenWidth = Gdx.graphics.getWidth();
-		int screenHeight = Gdx.graphics.getHeight();
-		float ibeamheight = screenHeight / 10.0f;
-		// Draw intro
-		if (state == GameState.INTRO) {
-			GameEngine.Color baseColor = GameEngine.Color.RED;
-			float progress = GameEngine.getIntroProgress();
-			GameEngine.debug("intro: " + progress + " " + height + " ");
-			if(b.getBeamObjectiveSet().isEmpty()){
-				String message = "FILL " + b.getNumGoalTiles() + " " + (b.getNumGoalTiles()==1?"GOAL":"GOALS");
-				drawOverlayBeam(progress, ibeamheight, screenHeight / 2.0f, translateColor(baseColor), message, introFont);
-			} else {
-				int totalBeams = 0;
-				for(GameEngine.Color c : b.getBeamObjectiveSet()){
-					totalBeams += b.getBeamObjectiveCount(c);
-				}
-				if(totalBeams == 0){
-					String message = "BREAK ALL BEAMS";
-					drawOverlayBeam(progress, ibeamheight, screenHeight / 2.0f, translateColor(GameEngine.Color.BLUE), message, introFont);
-				} else {
-					int beamsToDraw = b.getBeamObjectiveSet().size() + 1;
-					float totBeamHeight = ((beamsToDraw) +  ((beamsToDraw - 1)/ 2.0f)) * ibeamheight;
-					float baseheight = ((screenHeight - totBeamHeight) / 2.0f) + totBeamHeight - (ibeamheight / 2.0f);
-					String message = "FORM";
-					drawOverlayBeam(progress, ibeamheight, baseheight, translateColor(baseColor), message, introFont);
-					int i = 1;
-					for(GameEngine.Color c : b.getBeamObjectiveSet()){
-						String bmessage = b.getBeamObjectiveCount(c) + " " + c.toString() + " BEAM" + (b.getBeamObjectiveCount(c) == 1?"":"S");
-						drawOverlayBeam(progress, ibeamheight, baseheight - ((1.5f) * i * ibeamheight), translateColor(c), bmessage, introFont);
-						i++;
-					}
-				}
-			}
-		}
-		
-		if(state == GameState.DESTROYED){
-			if(GameEngine.getTimeDead() >= GameEngine.getTimeBeforeDeathBeam()){
-				float progress = (GameEngine.getTimeDead() - GameEngine.getTimeBeforeDeathBeam()) / 300.0f;
-				if(progress > 0.5) {
-					progress = 0.5f;
-				}
-				drawOverlayBeam(progress, ibeamheight, screenHeight/ 2.0f, translateColor(GameEngine.Color.BLUE), "PRESS UNDO OR RESET", titleFont);
-			}
-		}
-		
-		if(state == GameState.WON){
-			float au = GameEngine.getWonAnimationUnit();
-			float timeWon = GameEngine.getTimeWon();
-			float starBeamWidth = screenWidth / 6.0f;
-			float squareSize = 0;
-			int numStars = 1;
-			if (GameEngine.getMoveCount() <= b.perfect){
-				numStars = 3;
-			} else if (GameEngine.getMoveCount() <= b.par){
-				numStars = 2;
-			}
-			if(timeWon < au){
-				squareSize = (timeWon / au) * screenWidth;
-			} else {
-				squareSize = screenWidth;
-			}
-			float beam1X = (screenWidth - (4 * starBeamWidth)) / 2.0f;
-			float beam1Progress = (timeWon - au) / (2 * au);
-			float beam2Progress = 0, beam3Progress = 0;
-			if(numStars >= 2){
-				beam2Progress = (timeWon - (2 * au)) / (2 * au);
-			}
-			if(numStars == 3){
-				beam3Progress = (timeWon - (3 * au)) / (2 * au);
-			}
-			float beam2X = beam1X + (1.5f * starBeamWidth);
-			float beam3X = beam2X + (1.5f * starBeamWidth);
-			float starheight = (screenHeight / 2.0f) + (0.2f * screenWidth);
-			
-			float horBeamProgress = 0;
-			if(timeWon >= (numStars + 2) * au){
-				horBeamProgress = (timeWon - (numStars + 2) * au) / (2 * au);
-			}
-			float horBeamY = 4.5f * screenHeight / 10f;
-			float horBeamHeight = screenHeight / 10f;
-			
-			String levelEndMessage = "GOOD!";
-			if(numStars == 2){
-				levelEndMessage = "EXCELLENT!";
-			}
-			if(numStars == 3){
-				levelEndMessage = "PERFECT!";
-			}
-			
-			Gdx.gl.glEnable(GL10.GL_BLEND);
-			Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-			shapes.begin(ShapeType.Filled);
-			shapes.setColor(new Color(0.4f,0.4f,0.4f,0.4f));
-			shapes.rect(0,0,screenWidth, screenHeight);
-			shapes.setColor(new Color(0,0,0,0.92f));
-			shapes.rect((screenWidth - squareSize ) / 2.0f, (screenHeight - (squareSize)) / 2.0f, squareSize, squareSize);
-			shapes.end();
-			Gdx.gl.glDisable(GL10.GL_BLEND);
-			
-			batch.begin();
-			starSprite.setSize(starBeamWidth, starBeamWidth);
-			starSprite.setColor(Color.YELLOW);
-			if(numStars >= 1 && timeWon >= 2 * au){
-				starSprite.setPosition(beam1X, starheight);
-				starSprite.draw(batch);
-			}
-			if(numStars >= 2 && timeWon >= 3 * au){
-				starSprite.setPosition(beam2X, starheight);
-				starSprite.draw(batch);
-			}
-			if(numStars == 3 && timeWon >= 4 * au){
-				starSprite.setPosition(beam3X, starheight);
-				starSprite.draw(batch);
-			}
-			if(timeWon > (numStars + 3) * au){
-				TextBounds endTextBounds = introFont.getBounds(levelEndMessage);
-				introFont.setColor(Color.WHITE);
-				introFont.draw(batch, levelEndMessage, (screenWidth - endTextBounds.width) / 2.0f, (screenHeight + endTextBounds.height) / 2.0f);
-			}
-			batch.end();
-			
-			float buttonTextProgress;
-			if(timeWon >= (numStars + 2) * au){
-				buttonTextProgress = (timeWon - (numStars + 2) * au) / (2 * au);
-			} else {
-				buttonTextProgress = 0;
-			}
-			
-			Gdx.gl.glEnable(GL10.GL_BLEND);
-			Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-			shapes.begin(ShapeType.Line);
-			shapes.setColor(new Color(1,1,1,buttonTextProgress));
-			float space = screenWidth / 75.0f;
-			float buttonWidth = Menu.wonButtonWidth * screenWidth - (2 * space);
-			float buttonHeight = Menu.wonButtonHeight * screenHeight - (2 * space);
-			float buttonBotPos = Menu.wonButtonBotY * screenHeight + space;
-			shapes.rect(Menu.wonRetryButtonLeftX * screenWidth + space, buttonBotPos, buttonWidth, buttonHeight);
-			shapes.rect(Menu.wonMenuButtonLeftX * screenWidth + space, buttonBotPos, buttonWidth, buttonHeight);
-			shapes.rect(Menu.wonNextLevelButtonLeftX * screenWidth + space, buttonBotPos, buttonWidth, buttonHeight);
-			shapes.end();
-			
-			batch.begin();
-			titleFont.setColor(new Color(1,1,1,buttonTextProgress));
-			float centerHeight = (Menu.wonButtonBotY + Menu.wonButtonHeight / 2) * screenHeight;
-			float halfButtonWidth = Menu.wonButtonWidth / 2 * screenWidth;
-			String buttonText = "RETRY";
-			TextBounds buttonTB = titleFont.getBounds(buttonText);
-			titleFont.draw(batch, buttonText, (screenWidth * Menu.wonRetryButtonLeftX) + halfButtonWidth - (buttonTB.width / 2.0f), centerHeight + (buttonTB.height / 2.0f));
-			buttonText = "MENU";
-			buttonTB = titleFont.getBounds(buttonText);
-			titleFont.draw(batch, buttonText, (screenWidth * Menu.wonMenuButtonLeftX) + halfButtonWidth - (buttonTB.width / 2.0f), centerHeight + (buttonTB.height / 2.0f));
-			buttonText = "NEXT";
-			buttonTB = titleFont.getBounds(buttonText);
-			titleFont.draw(batch, buttonText, (screenWidth * Menu.wonNextLevelButtonLeftX) + halfButtonWidth - (buttonTB.width / 2.0f), centerHeight + (buttonTB.height / 2.0f));
-			batch.end();
-			Gdx.gl.glDisable(GL10.GL_BLEND);
-
-			
-			drawVerticalTempBeam(beam1Progress, beam1X, starBeamWidth, translateColor(GameEngine.Color.RED));
-			drawVerticalTempBeam(beam2Progress, beam2X, starBeamWidth, translateColor(GameEngine.Color.BLUE));
-			drawVerticalTempBeam(beam3Progress, beam3X, starBeamWidth, translateColor(GameEngine.Color.GREEN));
-			drawHorizontalTempBeam(horBeamProgress, horBeamY, horBeamHeight, translateColor(GameEngine.Color.BLUE));
-
-		}
-		
 	}
-	
+
+	/**
+	 * Draws the level introduction beam that appears at level start
+	 */
+	private void drawIntro(int width, int height, float ibeamheight, Board b){
+		GameEngine.Color baseColor = GameEngine.Color.RED;
+		float progress = GameEngine.getIntroProgress();
+		GameEngine.debug("intro: " + progress + " " + height + " ");
+		if(b.getBeamObjectiveSet().isEmpty()){
+			String message = "FILL " + b.getNumGoalTiles() + " " + (b.getNumGoalTiles()==1?"GOAL":"GOALS");
+			drawOverlayBeam(progress, ibeamheight, height / 2.0f, translateColor(baseColor), message, introFont);
+		} else {
+			int totalBeams = 0;
+			for(GameEngine.Color c : b.getBeamObjectiveSet()){
+				totalBeams += b.getBeamObjectiveCount(c);
+			}
+			if(totalBeams == 0){
+				String message = "BREAK ALL BEAMS";
+				drawOverlayBeam(progress, ibeamheight, height / 2.0f, translateColor(GameEngine.Color.BLUE), message, introFont);
+			} else {
+				int beamsToDraw = b.getBeamObjectiveSet().size() + 1;
+				float totBeamHeight = ((beamsToDraw) +  ((beamsToDraw - 1)/ 2.0f)) * ibeamheight;
+				float baseheight = ((height - totBeamHeight) / 2.0f) + totBeamHeight - (ibeamheight / 2.0f);
+				String message = "FORM";
+				drawOverlayBeam(progress, ibeamheight, baseheight, translateColor(baseColor), message, introFont);
+				int i = 1;
+				for(GameEngine.Color c : b.getBeamObjectiveSet()){
+					String bmessage = b.getBeamObjectiveCount(c) + " " + c.toString() + " BEAM" + (b.getBeamObjectiveCount(c) == 1?"":"S");
+					drawOverlayBeam(progress, ibeamheight, baseheight - ((1.5f) * i * ibeamheight), translateColor(c), bmessage, introFont);
+					i++;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Draws the sequence that appears after completing a level
+	 */
+	private void drawOutro(int width, int height, Board b){
+		float au = GameEngine.getWonAnimationUnit();
+		float timeWon = GameEngine.getTimeWon();
+		float starBeamWidth = width / 6.0f;
+		float squareSize = 0;
+		int numStars = 1;
+		if (GameEngine.getMoveCount() <= b.perfect){
+			numStars = 3;
+		} else if (GameEngine.getMoveCount() <= b.par){
+			numStars = 2;
+		}
+		if(timeWon < au){
+			squareSize = (timeWon / au) * width;
+		} else {
+			squareSize = width;
+		}
+		float beam1X = (width - (4 * starBeamWidth)) / 2.0f;
+		float beam1Progress = (timeWon - au) / (2 * au);
+		float beam2Progress = 0, beam3Progress = 0;
+		if(numStars >= 2){
+			beam2Progress = (timeWon - (2 * au)) / (2 * au);
+		}
+		if(numStars == 3){
+			beam3Progress = (timeWon - (3 * au)) / (2 * au);
+		}
+		float beam2X = beam1X + (1.5f * starBeamWidth);
+		float beam3X = beam2X + (1.5f * starBeamWidth);
+		float starheight = (height / 2.0f) + (0.2f * width);
+		
+		float horBeamProgress = 0;
+		if(timeWon >= (numStars + 2) * au){
+			horBeamProgress = (timeWon - (numStars + 2) * au) / (2 * au);
+		}
+		float horBeamY = 4.5f * height / 10f;
+		float horBeamHeight = height / 10f;
+		
+		String levelEndMessage = "GOOD!";
+		if(numStars == 2){
+			levelEndMessage = "EXCELLENT!";
+		}
+		if(numStars == 3){
+			levelEndMessage = "PERFECT!";
+		}
+		
+		Gdx.gl.glEnable(GL10.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		shapes.begin(ShapeType.Filled);
+		shapes.setColor(new Color(0.4f,0.4f,0.4f,0.4f));
+		shapes.rect(0,0,width, height);
+		shapes.setColor(new Color(0,0,0,0.92f));
+		shapes.rect((width - squareSize ) / 2.0f, (height - (squareSize)) / 2.0f, squareSize, squareSize);
+		shapes.end();
+		Gdx.gl.glDisable(GL10.GL_BLEND);
+		
+		batch.begin();
+		starSprite.setSize(starBeamWidth, starBeamWidth);
+		starSprite.setColor(Color.YELLOW);
+		if(numStars >= 1 && timeWon >= 2 * au){
+			starSprite.setPosition(beam1X, starheight);
+			starSprite.draw(batch);
+		}
+		if(numStars >= 2 && timeWon >= 3 * au){
+			starSprite.setPosition(beam2X, starheight);
+			starSprite.draw(batch);
+		}
+		if(numStars == 3 && timeWon >= 4 * au){
+			starSprite.setPosition(beam3X, starheight);
+			starSprite.draw(batch);
+		}
+		if(timeWon > (numStars + 3) * au){
+			TextBounds endTextBounds = introFont.getBounds(levelEndMessage);
+			introFont.setColor(Color.WHITE);
+			introFont.draw(batch, levelEndMessage, (width - endTextBounds.width) / 2.0f, (height + endTextBounds.height) / 2.0f);
+		}
+		batch.end();
+		
+		float buttonTextProgress;
+		if(timeWon >= (numStars + 2) * au){
+			buttonTextProgress = (timeWon - (numStars + 2) * au) / (2 * au);
+		} else {
+			buttonTextProgress = 0;
+		}
+		
+		Gdx.gl.glEnable(GL10.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		shapes.begin(ShapeType.Line);
+		shapes.setColor(new Color(1,1,1,buttonTextProgress));
+		float space = width / 75.0f;
+		float buttonWidth = Menu.wonButtonWidth * width - (2 * space);
+		float buttonHeight = Menu.wonButtonHeight * height - (2 * space);
+		float buttonBotPos = Menu.wonButtonBotY * height + space;
+		shapes.rect(Menu.wonRetryButtonLeftX * width + space, buttonBotPos, buttonWidth, buttonHeight);
+		shapes.rect(Menu.wonMenuButtonLeftX * width + space, buttonBotPos, buttonWidth, buttonHeight);
+		shapes.rect(Menu.wonNextLevelButtonLeftX * width + space, buttonBotPos, buttonWidth, buttonHeight);
+		shapes.end();
+		
+		batch.begin();
+		titleFont.setColor(new Color(1,1,1,buttonTextProgress));
+		float centerHeight = (Menu.wonButtonBotY + Menu.wonButtonHeight / 2) * height;
+		float halfButtonWidth = Menu.wonButtonWidth / 2 * width;
+		String buttonText = "RETRY";
+		TextBounds buttonTB = titleFont.getBounds(buttonText);
+		titleFont.draw(batch, buttonText, (width * Menu.wonRetryButtonLeftX) + halfButtonWidth - (buttonTB.width / 2.0f), centerHeight + (buttonTB.height / 2.0f));
+		buttonText = "MENU";
+		buttonTB = titleFont.getBounds(buttonText);
+		titleFont.draw(batch, buttonText, (width * Menu.wonMenuButtonLeftX) + halfButtonWidth - (buttonTB.width / 2.0f), centerHeight + (buttonTB.height / 2.0f));
+		buttonText = "NEXT";
+		buttonTB = titleFont.getBounds(buttonText);
+		titleFont.draw(batch, buttonText, (width * Menu.wonNextLevelButtonLeftX) + halfButtonWidth - (buttonTB.width / 2.0f), centerHeight + (buttonTB.height / 2.0f));
+		batch.end();
+		Gdx.gl.glDisable(GL10.GL_BLEND);
+
+		
+		drawVerticalTempBeam(beam1Progress, beam1X, starBeamWidth, translateColor(GameEngine.Color.RED));
+		drawVerticalTempBeam(beam2Progress, beam2X, starBeamWidth, translateColor(GameEngine.Color.BLUE));
+		drawVerticalTempBeam(beam3Progress, beam3X, starBeamWidth, translateColor(GameEngine.Color.GREEN));
+		drawHorizontalTempBeam(horBeamProgress, horBeamY, horBeamHeight, translateColor(GameEngine.Color.BLUE));
+	}
+
+	/**
+	 * Draws a horizontal beam like the level intro, or the level loss reminder banner.
+	 */
 	private void drawOverlayBeam(float progress, float ibeamheight, float beamY, Color baseColor, String message, BitmapFont font){
 		Color c1 = baseColor;
 		Color c2 = new Color(1.4f * c1.r, 1.4f * c1.g, 1.4f * c1.b, 1);
@@ -756,17 +702,17 @@ public class DrawGame {
 		}
 		
 		
-		int screenWidth = Gdx.graphics.getWidth();
+		int width = Gdx.graphics.getWidth();
 		shapes.begin(ShapeType.Filled);
 		GameEngine.debug("Curheigt" + curheight);
 		shapes.setColor(c1);
-		shapes.rect(0, beamY - (curheight / 2.0f), screenWidth, curheight);
+		shapes.rect(0, beamY - (curheight / 2.0f), width, curheight);
 		curheight = curheight * .6666f;
 		shapes.setColor(c2);
-		shapes.rect(0, beamY - (curheight / 2.0f), screenWidth, curheight);
+		shapes.rect(0, beamY - (curheight / 2.0f), width, curheight);
 		curheight = curheight * .5f;
 		shapes.setColor(c3);
-		shapes.rect(0, beamY - (curheight / 2.0f), screenWidth, curheight);
+		shapes.rect(0, beamY - (curheight / 2.0f), width, curheight);
 		shapes.end();
 		
 		TextBounds tb = font.getMultiLineBounds(message);
@@ -775,11 +721,11 @@ public class DrawGame {
 		float textX = 0;
 		float textY = beamY + (textheight / 2);
 		if(progress >= 0.1 && progress < 0.15){
-			textX = ((((screenWidth - textwidth) / 2) + textwidth) * ((progress - 0.1f) / 0.05f)) - textwidth;
+			textX = ((((width - textwidth) / 2) + textwidth) * ((progress - 0.1f) / 0.05f)) - textwidth;
 		} else if (progress > 0.85 && progress <= 0.9) {
-			textX = ((((screenWidth - textwidth) / 2) + textwidth) * (1 + ((progress - 0.85f) / 0.05f))) - textwidth;
+			textX = ((((width - textwidth) / 2) + textwidth) * (1 + ((progress - 0.85f) / 0.05f))) - textwidth;
 		} else if (progress <= 0.85 && progress >= 0.15){
-			textX = (screenWidth - textwidth) / 2;
+			textX = (width - textwidth) / 2;
 		} else {
 			textX = -2 * textwidth;
 		}
@@ -791,9 +737,12 @@ public class DrawGame {
 
 	}
 	
+	/**
+	 * Draws the vertical beams presently used for level outro
+	 */
 	private void drawVerticalTempBeam(float progress, float posX, float width, Color baseColor){
 		float trueWidth = 0;
-		int screenHeight = Gdx.graphics.getHeight();
+		int height = Gdx.graphics.getHeight();
 		if(progress < 0 || progress > 1){
 			return;
 		}
@@ -809,19 +758,23 @@ public class DrawGame {
 		
 		shapes.begin(ShapeType.Filled);
 		shapes.setColor(c1);
-		shapes.rect(posX + ((width -trueWidth) / 2), 0, trueWidth, screenHeight);
+		shapes.rect(posX + ((width -trueWidth) / 2), 0, trueWidth, height);
 		trueWidth = trueWidth * .6666f;
 		shapes.setColor(c2);
-		shapes.rect(posX + ((width -trueWidth) / 2), 0, trueWidth, screenHeight);
+		shapes.rect(posX + ((width -trueWidth) / 2), 0, trueWidth, height);
 		trueWidth = trueWidth * .5f;
 		shapes.setColor(c3);
-		shapes.rect(posX + ((width -trueWidth) / 2), 0, trueWidth, screenHeight);
+		shapes.rect(posX + ((width -trueWidth) / 2), 0, trueWidth, height);
 		shapes.end();
 	}
 	
+	
+	/**
+	 * Draws the horizontal beams presently used for level outro
+	 */
 	private void drawHorizontalTempBeam(float progress, float posY, float height, Color baseColor){
 		float trueHeight = 0;
-		int screenWidth = Gdx.graphics.getWidth();
+		int width = Gdx.graphics.getWidth();
 		if(progress < 0 || progress > 1){
 			return;
 		}
@@ -837,16 +790,20 @@ public class DrawGame {
 		
 		shapes.begin(ShapeType.Filled);		
 		shapes.setColor(c1);
-		shapes.rect(0, posY + ((height -trueHeight) / 2), screenWidth, trueHeight);
+		shapes.rect(0, posY + ((height -trueHeight) / 2), width, trueHeight);
 		trueHeight = trueHeight * .6666f;
 		shapes.setColor(c2);
-		shapes.rect(0, posY + ((height -trueHeight) / 2), screenWidth, trueHeight);
+		shapes.rect(0, posY + ((height -trueHeight) / 2), width, trueHeight);
 		trueHeight = trueHeight * .5f;
 		shapes.setColor(c3);
-		shapes.rect(0, posY + ((height -trueHeight) / 2), screenWidth, trueHeight);
+		shapes.rect(0, posY + ((height -trueHeight) / 2), width, trueHeight);
 		shapes.end();
 	}
 	
+	
+	/**
+	* Draws the board statically at the given position and size
+	*/
 	public void drawBoard(Board b, int bx, int by, int tilesize, Color curBG){
 		
 			List<Piece> pieces = b.getAllPieces();
@@ -1023,6 +980,135 @@ public class DrawGame {
 			}
 			
 			shapes.end();			
+	}
+	
+	/**
+	 * This is the primary game drawing method
+	 * 
+	 * Draw method called every step during play. Draws the current state of the game and animations
+	 */
+	public void draw(Board b, GameEngine.GameState state,
+		GameEngine.AnimationState aState, int currentWorld,
+		int currentOrdinalInWorld, Color bg) {
+		
+		
+		//Define drawing variables including sizes and positions as well as objects to be drawn
+		int bx = b.getBotLeftX();
+		int by = b.getBotLeftY();
+		int tilesize = b.getTileSize();
+		Color curBG = /*new Color(.1f, .1f, .1f, 1)*/bg;
+		/*//Random color fun times!
+		curBG.r = (float) (((2577 + Math.pow(13, currentLevel))%255)/255.0)
+		curBG.b = (float) (((5648 + Math.pow(7, currentLevel))%255)/255.0);
+		curBG.g = (float) (((1124 + Math.pow(17, currentLevel))%255)/255.0);
+		*/
+		if (state == GameState.DESTROYED) {
+			curBG = new Color(.5f, 0, 0, 1);
+		}
+		Gdx.gl.glClearColor(curBG.r, curBG.g, curBG.b, 1);
+
+		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		List<Piece> pieces = b.getAllPieces();
+		List<Tile> tiles = b.getAllTiles();
+		List<Tile> path = GameEngine.movePath;
+		Set<Laser> lasers = b.lasers;		
+		
+		int width = Gdx.graphics.getWidth();
+		int height = Gdx.graphics.getHeight();
+		TextBounds tb = null;
+		float ibeamheight = height / 10.0f;
+		Color paintColor = new Color(0,0,0,0);
+		
+		//Define some animation timing
+		float moveAnimateTime = 0;
+		if(aState == AnimationState.MOVING){
+			moveAnimateTime =((float)(GameEngine.getTicksSpentOnAnimation()))/(GameEngine.getTotalTicksForAnimation());
+		} else if (aState == AnimationState.PAINTING || aState == AnimationState.FORMING){
+			moveAnimateTime = 1;
+		}
+		Laser disbandedLaser = null;
+		Laser movedAlongLaser = null;
+		float breakAnimateTime = 0;
+		float formAnimateTime = 0;
+		float paintAnimateTime = 0;
+				
+		if(state == GameState.MOVING){
+			GameEngine.debug(aState);
+			disbandedLaser = GameEngine.getBrokenLaser();
+
+			movedAlongLaser = GameEngine.getLaserMovedAlong();
+			if(aState == AnimationState.BREAKING){
+				breakAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
+			} else if (aState == AnimationState.MOVING){
+				breakAnimateTime = 1;
+			} else if (aState == AnimationState.PAINTING){
+				breakAnimateTime = 1;
+				paintAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
+			} else if (aState == AnimationState.FORMING){
+				breakAnimateTime = 1;
+				if(!paintColor.equals(new Color(0,0,0,0)) && !paintColor.equals(translateColor(GameEngine.movingPiece.getColor()))){
+					paintAnimateTime = 1;
+				}
+				formAnimateTime = ((float)(GameEngine.getTicksSpentOnAnimation())) / GameEngine.getTotalTicksForAnimation();
+			}
+		}
+		
+		//Draw Board Background
+		shapes.begin(ShapeType.Filled);
+		shapes.setColor(BOARD_COLOR);
+		shapes.rect(bx, by, b.getNumHorizontalTiles() * tilesize, b.getNumVerticalTiles() * tilesize);
+		shapes.end();
+
+		// Draw the basic grid
+		drawGrid(bx, by, tilesize, b);
+		
+		// Draw the tiles
+		drawTiles(bx, by, tilesize, tiles);
+
+		// Draw Paths
+		drawPaths(bx, by, tilesize, path, aState, state, moveAnimateTime);
+
+		// Draw the pieces
+		if(path.size() > 1){
+			paintColor = translateColor(b.getTileAtBoardPosition(path.get(1).getXCoord(), path.get(1).getYCoord()).getPainterColor());
+		}
+		drawPieces(bx, by, tilesize, path, paintColor, pieces, paintAnimateTime, moveAnimateTime);		
+
+		// Draw Lasers
+		drawBeams(bx, by, tilesize, lasers, disbandedLaser, movedAlongLaser, aState, path, moveAnimateTime, paintAnimateTime, formAnimateTime, breakAnimateTime);
+				
+		//Draw the bangs!
+		if(state == GameState.DESTROYED || aState == AnimationState.DESTRUCTION){
+			drawBangs(bx, by, tilesize);
+		}		
+
+		// Draw the buttons
+		drawButtons(width, height, tb);
+
+		// Drawing progress towards level objectives
+		drawLevelProgress(width, height, tb, currentWorld, currentOrdinalInWorld, b);
+		
+		// Draw intro
+		if (state == GameState.INTRO) {
+			drawIntro(width, height, ibeamheight, b);
+		}
+		
+		//Draw level loss reminder
+		if(state == GameState.DESTROYED){
+			if(GameEngine.getTimeDead() >= GameEngine.getTimeBeforeDeathBeam()){
+				float progress = (GameEngine.getTimeDead() - GameEngine.getTimeBeforeDeathBeam()) / 300.0f;
+				if(progress > 0.5) {
+					progress = 0.5f;
+				}
+				drawOverlayBeam(progress, ibeamheight, height/ 2.0f, translateColor(GameEngine.Color.BLUE), "PRESS UNDO OR RESET", titleFont);
+			}
+		}
+		
+		//Draw outro
+		if(state == GameState.WON){
+			drawOutro(width, height, b);
+		}
+		
 	}
 	
 	/**
