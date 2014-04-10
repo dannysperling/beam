@@ -13,15 +13,22 @@
 3 
 ### WORLDEND ###
 
-### WORLDSTART: Mikes levels ###
+### WORLDSTART: Buttons ###
 55
 56
 57
 59
 58
+58
 ### WORLDEND ###
 
-
+### WORLDSTART: Lose on color change ###
+60
+62
+82
+83
+83
+### WORLDEND ###
 
 ### WORLDSTART: Beam Objectives ###
 40 - beam objective tutorial
