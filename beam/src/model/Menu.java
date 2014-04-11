@@ -2,6 +2,8 @@ package model;
 
 import java.util.List;
 
+import utilities.Constants;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 
@@ -13,8 +15,8 @@ public class Menu {
 	 * First, menu contains static variables and a method for use buttons on the level screen
 	 */
 	//Measured in terms of percentage of screen
-	public static final float buttonBotY = GameEngine.botBarSize*0.2f;
-	public static final float buttonHeight = GameEngine.botBarSize*0.7f;
+	public static final float buttonBotY = Constants.BOT_BAR_SIZE*0.2f;
+	public static final float buttonHeight = Constants.BOT_BAR_SIZE*0.7f;
 
 	//Undo first
 	public static final float undoButtonLeftX = 0.02f;
@@ -29,10 +31,10 @@ public class Menu {
 	public static final float redoButtonWidth = 0.31f;
 	
 	//Menu button: Top Left corner
-	public static final float menuButtonBotY = 1 - GameEngine.topBarSize*0.25f;
+	public static final float menuButtonBotY = 1 - Constants.TOP_BAR_SIZE*0.25f;
 	public static final float menuButtonLeftX = 0.02f;
 	public static final float menuButtonWidth = 0.15f;
-	public static final float menuButtonHeight = GameEngine.topBarSize*0.2f;
+	public static final float menuButtonHeight = Constants.TOP_BAR_SIZE*0.2f;
 
 
 	/**
@@ -203,16 +205,6 @@ public class Menu {
 	}
 	
 	/**
-	 * These two constants determine scrolling off of the screen. 
-	 * PERCENT_OFF_SCROLL is what percent off the screen can be
-	 * scrolled during bounce back.
-	 * RESCROLL_BOUNCE is how quickly the menu bounces back,
-	 * measured in percentage of the screeen as well.
-	 */
-	private final float PERCENT_OFF_SCROLL = 0.2f;
-	private final float RESCROLL_BOUNCE = 0.01f;
-	
-	/**
 	 * Limits the scroll amount of a given scroll that would be going off the
 	 * screen. This slows down scrolling as you go off screen, and prevents
 	 * scrolling going off of the PERCENT_OFF_SCROLL of the screen.
@@ -238,7 +230,7 @@ public class Menu {
 		float percentPast = pastBorder / referenceDim;
 		
 		//Can't be less than zero past, in case its a very far scroll
-		return Math.max((1 - percentPast / PERCENT_OFF_SCROLL) / 2, 0); 
+		return Math.max((1 - percentPast / Constants.PERCENT_OFF_SCROLL) / 2, 0); 
 	}
 	
 	
@@ -281,7 +273,7 @@ public class Menu {
 			//Figure out reverse effect if not held
 			boolean turned = false;
 			if (!held && !wasAbove){
-				scrollDownAmount -= RESCROLL_BOUNCE * height;
+				scrollDownAmount -= Constants.RESCROLL_BOUNCE * height;
 				
 				//Managed to reverse
 				turned = (scrollDownAmount <= 0);
@@ -305,7 +297,7 @@ public class Menu {
 			//Figure out reverse effect if not held
 			boolean turned = false;
 			if (!held && !wasBelow){
-				scrollDownAmount += RESCROLL_BOUNCE * height;
+				scrollDownAmount += Constants.RESCROLL_BOUNCE * height;
 				
 				//Managed to reverse
 				turned = (scrollDownAmount >= 0);
@@ -367,7 +359,7 @@ public class Menu {
 			//Figure out reverse effect if not held
 			boolean turned = false;
 			if (!held && !wasRight){
-				scrollRightAmount -= RESCROLL_BOUNCE * width;
+				scrollRightAmount -= Constants.RESCROLL_BOUNCE * width;
 				
 				//Managed to reverse
 				turned = (scrollRightAmount <= 0);
@@ -390,7 +382,7 @@ public class Menu {
 			//Figure out reverse effect if not held
 			boolean turned = false;
 			if (!held && !wasLeft){
-				scrollRightAmount += RESCROLL_BOUNCE * width;
+				scrollRightAmount += Constants.RESCROLL_BOUNCE * width;
 				
 				//Managed to reverse
 				turned = (scrollRightAmount >= 0);
@@ -608,16 +600,7 @@ public class Menu {
 	/**
 	 * The remainder below here is used for determining colors of worlds and
 	 * levels in the main menu. These are static variables and methods.
-	 * WORLD_COLORS are the base colors of each of the existing worlds.
 	 */
-	public static final Color[] WORLD_COLORS = 
-		{	colorFromRGB(75,125,204),
-			colorFromRGB(121,224,224),
-			colorFromRGB(34,233,38),
-			colorFromRGB(240,128,10),
-			colorFromRGB(240,22,22),
-			colorFromRGB(212,60,204)
-		 	};
 
 	/**
 	 * Get the color of a level based on its world and position in that world
@@ -636,7 +619,7 @@ public class Menu {
 		int levelIndex = ordinalInWorld - 1;
 		
 		//Copy out the color of the world
-		Color ret = WORLD_COLORS[worldIndex].cpy();
+		Color ret = Constants.WORLD_COLORS[worldIndex].cpy();
 		
 		//Multiply the color based on its position
 		float factor = 1.0f - 0.75f*((float)(levelIndex)/(float)worldSizes.get(worldIndex));
@@ -646,23 +629,6 @@ public class Menu {
 		ret.a = 1;
 		
 		return ret;
-	}
-	
-	/**
-	 * Converts a given RGB value to a Color object, where color values
-	 * are floats from 0 to 1
-	 * 
-	 * @param r
-	 * 				Red color value, 0 - 255
-	 * @param g
-	 * 				Green color value, 0 - 255
-	 * @param b
-	 * 				Blue color value, 0 - 255
-	 * @return
-	 * 				The converted color object
-	 */
-	private static Color colorFromRGB(int r, int g, int b) {
-		return new Color(r/255.0f, g/255.0f, b/255.0f,1);
 	}
 
 	/**
@@ -680,11 +646,11 @@ public class Menu {
 			return Color.BLACK.cpy();
 		
 		// Too high, do white
-		if (world > WORLD_COLORS.length)
+		if (world > Constants.WORLD_COLORS.length)
 			return Color.WHITE.cpy();
 		
 		//In between, pull from the world colors
 		int worldIndex = world - 1;
-		return WORLD_COLORS[worldIndex].cpy();
+		return Constants.WORLD_COLORS[worldIndex].cpy();
 	}
 }

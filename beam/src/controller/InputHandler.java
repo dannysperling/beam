@@ -3,6 +3,8 @@ package controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import utilities.Constants;
+
 import model.Board;
 import model.Menu;
 import model.Piece;
@@ -388,7 +390,6 @@ public class InputHandler {
 	 * moved their finger and still count as a "click"
 	 */
 	private boolean movedTooFar = false;
-	private final int MAX_DIFF_CLICK = 15;
 
 	/**
 	 * Determines the amount the screen should be scrolling
@@ -402,8 +403,6 @@ public class InputHandler {
 	 */
 	private float momentumY = 0;
 	private float momentumX = 0;
-	private final float MOMENTUM_DROP_OFF = 0.10f;
-	private final int MIN_MOMENTUM = 2;
 
 	/**
 	 * Determine if the screen should be scrolling vertically
@@ -415,8 +414,6 @@ public class InputHandler {
 	 */
 	private boolean movingVertically = false;
 	private boolean movingHorizontally = false;
-	private final int VERT_MOVE_BOUNDS = 20;
-	private final int HORIZ_MOVE_BOUNDS = 15;
 
 	/**
 	 * Allows a four finger press for TIME_FOR_LOGGING_RESET
@@ -451,7 +448,7 @@ public class InputHandler {
 		}
 
 		//Check if logging is enabled and four fingers have been pressed for long enough
-		if (GameEngine.LOGGING){
+		if (Constants.LOGGING){
 			if (Gdx.input.isTouched(3)){
 				timeHeld++;
 			} else {
@@ -482,7 +479,7 @@ public class InputHandler {
 				if (!movingVertically && !movingHorizontally){
 					
 					//If we've moved far enough vertically, start movement that way
-					if (Math.abs(firstTouchY - y) > VERT_MOVE_BOUNDS){
+					if (Math.abs(firstTouchY - y) > Constants.VERT_MOVE_BOUNDS){
 						movingVertically = true;
 						momentumY = (y - lastTouchY);
 						
@@ -490,7 +487,7 @@ public class InputHandler {
 						menu.scrollUpDown(y - firstTouchY, true);
 					} 
 					//Otherwise, same thing for moving horizontally
-					else if (Math.abs(firstTouchX - x) > HORIZ_MOVE_BOUNDS){
+					else if (Math.abs(firstTouchX - x) > Constants.HORIZ_MOVE_BOUNDS){
 						movingHorizontally = true;
 						momentumX = (lastTouchX - x);
 						
@@ -519,7 +516,7 @@ public class InputHandler {
 			//Check if we've moved too far to be considered a click
 			int yMoveDistSq = (firstTouchY - lastTouchY)*(firstTouchY - lastTouchY);
 			int xMoveDistSq = (firstTouchX - lastTouchX)*(firstTouchX - lastTouchX);
-			int maxDistSq = MAX_DIFF_CLICK * MAX_DIFF_CLICK;
+			int maxDistSq = Constants.MAX_DIFF_CLICK * Constants.MAX_DIFF_CLICK;
 			if (xMoveDistSq + yMoveDistSq > maxDistSq){
 				movedTooFar = true;
 			}
@@ -567,10 +564,10 @@ public class InputHandler {
 			if (momentumY != 0){
 				//Scroll and decrease momentum
 				boolean turned = menu.scrollUpDown((int)momentumY, false);
-				momentumY = momentumY * (1 - MOMENTUM_DROP_OFF);
+				momentumY = momentumY * (1 - Constants.MOMENTUM_DROP_OFF);
 
 				//If our momentum has dropped off or we've been turned by the bounce back
-				if (Math.abs(momentumY) < MIN_MOMENTUM || turned){
+				if (Math.abs(momentumY) < Constants.MIN_MOMENTUM || turned){
 					momentumY = 0;
 				}
 			} else {
@@ -582,7 +579,7 @@ public class InputHandler {
 			if (momentumX != 0){
 				//Scroll and decrease momentum
 				boolean turned = menu.scrollLeftRight(worldTouched, (int)momentumX, false);
-				momentumX = momentumX * (1 - MOMENTUM_DROP_OFF);
+				momentumX = momentumX * (1 - Constants.MOMENTUM_DROP_OFF);
 
 				//If our momentum has dropped off or we've been turned by the bounce back
 				if (Math.abs(momentumX) < 2 || turned){

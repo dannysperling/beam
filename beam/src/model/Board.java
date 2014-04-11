@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import utilities.Constants;
+
 import com.badlogic.gdx.Gdx;
 
 import controller.GameEngine;
@@ -79,8 +81,8 @@ public class Board {
 			screenWidth = 0;
 			screenHeight = 0;
 		} else {
-			screenWidth = (int) (Gdx.graphics.getWidth() * (1 - GameEngine.sideEmptySize * 2));
-			screenHeight = (int) (Gdx.graphics.getHeight() * (1 - GameEngine.topBarSize - GameEngine.botBarSize));
+			screenWidth = (int) (Gdx.graphics.getWidth() * (1 - Constants.SIDE_EMPTY_SIZE * 2));
+			screenHeight = (int) (Gdx.graphics.getHeight() * (1 - Constants.TOP_BAR_SIZE - Constants.BOT_BAR_SIZE));
 		}
 
 		//Determine positions of the board for drawing purposes
@@ -89,14 +91,14 @@ public class Board {
 		if (Gdx.graphics != null) {
 			if (maxWidth < maxHeight) {
 				tileSize = maxWidth;
-				botLeftX = (int) (Gdx.graphics.getWidth() * GameEngine.sideEmptySize);
+				botLeftX = (int) (Gdx.graphics.getWidth() * Constants.SIDE_EMPTY_SIZE);
 				botLeftY = (int) (Gdx.graphics.getHeight()
-						* GameEngine.botBarSize + (screenHeight - (tileSize * height)) / 2);
+						* Constants.BOT_BAR_SIZE + (screenHeight - (tileSize * height)) / 2);
 			} else {
 				tileSize = maxHeight;
 				botLeftX = (int) (Gdx.graphics.getWidth()
-						* GameEngine.sideEmptySize + (screenWidth - (tileSize * width)) / 2);
-				botLeftY = (int) (Gdx.graphics.getHeight() * GameEngine.botBarSize);
+						* Constants.SIDE_EMPTY_SIZE + (screenWidth - (tileSize * width)) / 2);
+				botLeftY = (int) (Gdx.graphics.getHeight() * Constants.BOT_BAR_SIZE);
 			}
 		}
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import utilities.Constants;
 import view.DrawGame;
 import view.DrawMenu;
 
@@ -22,13 +23,6 @@ import controller.Logger.LogType;
 
 public class GameEngine implements ApplicationListener {
 
-	/**
-	 * Whether the game is in debug mode (all printing should happen only
-	 * in debug mode), and if logging is enabled. Both should be false in
-	 * the final game version.
-	 */
-	public static final boolean DEBUG_MODE = false;
-	public static final boolean LOGGING = true;
 
 	/**
 	 * Game engine has references to each of the main game elements
@@ -59,18 +53,10 @@ public class GameEngine implements ApplicationListener {
 	/**
 	 * All the animation constants and counters
 	 */
-	private static final int timeToMovePiece = 8;
-	private static final int timeToFormBeam = 12;
-	private static final int timeToBreakBeam = 12;
-	private static final int timeToDestroyPiece = 60;
-	private static final int timeToPaintPiece = 20;
 	private static int timeSpentOnThisAnimation = 0;
 	private static int totalTimeForThisAnimation = 0;
-	private static final int timeForIntro = 300;
 	private static int timeSpentOnIntro = 0;
-	private static final int timeBeforeDeathMessage = 120;
 	private static int timeDead = 0;
-	private static final int wonAnimationUnit = 14;
 	private static int timeWon = 0;
 
 	/**
@@ -104,12 +90,12 @@ public class GameEngine implements ApplicationListener {
 		FORMING, MOVING, PAINTING, BREAKING, DESTRUCTION, NOTANIMATING;
 		public static int getTime(AnimationState as){
 			switch(as) {
-			case FORMING: return timeToFormBeam;
-			case BREAKING: return timeToBreakBeam;
-			case DESTRUCTION: return timeToDestroyPiece;
-			case MOVING: return timeToMovePiece;
+			case FORMING: return Constants.TIME_TO_FORM_BEAM;
+			case BREAKING: return Constants.TIME_TO_BREAK_BEAM;
+			case DESTRUCTION: return Constants.TIME_TO_DESTROY_PIECE;
+			case MOVING: return Constants.TIME_TO_MOVE_PIECE;
 			case NOTANIMATING: return 0;
-			case PAINTING: return timeToPaintPiece;
+			case PAINTING: return Constants.TIME_TO_PAINT_PIECE;
 			default: return 0;
 			}
 		}
@@ -154,13 +140,6 @@ public class GameEngine implements ApplicationListener {
 			}
 		}
 	}
-
-	/**
-	 * Constants representing how much of the screen is used for various applications
-	 */
-	public static final float topBarSize = 0.22f;
-	public static final float botBarSize = 0.13f;
-	public static final float sideEmptySize = 0.02f;
 
 
 	/**
@@ -214,7 +193,7 @@ public class GameEngine implements ApplicationListener {
 		tempFile = Gdx.files.local(tempData);
 
 		//Set up logging, if applicable
-		if (LOGGING)
+		if (Constants.LOGGING)
 			Logger.initialize(levelOrderer.getMapping());
 	}
 
@@ -295,7 +274,7 @@ public class GameEngine implements ApplicationListener {
 						timeDead++;
 						break;
 					case INTRO:
-						if(timeSpentOnIntro >= timeForIntro){
+						if(timeSpentOnIntro >= Constants.TIME_FOR_INTRO){
 							state = GameState.IDLE;
 						} else {
 							timeSpentOnIntro++;
@@ -349,7 +328,7 @@ public class GameEngine implements ApplicationListener {
 		int selected = inputHandler.handleMainMenuInput(menu);
 
 		//Possibly reset logging if the user says to do so
-		if (LOGGING && selected == -3){
+		if (Constants.LOGGING && selected == -3){
 			logEnd();
 			clearAllData();
 			Logger.startNewSession();
@@ -357,7 +336,7 @@ public class GameEngine implements ApplicationListener {
 
 		//Exit to leave
 		if (selected == -2){
-			if (LOGGING){
+			if (Constants.LOGGING){
 				logEnd();
 			}
 			//TODO: Do things to check if the player wants to leave.
@@ -381,7 +360,7 @@ public class GameEngine implements ApplicationListener {
 				if (selectedOrdinalInWorld != currentOrdinalInWorld || selectedWorld != currentWorld){
 					
 					//Log the change
-					if (LOGGING){
+					if (Constants.LOGGING){
 						if (currentWorld != -1){
 							logEnd();
 						}
@@ -427,7 +406,7 @@ public class GameEngine implements ApplicationListener {
 				} else if (GameEngine.getMoveCount() <= b.par){
 					numStars = 2;
 				}
-				if(timeWon < (numStars + 2) * wonAnimationUnit){
+				if(timeWon < (numStars + 2) * Constants.WOM_ANIMATION_UNIT){
 					button = ButtonPress.SKIPWIN;
 				}
 				
@@ -448,7 +427,7 @@ public class GameEngine implements ApplicationListener {
 						state = GameState.IDLE;
 						break;
 					case SKIPWIN:
-						timeWon = wonAnimationUnit * 10;
+						timeWon = Constants.WOM_ANIMATION_UNIT * 10;
 						break;
 					default:
 						break;	
@@ -470,7 +449,7 @@ public class GameEngine implements ApplicationListener {
 					timeDead = 0;
 					state = GameState.IDLE;
 					moveCounter = Math.max(moveCounter - 1, 0);
-					if (LOGGING){
+					if (Constants.LOGGING){
 						undoTimes++;
 					}
 					b.resetPieces(boardStack.get(moveCounter));
@@ -483,7 +462,7 @@ public class GameEngine implements ApplicationListener {
 					resetCurrentLevel();
 					timeDead = 0;
 					state = GameState.IDLE;
-					if (LOGGING){
+					if (Constants.LOGGING){
 						resetTimes++;
 					}
 					break;
@@ -492,7 +471,7 @@ public class GameEngine implements ApplicationListener {
 					// Make sure there's a move to go to
 					if (boardStack.size() > moveCounter + 1) {
 						moveCounter++;
-						if (LOGGING){
+						if (Constants.LOGGING){
 							redoTimes++;
 						}
 						b.resetPieces(boardStack.get(moveCounter));
@@ -526,7 +505,7 @@ public class GameEngine implements ApplicationListener {
 	 */
 	private void moveToNextLevel(){
 				
-		if (LOGGING){
+		if (Constants.LOGGING){
 			logEnd();
 		}
 
@@ -543,7 +522,7 @@ public class GameEngine implements ApplicationListener {
 		if (currentWorld <= levelOrderer.getNumWorlds()){
 			loadLevel(currentWorld, currentOrdinalInWorld);
 
-			if (LOGGING){
+			if (Constants.LOGGING){
 				Logger.enteredLevel(currentWorld, currentOrdinalInWorld);
 			}
 		} 
@@ -1299,7 +1278,7 @@ public class GameEngine implements ApplicationListener {
 			//Handle having won on restarting level
 			if (!mainMenuShowing && b.isWon()){
 				state = GameState.WON;
-				timeWon = wonAnimationUnit * 10;
+				timeWon = Constants.WOM_ANIMATION_UNIT * 10;
 			}
 			menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
 		}
@@ -1315,13 +1294,13 @@ public class GameEngine implements ApplicationListener {
 	public static List<Laser> getFormedLaser(){return lasersCreated;}
 	public static Laser getLaserMovedAlong(){return laserMovedAlong;}
 
-	public static float getIntroProgress(){return ((float)(timeSpentOnIntro)) / timeForIntro;}
+	public static float getIntroProgress(){return ((float)(timeSpentOnIntro)) / Constants.TIME_FOR_INTRO;}
 	
 	public static int getTimeDead(){return timeDead;}
-	public static int getTimeBeforeDeathBeam(){return timeBeforeDeathMessage;}
+	public static int getTimeBeforeDeathBeam(){return Constants.TIME_BEFORE_DEATH_MESSAGE;}
 	
 	public static int getTimeWon(){return timeWon;}
-	public static int getWonAnimationUnit() {return wonAnimationUnit;}
+	public static int getWonAnimationUnit() {return Constants.WOM_ANIMATION_UNIT;}
 	
 	public static List<Piece> getDestroyedPieces(){return piecesDestroyed;}
 
@@ -1333,7 +1312,7 @@ public class GameEngine implements ApplicationListener {
 	 * 			Some value to be printed as debugging output.
 	 */
 	public static <T> void debug(T s){
-		if (!DEBUG_MODE){
+		if (!Constants.DEBUG_MODE){
 			return;
 		}
 		System.out.println(s);

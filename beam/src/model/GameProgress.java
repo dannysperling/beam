@@ -5,10 +5,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import utilities.Constants;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 
-import controller.GameEngine;
 import controller.LevelOrderer;
 import controller.Logger;
 import controller.Logger.LogType;
@@ -95,7 +96,7 @@ public class GameProgress {
 	 */
 	public boolean setLevelScore(int world, int ordinalInWorld, int moves, int levelStars){
 		//If logging, note that the level was beaten
-		if (GameEngine.LOGGING){
+		if (Constants.LOGGING){
 			Logger.log(LogType.BEAT_LEVEL_MOVES, moves);
 		}
 		
@@ -107,7 +108,7 @@ public class GameProgress {
 		if (pastMoves == null|| moves < pastMoves){
 			
 			//Only store stars if better moves
-			if (GameEngine.LOGGING){
+			if (Constants.LOGGING){
 				Logger.log(LogType.BEAT_LEVEL_STARS, levelStars);
 			}
 			

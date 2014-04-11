@@ -5,6 +5,8 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Set;
 
+import utilities.Constants;
+
 import model.Board;
 import model.GameProgress;
 import model.Laser;
@@ -41,8 +43,6 @@ public class DrawGame {
 	private Texture starTexture;
 	private Sprite starSprite;
 	public ShapeRenderer shapes;
-	public final static Color BOARD_COLOR = new Color(.95f, .95f, .9f, .85f);
-	public final static Color LINE_COLOR = new Color(.1f, .1f, .1f, 1);
 
 	private GameProgress gameProgress;
 
@@ -109,7 +109,7 @@ public class DrawGame {
 	 */
 	private void drawGrid(int bx, int by, int tilesize, Board b){
 		shapes.begin(ShapeType.Line);
-		shapes.setColor(LINE_COLOR);
+		shapes.setColor(Constants.LINE_COLOR);
 		Gdx.gl.glLineWidth(2);
 		for (int i = 0; i <= b.getNumHorizontalTiles(); i++) {
 			shapes.line(bx + (i * tilesize), by, bx + (i * tilesize),
@@ -130,7 +130,7 @@ public class DrawGame {
 		shapes.begin(ShapeType.Line);
 		for (Tile t : tiles) {
 			if (t.hasGlass()) {
-				shapes.setColor(LINE_COLOR);
+				shapes.setColor(Constants.LINE_COLOR);
 				int glassX = bx + (t.getXCoord() * tilesize);
 				int glassY = by + (t.getYCoord() * tilesize);
 				shapes.line(glassX, glassY + (0.25f * tilesize), glassX
@@ -158,7 +158,7 @@ public class DrawGame {
 				shapes.setColor(translateColor(t.getGoalColor()));
 				shapes.rect(goalX + (0.05f * tilesize), goalY
 						+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
-				shapes.setColor(BOARD_COLOR);
+				shapes.setColor(Constants.BOARD_COLOR);
 				shapes.rect(goalX + (0.12f * tilesize), goalY
 						+ (0.12f * tilesize), 0.76f * tilesize, 0.76f * tilesize);
 			}
@@ -443,7 +443,7 @@ public class DrawGame {
 					+ " goals filled.";
 			tb = titleFont.getBounds(toPrint);
 			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
-					* (1 - GameEngine.topBarSize * 0.4f - GameEngine.topBarSize
+					* (1 - Constants.TOP_BAR_SIZE * 0.4f - Constants.TOP_BAR_SIZE
 							* movesAdjust));
 		} else {
 			/*
@@ -483,7 +483,7 @@ public class DrawGame {
 								toPrint,
 								(width - tb.width) / 2,
 								height
-										* (1 - GameEngine.topBarSize * 0.4f - GameEngine.topBarSize
+										* (1 - Constants.TOP_BAR_SIZE * 0.4f - Constants.TOP_BAR_SIZE
 												* movesAdjust));
 			} else {
 				for (int i = 0; i < colorGoals.size(); i++) {
@@ -494,9 +494,9 @@ public class DrawGame {
 									toPrint,
 									(width - tb.width) / 2,
 									height
-											* (1 - GameEngine.topBarSize * 0.4f
-													- GameEngine.topBarSize
-													* movesAdjust - GameEngine.topBarSize
+											* (1 - Constants.TOP_BAR_SIZE * 0.4f
+													- Constants.TOP_BAR_SIZE
+													* movesAdjust - Constants.TOP_BAR_SIZE
 													* i * .15f));
 				}
 			}
@@ -508,12 +508,12 @@ public class DrawGame {
 		if (moves != 0) {
 			tb = titleFont.getBounds(toPrint);
 			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
-					* (1 - GameEngine.topBarSize * 0.22f));
+					* (1 - Constants.TOP_BAR_SIZE * 0.22f));
 			// .3
 		} else {
 			tb = titleFont.getBounds(toPrint);
 			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
-					* (1 - GameEngine.topBarSize * 0.22f));
+					* (1 - Constants.TOP_BAR_SIZE * 0.22f));
 			// .36
 		}
 
@@ -522,7 +522,7 @@ public class DrawGame {
 			tb = titleFont.getBounds(toPrint);
 
 			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
-					* (1 - GameEngine.topBarSize * 0.39f));
+					* (1 - Constants.TOP_BAR_SIZE * 0.39f));
 			// .525
 		}
 		batch.end();
@@ -811,13 +811,13 @@ public class DrawGame {
 			
 			//Draw Board Background
 			shapes.begin(ShapeType.Filled);
-			shapes.setColor(BOARD_COLOR);
+			shapes.setColor(Constants.BOARD_COLOR);
 			shapes.rect(bx, by, b.getNumHorizontalTiles() * tilesize, b.getNumVerticalTiles() * tilesize);
 			shapes.end();
 
 			// Draw the basic grid
 			shapes.begin(ShapeType.Line);
-			shapes.setColor(LINE_COLOR);
+			shapes.setColor(Constants.LINE_COLOR);
 			Gdx.gl.glLineWidth(1);
 			for (int i = 0; i <= b.getNumHorizontalTiles(); i++) {
 				shapes.line(bx + (i * tilesize), by, bx + (i * tilesize),
@@ -834,7 +834,7 @@ public class DrawGame {
 			shapes.begin(ShapeType.Line);
 			for (Tile t : tiles) {
 				if (t.hasGlass()) {
-					shapes.setColor(LINE_COLOR);
+					shapes.setColor(Constants.LINE_COLOR);
 					int glassX = bx + (t.getXCoord() * tilesize);
 					int glassY = by + (t.getYCoord() * tilesize);
 					shapes.line(glassX, glassY + (0.25f * tilesize), glassX
@@ -862,7 +862,7 @@ public class DrawGame {
 					shapes.setColor(translateColor(t.getGoalColor()));
 					shapes.rect(goalX + (0.05f * tilesize), goalY
 							+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
-					shapes.setColor(BOARD_COLOR);
+					shapes.setColor(Constants.BOARD_COLOR);
 					shapes.rect(goalX + (0.12f * tilesize), goalY
 							+ (0.12f * tilesize), 0.76f * tilesize, 0.76f * tilesize);
 				}
@@ -1055,7 +1055,7 @@ public class DrawGame {
 		
 		//Draw Board Background
 		shapes.begin(ShapeType.Filled);
-		shapes.setColor(BOARD_COLOR);
+		shapes.setColor(Constants.BOARD_COLOR);
 		shapes.rect(bx, by, b.getNumHorizontalTiles() * tilesize, b.getNumVerticalTiles() * tilesize);
 		shapes.end();
 
