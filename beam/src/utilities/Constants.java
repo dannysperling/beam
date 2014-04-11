@@ -38,6 +38,14 @@ public class Constants {
 	
 	
 	/**
+	 * GOAL PROGRESS CONSTANTS
+	 */
+	public static final float BEAM_GOAL_HEIGHT = 0.08f;
+	public static final float BEAM_GOAL_WIDTH = 0.73f;
+	public static final float TEXT_GOAL_HEIGHT = 0.12f;
+	
+	
+	/**
 	 * SCREEN SCROLLING CONSTANTS
 	 */
 	public static final int MAX_DIFF_CLICK = 15;				//How far finger move before considered click

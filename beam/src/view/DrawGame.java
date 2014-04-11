@@ -56,15 +56,16 @@ public class DrawGame {
 	BitmapFont levelNameFont;
 	BitmapFont movesFont;
 	BitmapFont moveWordFont;
+	BitmapFont beamGoalFont;
 
 	public static Color translateColor(GameEngine.Color c) {
 		switch (c) {
 		case RED:
-			return new Color(1, .133f, .133f, 1);
+			return new Color(.808f, .098f, .149f, 1);
 		case BLUE:
-			return new Color(.133f, .337f, 1, 1);
+			return new Color(.098f, .396f, .808f, 1);
 		case GREEN:
-			return new Color(.133f, 1, .177f, 1);
+			return new Color(.067f, .510f, .067f, 1);
 		case ORANGE:
 			return new Color(255/255.0f,150/255.0f,20/255.0f, 1);
 		case PURPLE:
@@ -115,6 +116,7 @@ public class DrawGame {
 		levelNameFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.TOP_BAR_SIZE * 0.8f));
 		moveWordFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.TOP_BAR_SIZE * 0.2f));
 		movesFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.TOP_BAR_SIZE * 0.45f));
+		beamGoalFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.BEAM_GOAL_HEIGHT * 0.5f));
 		
 		generator.dispose();
 	}
@@ -440,10 +442,10 @@ public class DrawGame {
 		batch.end();
 	}
 
-	/**
-	 * Draws the text at the top of the screen explaining the level goals and how near they are to being completed
-	 */
 	
+	/**
+	 * Draws the screen top graphics indicating level, moves, and perfect
+	 */
 	private void drawHeader(int width, int height, TextBounds tb, int currentWorld, int currentOrdinalInWorld, Board b){
 		float boxesWidth = width * 0.25f;
 		float boxesHeight = height * Constants.TOP_BAR_SIZE * 0.65f;
@@ -482,106 +484,78 @@ public class DrawGame {
 
 	}
 	
-	private void drawLevelProgress(int width, int height, TextBounds tb, int currentWorld, int currentOrdinalInWorld, Board b){
-		batch.begin();
-		titleFont.setColor(Color.WHITE);
-		titleFontNoBest.setColor(Color.WHITE);
-		String toPrint;
-		int moves = gameProgress.getLevelMoves(currentWorld, currentOrdinalInWorld);
-		float movesAdjust = 0.0f;
-		if (moves != 0) {
-			movesAdjust = 0.15f;
-		}
-		if (b.getBeamObjectiveSet().isEmpty()) {
-			toPrint = b.getNumGoalsFilled() + " out of " + b.getNumGoalTiles()
-					+ " goals filled.";
-			tb = titleFont.getBounds(toPrint);
-			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
-					* (1 - Constants.TOP_BAR_SIZE * 0.4f - Constants.TOP_BAR_SIZE
-							* movesAdjust));
+	private void drawGoalProgress(int width, int height, TextBounds tb, Board b){
+		if(b.getBeamObjectiveSet().isEmpty()){
+			//This is a piece placement level
+			int remGoals = b.getNumGoalTiles() - b.getNumGoalsFilled();
+			String ftg = "Fill the goals:";
+			String remains = remGoals + " remain" + (remGoals == 1?"s":"");
+			batch.begin();
+			tb = introFont.getBounds(ftg);
+			introFont.setColor(Constants.BOARD_COLOR);
+			introFont.draw(batch, ftg, (width - tb.width) / 2.0f, (height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))));
+			tb = introFont.getBounds(remains);
+			introFont.draw(batch, remains, (width - tb.width) / 2.0f, (height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))) - (tb.height * 1.5f));
+			batch.end();
 		} else {
-			/*
-			 * int beamObjective = 0; int curLaserCount = 0;
-			 */
-			EnumMap<GameEngine.Color, Integer> beamObjective = new EnumMap<GameEngine.Color, Integer>(
-					GameEngine.Color.class);
-			EnumMap<GameEngine.Color, Integer> curLaserCount = new EnumMap<GameEngine.Color, Integer>(
-					GameEngine.Color.class);
-
-			int objCount = 0;
-			int existCount = 0;
-			for (GameEngine.Color c : b.getBeamObjectiveSet()) {
-				objCount = b.getBeamObjectiveCount(c);
-				beamObjective.put(c, objCount);
-				existCount = b.getLaserCount(c);
-				curLaserCount.put(c, existCount);
+			int totalBeamGoals = 0;
+			for(GameEngine.Color c : b.getBeamObjectiveSet()){
+				totalBeamGoals += b.getBeamObjectiveCount(c);
 			}
-
-			Integer total;
-			Integer existing;
-			ArrayList<String> colorGoals = new ArrayList<String>();
-			for (GameEngine.Color c : GameEngine.Color.values()) {
-				total = beamObjective.get(c);
-				existing = curLaserCount.get(c);
-				if (total != null && total != 0) {
-					toPrint = existing + " of " + total + " " + c
-							+ " beams made.";
-					colorGoals.add(toPrint);
-				}
-			}
-			if (colorGoals.size() == 0) {
-				toPrint = "Break all beams.";
-				tb = titleFont.getBounds(toPrint);
-				titleFont
-						.draw(batch,
-								toPrint,
-								(width - tb.width) / 2,
-								height
-										* (1 - Constants.TOP_BAR_SIZE * 0.4f - Constants.TOP_BAR_SIZE
-												* movesAdjust));
+			if(totalBeamGoals == 0) {
+				//This is a break all beams level
+				//This is a piece placement level
+				int remBeams = b.lasers.size();
+				String bab = "Break all beams:";
+				String remains = remBeams + " remain" + (remBeams == 1?"s":"");
+				batch.begin();
+				tb = introFont.getBounds(bab);
+				introFont.setColor(Constants.BOARD_COLOR);
+				introFont.draw(batch, bab, (width - tb.width) / 2.0f, (height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))));
+				tb = introFont.getBounds(remains);
+				introFont.draw(batch, remains, (width - tb.width) / 2.0f, (height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))) - (tb.height * 1.5f));
+				batch.end();
 			} else {
-				for (int i = 0; i < colorGoals.size(); i++) {
-					toPrint = colorGoals.get(i);
-					tb = titleFont.getBounds(toPrint);
-					titleFont
-							.draw(batch,
-									toPrint,
-									(width - tb.width) / 2,
-									height
-											* (1 - Constants.TOP_BAR_SIZE * 0.4f
-													- Constants.TOP_BAR_SIZE
-													* movesAdjust - Constants.TOP_BAR_SIZE
-													* i * .15f));
+				EnumMap<GameEngine.Color, Integer> beamObjective = new EnumMap<GameEngine.Color, Integer>(
+						GameEngine.Color.class);
+				EnumMap<GameEngine.Color, Integer> curLaserCount = new EnumMap<GameEngine.Color, Integer>(
+						GameEngine.Color.class);
+				
+				int objCount = 0;
+				int existCount = 0;
+				for (GameEngine.Color c : b.getBeamObjectiveSet()) {
+					objCount = b.getBeamObjectiveCount(c);
+					beamObjective.put(c, objCount);
+					existCount = b.getLaserCount(c);
+					curLaserCount.put(c, existCount);
 				}
+		
+				int i = 0;
+				for(GameEngine.Color c : GameEngine.Color.values()){
+					if(beamObjective.get(c) != null && beamObjective.get(c) != 0){
+						shapes.begin(ShapeType.Filled);
+						shapes.setColor(Color.BLACK);
+						shapes.rect(((width - (Constants.BEAM_GOAL_WIDTH * width)) / 2) - 2, (height * (Constants.BOT_BAR_SIZE + (Constants.BEAM_GOAL_HEIGHT*(i + .125f)))) - 2, (Constants.BEAM_GOAL_WIDTH * width) + 4, (height * 0.75f * Constants.BEAM_GOAL_HEIGHT) + 4);
+						shapes.setColor(Constants.BOARD_COLOR);
+						shapes.rect((width - (Constants.BEAM_GOAL_WIDTH * width)) / 2, height * (Constants.BOT_BAR_SIZE + (Constants.BEAM_GOAL_HEIGHT*(i + .125f))), Constants.BEAM_GOAL_WIDTH * width, height * 0.75f * Constants.BEAM_GOAL_HEIGHT);
+						shapes.setColor(translateColor(c));
+						float progress = (float)(curLaserCount.get(c)) / beamObjective.get(c);
+						shapes.rect((width - (Constants.BEAM_GOAL_WIDTH * width)) / 2, height * (Constants.BOT_BAR_SIZE + (Constants.BEAM_GOAL_HEIGHT*(i + .125f))), (Constants.BEAM_GOAL_WIDTH * width) * progress, height * 0.75f * Constants.BEAM_GOAL_HEIGHT);
+						shapes.end();
+						String text = "Form " + beamObjective.get(c) + " " + c.name() + " beam" + (beamObjective.get(c) == 1?"":"s");
+						tb = beamGoalFont.getBounds(text);
+						beamGoalFont.setColor(Color.BLACK);
+						batch.begin();
+						beamGoalFont.draw(batch, text, (width - tb.width) / 2, ((Constants.BOT_BAR_SIZE + ((i + 1) * Constants.BEAM_GOAL_HEIGHT)) * height) - (((height * Constants.BEAM_GOAL_HEIGHT) - tb.height) / 2));
+						batch.end();
+						i++;
+					}
+				}
+				
 			}
 		}
-
-		toPrint = "Moves: " + GameEngine.getMoveCount() + " Perfect: "
-				+ b.perfect;
-
-		if (moves != 0) {
-			tb = titleFont.getBounds(toPrint);
-			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
-					* (1 - Constants.TOP_BAR_SIZE * 0.22f));
-			// .3
-		} else {
-			tb = titleFont.getBounds(toPrint);
-			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
-					* (1 - Constants.TOP_BAR_SIZE * 0.22f));
-			// .36
-		}
-
-		if (moves != 0) {
-			toPrint = "Your Best: " + moves;
-			tb = titleFont.getBounds(toPrint);
-
-			titleFont.draw(batch, toPrint, (width - tb.width) / 2, height
-					* (1 - Constants.TOP_BAR_SIZE * 0.39f));
-			// .525
-		}
-		batch.end();
 	}
-
+		
 	/**
 	 * Draws the level introduction beam that appears at level start
 	 */
@@ -1142,7 +1116,7 @@ public class DrawGame {
 		drawHeader(width, height, tb, currentWorld, currentOrdinalInWorld, b);
 		
 		// Drawing progress towards level objectives
-		//drawLevelProgress(width, height, tb, currentWorld, currentOrdinalInWorld, b);
+		drawGoalProgress(width, height, tb, b);
 		
 		// Draw intro
 		if (state == GameState.INTRO) {

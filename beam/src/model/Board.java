@@ -77,11 +77,13 @@ public class Board {
 		//Determine the applicable screen width and height from gdx
 		int screenWidth;
 		int screenHeight;
+				
 		if (Gdx.graphics == null) {
 			screenWidth = 0;
 			screenHeight = 0;
 		} else {
 			screenWidth = (int) (Gdx.graphics.getWidth() * (1 - Constants.SIDE_EMPTY_SIZE * 2));
+			//TODO: FIX BELOW LINE. IT IS TEMP
 			screenHeight = (int) (Gdx.graphics.getHeight() * (1 - Constants.TOP_BAR_SIZE - Constants.BOT_BAR_SIZE));
 		}
 
@@ -93,12 +95,12 @@ public class Board {
 				tileSize = maxWidth;
 				botLeftX = (int) (Gdx.graphics.getWidth() * Constants.SIDE_EMPTY_SIZE);
 				botLeftY = (int) (Gdx.graphics.getHeight()
-						* Constants.BOT_BAR_SIZE + (screenHeight - (tileSize * height)) / 2);
+						* (Constants.BOT_BAR_SIZE) + (screenHeight - (tileSize * height)) / 2);
 			} else {
 				tileSize = maxHeight;
 				botLeftX = (int) (Gdx.graphics.getWidth()
 						* Constants.SIDE_EMPTY_SIZE + (screenWidth - (tileSize * width)) / 2);
-				botLeftY = (int) (Gdx.graphics.getHeight() * Constants.BOT_BAR_SIZE);
+				botLeftY = (int) (Gdx.graphics.getHeight() * (Constants.BOT_BAR_SIZE));
 			}
 		}
 
@@ -140,6 +142,53 @@ public class Board {
 				}
 			}
 		}
+	}
+	
+	public void recalculateSizing(){
+		//Determine the applicable screen width and height from gdx
+				int screenWidth;
+				int screenHeight;
+				float goalSpace = 0;
+				int totalBeams = 0;
+				
+				if(beamObjectives.isEmpty()){
+					goalSpace = Constants.TEXT_GOAL_HEIGHT;
+				} else {
+					for(Color c : beamObjectives.keySet()){
+						totalBeams += beamObjectives.get(c);
+					}
+					if(totalBeams == 0){
+						goalSpace = Constants.TEXT_GOAL_HEIGHT;
+					} else {
+						goalSpace = Constants.BEAM_GOAL_HEIGHT * beamObjectives.keySet().size();
+					}
+				}
+						
+				if (Gdx.graphics == null) {
+					screenWidth = 0;
+					screenHeight = 0;
+				} else {
+					screenWidth = (int) (Gdx.graphics.getWidth() * (1 - Constants.SIDE_EMPTY_SIZE * 2));
+					//TODO: FIX BELOW LINE. IT IS TEMP
+					screenHeight = (int) (Gdx.graphics.getHeight() * (1 - Constants.TOP_BAR_SIZE - Constants.BOT_BAR_SIZE - goalSpace));
+				}
+
+				//Determine positions of the board for drawing purposes
+				int maxWidth = (int) (screenWidth / width);
+				int maxHeight = (int) (screenHeight / height);
+				if (Gdx.graphics != null) {
+					if (maxWidth < maxHeight) {
+						tileSize = maxWidth;
+						botLeftX = (int) (Gdx.graphics.getWidth() * Constants.SIDE_EMPTY_SIZE);
+						botLeftY = (int) (Gdx.graphics.getHeight()
+								* (Constants.BOT_BAR_SIZE + goalSpace) + (screenHeight - (tileSize * height)) / 2);
+					} else {
+						tileSize = maxHeight;
+						botLeftX = (int) (Gdx.graphics.getWidth()
+								* Constants.SIDE_EMPTY_SIZE + (screenWidth - (tileSize * width)) / 2);
+						botLeftY = (int) (Gdx.graphics.getHeight() * (Constants.BOT_BAR_SIZE + goalSpace));
+					}
+				}
 	}
 
 	/**
