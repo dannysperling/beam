@@ -11,6 +11,7 @@ public class Constants {
 	 * the final game version.
 	 */
 	public static final boolean DEBUG_MODE = false;
+	public static final boolean UNLOCK_MODE = false;
 	public static final boolean LOGGING = true;
 	
 	
@@ -31,7 +32,7 @@ public class Constants {
 	/**
 	 * SCREEN SIZE CONSTANTS
 	 */
-	public static final float TOP_BAR_SIZE = 0.22f;
+	public static final float TOP_BAR_SIZE = 0.15f;
 	public static final float BOT_BAR_SIZE = 0.13f;
 	public static final float SIDE_EMPTY_SIZE = 0.02f;
 	

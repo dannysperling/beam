@@ -42,6 +42,8 @@ public class DrawGame {
 	private Sprite bangSprite;
 	private Texture starTexture;
 	private Sprite starSprite;
+	private Texture threeStarTexture;
+	private Sprite threeStarSprite;
 	public ShapeRenderer shapes;
 
 	private GameProgress gameProgress;
@@ -51,6 +53,9 @@ public class DrawGame {
 	BitmapFont titleFontNoBest;
 	BitmapFont menuButtonFont;
 	BitmapFont introFont;
+	BitmapFont levelNameFont;
+	BitmapFont movesFont;
+	BitmapFont moveWordFont;
 
 	public static Color translateColor(GameEngine.Color c) {
 		switch (c) {
@@ -81,15 +86,21 @@ public class DrawGame {
 		starTexture = new Texture(Gdx.files.internal("data/star.png"));
 		starTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		
+		threeStarTexture = new Texture(Gdx.files.internal("data/3Star.png"));
+		threeStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+
+		
 		gameProgress = gp;
 
 		TextureRegion pieceregion = new TextureRegion(pieceTexture, 0, 0, 256, 256);
 		TextureRegion bangregion = new TextureRegion(bangTexture, 0, 0, 256, 256);
 		TextureRegion starregion = new TextureRegion(starTexture, 0, 0, 64, 64);
-
+		TextureRegion threestarregion = new TextureRegion(threeStarTexture, 0, 0, 128, 128);
+		
 		pieceSprite = new Sprite(pieceregion);
 		bangSprite = new Sprite(bangregion);
 		starSprite = new Sprite(starregion);
+		threeStarSprite = new Sprite(threestarregion);
 		shapes = new ShapeRenderer();
 	}
 
@@ -101,6 +112,10 @@ public class DrawGame {
 		titleFontNoBest = generator.generateFont(Gdx.graphics.getHeight() / 25);
 		menuButtonFont = generator.generateFont(Gdx.graphics.getHeight() / 45);
 		introFont = generator.generateFont(Gdx.graphics.getHeight() / 20);
+		levelNameFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.TOP_BAR_SIZE * 0.8f));
+		moveWordFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.TOP_BAR_SIZE * 0.2f));
+		movesFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.TOP_BAR_SIZE * 0.45f));
+		
 		generator.dispose();
 	}
 
@@ -428,6 +443,45 @@ public class DrawGame {
 	/**
 	 * Draws the text at the top of the screen explaining the level goals and how near they are to being completed
 	 */
+	
+	private void drawHeader(int width, int height, TextBounds tb, int currentWorld, int currentOrdinalInWorld, Board b){
+		float boxesWidth = width * 0.25f;
+		float boxesHeight = height * Constants.TOP_BAR_SIZE * 0.65f;
+		Color boxesColor = new Color(0.3f, 0.3f, 0.3f, 1);
+		shapes.begin(ShapeType.Filled);
+		shapes.setColor(Color.BLACK);
+		shapes.rect(width * 0.40f, (1 - (Constants.TOP_BAR_SIZE * 0.825f)) * height, boxesWidth, boxesHeight);
+		shapes.rect(width * 0.70f, (1 - (Constants.TOP_BAR_SIZE * 0.825f)) * height, boxesWidth, boxesHeight);
+		shapes.setColor(boxesColor);
+		shapes.rect((width * 0.40f) + 2, ((1 - (Constants.TOP_BAR_SIZE * 0.825f)) * height) + 2, boxesWidth - 4, boxesHeight - 4);
+		shapes.rect((width * 0.70f) + 2, ((1 - (Constants.TOP_BAR_SIZE * 0.825f)) * height) + 2, boxesWidth - 4, boxesHeight - 4);
+		shapes.end();
+		
+		int moves = GameEngine.getMoveCount();
+		String movesString = moves + "";
+		batch.begin();
+		levelNameFont.setColor(Constants.BOARD_COLOR);
+		String levelName = currentWorld + "-" + currentOrdinalInWorld;
+		String moveWord = "Moves";
+		levelNameFont.draw(batch, levelName, width * 0.05f, (1 - (Constants.TOP_BAR_SIZE * 0.2f)) * height);
+		moveWordFont.setColor(Constants.BOARD_COLOR);
+		tb = moveWordFont.getBounds(moveWord);
+		moveWordFont.draw(batch, moveWord, (width * 0.4f) + ((boxesWidth - tb.width)/2.0f), (1 - (Constants.TOP_BAR_SIZE * 0.25f)) * height);
+		tb = movesFont.getBounds(movesString);
+		movesFont.setColor(Constants.BOARD_COLOR);
+		movesFont.draw(batch, movesString, (width * 0.4f) + ((boxesWidth - tb.width)/2.0f), (1 - (Constants.TOP_BAR_SIZE * 0.45f)) * height);
+		
+		String perfectString = b.perfect + "";
+		tb = movesFont.getBounds(perfectString);
+		float starSize = 0.7f * (boxesWidth - tb.width);
+		threeStarSprite.setSize(starSize, starSize);
+		movesFont.draw(batch, perfectString, (width * 0.7f) + (boxesWidth - (tb.width + (0.05f * boxesWidth))), (1 - (Constants.TOP_BAR_SIZE * 0.35f)) * height);
+		threeStarSprite.setPosition((width * 0.7f) + ((boxesWidth - tb.width) * .15f), (1 - (Constants.TOP_BAR_SIZE * 0.825f)) * height + ((boxesHeight - starSize) / 2.0f));
+		threeStarSprite.draw(batch);
+		batch.end();
+
+	}
+	
 	private void drawLevelProgress(int width, int height, TextBounds tb, int currentWorld, int currentOrdinalInWorld, Board b){
 		batch.begin();
 		titleFont.setColor(Color.WHITE);
@@ -1084,8 +1138,11 @@ public class DrawGame {
 		// Draw the buttons
 		drawButtons(width, height, tb);
 
+		//Draw the level header
+		drawHeader(width, height, tb, currentWorld, currentOrdinalInWorld, b);
+		
 		// Drawing progress towards level objectives
-		drawLevelProgress(width, height, tb, currentWorld, currentOrdinalInWorld, b);
+		//drawLevelProgress(width, height, tb, currentWorld, currentOrdinalInWorld, b);
 		
 		// Draw intro
 		if (state == GameState.INTRO) {

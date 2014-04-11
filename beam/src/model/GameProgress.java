@@ -10,6 +10,7 @@ import utilities.Constants;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 
+import controller.GameEngine;
 import controller.LevelOrderer;
 import controller.Logger;
 import controller.Logger.LogType;
@@ -176,7 +177,9 @@ public class GameProgress {
 		} else {
 			int numWorlds = levelOrderer.getNumWorlds();
 			if (world >= 2 && world <= numWorlds){
-				
+				if(Constants.UNLOCK_MODE){
+					return true;
+				}
 				//Future world needs to average WORLD_UNLOCK_STARS
 				int previousWorldProgress = getBaseWorldStars(world - 1);
 				
@@ -213,7 +216,9 @@ public class GameProgress {
 		//Ensure world is in bounds
 		int numWorlds = levelOrderer.getNumWorlds();
 		if (world >= 1 && world <= numWorlds){
-			
+			if(Constants.UNLOCK_MODE){
+				return true;
+			}
 			//Check the number of stars achieved for that world
 			int currentWorldProgress = getBaseWorldStars(world);
 			int numConsideredLevels = levelOrderer.getWorldSize(world) - 1;
