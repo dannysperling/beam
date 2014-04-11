@@ -609,6 +609,7 @@ public class Menu {
 	 * The remainder below here is used for determining colors of worlds and
 	 * levels in the main menu. These are static variables and methods.
 	 * WORLD_COLORS are the base colors of each of the existing worlds.
+	 * TODO: remove extra colorFromRGB and make the game not crash if they're there
 	 */
 	public static final Color[] WORLD_COLORS = 
 		{	colorFromRGB(75,125,204),
@@ -616,7 +617,13 @@ public class Menu {
 			colorFromRGB(34,233,38),
 			colorFromRGB(240,128,10),
 			colorFromRGB(240,22,22),
-			colorFromRGB(212,60,204)
+			colorFromRGB(212,60,204),
+			colorFromRGB(0,0,0),
+			colorFromRGB(0,0,0),
+			colorFromRGB(0,0,0),
+			colorFromRGB(0,0,0),
+			colorFromRGB(0,0,0),
+			colorFromRGB(0,0,0),
 		 	};
 
 	/**
