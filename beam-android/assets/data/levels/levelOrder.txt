@@ -19,14 +19,12 @@
 57
 59
 58
-58
 ### WORLDEND ###
 
 ### WORLDSTART: Lose on color change ###
 60
 62
 82
-83
 83
 ### WORLDEND ###
 
