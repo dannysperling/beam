@@ -1018,7 +1018,9 @@ public class DrawGame {
 		TextBounds tb = null;
 		float ibeamheight = height / 10.0f;
 		Color paintColor = new Color(0,0,0,0);
-		
+		if(path.size() > 1){
+			paintColor = translateColor(b.getTileAtBoardPosition(path.get(1).getXCoord(), path.get(1).getYCoord()).getPainterColor());
+		}
 		//Define some animation timing
 		float moveAnimateTime = 0;
 		if(aState == AnimationState.MOVING){
@@ -1069,9 +1071,6 @@ public class DrawGame {
 		drawPaths(bx, by, tilesize, path, aState, state, moveAnimateTime);
 
 		// Draw the pieces
-		if(path.size() > 1){
-			paintColor = translateColor(b.getTileAtBoardPosition(path.get(1).getXCoord(), path.get(1).getYCoord()).getPainterColor());
-		}
 		drawPieces(bx, by, tilesize, path, paintColor, pieces, paintAnimateTime, moveAnimateTime);		
 
 		// Draw Lasers

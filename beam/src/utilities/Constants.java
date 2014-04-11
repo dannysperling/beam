@@ -18,8 +18,8 @@ public class Constants {
 	 * ANIMATION CONSTANTS
 	 */
 	public static final int TIME_TO_MOVE_PIECE = 8;
-	public static final int TIME_TO_FORM_BEAM = 12;
-	public static final int TIME_TO_BREAK_BEAM = 12;
+	public static final int TIME_TO_FORM_BEAM = 10;
+	public static final int TIME_TO_BREAK_BEAM = 8;
 	public static final int TIME_TO_DESTROY_PIECE = 60;
 	public static final int TIME_TO_PAINT_PIECE = 20;
 	
