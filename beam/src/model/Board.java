@@ -170,7 +170,7 @@ public class Board {
 				} else {
 					screenWidth = (int) (Gdx.graphics.getWidth() * (1 - Constants.SIDE_EMPTY_SIZE * 2));
 					//TODO: FIX BELOW LINE. IT IS TEMP
-					screenHeight = (int) (Gdx.graphics.getHeight() * (1 - Constants.TOP_BAR_SIZE - Constants.BOT_BAR_SIZE - goalSpace));
+					screenHeight = (int) (Gdx.graphics.getHeight() * (1 - Constants.TOP_BAR_SIZE - Constants.BOT_BAR_SIZE - goalSpace - Constants.GAME_BUTTON_SIZE));
 				}
 
 				//Determine positions of the board for drawing purposes

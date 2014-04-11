@@ -406,7 +406,7 @@ public class GameEngine implements ApplicationListener {
 				} else if (GameEngine.getMoveCount() <= b.par){
 					numStars = 2;
 				}
-				if(timeWon < (numStars + 2) * Constants.WOM_ANIMATION_UNIT){
+				if(timeWon < (numStars + 2) * Constants.WON_ANIMATION_UNIT){
 					button = ButtonPress.SKIPWIN;
 				}
 				
@@ -427,7 +427,7 @@ public class GameEngine implements ApplicationListener {
 						state = GameState.IDLE;
 						break;
 					case SKIPWIN:
-						timeWon = Constants.WOM_ANIMATION_UNIT * 10;
+						timeWon = Constants.WON_ANIMATION_UNIT * 10;
 						break;
 					default:
 						break;	
@@ -1278,7 +1278,7 @@ public class GameEngine implements ApplicationListener {
 			//Handle having won on restarting level
 			if (!mainMenuShowing && b.isWon()){
 				state = GameState.WON;
-				timeWon = Constants.WOM_ANIMATION_UNIT * 10;
+				timeWon = Constants.WON_ANIMATION_UNIT * 10;
 			}
 			menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
 		}
@@ -1300,7 +1300,7 @@ public class GameEngine implements ApplicationListener {
 	public static int getTimeBeforeDeathBeam(){return Constants.TIME_BEFORE_DEATH_MESSAGE;}
 	
 	public static int getTimeWon(){return timeWon;}
-	public static int getWonAnimationUnit() {return Constants.WOM_ANIMATION_UNIT;}
+	public static int getWonAnimationUnit() {return Constants.WON_ANIMATION_UNIT;}
 	
 	public static List<Piece> getDestroyedPieces(){return piecesDestroyed;}
 

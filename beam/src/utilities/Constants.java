@@ -11,7 +11,7 @@ public class Constants {
 	 * the final game version.
 	 */
 	public static final boolean DEBUG_MODE = false;
-	public static final boolean UNLOCK_MODE = false;
+	public static final boolean UNLOCK_MODE = true;
 	public static final boolean LOGGING = true;
 	
 	
@@ -26,7 +26,7 @@ public class Constants {
 	
 	public static final int TIME_FOR_INTRO = 300;
 	public static final int TIME_BEFORE_DEATH_MESSAGE = 120;
-	public static final int WOM_ANIMATION_UNIT = 14;
+	public static final int WON_ANIMATION_UNIT = 14;
 
 	
 	/**
@@ -35,7 +35,7 @@ public class Constants {
 	public static final float TOP_BAR_SIZE = 0.15f;
 	public static final float BOT_BAR_SIZE = 0.13f;
 	public static final float SIDE_EMPTY_SIZE = 0.02f;
-	
+	public static final float GAME_BUTTON_SIZE = 0.08f;
 	
 	/**
 	 * GOAL PROGRESS CONSTANTS

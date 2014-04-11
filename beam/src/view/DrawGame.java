@@ -46,7 +46,6 @@ public class DrawGame {
 	private Sprite threeStarSprite;
 	public ShapeRenderer shapes;
 
-	private GameProgress gameProgress;
 
 	BitmapFont buttonFont;
 	BitmapFont titleFont;
@@ -57,6 +56,8 @@ public class DrawGame {
 	BitmapFont movesFont;
 	BitmapFont moveWordFont;
 	BitmapFont beamGoalFont;
+	BitmapFont gameButtonFont;
+
 
 	public static Color translateColor(GameEngine.Color c) {
 		switch (c) {
@@ -90,9 +91,6 @@ public class DrawGame {
 		threeStarTexture = new Texture(Gdx.files.internal("data/3Star.png"));
 		threeStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
-		
-		gameProgress = gp;
-
 		TextureRegion pieceregion = new TextureRegion(pieceTexture, 0, 0, 256, 256);
 		TextureRegion bangregion = new TextureRegion(bangTexture, 0, 0, 256, 256);
 		TextureRegion starregion = new TextureRegion(starTexture, 0, 0, 64, 64);
@@ -117,6 +115,7 @@ public class DrawGame {
 		moveWordFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.TOP_BAR_SIZE * 0.2f));
 		movesFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.TOP_BAR_SIZE * 0.45f));
 		beamGoalFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.BEAM_GOAL_HEIGHT * 0.5f));
+		gameButtonFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.GAME_BUTTON_SIZE * 0.7f));
 		
 		generator.dispose();
 	}
@@ -213,7 +212,7 @@ public class DrawGame {
 	private void drawPaths(int bx, int by, int tilesize, List<Tile> path, AnimationState aState, GameState state, float moveAnimateTime){
 		if(aState != AnimationState.DESTRUCTION){
 			shapes.begin(ShapeType.Filled);
-			shapes.setColor(new Color(.9f, .9f, .2f, 1f));
+			shapes.setColor(new Color(.808f, .674f, 0, 1f));
 			for (int i = 0; i < path.size(); i++) {
 				int pointX = path.get(i).getXCoord();
 				int pointY = path.get(i).getYCoord();
@@ -442,6 +441,20 @@ public class DrawGame {
 		batch.end();
 	}
 
+	
+	private void drawGameButtons(int bx, int by, int tilesize, Board b, TextBounds tb){
+		int baseY = by + (tilesize * b.getNumVerticalTiles());
+		int endX = bx +  (tilesize * b.getNumHorizontalTiles());
+		String undo = "Undo";
+		gameButtonFont.setColor(Constants.BOARD_COLOR);
+		tb = gameButtonFont.getBounds(undo);
+		batch.begin();
+		gameButtonFont.draw(batch, undo, bx, baseY + (tb.height * 1.4f));
+		String reset = "Reset";
+		tb = gameButtonFont.getBounds(reset);
+		gameButtonFont.draw(batch, reset, endX - tb.width, baseY + (tb.height * 1.4f));
+		batch.end();
+	}
 	
 	/**
 	 * Draws the screen top graphics indicating level, moves, and perfect
@@ -1030,9 +1043,7 @@ public class DrawGame {
 		curBG.b = (float) (((5648 + Math.pow(7, currentLevel))%255)/255.0);
 		curBG.g = (float) (((1124 + Math.pow(17, currentLevel))%255)/255.0);
 		*/
-		if (state == GameState.DESTROYED) {
-			curBG = new Color(.5f, 0, 0, 1);
-		}
+		
 		Gdx.gl.glClearColor(curBG.r, curBG.g, curBG.b, 1);
 
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
@@ -1111,6 +1122,7 @@ public class DrawGame {
 
 		// Draw the buttons
 		drawButtons(width, height, tb);
+		drawGameButtons(bx, by, tilesize, b, tb);
 
 		//Draw the level header
 		drawHeader(width, height, tb, currentWorld, currentOrdinalInWorld, b);
