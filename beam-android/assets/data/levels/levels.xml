@@ -489,7 +489,7 @@ goal_1,glass,glass,glass,goal_3
 glass,3:painter_3,2:painter_2,painter_1,glass
 </level>
 
-<level id=56 par=12 perfect=11>
+<level id=56 par=9 perfect=8>
 <attribution name="Button2" author="Mike"/>
 painter_2,glass,3,glass,2:painter_2
 2:painter_2,glass,e,glass,2:painter_2

@@ -52,6 +52,7 @@ public class Constants {
 	
 	/**
 	 * COLOR CONSTANTS
+	 * TODO: remove extra colorFromRGB and make the game not crash if they're there
 	 */
 	private static Color colorFromRGB(int r, int g, int b) {
 		return new Color(r/255.0f, g/255.0f, b/255.0f,1);
@@ -62,7 +63,13 @@ public class Constants {
 			colorFromRGB(34,233,38),
 			colorFromRGB(240,128,10),
 			colorFromRGB(240,22,22),
-			colorFromRGB(212,60,204)
+			colorFromRGB(212,60,204),
+			colorFromRGB(0,0,0),
+			colorFromRGB(0,0,0),
+			colorFromRGB(0,0,0),
+			colorFromRGB(0,0,0),
+			colorFromRGB(0,0,0),
+			colorFromRGB(0,0,0),
 		 	};
 	public final static Color BOARD_COLOR = new Color(.95f, .95f, .9f, .85f);
 	public final static Color LINE_COLOR = new Color(.1f, .1f, .1f, 1);
