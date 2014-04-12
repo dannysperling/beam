@@ -669,13 +669,14 @@ public class DrawGame {
 	/**
 	 * Draws the sequence that appears after completing a level
 	 */
-	private void drawOutro(int width, int height, Board b){
+	private void drawOutro(int bx, int by, int width, int height, Board b){
 		
 		
-		/*float au = GameEngine.getWonAnimationUnit();
+		float au = GameEngine.getWonAnimationUnit();
 		float timeWon = GameEngine.getTimeWon();
-		float starBeamWidth = width / 6.0f;
-		float squareSize = 0;
+		float boxAlpha = 0;
+		float boardWidth = b.getTileSize() * b.getNumHorizontalTiles();
+		float boardHeight = b.getTileSize() * b.getNumVerticalTiles();
 		int numStars = 1;
 		if (GameEngine.getMoveCount() <= b.perfect){
 			numStars = 3;
@@ -683,29 +684,23 @@ public class DrawGame {
 			numStars = 2;
 		}
 		if(timeWon < au){
-			squareSize = (timeWon / au) * width;
+			boxAlpha = (timeWon / au) * 0.9f;
 		} else {
-			squareSize = width;
+			boxAlpha = 0.9f;
 		}
-		float beam1X = (width - (4 * starBeamWidth)) / 2.0f;
-		float beam1Progress = (timeWon - au) / (2 * au);
-		float beam2Progress = 0, beam3Progress = 0;
-		if(numStars >= 2){
-			beam2Progress = (timeWon - (2 * au)) / (2 * au);
-		}
-		if(numStars == 3){
-			beam3Progress = (timeWon - (3 * au)) / (2 * au);
-		}
-		float beam2X = beam1X + (1.5f * starBeamWidth);
-		float beam3X = beam2X + (1.5f * starBeamWidth);
-		float starheight = (height / 2.0f) + (0.2f * width);
 		
-		float horBeamProgress = 0;
-		if(timeWon >= (numStars + 2) * au){
-			horBeamProgress = (timeWon - (numStars + 2) * au) / (2 * au);
+		float star1size = 0;
+		float star2size = 0;
+		float star3size = 0;
+		
+		if(timeWon < (1 + numStars) * au){
+			if(timeWon >= au && timeWon < (2 * au)){
+				star1size = starFunc(((timeWon - au) / au) * 2.05814f);
+			} else if (timeWon >= (2 * au) && timeWon < (3 * au)) {
+				star1size = 1;
+				star2size = starFunc(((timeWon - au) / au) * 2.05814f);
+			}
 		}
-		float horBeamY = 4.5f * height / 10f;
-		float horBeamHeight = height / 10f;
 		
 		String levelEndMessage = "GOOD!";
 		if(numStars == 2){
@@ -715,79 +710,13 @@ public class DrawGame {
 			levelEndMessage = "PERFECT!";
 		}
 		
-		Gdx.gl.glEnable(GL10.GL_BLEND);
-		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-		shapes.begin(ShapeType.Filled);
-		shapes.setColor(new Color(0.4f,0.4f,0.4f,0.4f));
-		shapes.rect(0,0,width, height);
-		shapes.setColor(new Color(0,0,0,0.92f));
-		shapes.rect((width - squareSize ) / 2.0f, (height - (squareSize)) / 2.0f, squareSize, squareSize);
-		shapes.end();
-		Gdx.gl.glDisable(GL10.GL_BLEND);
 		
-		batch.begin();
-		starSprite.setSize(starBeamWidth, starBeamWidth);
-		starSprite.setColor(Color.YELLOW);
-		if(numStars >= 1 && timeWon >= 2 * au){
-			starSprite.setPosition(beam1X, starheight);
-			starSprite.draw(batch);
-		}
-		if(numStars >= 2 && timeWon >= 3 * au){
-			starSprite.setPosition(beam2X, starheight);
-			starSprite.draw(batch);
-		}
-		if(numStars == 3 && timeWon >= 4 * au){
-			starSprite.setPosition(beam3X, starheight);
-			starSprite.draw(batch);
-		}
-		if(timeWon > (numStars + 3) * au){
-			TextBounds endTextBounds = introFont.getBounds(levelEndMessage);
-			introFont.setColor(Color.WHITE);
-			introFont.draw(batch, levelEndMessage, (width - endTextBounds.width) / 2.0f, (height + endTextBounds.height) / 2.0f);
-		}
-		batch.end();
 		
-		float buttonTextProgress;
-		if(timeWon >= (numStars + 2) * au){
-			buttonTextProgress = (timeWon - (numStars + 2) * au) / (2 * au);
-		} else {
-			buttonTextProgress = 0;
-		}
-		
-		Gdx.gl.glEnable(GL10.GL_BLEND);
-		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-		shapes.begin(ShapeType.Line);
-		shapes.setColor(new Color(1,1,1,buttonTextProgress));
-		float space = width / 75.0f;
-		float buttonWidth = Menu.wonButtonWidth * width - (2 * space);
-		float buttonHeight = Menu.wonButtonHeight * height - (2 * space);
-		float buttonBotPos = Menu.wonButtonBotY * height + space;
-		shapes.rect(Menu.wonRetryButtonLeftX * width + space, buttonBotPos, buttonWidth, buttonHeight);
-		shapes.rect(Menu.wonMenuButtonLeftX * width + space, buttonBotPos, buttonWidth, buttonHeight);
-		shapes.rect(Menu.wonNextLevelButtonLeftX * width + space, buttonBotPos, buttonWidth, buttonHeight);
-		shapes.end();
-		
-		batch.begin();
-		titleFont.setColor(new Color(1,1,1,buttonTextProgress));
-		float centerHeight = (Menu.wonButtonBotY + Menu.wonButtonHeight / 2) * height;
-		float halfButtonWidth = Menu.wonButtonWidth / 2 * width;
-		String buttonText = "RETRY";
-		TextBounds buttonTB = titleFont.getBounds(buttonText);
-		titleFont.draw(batch, buttonText, (width * Menu.wonRetryButtonLeftX) + halfButtonWidth - (buttonTB.width / 2.0f), centerHeight + (buttonTB.height / 2.0f));
-		buttonText = "MENU";
-		buttonTB = titleFont.getBounds(buttonText);
-		titleFont.draw(batch, buttonText, (width * Menu.wonMenuButtonLeftX) + halfButtonWidth - (buttonTB.width / 2.0f), centerHeight + (buttonTB.height / 2.0f));
-		buttonText = "NEXT";
-		buttonTB = titleFont.getBounds(buttonText);
-		titleFont.draw(batch, buttonText, (width * Menu.wonNextLevelButtonLeftX) + halfButtonWidth - (buttonTB.width / 2.0f), centerHeight + (buttonTB.height / 2.0f));
-		batch.end();
-		Gdx.gl.glDisable(GL10.GL_BLEND);
 
-		
-		drawVerticalTempBeam(beam1Progress, beam1X, starBeamWidth, translateColor(GameEngine.Color.RED));
-		drawVerticalTempBeam(beam2Progress, beam2X, starBeamWidth, translateColor(GameEngine.Color.BLUE));
-		drawVerticalTempBeam(beam3Progress, beam3X, starBeamWidth, translateColor(GameEngine.Color.GREEN));
-		drawHorizontalTempBeam(horBeamProgress, horBeamY, horBeamHeight, translateColor(GameEngine.Color.BLUE));*/
+	}
+	
+	private float starFunc(float x){
+		return 1.618f - ((1.27201f - x) * (1.27201f - x));
 	}
 
 	/**
@@ -842,70 +771,6 @@ public class DrawGame {
 		batch.end();
 
 	}
-	
-	/**
-	 * Draws the vertical beams presently used for level outro
-	 */
-	private void drawVerticalTempBeam(float progress, float posX, float width, Color baseColor){
-		float trueWidth = 0;
-		int height = Gdx.graphics.getHeight();
-		if(progress < 0 || progress > 1){
-			return;
-		}
-		if(progress <= 0.5){
-			trueWidth = (progress / 0.5f) * width;
-		} else {
-			trueWidth = (2 - (progress /0.5f)) * width;
-		}
-		
-		Color c1 = baseColor;
-		Color c2 = new Color(1.4f * c1.r, 1.4f * c1.g, 1.4f * c1.b, 1);
-		Color c3 = new Color(1.8f * c1.r, 1.8f * c1.g, 1.8f * c1.b, 1);
-		
-		shapes.begin(ShapeType.Filled);
-		shapes.setColor(c1);
-		shapes.rect(posX + ((width -trueWidth) / 2), 0, trueWidth, height);
-		trueWidth = trueWidth * .6666f;
-		shapes.setColor(c2);
-		shapes.rect(posX + ((width -trueWidth) / 2), 0, trueWidth, height);
-		trueWidth = trueWidth * .5f;
-		shapes.setColor(c3);
-		shapes.rect(posX + ((width -trueWidth) / 2), 0, trueWidth, height);
-		shapes.end();
-	}
-	
-	
-	/**
-	 * Draws the horizontal beams presently used for level outro
-	 */
-	private void drawHorizontalTempBeam(float progress, float posY, float height, Color baseColor){
-		float trueHeight = 0;
-		int width = Gdx.graphics.getWidth();
-		if(progress < 0 || progress > 1){
-			return;
-		}
-		if(progress <= 0.5){
-			trueHeight = (progress / 0.5f) * height;
-		} else {
-			trueHeight = (2 - (progress /0.5f)) * height;
-		}
-		
-		Color c1 = baseColor;
-		Color c2 = new Color(1.4f * c1.r, 1.4f * c1.g, 1.4f * c1.b, 1);
-		Color c3 = new Color(1.8f * c1.r, 1.8f * c1.g, 1.8f * c1.b, 1);
-		
-		shapes.begin(ShapeType.Filled);		
-		shapes.setColor(c1);
-		shapes.rect(0, posY + ((height -trueHeight) / 2), width, trueHeight);
-		trueHeight = trueHeight * .6666f;
-		shapes.setColor(c2);
-		shapes.rect(0, posY + ((height -trueHeight) / 2), width, trueHeight);
-		trueHeight = trueHeight * .5f;
-		shapes.setColor(c3);
-		shapes.rect(0, posY + ((height -trueHeight) / 2), width, trueHeight);
-		shapes.end();
-	}
-	
 	
 	/**
 	* Draws the board statically at the given position and size
@@ -1233,7 +1098,7 @@ public class DrawGame {
 		
 		//Draw outro
 		if(state == GameState.WON){
-			drawOutro(width, height, b);
+			drawOutro(bx, by, width, height, b);
 		}
 		
 	}
