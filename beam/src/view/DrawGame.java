@@ -81,13 +81,16 @@ public class DrawGame {
 		starTexture = new Texture(Gdx.files.internal("data/star.png"));
 		starTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		
+		
 		gameProgress = gp;
 
 		TextureRegion pieceregion = new TextureRegion(pieceTexture, 0, 0, 256, 256);
 		TextureRegion bangregion = new TextureRegion(bangTexture, 0, 0, 256, 256);
 		TextureRegion starregion = new TextureRegion(starTexture, 0, 0, 64, 64);
+		
 
 		pieceSprite = new Sprite(pieceregion);
+		
 		bangSprite = new Sprite(bangregion);
 		starSprite = new Sprite(starregion);
 		shapes = new ShapeRenderer();
@@ -847,7 +850,7 @@ public class DrawGame {
 		shapes.end();
 	}
 	
-	public void drawBoard(Board b, int bx, int by, int tilesize, Color curBG){
+	public void drawBoard(Board b, int bx, int by, int tilesize){
 		
 			List<Piece> pieces = b.getAllPieces();
 			List<Tile> tiles = b.getAllTiles();
