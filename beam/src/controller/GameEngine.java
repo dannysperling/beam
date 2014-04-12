@@ -18,6 +18,7 @@ import model.Tile;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 
 import controller.Logger.LogType;
 
@@ -28,6 +29,7 @@ public class GameEngine implements ApplicationListener {
 	 * Game engine has references to each of the main game elements
 	 */
 	private Board b;
+	private Board nextBoard;
 	private DrawGame dg;
 	private InputHandler inputHandler;
 	private LevelLoader levelLoader;
@@ -42,6 +44,9 @@ public class GameEngine implements ApplicationListener {
 	private int currentWorld = -1;
 	private int currentOrdinalInWorld = -1;
 
+	private int nextLvWorld = -1;
+	private int nextOrdinal = -1;
+	
 	/**
 	 * Keep data on what's moving and where we've been
 	 */
@@ -56,6 +61,7 @@ public class GameEngine implements ApplicationListener {
 	private static int timeSpentOnThisAnimation = 0;
 	private static int totalTimeForThisAnimation = 0;
 	private static int timeSpentOnIntro = 0;
+	private static int timeSpentOnTransition = 0; 
 	private static int timeDead = 0;
 	private static int timeWon = 0;
 
@@ -80,7 +86,7 @@ public class GameEngine implements ApplicationListener {
 	 * Enumeration of each of the states the game can be in
 	 */
 	public enum GameState {
-		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO
+		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO, LEVEL_TRANSITION
 	}
 
 	/**
@@ -282,6 +288,13 @@ public class GameEngine implements ApplicationListener {
 					case WON:
 						timeWon++;
 						break;
+					case LEVEL_TRANSITION:
+						if(timeSpentOnTransition >= Constants.TIME_FOR_LEVEL_TRANSITION){
+							moveToNextLevel();
+						} else {
+							timeSpentOnTransition++;
+						}
+						break;
 					case MOVING:						
 						//Just started to move from deciding
 						if (pastState == GameState.DECIDING){
@@ -315,8 +328,15 @@ public class GameEngine implements ApplicationListener {
 		if (mainMenuShowing || wasMenuShowing)
 			dm.draw(b, currentWorld, currentOrdinalInWorld);
 		else
-			dg.draw(b, state, currentAnimationState, currentWorld, currentOrdinalInWorld, menu.colorOfLevel(currentWorld, currentOrdinalInWorld));
-			
+			if(state == GameState.LEVEL_TRANSITION){
+				float transPart = ((float)(timeSpentOnTransition)) / Constants.TIME_FOR_LEVEL_TRANSITION; 
+				transPart = transPart * -1 * Gdx.graphics.getWidth();
+				dg.draw(b, state, currentAnimationState, currentWorld, currentOrdinalInWorld, menu.colorOfLevel(currentWorld, currentOrdinalInWorld), transPart, false);
+				dg.draw(nextBoard, state, currentAnimationState, nextLvWorld, nextOrdinal, menu.colorOfLevel(nextLvWorld, nextOrdinal), transPart + Gdx.graphics.getWidth(), true);
+				
+			} else {
+				dg.draw(b, state, currentAnimationState, currentWorld, currentOrdinalInWorld, menu.colorOfLevel(currentWorld, currentOrdinalInWorld), 0, false);
+			}
 	}
 
 	/**
@@ -418,9 +438,17 @@ public class GameEngine implements ApplicationListener {
 						mainMenuShowing = true;
 						menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
 						break;
-					case NEXT_LEVEL:
-						state = GameState.IDLE;
-						moveToNextLevel();
+					case NEXT_LEVEL: //TODO FINISH FIXING THIS
+						state = GameState.LEVEL_TRANSITION;
+						timeSpentOnTransition = 0;
+						nextOrdinal = currentOrdinalInWorld + 1;
+						nextLvWorld = currentWorld;
+						if (nextOrdinal > levelOrderer.getWorldSize(currentWorld)){
+							nextOrdinal = 1;
+							nextLvWorld = currentWorld + 1;
+						}
+						nextBoard = levelLoader.getLevel(nextLvWorld, nextOrdinal);
+						initializeLasers(nextBoard);
 						break;
 					case RESET:
 						resetCurrentLevel();
