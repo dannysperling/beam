@@ -18,10 +18,10 @@ public class Menu {
 	//Button positions
 	//Undo 
 	public static final float B_UNDO_WIDTH = 0.27f;
-	public static final float B_UNDO_LEFT_X = 0.2f;
+	public static final float B_UNDO_LEFT_X = 0.08f;
 	//Reset 
 	public static final float B_RESET_WIDTH = 0.27f;
-	public static final float B_RESET_LEFT_X = 1 - B_RESET_WIDTH - 0.2f;
+	public static final float B_RESET_LEFT_X = 1 - B_RESET_WIDTH - 0.08f;
 	
 	//Menu 
 	public static final float B_MENU_WIDTH = 0.27f;
@@ -83,71 +83,6 @@ public class Menu {
 
 		// Not in one of the buttons
 		return GameEngine.ButtonPress.NONE;
-	}
-	
-	
-	
-	
-	
-	/*******************************************************************************/
-	
-	
-	
-	
-	/**
-	 * Next, static variables and a method for use on the "Won level" screen
-	 */
-	//All buttons at the same bottom with same height
-	public static final float wonButtonBotY = 7 / 32.0f;
-	public static final float wonButtonHeight = 3 / 16.0f;
-	
-	//All buttons have same width - 1/3 of the screen
-	public static final float wonButtonWidth = 1 / 3.0f;
-	
-	//Each button at different start
-	public static final float wonRetryButtonLeftX = 0;
-	public static final float wonMenuButtonLeftX = 1 / 3.0f;
-	public static final float wonNextLevelButtonLeftX = 2 / 3.0f;
-	
-	/**
-	 * Determines which button, if any, the (x, y) coordinate falls within, assuming
-	 * the game is currently showing the "Won" screen after beating the level
-	 * 
-	 * @param x
-	 * 				x coordinate of the press
-	 * @param y
-	 * 				y coordinate of the press
-	 * @return
-	 * 				Which button was clicked. Options are RESET, MENU, NEXT_LEVEL
-	 * 				If no button was pressed, returns "SKIP_WIN"
-	 */
-	public static GameEngine.ButtonPress containingButtonOfPixelWonScreen(int x, int y){
-		
-		//Get width and height of the screen
-		int height = Gdx.graphics.getHeight();
-		int width = Gdx.graphics.getWidth();
-		
-		//Check if the click is within the button height range
-		if(y > wonButtonBotY * height && y < (wonButtonBotY + wonButtonHeight) * height){
-			
-			//Retry button
-			if(x > wonRetryButtonLeftX * width && x < (wonRetryButtonLeftX + wonButtonWidth) * width){
-				return GameEngine.ButtonPress.RESET;
-			} 
-			
-			//Menu button
-			else if (x > wonMenuButtonLeftX * width && x < (wonMenuButtonLeftX + wonButtonWidth) * width){
-				return GameEngine.ButtonPress.MENU;
-			} 
-			
-			//Next level button
-			else if (x > wonNextLevelButtonLeftX * width && x < (wonNextLevelButtonLeftX + wonButtonWidth) * width){
-				return GameEngine.ButtonPress.NEXT_LEVEL;
-			}
-		}
-		
-		//No button was pressed - user skipping through the win screen
-		return GameEngine.ButtonPress.SKIPWIN;
 	}
 	
 	
