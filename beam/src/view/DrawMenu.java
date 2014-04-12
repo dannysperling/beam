@@ -8,17 +8,18 @@ import model.Menu;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.physics.box2d.Shape;
 
 public class DrawMenu {
 
@@ -27,11 +28,16 @@ public class DrawMenu {
 	private SpriteBatch batch;
 	private DrawGame dg;
 	private List<List<Board>> allBoards;
-	
 	private Texture lockTexture;
 	private Sprite lockSprite;
-	
 	private static final Color LOCK_COLOR = new Color(.75f,.7f,0,1);
+	private FrameBuffer bgBuffer;
+	private FrameBuffer shiftBoardBuffer;
+	private boolean shiftBoardNew = true;
+	private Sprite boardSprite;
+	private Sprite bgSprite;
+	private int fullHeight = 0;
+	private int fullWidth = 0;
 
 	/**
 	 * Constructs a drawMenu, with a reference to the menu, the drawgame,
@@ -73,67 +79,83 @@ public class DrawMenu {
 	 * @param curOrdinalInWorld
 	 * 					The current level ordinal within the world of the player
 	 */
-	public void draw(Board curBoard, int curWorld, int curOrdinalInWorld){
+	public void draw(Board curBoard, int curWorld, int curOrdinalInWorld, boolean shifting, float shiftProg){
 		//Clear colors
 		Gdx.gl.glClearColor(.1f, .1f, .1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		
+
 		//Get the various dimensions
 		int height = Gdx.graphics.getHeight();
 		int width = Gdx.graphics.getWidth();
-		
+
+
 		int worldHeight = menu.getWorldHeight();
 		int levelItemWidth = menu.getLevelItemWidth();
-		
+
 		//Start at the top of the screen
 		int world = menu.getWorldAtPosition(height);
-		
+
 		//Determine the top of the first world showing
 		int verticalScrolled = menu.getVerticalScrollAmount();
 		int itemTopY = (verticalScrolled + 1) % worldHeight + height;
 
+		Board shiftBoard = null;
+		int shiftBotY = 0;
+		int shiftLeftX = 0;
+
 		//Loop down until the current world wouldn't show at all - 
 		//the top of the world is below the bottom of the scren
 		while(itemTopY > 0){
-			
+
 			//Ensure world in bounds
 			if (menu.worldInBounds(world)){
-				
+
 				//Loop through horizontally as well
 				int horizontalScrolled = menu.getHorizontalScrollAmount(world);
 				int itemLeftX = -(horizontalScrolled % levelItemWidth);
 				int itemBotY = itemTopY - worldHeight;
 				int ordinalInWorld = menu.getLevelAtPositionInWorld(world, itemLeftX + levelItemWidth / 2);
 				boolean worldUnlocked = menu.isWorldUnlocked(world);
-				
+
 				//Draw the world background
 				drawWorldBackground(world, itemBotY);
-					
+
 				//Loop until the left side of the level that would be drawn is off screen
 				while (itemLeftX < width - 1){
-					
+
 					//Ensure index in bounds
 					if (ordinalInWorld != -1){
 
 						//Draw the numbers above the level
 						drawLevelNumber(worldUnlocked, world, ordinalInWorld, itemTopY, itemLeftX);
-						
+
 						//Figure out which board we're drawing
 						Board b;
-						
+
+
+						boolean shiftThisOne = false;
 						//Check if we're drawing the current board 
-						if (ordinalInWorld == curOrdinalInWorld && world == curWorld)
+						if (ordinalInWorld == curOrdinalInWorld && world == curWorld){
 							b = curBoard;
-						else 
+							shiftThisOne = shifting;
+						} else { 
 							b = allBoards.get(world - 1).get(ordinalInWorld - 1);
-						
+						}
 						//Draw the current level
-						drawLevelBoard(worldUnlocked, world, ordinalInWorld, b, itemBotY, itemLeftX);
+
+
+						if(!shiftThisOne){
+							drawLevelBoard(worldUnlocked, world, ordinalInWorld, b, itemBotY, itemLeftX);
+						} else {
+							shiftBoard = b;
+							shiftBotY = itemBotY;
+							shiftLeftX = itemLeftX;
+						}
 					}
-					
+
 					//Increment to the next item in the world
 					itemLeftX += levelItemWidth;
-					
+
 					//Grab the next ordinal. That way, we get -1 if we're past the bounds
 					ordinalInWorld = menu.getLevelAtPositionInWorld(world, itemLeftX + levelItemWidth / 2);
 				}
@@ -141,12 +163,79 @@ public class DrawMenu {
 
 			//Drawing from top to bottom, so decrement the y coordinate
 			itemTopY -= worldHeight+menu.getSpaceHeight();
-			
+
 			//Worlds increase as you go down the screen
 			world++;
 		}
+
+
+		if(shiftBoard != null){
+
+			if(shiftBoardNew){
+				shiftBoardNew = false;
+				fullHeight = shiftBoard.getTileSize() * shiftBoard.getNumVerticalTiles();
+				fullWidth = shiftBoard.getTileSize() * shiftBoard.getNumHorizontalTiles();
+
+				bgBuffer = new FrameBuffer(Format.RGBA8888, width, height, false);
+				bgBuffer.begin();
+				dg.drawBoardless(menu.colorOfLevel(curWorld, curOrdinalInWorld), curWorld, curOrdinalInWorld, shiftBoard);
+				bgBuffer.end();
+
+				TextureRegion background = new TextureRegion(bgBuffer.getColorBufferTexture());
+				background.flip(false, true);
+
+				shiftBoardBuffer = new FrameBuffer(Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+				shiftBoardBuffer.begin();
+				dg.drawBoard(shiftBoard, 0, 0, shiftBoard.getTileSize());
+				shiftBoardBuffer.end();	
+				bgSprite = new Sprite(background);
+
+				Texture btex = shiftBoardBuffer.getColorBufferTexture();
+				btex.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+				TextureRegion boardTex = new TextureRegion(btex, 0, 0, fullWidth, fullHeight);
+				boardTex.flip(false, true);
+				boardSprite = new Sprite(boardTex);
+			}
+
+
+			Gdx.gl.glEnable(GL10.GL_BLEND);
+			Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+			batch.begin();
+			bgSprite.setColor(new Color(1,1,1,shiftProg));
+			bgSprite.draw(batch);
+			batch.end();
+			Gdx.gl.glDisable(GL10.GL_BLEND);
+
+			//Figure out the board information
+			int by = (int)((1 - menu.boardHeightPercent) / 4 * worldHeight + shiftBotY);
+			int tilesize = (int)(menu.boardHeightPercent * worldHeight / shiftBoard.getNumVerticalTiles());
+			int bx = (levelItemWidth - tilesize * shiftBoard.getNumHorizontalTiles()) / 2 + shiftLeftX;
+
+
+
+			int nowheight = tilesize * shiftBoard.getNumVerticalTiles();
+			int nowwidth = tilesize * shiftBoard.getNumHorizontalTiles();
+
+			bx += (shiftBoard.getBotLeftX() - bx) * shiftProg;
+			by += (shiftBoard.getBotLeftY() - by) * shiftProg;
+
+			boardSprite.setSize(nowwidth + ((fullWidth - nowwidth) * shiftProg), nowheight + ((fullHeight - nowheight) * shiftProg));
+			boardSprite.setPosition(bx, by);
+			batch.begin();
+			boardSprite.draw(batch);
+			batch.end();
+
+
+		} else {
+			if(bgBuffer != null)
+				bgBuffer.dispose();
+			if(shiftBoardBuffer != null)
+				shiftBoardBuffer.dispose();
+			shiftBoardNew = true;
+		}
+
 	}
-	
+
 	/**
 	 * Draws the colored background of a given world
 	 * 
@@ -156,17 +245,17 @@ public class DrawMenu {
 	 * 				The y position of the bottom of the current rectangle
 	 */
 	private void drawWorldBackground(int world, int itemBotY){
-		
+
 		//Get the world dimensions
 		int worldHeight = menu.getWorldHeight();
 		int levelItemWidth = menu.getLevelItemWidth();
 		int maxWidth = levelItemWidth*menu.sizeOfWorld(world);
 		int leftStartingPoint = -menu.getHorizontalScrollAmount(world);
-		
+
 		//Drawing rectangles
 		ShapeRenderer shape = dg.shapes;
 		shape.begin(ShapeType.Filled);
-		
+
 		//Go from light to dark accross the given world
 		Color startColor = Menu.colorOfWorld(world).mul(1.1f);
 		Color endColor = Menu.colorOfWorld(world).mul(.25f);
@@ -175,7 +264,7 @@ public class DrawMenu {
 		
 		//Draw main background:
 		shape.rect(leftStartingPoint, itemBotY, maxWidth, worldHeight, startColor, endColor, endColor, startColor);
-		
+
 
 		//Draw left overflow box, if applicable
 		if (leftStartingPoint > 0){
@@ -183,11 +272,11 @@ public class DrawMenu {
 			shape.setColor(startColor);
 			shape.rect(0, itemBotY, leftStartingPoint, worldHeight);
 		}
-		
+
 		//Draw right overflow box, if applicable
 		int rightEndPoint = leftStartingPoint + maxWidth;
 		int screenWidth = Gdx.graphics.getWidth();
-		
+
 		if (rightEndPoint < screenWidth){
 			//Draw from right end point to the width of the screen
 			shape.setColor(endColor);
@@ -273,7 +362,7 @@ public class DrawMenu {
 		if (!worldUnlocked || (menu.isBonus(world, ordinalInWorld) && !menu.isBonusLevelUnlocked(world))){
 			numberFont.setColor(Color.RED);
 		} else {
-			
+
 			//Otherwise, if it's solved, make it green
 			int bestMoves = menu.getLevelMoves(world, ordinalInWorld);
 			if (bestMoves != 0){
@@ -284,10 +373,10 @@ public class DrawMenu {
 				numberFont.setColor(new Color(.133f, .337f, 1, 1));
 			}
 		}
-		
+
 		int levelItemWidth = menu.getLevelItemWidth();
 		int worldHeight = menu.getWorldHeight();
-		
+
 		//Draw number on the top portion within its own batch
 		batch.begin();
 		String stringNumber =  world + "-" + ordinalInWorld;
@@ -298,7 +387,7 @@ public class DrawMenu {
 				itemTopY - ((worldHeight * (1-menu.boardHeightPercent) * 3/4) - tb.height) / 2);
 		batch.end();
 	}
-	
+
 	/**
 	 * Draws a board onto the menu given the bottom left coordinate of 
 	 * the menu item it is being drawn onto.
@@ -314,7 +403,7 @@ public class DrawMenu {
 		// Get board dimensions
 		int levelItemWidth = menu.getLevelItemWidth();
 		int worldHeight = menu.getWorldHeight();
-		
+
 		//Figure out the board information
 		int by = (int)((1 - menu.boardHeightPercent) / 4 * worldHeight + itemBotY);
 		int tilesize = (int)(menu.boardHeightPercent * worldHeight / b.getNumVerticalTiles());
@@ -343,6 +432,10 @@ public class DrawMenu {
 	 * Disposes any batches, textures, and fonts being used
 	 */
 	public void dispose(){
+		if(bgBuffer != null)
+			bgBuffer.dispose();
+		if(shiftBoardBuffer != null)
+			shiftBoardBuffer.dispose();
 		numberFont.dispose();
 		batch.dispose();
 	}

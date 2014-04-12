@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import utilities.Constants;
+
 import com.badlogic.gdx.Gdx;
 
 import controller.GameEngine;
@@ -19,7 +21,7 @@ public class Board {
 	 */
 	private Piece[][] pieces;
 	private Tile[][] tiles;
-	
+
 	/**
 	 * Explicitly store the goal tiles for convenience
 	 */
@@ -38,7 +40,7 @@ public class Board {
 	 */
 	private EnumMap<Color, Integer> beamObjectives = new EnumMap<Color, Integer>(
 			Color.class);
-	
+
 	/**
 	 * Private data regarding drawing the board
 	 */
@@ -60,7 +62,7 @@ public class Board {
 	 * 			The height of the board in tiles
 	 */
 	public Board(int numHorTiles, int numVertTiles) {
-		
+
 		//Establish private variables on the board dimensions
 		this.width = numHorTiles;
 		this.height = numVertTiles;
@@ -69,34 +71,6 @@ public class Board {
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
 				tiles[i][j] = new Tile(i, j);
-			}
-		}
-
-		//Determine the applicable screen width and height from gdx
-		int screenWidth;
-		int screenHeight;
-		if (Gdx.graphics == null) {
-			screenWidth = 0;
-			screenHeight = 0;
-		} else {
-			screenWidth = (int) (Gdx.graphics.getWidth() * (1 - GameEngine.sideEmptySize * 2));
-			screenHeight = (int) (Gdx.graphics.getHeight() * (1 - GameEngine.topBarSize - GameEngine.botBarSize));
-		}
-
-		//Determine positions of the board for drawing purposes
-		int maxWidth = (int) (screenWidth / width);
-		int maxHeight = (int) (screenHeight / height);
-		if (Gdx.graphics != null) {
-			if (maxWidth < maxHeight) {
-				tileSize = maxWidth;
-				botLeftX = (int) (Gdx.graphics.getWidth() * GameEngine.sideEmptySize);
-				botLeftY = (int) (Gdx.graphics.getHeight()
-						* GameEngine.botBarSize + (screenHeight - (tileSize * height)) / 2);
-			} else {
-				tileSize = maxHeight;
-				botLeftX = (int) (Gdx.graphics.getWidth()
-						* GameEngine.sideEmptySize + (screenWidth - (tileSize * width)) / 2);
-				botLeftY = (int) (Gdx.graphics.getHeight() * GameEngine.botBarSize);
 			}
 		}
 
@@ -117,14 +91,14 @@ public class Board {
 	 * 			The par score for the board
 	 */
 	public Board(Tile[][] t, Piece[][] p, int id, int perfect, int par) {
-		
+
 		//Call the other constructor to set up basic constants
 		this(t.length, t[0].length);
-		
+
 		//Overwrite the tiles and pieces
 		this.tiles = t;
 		this.pieces = p;
-		
+
 		//Set the id, perfect and par scores
 		this.id = id;
 		this.perfect = perfect;
@@ -138,6 +112,64 @@ public class Board {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Determines the appropriate sizing for the board locations based on all
+	 * of its characteristics
+	 */
+	public void recalculateSizing(){
+		//Determine the applicable screen width and height from gdx
+		int screenWidth;
+		int screenHeight;
+		float goalSpace = 0;
+		int totalBeams = 0;
+
+		if(beamObjectives.isEmpty()){
+			goalSpace = Constants.TEXT_GOAL_HEIGHT;
+		} else {
+			for(Color c : beamObjectives.keySet()){
+				totalBeams += beamObjectives.get(c);
+			}
+			if(totalBeams == 0){
+				goalSpace = Constants.TEXT_GOAL_HEIGHT;
+			} else {
+				goalSpace = Constants.BEAM_GOAL_HEIGHT * beamObjectives.keySet().size();
+			}
+		}
+
+		if (Gdx.graphics == null) {
+			screenWidth = 0;
+			screenHeight = 0;
+		} else {
+			screenWidth = (int) (Gdx.graphics.getWidth() * (1 - Constants.SIDE_EMPTY_SIZE * 2));
+			screenHeight = (int) (Gdx.graphics.getHeight() * (1 - Constants.TOP_BAR_SIZE - Constants.BOT_BAR_SIZE - goalSpace - Constants.GAME_BUTTON_HEIGHT));
+		}
+
+		//Determine positions of the board for drawing purposes
+		int maxWidth = (int) (screenWidth / width);
+		int maxHeight = (int) (screenHeight / height);
+		if (Gdx.graphics != null) {
+			if (maxWidth < maxHeight) {
+				tileSize = maxWidth;
+				botLeftX = (int) (Gdx.graphics.getWidth() * Constants.SIDE_EMPTY_SIZE);
+				botLeftY = (int) (Gdx.graphics.getHeight()
+						* (Constants.BOT_BAR_SIZE + goalSpace) + (screenHeight - (tileSize * height)) / 2);
+			} else {
+				tileSize = maxHeight;
+				botLeftX = (int) (Gdx.graphics.getWidth()
+						* Constants.SIDE_EMPTY_SIZE + (screenWidth - (tileSize * width)) / 2);
+				botLeftY = (int) (Gdx.graphics.getHeight() * (Constants.BOT_BAR_SIZE + goalSpace));
+			}
+		}
+	}
+	
+	/**
+	 * Gets the top Y coordinate of this board. Used to determine where the buttons
+	 * directly above the board will be placed
+	 */
+	public int getTopYCoord(){
+		return botLeftY + (tileSize * getNumVerticalTiles());
 	}
 
 	/**
@@ -215,7 +247,7 @@ public class Board {
 		tiles[x][y].setGlass(isGlass);
 		return ret;
 	}
-	
+
 	/**
 	 * Sets the tile at (X,Y) to be a type of painter.
 	 * GameEngine.Color.NONE removes the painter.
@@ -225,7 +257,7 @@ public class Board {
 	public void setPainter(int x, int y, GameEngine.Color painterColor) {
 		tiles[x][y].setPainter(painterColor);
 	}
-	
+
 	/**
 	 * Sets the tile at (X,Y) to be a type of goal.
 	 * GameEngine.Color.NONE removes the goal.
@@ -317,7 +349,7 @@ public class Board {
 	public int getBotLeftY() {
 		return botLeftY;
 	}
-	
+
 	/**
 	 * Access the tile size for drawing purposes
 	 */
@@ -456,7 +488,7 @@ public class Board {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Gets the number of goal tiles on this board
 	 */
@@ -483,7 +515,7 @@ public class Board {
 		}
 		return true;
 	}
-	
+
 	public int getLaserCount(Piece[][] pieces, Color c) {
 		int sum = 0;
 		int[] columnCounts = new int[pieces[0].length];
@@ -565,7 +597,7 @@ public class Board {
 			if ((l.getXStart() == p.getXCoord() && l.getYStart() == p
 					.getYCoord())
 					|| (l.getXFinish() == p.getXCoord() && l.getYFinish() == p
-							.getYCoord())) {
+					.getYCoord())) {
 				return true;
 			}
 		}
@@ -580,9 +612,9 @@ public class Board {
 	 * 			True if no piece is in a destroyed state, false otherwise
 	 */
 	public boolean validate() {
-		
+
 		//TODO IMPLEMENT
-		
+
 		return true;
 	}
 

@@ -467,3 +467,112 @@ e,goal_1,goal_2
 1,glass,goal_1
 2,1,e
 </level>
+
+<level id=54 par=20 perfect=13>
+<attribution name="Breaker extreme" author="John"/>
+<beamGoal color=1 count=0/>
+<beamGoal color=2 count=0/>
+<beamGoal color=3 count=0/>
+glass,3,1,2,glass
+e,3,1,2,e
+e,3,1,2,e
+e,3,1,2,e
+glass,3,1,2,glass
+</level>
+
+<level id=55 par=100 perfect=100>
+<attribution name="Button1" author="Mike"/>
+3,glass,2,glass,1
+3,e,glass,e,1
+goal_1,2,e,2,goal_3
+goal_1,glass,glass,glass,goal_3
+glass,3:painter_3,2:painter_2,painter_1,glass
+</level>
+
+<level id=56 par=9 perfect=8>
+<attribution name="Button2" author="Mike"/>
+painter_2,glass,3,glass,2:painter_2
+2:painter_2,glass,e,glass,2:painter_2
+2:painter_2,glass,e,glass,2:painter_2
+1:painter_1,glass,e,glass,painter_1
+1:painter_1,glass,e,glass,painter_1
+glass,glass,goal_3,glass,glass
+</level>
+
+<level id=57 par=8 perfect=7>
+<attribution name="Button3" author="Mike"/>
+<beamGoal color=1 count=7/>
+painter_2,glass,painter_3:3,glass,painter_2
+painter_1:1,glass,painter_1,glass,painter_1:1
+painter_3:3,glass,glass,glass,glass
+glass,glass,painter_2:2,glass,painter_2:2
+painter_1,glass,painter_1:1,glass,painter_1
+painter_3:3,glass,painter_2,glass,painter_3:3
+</level>
+
+<level id=58 par=18 perfect=15>
+<attribution name="Button4" author="Mike"/>
+e,glass,2,1,glass,e
+e,1,glass,glass,2,e
+3:goal_2,e,e,e,e,3:goal_1
+3:goal_2,e,e,e,e,3:goal_1
+3:goal_2,e,e,e,e,3:goal_1
+e,1,glass,glass,2,e
+1,glass,2:painter_2,painter_1,glass,2
+</level>
+
+<level id=59 par=13 perfect=11>
+<attribution name="Button5" author="Mike"/>
+2,2,1,1
+glass,glass,glass,glass
+goal_1:2,e,e,goal_2:1
+goal_1:2,e,e,goal_2:1
+goal_1:2,e,e,goal_2:1
+glass,glass,glass,glass
+glass,2:painter_2,painter_1,glass
+</level>
+
+<level id=60 par=7 perfect=6>
+<attribution name="Loss1" author="Mike"/>
+1,e,1,goal_3
+e,painter_1,e,2
+1,e,painter_2,e
+3,2,e,2
+</level>
+
+<level id=61 par=7 perfect=6>
+<attribution name="Loss2" author="Mike"/>
+goal_3,1,1:painter_1,goal_3
+2:painter_2,e,e,2
+painter_2,painter_2,e,painter_1
+2,e,e,2
+3,1:painter_1,1,3
+</level>
+
+<level id=62 par=11 perfect=9>
+<attribution name="Loss3" author="Mike"/>
+1,goal_3,1,e,goal_3,1
+e,painter_2,glass,glass,glass,painter_2
+2,e,e,e,e,2
+painter_1,glass,glass,glass,painter_1,e
+2,3,e,e,3,e
+</level>
+
+<level id=82 par=12 perfect=11>
+<attribution name="boringgoal" author="Mike"/>
+3,e,1,glass,2
+2,2,glass,2,glass
+e,3,2,glass,goal_1
+2,e,e,e,e
+e,3,2,2,2
+</level>
+
+<level id=83 par=19 perfect=13>
+<attribution name="boringwallGOAL" author="Mike"/>
+1,3,3,2,glass
+1,e,e,glass,1
+1,e,glass,1,e
+1,glass,3,e,e
+1,e,glass,1,1
+1,3,goal_2,glass,e
+</level>

@@ -13,7 +13,20 @@
 3 
 ### WORLDEND ###
 
+### WORLDSTART: Buttons ###
+55
+56
+57
+59
+58
+### WORLDEND ###
 
+### WORLDSTART: Lose on color change ###
+60
+62
+82
+83
+### WORLDEND ###
 
 ### WORLDSTART: Beam Objectives ###
 40 - beam objective tutorial
@@ -46,6 +59,7 @@ x - easier painter level
 x - huge intermediate gap
 26
 27
+54
 x - gap
 21
 23

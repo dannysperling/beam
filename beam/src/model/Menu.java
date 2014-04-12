@@ -2,6 +2,8 @@ package model;
 
 import java.util.List;
 
+import utilities.Constants;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 
@@ -12,27 +14,24 @@ public class Menu {
 	/**
 	 * First, menu contains static variables and a method for use buttons on the level screen
 	 */
-	//Measured in terms of percentage of screen
-	public static final float buttonBotY = GameEngine.botBarSize*0.2f;
-	public static final float buttonHeight = GameEngine.botBarSize*0.7f;
 
-	//Undo first
-	public static final float undoButtonLeftX = 0.02f;
-	public static final float undoButtonWidth = 0.31f;
-
-	//Reset second
-	public static final float resetButtonLeftX = 0.39f;
-	public static final float resetButtonWidth = 0.20f;
-
-	//Then redo
-	public static final float redoButtonLeftX = 0.67f;
-	public static final float redoButtonWidth = 0.31f;
+	//Button positions
+	//Undo 
+	public static final float B_UNDO_WIDTH = 0.27f;
+	public static final float B_UNDO_LEFT_X = 0.08f;
+	//Reset 
+	public static final float B_RESET_WIDTH = 0.27f;
+	public static final float B_RESET_LEFT_X = 1 - B_RESET_WIDTH - 0.08f;
 	
-	//Menu button: Top Left corner
-	public static final float menuButtonBotY = 1 - GameEngine.topBarSize*0.25f;
-	public static final float menuButtonLeftX = 0.02f;
-	public static final float menuButtonWidth = 0.15f;
-	public static final float menuButtonHeight = GameEngine.topBarSize*0.2f;
+	//Menu 
+	public static final float B_MENU_WIDTH = 0.27f;
+	public static final float B_MENU_LEFT_X = 0.02f;
+	//Next Level
+	public static final float B_NEXT_LEVEL_WIDTH = 0.35f;
+	public static final float B_NEXT_LEVEL_LEFT_X = 1 - B_NEXT_LEVEL_WIDTH - 0.02f;
+	//Info
+	public static final float B_INFO_WIDTH = 0.08f;
+	public static final float B_INFO_LEFT_X = 0.5f - B_INFO_WIDTH / 2;
 
 
 	/**
@@ -43,106 +42,47 @@ public class Menu {
 	 * 				x coordinate of the press
 	 * @param y
 	 * 				y coordinate of the press
+	 * @param botYCoord
+	 * 				y coordinate of the bottom of the top buttons for this board
 	 * @return
-	 * 				Which button was clicked. Options are MENU, UNDO, RESET, REDO
+	 * 				Which button was clicked. Options are MENU, UNDO, RESET, NEXT_LEVEL, INFO
 	 */
-	public static GameEngine.ButtonPress containingButtonOfPixelLevelScreen(int x, int y){
+	public static GameEngine.ButtonPress containingButtonOfPixelLevelScreen(int x, int y, int botYCoord){
 
 		//Get width and height of screen
 		int height = Gdx.graphics.getHeight();
 		int width = Gdx.graphics.getWidth();
 		
-		// y's in the correct range
-		if (y > buttonBotY * height && y < (buttonBotY + buttonHeight) * height ){
-			//Undo
-			if (x > undoButtonLeftX * width && x < (undoButtonLeftX + undoButtonWidth) * width){
-				return GameEngine.ButtonPress.UNDO;
+		// Bottom button presses
+		if (y < Constants.GAME_BUTTON_HEIGHT * height ){
+			//Menu
+			if (x > B_MENU_LEFT_X * width && x < (B_MENU_LEFT_X + B_MENU_WIDTH) * width){
+				return GameEngine.ButtonPress.MENU;
 			}
-			//Reset
-			else if (x > resetButtonLeftX * width && x < (resetButtonLeftX + resetButtonWidth) * width){
-				return GameEngine.ButtonPress.RESET;
+			//Next Level
+			else if (x > B_NEXT_LEVEL_LEFT_X * width && x < (B_NEXT_LEVEL_LEFT_X + B_NEXT_LEVEL_WIDTH) * width){
+				return GameEngine.ButtonPress.NEXT_LEVEL;
 			}
-			//Redo
-			else if (x > redoButtonLeftX * width && x < (redoButtonLeftX + redoButtonWidth) * width){
-				return GameEngine.ButtonPress.REDO;
+			//Info
+			else if (x > B_INFO_LEFT_X * width && x < (B_INFO_LEFT_X + B_INFO_WIDTH) * width){
+				return GameEngine.ButtonPress.INFO;
 			}
 		}
 		
-		//Could press menu in the upper left
-		else if (y > menuButtonBotY * height && y < (menuButtonBotY + menuButtonHeight) * height){
-			//Go to menu
-			if (x > menuButtonLeftX * width && x < (menuButtonLeftX + menuButtonWidth) * width){
-				return GameEngine.ButtonPress.MENU;
+		// Above board button presses
+		else if (y > botYCoord && y < botYCoord + Constants.GAME_BUTTON_HEIGHT * height){
+			//Undo
+			if (x > B_UNDO_LEFT_X * width && x < (B_UNDO_LEFT_X + B_UNDO_WIDTH) * width){
+				return GameEngine.ButtonPress.UNDO;
+			}
+			//Reset
+			else if (x > B_RESET_LEFT_X * width && x < (B_RESET_LEFT_X + B_RESET_WIDTH) * width){
+				return GameEngine.ButtonPress.RESET;
 			}
 		}
 
 		// Not in one of the buttons
 		return GameEngine.ButtonPress.NONE;
-	}
-	
-	
-	
-	
-	
-	/*******************************************************************************/
-	
-	
-	
-	
-	/**
-	 * Next, static variables and a method for use on the "Won level" screen
-	 */
-	//All buttons at the same bottom with same height
-	public static final float wonButtonBotY = 7 / 32.0f;
-	public static final float wonButtonHeight = 3 / 16.0f;
-	
-	//All buttons have same width - 1/3 of the screen
-	public static final float wonButtonWidth = 1 / 3.0f;
-	
-	//Each button at different start
-	public static final float wonRetryButtonLeftX = 0;
-	public static final float wonMenuButtonLeftX = 1 / 3.0f;
-	public static final float wonNextLevelButtonLeftX = 2 / 3.0f;
-	
-	/**
-	 * Determines which button, if any, the (x, y) coordinate falls within, assuming
-	 * the game is currently showing the "Won" screen after beating the level
-	 * 
-	 * @param x
-	 * 				x coordinate of the press
-	 * @param y
-	 * 				y coordinate of the press
-	 * @return
-	 * 				Which button was clicked. Options are RESET, MENU, NEXT_LEVEL
-	 * 				If no button was pressed, returns "SKIP_WIN"
-	 */
-	public static GameEngine.ButtonPress containingButtonOfPixelWonScreen(int x, int y){
-		
-		//Get width and height of the screen
-		int height = Gdx.graphics.getHeight();
-		int width = Gdx.graphics.getWidth();
-		
-		//Check if the click is within the button height range
-		if(y > wonButtonBotY * height && y < (wonButtonBotY + wonButtonHeight) * height){
-			
-			//Retry button
-			if(x > wonRetryButtonLeftX * width && x < (wonRetryButtonLeftX + wonButtonWidth) * width){
-				return GameEngine.ButtonPress.RESET;
-			} 
-			
-			//Menu button
-			else if (x > wonMenuButtonLeftX * width && x < (wonMenuButtonLeftX + wonButtonWidth) * width){
-				return GameEngine.ButtonPress.MENU;
-			} 
-			
-			//Next level button
-			else if (x > wonNextLevelButtonLeftX * width && x < (wonNextLevelButtonLeftX + wonButtonWidth) * width){
-				return GameEngine.ButtonPress.NEXT_LEVEL;
-			}
-		}
-		
-		//No button was pressed - user skipping through the win screen
-		return GameEngine.ButtonPress.SKIPWIN;
 	}
 	
 	
@@ -206,16 +146,6 @@ public class Menu {
 	}
 	
 	/**
-	 * These two constants determine scrolling off of the screen. 
-	 * PERCENT_OFF_SCROLL is what percent off the screen can be
-	 * scrolled during bounce back.
-	 * RESCROLL_BOUNCE is how quickly the menu bounces back,
-	 * measured in percentage of the screeen as well.
-	 */
-	private final float PERCENT_OFF_SCROLL = 0.2f;
-	private final float RESCROLL_BOUNCE = 0.01f;
-	
-	/**
 	 * Limits the scroll amount of a given scroll that would be going off the
 	 * screen. This slows down scrolling as you go off screen, and prevents
 	 * scrolling going off of the PERCENT_OFF_SCROLL of the screen.
@@ -241,7 +171,7 @@ public class Menu {
 		float percentPast = pastBorder / referenceDim;
 		
 		//Can't be less than zero past, in case its a very far scroll
-		return Math.max((1 - percentPast / PERCENT_OFF_SCROLL) / 2, 0); 
+		return Math.max((1 - percentPast / Constants.PERCENT_OFF_SCROLL) / 2, 0); 
 	}
 	
 	
@@ -285,7 +215,7 @@ public class Menu {
 			//Figure out reverse effect if not held
 			boolean turned = false;
 			if (!held && !wasAbove){
-				scrollDownAmount -= RESCROLL_BOUNCE * height;
+				scrollDownAmount -= Constants.RESCROLL_BOUNCE * height;
 				
 				//Managed to reverse
 				turned = (scrollDownAmount <= 0);
@@ -309,7 +239,7 @@ public class Menu {
 			//Figure out reverse effect if not held
 			boolean turned = false;
 			if (!held && !wasBelow){
-				scrollDownAmount += RESCROLL_BOUNCE * height;
+				scrollDownAmount += Constants.RESCROLL_BOUNCE * height;
 				
 				//Managed to reverse
 				turned = (scrollDownAmount >= 0);
@@ -371,7 +301,7 @@ public class Menu {
 			//Figure out reverse effect if not held
 			boolean turned = false;
 			if (!held && !wasRight){
-				scrollRightAmount -= RESCROLL_BOUNCE * width;
+				scrollRightAmount -= Constants.RESCROLL_BOUNCE * width;
 				
 				//Managed to reverse
 				turned = (scrollRightAmount <= 0);
@@ -394,7 +324,7 @@ public class Menu {
 			//Figure out reverse effect if not held
 			boolean turned = false;
 			if (!held && !wasLeft){
-				scrollRightAmount += RESCROLL_BOUNCE * width;
+				scrollRightAmount += Constants.RESCROLL_BOUNCE * width;
 				
 				//Managed to reverse
 				turned = (scrollRightAmount >= 0);
@@ -619,16 +549,7 @@ public class Menu {
 	/**
 	 * The remainder below here is used for determining colors of worlds and
 	 * levels in the main menu. These are static variables and methods.
-	 * WORLD_COLORS are the base colors of each of the existing worlds.
 	 */
-	public static final Color[] WORLD_COLORS = 
-		{	colorFromRGB(75,125,204),
-			colorFromRGB(121,224,224),
-			colorFromRGB(34,233,38),
-			colorFromRGB(240,128,10),
-			colorFromRGB(240,22,22),
-			colorFromRGB(212,60,204)
-		 	};
 
 	/**
 	 * Get the color of a level based on its world and position in that world
@@ -647,7 +568,7 @@ public class Menu {
 		int levelIndex = ordinalInWorld - 1;
 		
 		//Copy out the color of the world
-		Color ret = WORLD_COLORS[worldIndex].cpy();
+		Color ret = Constants.WORLD_COLORS[worldIndex].cpy();
 		
 		//Multiply the color based on its position
 		float factor = 1.0f - 0.75f*((float)(levelIndex)/(float)worldSizes.get(worldIndex));
@@ -657,23 +578,6 @@ public class Menu {
 		ret.a = 1;
 		
 		return ret;
-	}
-	
-	/**
-	 * Converts a given RGB value to a Color object, where color values
-	 * are floats from 0 to 1
-	 * 
-	 * @param r
-	 * 				Red color value, 0 - 255
-	 * @param g
-	 * 				Green color value, 0 - 255
-	 * @param b
-	 * 				Blue color value, 0 - 255
-	 * @return
-	 * 				The converted color object
-	 */
-	private static Color colorFromRGB(int r, int g, int b) {
-		return new Color(r/255.0f, g/255.0f, b/255.0f,1);
 	}
 
 	/**
@@ -691,11 +595,11 @@ public class Menu {
 			return Color.BLACK.cpy();
 		
 		// Too high, do white
-		if (world > WORLD_COLORS.length)
+		if (world > Constants.WORLD_COLORS.length)
 			return Color.WHITE.cpy();
 		
 		//In between, pull from the world colors
 		int worldIndex = world - 1;
-		return WORLD_COLORS[worldIndex].cpy();
+		return Constants.WORLD_COLORS[worldIndex].cpy();
 	}
 }

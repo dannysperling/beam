@@ -190,6 +190,7 @@ public class LevelLoader {
 		
 		//Add beam goals separately
 		processBeamGoals(b, match.group());
+		b.recalculateSizing();
 		return b;
 	}
 
