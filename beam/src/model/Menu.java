@@ -119,11 +119,14 @@ public class Menu {
 	private GameProgress progress;
 	
 	/**
-	 * Percentages of how much the world is of the screen, and how much the
-	 * board is of a given world
+	 * Percentages of how much the world is of the screen, how much the
+	 * board is of a given world, and how large the space between worlds
+	 * is (as percent of screen). If worldItem = k*(1/n) and 
+	 * interworldSpace = (1-k)/(n-1) then exactly n full worlds fit on screen.
 	 */
-	public final float worldItemPercent = 1/(3.0f);
+	public final float worldItemPercent = 1/(3.0f)*0.90f;
 	public final float boardHeightPercent = 0.6f;
+	public final float interWorldSpacePercent = 0.05f;
 	
 	/**
 	 * Constructs a menu item, with a reference to the sizes of each of the
@@ -193,7 +196,7 @@ public class Menu {
 		int height = Gdx.graphics.getHeight();
 		int itemHeight = getWorldHeight();
 		
-		int maxHeight =  itemHeight * numWorlds - Gdx.graphics.getHeight() - 1;
+		int maxHeight =  (itemHeight * numWorlds)+(getSpaceHeight() * (numWorlds - 1)) - Gdx.graphics.getHeight() - 1;
 		
 		//If going off bottom
 		if (downScrollAmount + scrollDownAmount > maxHeight){
@@ -462,12 +465,22 @@ public class Menu {
 	 * @param screenYPos
 	 * 			The height on the screen
 	 * @return
-	 * 			The world at that height. Can be out of bounds
+	 * 			The world at that height. Can be out of bounds.
+	 * 			If screenYPos selected between world, will return 1000 + previous level
 	 */
 	public int getWorldAtPosition(int screenYPos){
 		int selectedY = downScrollAmount - screenYPos + Gdx.graphics.getHeight() + 1;
 		int itemHeight = getWorldHeight();
-		return (selectedY / itemHeight) + 1;
+		int itemHeightPlus = itemHeight + getSpaceHeight();
+		
+		//Determine if we're between worlds
+		int associatedWorld = (selectedY / itemHeightPlus) + 1;
+		float fractionAbove = (selectedY % itemHeightPlus) / (float)itemHeightPlus;
+		
+		//If in the space between, add 1000
+		if (fractionAbove > ((float)itemHeight) / itemHeightPlus)
+			return associatedWorld + 1000;
+		return associatedWorld;
 	}
 	
 	/**
@@ -504,6 +517,13 @@ public class Menu {
 	 */
 	public int getWorldHeight(){
 		return (int)(Gdx.graphics.getHeight() * worldItemPercent);
+	}
+	
+	/**
+	 * Gets the height of the gap between worlds
+	 */
+	public int getSpaceHeight(){
+		return (int)(Gdx.graphics.getHeight() * interWorldSpacePercent);
 	}
 	
 	/**
@@ -560,7 +580,7 @@ public class Menu {
 		Color ret = Constants.WORLD_COLORS[worldIndex].cpy();
 		
 		//Multiply the color based on its position
-		float factor = 1.0f - 0.75f*((float)(levelIndex)/(float)worldSizes.get(worldIndex));
+		float factor = Constants.START_COLOR_MUL - (1-Constants.END_COLOR_MUL)*((float)(levelIndex)/(float)worldSizes.get(worldIndex));
 		ret.mul(factor);
 		
 		//Set alpha channel to opaque

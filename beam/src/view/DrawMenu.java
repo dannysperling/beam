@@ -2,6 +2,7 @@ package view;
 
 import java.util.List;
 
+import utilities.Constants;
 import model.Board;
 import model.Menu;
 
@@ -20,7 +21,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.Matrix4;
 
 public class DrawMenu {
 
@@ -29,6 +29,9 @@ public class DrawMenu {
 	private SpriteBatch batch;
 	private DrawGame dg;
 	private List<List<Board>> allBoards;
+	private Texture lockTexture;
+	private Sprite lockSprite;
+	private static final Color LOCK_COLOR = new Color(.75f,.7f,0,1);
 	private FrameBuffer bgBuffer;
 	private FrameBuffer shiftBoardBuffer;
 	private boolean shiftBoardNew = true;
@@ -53,6 +56,13 @@ public class DrawMenu {
 		batch = new SpriteBatch();
 		this.dg = dg;
 		this.allBoards = allBoards;
+		
+		///
+		
+		lockTexture = new Texture(Gdx.files.internal("data/lock.png"));
+		lockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		TextureRegion lockregion = new TextureRegion(lockTexture, 0, 0, 128, 128);
+		lockSprite = new Sprite(lockregion);
 	}
 
 	/**
@@ -85,10 +95,14 @@ public class DrawMenu {
 
 		//Start at the top of the screen
 		int world = menu.getWorldAtPosition(height);
+		
+		//Handle in-between world states
+		if (world > 1000)
+			world -= 1000;
 
 		//Determine the top of the first world showing
 		int verticalScrolled = menu.getVerticalScrollAmount();
-		int itemTopY = (verticalScrolled + 1) % worldHeight + height;
+		int itemTopY = (verticalScrolled + 1) % (worldHeight + menu.getSpaceHeight()) + height;
 
 		Board shiftBoard = null;
 		int shiftBotY = 0;
@@ -133,8 +147,10 @@ public class DrawMenu {
 							b = allBoards.get(world - 1).get(ordinalInWorld - 1);
 						}
 						//Draw the current level
+
+
 						if(!shiftThisOne){
-							drawLevelBoard(b, itemBotY, itemLeftX);
+							drawLevelBoard(worldUnlocked, world, ordinalInWorld, b, itemBotY, itemLeftX);
 						} else {
 							shiftBoard = b;
 							shiftBotY = itemBotY;
@@ -151,7 +167,7 @@ public class DrawMenu {
 			}
 
 			//Drawing from top to bottom, so decrement the y coordinate
-			itemTopY -= worldHeight;
+			itemTopY -= worldHeight+menu.getSpaceHeight();
 
 			//Worlds increase as you go down the screen
 			world++;
@@ -173,10 +189,9 @@ public class DrawMenu {
 				TextureRegion background = new TextureRegion(bgBuffer.getColorBufferTexture());
 				background.flip(false, true);
 
-				Color curBG = new Color(.1f, .1f, .1f, 1);
 				shiftBoardBuffer = new FrameBuffer(Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
 				shiftBoardBuffer.begin();
-				dg.drawBoard(shiftBoard, 0, 0, shiftBoard.getTileSize(), curBG);
+				dg.drawBoard(shiftBoard, 0, 0, shiftBoard.getTileSize(), false);
 				shiftBoardBuffer.end();	
 				bgSprite = new Sprite(background);
 
@@ -247,16 +262,19 @@ public class DrawMenu {
 		shape.begin(ShapeType.Filled);
 
 		//Go from light to dark accross the given world
-		Color light = Menu.colorOfWorld(world).mul(1.1f);//change mul factor to lighten startpoint
-		Color dark = Menu.colorOfWorld(world ).mul(.25f);//change mul factor to lighten endpoint
-
+		Color startColor = Menu.colorOfWorld(world).mul(Constants.START_COLOR_MUL);
+		Color endColor = Menu.colorOfWorld(world).mul(Constants.END_COLOR_MUL);
+		//Color startColor = setSaturation(Menu.colorOfWorld(world),0.25f);
+		//Color endColor = setSaturation(Menu.colorOfWorld(world),0.95f);
+		
 		//Draw main background:
-		shape.rect(leftStartingPoint, itemBotY, maxWidth, worldHeight, light, dark, dark, light);
+		shape.rect(leftStartingPoint, itemBotY, maxWidth, worldHeight, startColor, endColor, endColor, startColor);
+
 
 		//Draw left overflow box, if applicable
 		if (leftStartingPoint > 0){
 			//Draw from left side of the screen to the first level
-			shape.setColor(light);
+			shape.setColor(startColor);
 			shape.rect(0, itemBotY, leftStartingPoint, worldHeight);
 		}
 
@@ -266,13 +284,67 @@ public class DrawMenu {
 
 		if (rightEndPoint < screenWidth){
 			//Draw from right end point to the width of the screen
-			shape.setColor(dark);
+			shape.setColor(endColor);
 			shape.rect(rightEndPoint, itemBotY, screenWidth - rightEndPoint, worldHeight);
 		}
-
-		//Alpha broken :(//shape.rect(-menu.getHorizontalScrollAmount(world), itemTopY-itemHeight, itemWidth*menu.sizeOfWorld(world), itemHeight/10.0f, Color.WHITE, Color.WHITE, new Color(1,1,1,0.0f), new Color(1,1,1,0.5f));
-		//Not sure what was being done with alpha here
 		shape.end();
+		//Stroke world border
+		shape.begin(ShapeType.Line);
+		shape.setColor(Color.WHITE);
+		int thickness = 2;
+		for (int i = 0; i < thickness; i++){
+			shape.line(0, itemBotY-i+thickness, Gdx.graphics.getWidth(), itemBotY-i+thickness);
+			shape.line(0, itemBotY+worldHeight+i-thickness+1, Gdx.graphics.getWidth(), itemBotY+worldHeight+i-thickness+1);
+		}
+		shape.end();
+	}
+	
+	//THIS IS BROKEN
+	private Color setSaturation(Color color, float goalSat) {
+		Color ret;
+		float cMax = Math.max((Math.max(color.r, color.b)), color.g);
+		float cMin = Math.min((Math.min(color.r, color.b)), color.g);
+		float delta = cMax - cMin;
+		float hue = 60;//in Degrees
+		if (color.r == cMax){
+			hue *= ((color.g - color.b)/delta);
+			if (hue < 0){
+				hue *= -1;
+				hue %= 6;
+				hue *= -1;
+			} else {
+				hue %= 6;
+			}
+		}else if (color.g == cMax){
+			hue *= ((color.b - color.r)/delta)+2;
+		}else if (color.b == cMax){
+			hue *= ((color.r - color.g)/delta)+4;
+		}
+		hue += 360*2;
+		hue %= 360;
+		float luma = (cMax+cMin)/2;
+		//float sat = delta/(1-Math.abs(2*luma - 1));
+		float C = (1-Math.abs(2*luma - 1))*goalSat;
+		float X = C * (1-Math.abs(((hue/60) %2)-1));
+		if (hue < 60){
+			ret = new Color(C,X,0,1);
+		}else if (hue < 120){
+			ret = new Color(X,C,0,1);
+		}else if (hue < 120){
+			ret = new Color(0,C,X,1);
+		}else if (hue < 120){
+			ret = new Color(0,X,C,1);
+		}else if (hue < 120){
+			ret = new Color(X,0,C,1);
+		}else{
+			ret = new Color(C,0,X,1);
+		}
+		float m = luma - (C/2);
+		ret.r += m;
+		ret.g += m;
+		ret.b += m;
+		//System.out.println(ret.r+","+ret.g+","+ret.b);
+		return ret;
 	}
 
 	/**
@@ -291,21 +363,7 @@ public class DrawMenu {
 	 * 						The left x position of the menu item being drawn
 	 */
 	private void drawLevelNumber(boolean worldUnlocked, int world, int ordinalInWorld, int itemTopY, int itemLeftX){
-		//If the level is locked, make it red
-		if (!worldUnlocked || (menu.isBonus(world, ordinalInWorld) && !menu.isBonusLevelUnlocked(world))){
-			numberFont.setColor(Color.RED);
-		} else {
-
-			//Otherwise, if it's solved, make it green
-			int bestMoves = menu.getLevelMoves(world, ordinalInWorld);
-			if (bestMoves != 0){
-				numberFont.setColor(Color.GREEN);
-			} 
-			//If not locked or solved, blue
-			else {
-				numberFont.setColor(new Color(.133f, .337f, 1, 1));
-			}
-		}
+		numberFont.setColor(Constants.BOARD_COLOR);
 
 		int levelItemWidth = menu.getLevelItemWidth();
 		int worldHeight = menu.getWorldHeight();
@@ -332,20 +390,33 @@ public class DrawMenu {
 	 * @param itemLeftX
 	 * 				The x coordinate of the left side of the menu item
 	 */
-	private void drawLevelBoard(Board b, int itemBotY, int itemLeftX){
+	private void drawLevelBoard(boolean worldUnlocked, int world, int ordinalInWorld, Board b, int itemBotY, int itemLeftX){
 		// Get board dimensions
 		int levelItemWidth = menu.getLevelItemWidth();
 		int worldHeight = menu.getWorldHeight();
 
 		//Figure out the board information
-		Color curBG = new Color(.1f, .1f, .1f, 1);
 		int by = (int)((1 - menu.boardHeightPercent) / 4 * worldHeight + itemBotY);
 		int tilesize = (int)(menu.boardHeightPercent * worldHeight / b.getNumVerticalTiles());
 		int bx = (levelItemWidth - tilesize * b.getNumHorizontalTiles()) / 2 + itemLeftX;
-
+		boolean locked = !worldUnlocked || (menu.isBonus(world, ordinalInWorld) && !menu.isBonusLevelUnlocked(world));
+		
 		//Draw the board in the appropriate location
-		dg.drawBoard(b, bx, by, tilesize, curBG);
+		dg.drawBoard(b, bx, by, tilesize, locked);
+		//If locked, draw the lock
+		drawLock(itemLeftX, by, locked);
+	}
 
+	private void drawLock(int x, int y, boolean locked) {
+		if (!locked) return;
+		batch.begin();
+		lockSprite.setColor(LOCK_COLOR);
+		float spriteSize = menu.getLevelItemWidth()*0.6f;
+		lockSprite.setSize(spriteSize, spriteSize);
+		lockSprite.setX(x+(menu.getLevelItemWidth()-spriteSize)/2);
+		lockSprite.setY(y+(menu.getWorldHeight()*menu.boardHeightPercent)/2 - (spriteSize)/2);
+		lockSprite.draw(batch);
+		batch.end();
 	}
 
 	/**
