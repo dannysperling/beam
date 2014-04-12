@@ -537,11 +537,12 @@ e,painter_1,e,2
 
 <level id=62 par=11 perfect=9>
 <attribution name="Loss3" author="Mike"/>
-1,goal_3,1,e,goal_3,1
-e,painter_2,glass,glass,glass,painter_2
-2,e,e,e,e,2
-painter_1,glass,glass,glass,painter_1,e
-2,3,e,e,3,e
+1,e,2,painter_1,2
+goal_3,painter_2,e,glass,3
+1,glass,e,glass,e
+e,glass,e,glass,e
+goal_3,glass,e,painter_1,3
+1,painter_2,2,e,e
 </level>
 
 <level id=82 par=12 perfect=11>
