@@ -115,7 +115,7 @@ public class DrawGame {
 		moveWordFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.TOP_BAR_SIZE * 0.2f));
 		movesFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.TOP_BAR_SIZE * 0.45f));
 		beamGoalFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.BEAM_GOAL_HEIGHT * 0.5f));
-		gameButtonFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.GAME_BUTTON_SIZE * 0.7f));
+		gameButtonFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.GAME_BUTTON_HEIGHT * 0.7f));
 		
 		generator.dispose();
 	}
@@ -443,15 +443,17 @@ public class DrawGame {
 
 	
 	private void drawGameButtons(int bx, int by, int tilesize, Board b, TextBounds tb){
-		int baseY = by + (tilesize * b.getNumVerticalTiles());
+		int baseY = b.getTopYCoord();
 		int endX = bx +  (tilesize * b.getNumHorizontalTiles());
 		String undo = "Undo";
 		gameButtonFont.setColor(Constants.BOARD_COLOR);
 		tb = gameButtonFont.getBounds(undo);
+		System.out.println("Undo button width: " + tb.width);
 		batch.begin();
 		gameButtonFont.draw(batch, undo, bx, baseY + (tb.height * 1.4f));
 		String reset = "Reset";
 		tb = gameButtonFont.getBounds(reset);
+		System.out.println("Reset button width: " + tb.width);
 		gameButtonFont.draw(batch, reset, endX - tb.width, baseY + (tb.height * 1.4f));
 		batch.end();
 	}

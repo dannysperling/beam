@@ -105,7 +105,7 @@ public class GameEngine implements ApplicationListener {
 	 * Enumeration of all button press types
 	 */
 	public enum ButtonPress {
-		UNDO, RESET, REDO, MENU, NEXT_LEVEL, SKIPWIN, NONE
+		UNDO, RESET, MENU, INFO, NEXT_LEVEL, SKIPWIN, NONE
 	}
 
 	/**
@@ -389,7 +389,7 @@ public class GameEngine implements ApplicationListener {
 		if (state != GameState.DECIDING) {
 			
 			//Get the button that was pressed
-			ButtonPress button = inputHandler.checkForButtonPress(state);
+			ButtonPress button = inputHandler.checkForButtonPress(state, b.getTopYCoord());
 			
 			//If they've won and pushed a button
 			if (state == GameState.WON && button != ButtonPress.NONE){

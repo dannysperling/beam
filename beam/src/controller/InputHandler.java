@@ -302,10 +302,12 @@ public class InputHandler {
 	 * 
 	 * @param state	
 	 * 				What state the game is in
+	 * @param botYCoord
+	 * 				The bottom Y coordinate of the top buttons for this board
 	 * @return
 	 * 				Which button was pressed, if any
 	 */
-	public GameEngine.ButtonPress checkForButtonPress(GameState state) {
+	public GameEngine.ButtonPress checkForButtonPress(GameState state, int botYCoord) {
 
 		//Short circuit if back had been pressed
 		if (backClicked){
@@ -324,7 +326,7 @@ public class InputHandler {
 			// Look for new button press
 			if (buttonDown == GameEngine.ButtonPress.NONE && lastX == -1) {
 				if(state != GameState.WON){
-					buttonDown = Menu.containingButtonOfPixelLevelScreen(xPress, yPress);
+					buttonDown = Menu.containingButtonOfPixelLevelScreen(xPress, yPress, botYCoord);
 				} else {
 					buttonDown = Menu.containingButtonOfPixelWonScreen(xPress, yPress);
 				}
@@ -343,7 +345,7 @@ public class InputHandler {
 			// Look for removed input
 			if (buttonDown != GameEngine.ButtonPress.NONE && lastX != -1) {
 				if(state != GameState.WON){
-					returnedButton = Menu.containingButtonOfPixelLevelScreen(lastX, lastY);
+					returnedButton = Menu.containingButtonOfPixelLevelScreen(lastX, lastY, botYCoord);
 				} else {
 					returnedButton = Menu.containingButtonOfPixelWonScreen(lastX, lastY);
 				}
