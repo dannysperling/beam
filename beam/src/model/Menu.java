@@ -196,7 +196,6 @@ public class Menu {
 		int height = Gdx.graphics.getHeight();
 		int itemHeight = getWorldHeight();
 		
-		//Danny please fix this :(
 		int maxHeight =  (itemHeight * numWorlds)+(getSpaceHeight() * (numWorlds - 1)) - Gdx.graphics.getHeight() - 1;
 		
 		//If going off bottom

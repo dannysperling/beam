@@ -475,7 +475,6 @@ public class InputHandler {
 				firstTouchY = y;
 				firstTouchX = x;
 				worldTouched = menu.getWorldAtPosition(y);
-				System.out.println(worldTouched);
 				momentumX = 0;
 				momentumY = 0;
 			} 
