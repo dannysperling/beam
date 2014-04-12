@@ -579,31 +579,80 @@ public class DrawGame {
 	/**
 	 * Draws the level introduction beam that appears at level start
 	 */
-	private void drawIntro(int width, int height, float ibeamheight, Board b){
+	private void drawIntro(int bx, int by, int tilesize, int width, int height, Board b, float introProgress, TextBounds tb){
 		GameEngine.Color baseColor = GameEngine.Color.RED;
-		float progress = GameEngine.getIntroProgress();
-		GameEngine.debug("intro: " + progress + " " + height + " ");
+		float progress = introProgress;
+		float alpha;
+		if(progress < 0.15){
+			alpha = (progress / 0.15f) * 0.9f;
+		} else if (progress > 0.85) {
+			alpha = (1 - ((progress - 0.85f) / 0.15f)) * 0.9f;
+		} else {
+			alpha = 0.9f;
+		}
+		float boardHeight = tilesize * b.getNumVerticalTiles();
+		float boardWidth = tilesize * b.getNumHorizontalTiles(); 
+		
+		Gdx.gl.glEnable(GL10.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		shapes.begin(ShapeType.Filled);
+		shapes.setColor(new Color(1,1,1,alpha));
+		shapes.rect(bx, by, boardWidth, boardHeight);
+		shapes.end();
+		Gdx.gl.glDisable(GL10.GL_BLEND);
+
 		if(b.getBeamObjectiveSet().isEmpty()){
-			String message = "FILL " + b.getNumGoalTiles() + " " + (b.getNumGoalTiles()==1?"GOAL":"GOALS");
-			drawOverlayBeam(progress, ibeamheight, height / 2.0f, translateColor(baseColor), message, introFont);
+			String message = "Fill " + b.getNumGoalTiles() + " " + (b.getNumGoalTiles()==1?"goal":"goals");
+			Gdx.gl.glEnable(GL10.GL_BLEND);
+			Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+			batch.begin();
+			introFont.setColor(new Color(0,0,0, alpha * 1.111f));
+			tb = introFont.getBounds(message);
+			introFont.draw(batch, message, bx + ((boardWidth - tb.width) / 2.0f), by + ((boardHeight + tb.height) / 2.0f));
+			batch.end();
+			Gdx.gl.glDisable(GL10.GL_BLEND);
 		} else {
 			int totalBeams = 0;
 			for(GameEngine.Color c : b.getBeamObjectiveSet()){
 				totalBeams += b.getBeamObjectiveCount(c);
 			}
 			if(totalBeams == 0){
-				String message = "BREAK ALL BEAMS";
-				drawOverlayBeam(progress, ibeamheight, height / 2.0f, translateColor(GameEngine.Color.BLUE), message, introFont);
+				String message = "Break all beams";
+				Gdx.gl.glEnable(GL10.GL_BLEND);
+				Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+				batch.begin();
+				introFont.setColor(new Color(0,0,0, alpha * 1.111f));
+				tb = introFont.getBounds(message);
+				introFont.draw(batch, message, bx + ((boardWidth - tb.width) / 2.0f), by + ((boardHeight + tb.height) / 2.0f));
+				batch.end();
+				Gdx.gl.glDisable(GL10.GL_BLEND);
+
 			} else {
+				String message = "Form";
+				tb = introFont.getBounds(message);
+				float individualHeight = tb.height * 1.8f;
 				int beamsToDraw = b.getBeamObjectiveSet().size() + 1;
-				float totBeamHeight = ((beamsToDraw) +  ((beamsToDraw - 1)/ 2.0f)) * ibeamheight;
-				float baseheight = ((height - totBeamHeight) / 2.0f) + totBeamHeight - (ibeamheight / 2.0f);
-				String message = "FORM";
-				drawOverlayBeam(progress, ibeamheight, baseheight, translateColor(baseColor), message, introFont);
+				float totBeamHeight = ((beamsToDraw) +  ((beamsToDraw - 1)/ 2.0f)) * individualHeight;
+				float baseheight = ((height - totBeamHeight) / 2.0f) + totBeamHeight;
+				Gdx.gl.glEnable(GL10.GL_BLEND);
+				Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+				batch.begin();
+				introFont.setColor(new Color(0,0,0, alpha * 1.111f));
+				tb = introFont.getBounds(message);
+				introFont.draw(batch, message, bx + ((boardWidth - tb.width) / 2.0f), baseheight);
+				batch.end();
+				Gdx.gl.glDisable(GL10.GL_BLEND);
 				int i = 1;
 				for(GameEngine.Color c : b.getBeamObjectiveSet()){
-					String bmessage = b.getBeamObjectiveCount(c) + " " + c.toString() + " BEAM" + (b.getBeamObjectiveCount(c) == 1?"":"S");
-					drawOverlayBeam(progress, ibeamheight, baseheight - ((1.5f) * i * ibeamheight), translateColor(c), bmessage, introFont);
+					String bmessage = b.getBeamObjectiveCount(c) + " " + c.toString() + " Beam" + (b.getBeamObjectiveCount(c) == 1?"":"s");
+					Gdx.gl.glEnable(GL10.GL_BLEND);
+					Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+					batch.begin();
+					introFont.setColor(new Color(0,0,0, alpha * 1.111f));
+					tb = introFont.getBounds(bmessage);
+					introFont.draw(batch, bmessage, bx + ((boardWidth - tb.width) / 2.0f), baseheight - ((1.5f) * i * individualHeight));
+					batch.end();
+					Gdx.gl.glDisable(GL10.GL_BLEND);
 					i++;
 				}
 			}
@@ -1143,7 +1192,7 @@ public class DrawGame {
 		
 		// Draw intro
 		if (state == GameState.INTRO) {
-			drawIntro(width, height, ibeamheight, b);
+			drawIntro(bx, by, tilesize, width, height, b, GameEngine.getIntroProgress(), tb);
 		}
 		
 		

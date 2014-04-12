@@ -24,7 +24,7 @@ public class Constants {
 	public static final int TIME_TO_DESTROY_PIECE = 60;
 	public static final int TIME_TO_PAINT_PIECE = 20;
 	
-	public static final int TIME_FOR_INTRO = 300;
+	public static final int TIME_FOR_INTRO = 150;
 	public static final int TIME_BEFORE_DEATH_MESSAGE = 120;
 	public static final int WON_ANIMATION_UNIT = 14;
 	
