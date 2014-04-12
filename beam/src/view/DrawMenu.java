@@ -190,7 +190,6 @@ public class DrawMenu {
 				shiftBoardBuffer.begin();
 				dg.drawBoard(shiftBoard, 0, 0, shiftBoard.getTileSize(), curBG);
 				shiftBoardBuffer.end();	
-
 				
 				Texture btex = shiftBoardBuffer.getColorBufferTexture();
 				btex.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
@@ -212,6 +211,10 @@ public class DrawMenu {
 			
 
 		} else {
+			if(bgBuffer != null)
+				bgBuffer.dispose();
+			if(shiftBoardBuffer != null)
+				shiftBoardBuffer.dispose();
 			shiftBoardNew = true;
 		}
 			
@@ -345,6 +348,8 @@ public class DrawMenu {
 	public void dispose(){
 		if(bgBuffer != null)
 			bgBuffer.dispose();
+		if(shiftBoardBuffer != null)
+			shiftBoardBuffer.dispose();
 		numberFont.dispose();
 		batch.dispose();
 	}
