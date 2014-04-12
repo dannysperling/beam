@@ -11,7 +11,7 @@ public class Constants {
 	 * the final game version.
 	 */
 	public static final boolean DEBUG_MODE = false;
-	public static final boolean UNLOCK_MODE = true;
+	public static final boolean UNLOCK_MODE = false;
 	public static final boolean LOGGING = true;
 	
 	

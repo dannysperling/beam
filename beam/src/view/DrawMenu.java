@@ -2,6 +2,7 @@ package view;
 
 import java.util.List;
 
+import utilities.Constants;
 import model.Board;
 import model.Menu;
 
@@ -190,7 +191,7 @@ public class DrawMenu {
 
 				shiftBoardBuffer = new FrameBuffer(Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
 				shiftBoardBuffer.begin();
-				dg.drawBoard(shiftBoard, 0, 0, shiftBoard.getTileSize());
+				dg.drawBoard(shiftBoard, 0, 0, shiftBoard.getTileSize(), false);
 				shiftBoardBuffer.end();	
 				bgSprite = new Sprite(background);
 
@@ -362,21 +363,7 @@ public class DrawMenu {
 	 * 						The left x position of the menu item being drawn
 	 */
 	private void drawLevelNumber(boolean worldUnlocked, int world, int ordinalInWorld, int itemTopY, int itemLeftX){
-		//If the level is locked, make it red
-		if (!worldUnlocked || (menu.isBonus(world, ordinalInWorld) && !menu.isBonusLevelUnlocked(world))){
-			numberFont.setColor(Color.RED);
-		} else {
-
-			//Otherwise, if it's solved, make it green
-			int bestMoves = menu.getLevelMoves(world, ordinalInWorld);
-			if (bestMoves != 0){
-				numberFont.setColor(Color.GREEN);
-			} 
-			//If not locked or solved, blue
-			else {
-				numberFont.setColor(new Color(.133f, .337f, 1, 1));
-			}
-		}
+		numberFont.setColor(Constants.BOARD_COLOR);
 
 		int levelItemWidth = menu.getLevelItemWidth();
 		int worldHeight = menu.getWorldHeight();
@@ -415,7 +402,7 @@ public class DrawMenu {
 		boolean locked = !worldUnlocked || (menu.isBonus(world, ordinalInWorld) && !menu.isBonusLevelUnlocked(world));
 		
 		//Draw the board in the appropriate location
-		dg.drawBoard(b, bx, by, tilesize);
+		dg.drawBoard(b, bx, by, tilesize, locked);
 		//If locked, draw the lock
 		drawLock(itemLeftX, by, locked);
 	}
