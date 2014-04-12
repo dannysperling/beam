@@ -447,7 +447,7 @@ public class DrawGame {
 	/**
 	 * Draws the game buttons above the level
 	 */
-	private void drawGameButtons(int bx, int by, int tilesize, Board b, TextBounds tb){
+	private void drawGameButtons(int shiftX, int by, int tilesize, Board b, TextBounds tb){
 		int baseY = b.getTopYCoord();
 		
 		String undo = "Undo";
@@ -460,12 +460,13 @@ public class DrawGame {
 		batch.begin();
 		float height =  baseY + (Constants.GAME_BUTTON_HEIGHT * screenHeight + tb.height) / 2;
 		float xPos = Menu.B_UNDO_LEFT_X * screenWidth + (Menu.B_UNDO_WIDTH * screenWidth - tb.width) / 2;
+		xPos += shiftX;
 		gameButtonFont.draw(batch, undo, xPos, height);
 		
 		String reset = "Reset";
 		tb = gameButtonFont.getBounds(reset);
 		xPos = Menu.B_RESET_LEFT_X * screenWidth + (Menu.B_RESET_WIDTH * screenWidth - tb.width) / 2;
-		gameButtonFont.draw(batch, reset, Menu.B_RESET_LEFT_X * screenWidth, height);
+		gameButtonFont.draw(batch, reset, shiftX + (Menu.B_RESET_LEFT_X * screenWidth), height);
 		batch.end();
 	}
 	
@@ -1203,7 +1204,7 @@ public class DrawGame {
 		// Drawing progress towards level objectives
 		drawGoalProgress(width, height, tb, b, transitionPart);
 		
-		drawGameButtons((int) (bx + transitionPart), by, tilesize, b, tb);
+		drawGameButtons((int) (transitionPart), by, tilesize, b, tb);
 
 
 		if(!partial){

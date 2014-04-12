@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -30,7 +31,10 @@ public class DrawMenu {
 	private List<List<Board>> allBoards;
 	private FrameBuffer bgBuffer;
 	private FrameBuffer shiftBoardBuffer;
-
+	private boolean shiftBoardNew = true;
+	private Sprite boardSprite;
+	private int fullHeight = 0;
+	private int fullWidth = 0;
 
 	/**
 	 * Constructs a drawMenu, with a reference to the menu, the drawgame,
@@ -129,7 +133,7 @@ public class DrawMenu {
 						}
 						//Draw the current level
 						if(!shiftThisOne){
-							drawLevelBoard(b, itemBotY, itemLeftX, false, 0);
+							drawLevelBoard(b, itemBotY, itemLeftX);
 						} else {
 							shiftBoard = b;
 							shiftBotY = itemBotY;
@@ -168,8 +172,47 @@ public class DrawMenu {
 			batch.draw(background, 0, 0, width, height);
 			batch.end();
 			Gdx.gl.glDisable(GL10.GL_BLEND);
-			drawLevelBoard(shiftBoard, shiftBotY, shiftLeftX, true, shiftProg);
+			
+			//Figure out the board information
+			Color curBG = new Color(.1f, .1f, .1f, 1);
+			int by = (int)((1 - menu.boardHeightPercent) / 4 * worldHeight + shiftBotY);
+			int tilesize = (int)(menu.boardHeightPercent * worldHeight / shiftBoard.getNumVerticalTiles());
+			int bx = (levelItemWidth - tilesize * shiftBoard.getNumHorizontalTiles()) / 2 + shiftLeftX;
+			
+			
+			if(shiftBoardNew){
+				shiftBoardNew = false;
+				fullHeight = shiftBoard.getTileSize() * shiftBoard.getNumVerticalTiles();
+				fullWidth = shiftBoard.getTileSize() * shiftBoard.getNumHorizontalTiles();
 
+
+				shiftBoardBuffer = new FrameBuffer(Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+				shiftBoardBuffer.begin();
+				dg.drawBoard(shiftBoard, 0, 0, shiftBoard.getTileSize(), curBG);
+				shiftBoardBuffer.end();	
+
+				
+				Texture btex = shiftBoardBuffer.getColorBufferTexture();
+				btex.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+				TextureRegion boardTex = new TextureRegion(btex, 0, 0, fullWidth, fullHeight);
+				boardTex.flip(false, true);
+				boardSprite = new Sprite(boardTex);
+			}
+				int nowheight = tilesize * shiftBoard.getNumVerticalTiles();
+				int nowwidth = tilesize * shiftBoard.getNumHorizontalTiles();
+			
+				bx += (shiftBoard.getBotLeftX() - bx) * shiftProg;
+				by += (shiftBoard.getBotLeftY() - by) * shiftProg;
+				
+				boardSprite.setSize(nowwidth + ((fullWidth - nowwidth) * shiftProg), nowheight + ((fullHeight - nowheight) * shiftProg));
+				boardSprite.setPosition(bx, by);
+				batch.begin();
+				boardSprite.draw(batch);
+				batch.end();
+			
+
+		} else {
+			shiftBoardNew = true;
 		}
 			
 	}
@@ -280,7 +323,7 @@ public class DrawMenu {
 	 * @param itemLeftX
 	 * 				The x coordinate of the left side of the menu item
 	 */
-	private void drawLevelBoard(Board b, int itemBotY, int itemLeftX, boolean shift, float shiftProgress){
+	private void drawLevelBoard(Board b, int itemBotY, int itemLeftX){
 		// Get board dimensions
 		int levelItemWidth = menu.getLevelItemWidth();
 		int worldHeight = menu.getWorldHeight();
@@ -291,35 +334,9 @@ public class DrawMenu {
 		int tilesize = (int)(menu.boardHeightPercent * worldHeight / b.getNumVerticalTiles());
 		int bx = (levelItemWidth - tilesize * b.getNumHorizontalTiles()) / 2 + itemLeftX;
 		
-		if(shift){
-			int fullheight = b.getTileSize() * b.getNumVerticalTiles();
-			int fullwidth = b.getTileSize() * b.getNumHorizontalTiles();
-			
-			int nowheight = tilesize * b.getNumVerticalTiles();
-			int nowwidth = tilesize * b.getNumHorizontalTiles();
-			
-			shiftBoardBuffer = new FrameBuffer(Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
-			shiftBoardBuffer.begin();
-			dg.drawBoard(b, 0, 0, b.getTileSize(), curBG);
-			shiftBoardBuffer.end();	
-			
-			TextureRegion boardTex = new TextureRegion(shiftBoardBuffer.getColorBufferTexture(), 0, 0, fullwidth, fullheight);
-			boardTex.flip(false, true);
-			Sprite boardSprite = new Sprite(boardTex);
-			boardSprite.setSize(nowwidth + ((fullwidth - nowwidth) * shiftProgress), nowheight + ((fullheight - nowheight) * shiftProgress));
-
-			bx += (b.getBotLeftX() - bx) * shiftProgress;
-			by += (b.getBotLeftY() - by) * shiftProgress;
-			
-			boardSprite.setPosition(bx, by);
-			batch.begin();
-			boardSprite.draw(batch);
-			batch.end();
-		} else {
+		//Draw the board in the appropriate location
+		dg.drawBoard(b, bx, by, tilesize, curBG);
 		
-			//Draw the board in the appropriate location
-			dg.drawBoard(b, bx, by, tilesize, curBG);
-		}
 	}
 
 	/**
