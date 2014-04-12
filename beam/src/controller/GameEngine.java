@@ -520,7 +520,9 @@ public class GameEngine implements ApplicationListener {
 					//Make sure the next level is unlocked
 					int nextLevelOrdinal = currentOrdinalInWorld + 1;
 					int nextWorld = currentWorld;
-					if (nextLevelOrdinal > levelOrderer.getWorldSize(currentWorld)){
+					
+					//Will never go to the bonus level
+					if (nextLevelOrdinal >= levelOrderer.getWorldSize(currentWorld)){
 						nextLevelOrdinal = 1;
 						nextWorld++;
 					}
@@ -560,7 +562,7 @@ public class GameEngine implements ApplicationListener {
 
 		// Increment level and possibly world
 		currentOrdinalInWorld++;
-		if (currentOrdinalInWorld > levelOrderer.getWorldSize(currentWorld)) {
+		if (currentOrdinalInWorld >= levelOrderer.getWorldSize(currentWorld)) {
 			currentOrdinalInWorld = 1;
 			currentWorld++;
 		}
