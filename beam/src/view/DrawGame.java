@@ -1026,7 +1026,7 @@ public class DrawGame {
 	/**
 	 * Draws the board statically at the given position and size
 	 */
-	public void drawBoard(Board b, int bx, int by, int tilesize) {
+	public void drawBoard(Board b, int bx, int by, int tilesize, boolean faded) {
 
 		List<Piece> pieces = b.getAllPieces();
 		List<Tile> tiles = b.getAllTiles();
@@ -1214,8 +1214,23 @@ public class DrawGame {
 					}
 				}
 		}
-
 		shapes.end();
+		if (faded){
+			Gdx.gl.glEnable(GL10.GL_BLEND);
+			Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+			shapes.begin(ShapeType.Filled);
+			Color fade = Constants.BOARD_COLOR.cpy();
+			fade.mul(.2f);
+			fade.a = 0.75f;
+			shapes.setColor(fade);
+			shapes.rect(bx, by, b.getNumHorizontalTiles() * tilesize,
+					b.getNumVerticalTiles() * tilesize);
+			shapes.end();
+			Gdx.gl.glDisable(GL10.GL_BLEND);
+
+		}
+
+		
 	}
 
 	public void drawBoardless(Color bg, int currentWorld,
