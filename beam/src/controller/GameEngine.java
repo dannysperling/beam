@@ -517,17 +517,24 @@ public class GameEngine implements ApplicationListener {
 					menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
 					break;
 				case NEXT_LEVEL:
+					//Make sure the next level is unlocked
+					int nextLevelOrdinal = currentOrdinalInWorld + 1;
+					int nextWorld = currentWorld;
+					if (nextLevelOrdinal > levelOrderer.getWorldSize(currentWorld)){
+						nextLevelOrdinal = 1;
+						nextWorld++;
+					}
+					if (!menu.isLevelUnlocked(nextWorld, nextLevelOrdinal))
+						break;
+					
 					// Guess we're sick of this level already...
 					state = GameState.LEVEL_TRANSITION;
 					timeSpentOnTransition = 0;
-					nextOrdinal = currentOrdinalInWorld + 1;
-					nextLvWorld = currentWorld;
-					if (nextOrdinal > levelOrderer.getWorldSize(currentWorld)) {
-						nextOrdinal = 1;
-						nextLvWorld = currentWorld + 1;
-					}
+					nextOrdinal = nextLevelOrdinal;
+					nextLvWorld = nextWorld;
 					nextBoard = levelLoader.getLevel(nextLvWorld, nextOrdinal);
 					initializeLasers(nextBoard);
+					break;
 				case INFO:
 					// TODO
 				default:
