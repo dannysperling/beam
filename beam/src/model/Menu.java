@@ -580,7 +580,7 @@ public class Menu {
 		Color ret = Constants.WORLD_COLORS[worldIndex].cpy();
 		
 		//Multiply the color based on its position
-		float factor = 1.0f - 0.75f*((float)(levelIndex)/(float)worldSizes.get(worldIndex));
+		float factor = Constants.START_COLOR_MUL - (1-Constants.END_COLOR_MUL)*((float)(levelIndex)/(float)worldSizes.get(worldIndex));
 		ret.mul(factor);
 		
 		//Set alpha channel to opaque

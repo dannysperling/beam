@@ -262,8 +262,8 @@ public class DrawMenu {
 		shape.begin(ShapeType.Filled);
 
 		//Go from light to dark accross the given world
-		Color startColor = Menu.colorOfWorld(world).mul(1.1f);
-		Color endColor = Menu.colorOfWorld(world).mul(.25f);
+		Color startColor = Menu.colorOfWorld(world).mul(Constants.START_COLOR_MUL);
+		Color endColor = Menu.colorOfWorld(world).mul(Constants.END_COLOR_MUL);
 		//Color startColor = setSaturation(Menu.colorOfWorld(world),0.25f);
 		//Color endColor = setSaturation(Menu.colorOfWorld(world),0.95f);
 		
@@ -293,8 +293,8 @@ public class DrawMenu {
 		shape.setColor(Color.WHITE);
 		int thickness = 2;
 		for (int i = 0; i < thickness; i++){
-			shape.line(0, itemBotY-i, Gdx.graphics.getWidth(), itemBotY-i);
-			shape.line(0, itemBotY+worldHeight+i, Gdx.graphics.getWidth(), itemBotY+worldHeight+i);
+			shape.line(0, itemBotY-i+thickness, Gdx.graphics.getWidth(), itemBotY-i+thickness);
+			shape.line(0, itemBotY+worldHeight+i-thickness+1, Gdx.graphics.getWidth(), itemBotY+worldHeight+i-thickness+1);
 		}
 		shape.end();
 	}
