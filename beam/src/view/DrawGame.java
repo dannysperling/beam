@@ -1164,7 +1164,7 @@ public class DrawGame {
 		drawTiles((int) (bx + transitionPart), by, tilesize, tiles);
 
 		// Draw Paths
-		drawPaths(bx, by, tilesize, path, aState, state, moveAnimateTime);
+		drawPaths((int) (bx + transitionPart), by, tilesize, path, aState, state, moveAnimateTime);
 
 		// Draw the pieces
 		drawPieces((int) (bx + transitionPart), by, tilesize, path, paintColor, pieces, paintAnimateTime, moveAnimateTime);		

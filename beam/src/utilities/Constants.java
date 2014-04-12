@@ -29,6 +29,7 @@ public class Constants {
 	public static final int WON_ANIMATION_UNIT = 14;
 	
 	public static final int TIME_FOR_LEVEL_TRANSITION = 60;
+	public static final int TIME_FOR_MENU_TRANSITION = 60;
 
 	
 	/**

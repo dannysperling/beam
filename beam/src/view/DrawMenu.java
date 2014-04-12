@@ -56,7 +56,7 @@ public class DrawMenu {
 	 * @param curOrdinalInWorld
 	 * 					The current level ordinal within the world of the player
 	 */
-	public void draw(Board curBoard, int curWorld, int curOrdinalInWorld){
+	public void draw(Board curBoard, int curWorld, int curOrdinalInWorld, boolean shifting, float shiftProg){
 		//Clear colors
 		Gdx.gl.glClearColor(.1f, .1f, .1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
@@ -75,6 +75,10 @@ public class DrawMenu {
 		int verticalScrolled = menu.getVerticalScrollAmount();
 		int itemTopY = (verticalScrolled + 1) % worldHeight + height;
 
+		Board shiftBoard = null;
+		int shiftBotY = 0;
+		int shiftLeftX = 0;
+		
 		//Loop down until the current world wouldn't show at all - 
 		//the top of the world is below the bottom of the scren
 		while(itemTopY > 0){
@@ -104,14 +108,23 @@ public class DrawMenu {
 						//Figure out which board we're drawing
 						Board b;
 						
-						//Check if we're drawing the current board 
-						if (ordinalInWorld == curOrdinalInWorld && world == curWorld)
-							b = curBoard;
-						else 
-							b = allBoards.get(world - 1).get(ordinalInWorld - 1);
 						
+						boolean shiftThisOne = false;
+						//Check if we're drawing the current board 
+						if (ordinalInWorld == curOrdinalInWorld && world == curWorld){
+							b = curBoard;
+							shiftThisOne = shifting;
+						} else { 
+							b = allBoards.get(world - 1).get(ordinalInWorld - 1);
+						}
 						//Draw the current level
-						drawLevelBoard(b, itemBotY, itemLeftX);
+						if(!shiftThisOne){
+							drawLevelBoard(b, itemBotY, itemLeftX, false, 0);
+						} else {
+							shiftBoard = b;
+							shiftBotY = itemBotY;
+							shiftLeftX = itemLeftX;
+						}
 					}
 					
 					//Increment to the next item in the world
@@ -128,6 +141,12 @@ public class DrawMenu {
 			//Worlds increase as you go down the screen
 			world++;
 		}
+		
+		if(shiftBoard != null){
+			drawLevelBoard(shiftBoard, shiftBotY, shiftLeftX, true, shiftProg);
+
+		}
+			
 	}
 	
 	/**
@@ -236,7 +255,7 @@ public class DrawMenu {
 	 * @param itemLeftX
 	 * 				The x coordinate of the left side of the menu item
 	 */
-	private void drawLevelBoard(Board b, int itemBotY, int itemLeftX){
+	private void drawLevelBoard(Board b, int itemBotY, int itemLeftX, boolean shift, float shiftProgress){
 		// Get board dimensions
 		int levelItemWidth = menu.getLevelItemWidth();
 		int worldHeight = menu.getWorldHeight();
@@ -246,6 +265,12 @@ public class DrawMenu {
 		int by = (int)((1 - menu.boardHeightPercent) / 4 * worldHeight + itemBotY);
 		int tilesize = (int)(menu.boardHeightPercent * worldHeight / b.getNumVerticalTiles());
 		int bx = (levelItemWidth - tilesize * b.getNumHorizontalTiles()) / 2 + itemLeftX;
+		
+		if(shift){
+			bx += (b.getBotLeftX() - bx) * shiftProgress;
+			by += (b.getBotLeftY() - by) * shiftProgress;
+			tilesize += (b.getTileSize() - tilesize) * shiftProgress;
+		}
 		
 		//Draw the board in the appropriate location
 		dg.drawBoard(b, bx, by, tilesize, curBG);

@@ -62,6 +62,7 @@ public class GameEngine implements ApplicationListener {
 	private static int totalTimeForThisAnimation = 0;
 	private static int timeSpentOnIntro = 0;
 	private static int timeSpentOnTransition = 0; 
+	private static int timeSpentLeavingMenu = 0;
 	private static int timeDead = 0;
 	private static int timeWon = 0;
 
@@ -86,7 +87,7 @@ public class GameEngine implements ApplicationListener {
 	 * Enumeration of each of the states the game can be in
 	 */
 	public enum GameState {
-		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO, LEVEL_TRANSITION
+		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO, LEVEL_TRANSITION, MENU_TO_LEVEL_TRANSITION
 	}
 
 	/**
@@ -257,8 +258,8 @@ public class GameEngine implements ApplicationListener {
 
 		//Handle the menu separately
 		boolean wasMenuShowing = mainMenuShowing;
-		if (mainMenuShowing){
-			handleMainMenu();
+		if (mainMenuShowing && state != GameState.MENU_TO_LEVEL_TRANSITION){
+			state = handleMainMenu(state);
 		}
 
 		//Handle the level otherwise
@@ -295,6 +296,15 @@ public class GameEngine implements ApplicationListener {
 							timeSpentOnTransition++;
 						}
 						break;
+					case MENU_TO_LEVEL_TRANSITION:
+						if(timeSpentLeavingMenu >= Constants.TIME_FOR_MENU_TRANSITION){
+							timeSpentLeavingMenu = 0;
+							mainMenuShowing = false;
+							state = GameState.INTRO;
+						} else {
+							timeSpentLeavingMenu++;
+						}
+						break;
 					case MOVING:						
 						//Just started to move from deciding
 						if (pastState == GameState.DECIDING){
@@ -325,9 +335,13 @@ public class GameEngine implements ApplicationListener {
 		}
 
 		// Draw the game or menu
-		if (mainMenuShowing || wasMenuShowing)
-			dm.draw(b, currentWorld, currentOrdinalInWorld);
-		else
+		if (mainMenuShowing || wasMenuShowing){
+			if(state != GameState.MENU_TO_LEVEL_TRANSITION){
+				dm.draw(b, currentWorld, currentOrdinalInWorld, false, 0);
+			} else {
+				dm.draw(b, currentWorld, currentOrdinalInWorld, true, (float)(timeSpentLeavingMenu) / Constants.TIME_FOR_MENU_TRANSITION);
+			}
+		} else {
 			if(state == GameState.LEVEL_TRANSITION){
 				float transPart = ((float)(timeSpentOnTransition)) / Constants.TIME_FOR_LEVEL_TRANSITION; 
 				transPart = transPart * -1 * Gdx.graphics.getWidth();
@@ -337,12 +351,17 @@ public class GameEngine implements ApplicationListener {
 			} else {
 				dg.draw(b, state, currentAnimationState, currentWorld, currentOrdinalInWorld, menu.colorOfLevel(currentWorld, currentOrdinalInWorld), 0, false);
 			}
+		}
 	}
 
 	/**
 	 * Handles the main update loop for when the main menu is showing
 	 */
-	private void handleMainMenu(){
+	private GameState handleMainMenu(GameState state){
+		
+		if (state == GameState.MENU_TO_LEVEL_TRANSITION){
+			return GameState.MENU_TO_LEVEL_TRANSITION;
+		}
 		
 		//Check to see what was pressed on the menu
 		int selected = inputHandler.handleMainMenuInput(menu);
@@ -374,7 +393,7 @@ public class GameEngine implements ApplicationListener {
 			boolean unlocked = menu.isLevelUnlocked(selectedWorld, selectedOrdinalInWorld);
 			if (unlocked){
 				//Enter the level if it's unlocked
-				mainMenuShowing = false;
+				//mainMenuShowing = false;
 
 				//Only reset if different level
 				if (selectedOrdinalInWorld != currentOrdinalInWorld || selectedWorld != currentWorld){
@@ -386,14 +405,18 @@ public class GameEngine implements ApplicationListener {
 						}
 						Logger.enteredLevel(selectedWorld, selectedOrdinalInWorld);
 					}
-					
 					//Change current and load the new level
 					currentWorld = selectedWorld;
 					currentOrdinalInWorld = selectedOrdinalInWorld;
 					loadLevel(currentWorld, currentOrdinalInWorld);
+					return GameState.MENU_TO_LEVEL_TRANSITION;
+				} else {
+					return GameState.MENU_TO_LEVEL_TRANSITION;
 				}
 			}
 		}
+		
+		return GameState.IDLE;
 	}
 	
 	/**
