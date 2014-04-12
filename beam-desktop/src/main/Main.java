@@ -9,7 +9,7 @@ public class Main {
 	public static void main(String[] args) {
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		cfg.title = "beam";
-		cfg.useGL20 = false;
+		cfg.useGL20 = true;
 
 		cfg.width = 360;
 		cfg.height = 640;

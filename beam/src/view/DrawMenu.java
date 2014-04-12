@@ -8,12 +8,18 @@ import model.Menu;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Matrix4;
 
 public class DrawMenu {
 
@@ -22,6 +28,9 @@ public class DrawMenu {
 	private SpriteBatch batch;
 	private DrawGame dg;
 	private List<List<Board>> allBoards;
+	private FrameBuffer bgBuffer;
+	private FrameBuffer shiftBoardBuffer;
+
 
 	/**
 	 * Constructs a drawMenu, with a reference to the menu, the drawgame,
@@ -64,6 +73,7 @@ public class DrawMenu {
 		//Get the various dimensions
 		int height = Gdx.graphics.getHeight();
 		int width = Gdx.graphics.getWidth();
+		
 		
 		int worldHeight = menu.getWorldHeight();
 		int levelItemWidth = menu.getLevelItemWidth();
@@ -142,7 +152,22 @@ public class DrawMenu {
 			world++;
 		}
 		
+		
 		if(shiftBoard != null){
+			bgBuffer = new FrameBuffer(Format.RGBA8888, width, height, false);
+			bgBuffer.begin();
+			dg.drawBoardless(menu.colorOfLevel(curWorld, curOrdinalInWorld), curWorld, curOrdinalInWorld, shiftBoard);
+			bgBuffer.end();
+			
+			Gdx.gl.glEnable(GL10.GL_BLEND);
+			Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+			batch.begin();
+			batch.setColor(new Color(1,1,1,shiftProg));
+			TextureRegion background = new TextureRegion(bgBuffer.getColorBufferTexture());
+			background.flip(false, true);
+			batch.draw(background, 0, 0, width, height);
+			batch.end();
+			Gdx.gl.glDisable(GL10.GL_BLEND);
 			drawLevelBoard(shiftBoard, shiftBotY, shiftLeftX, true, shiftProg);
 
 		}
@@ -267,19 +292,42 @@ public class DrawMenu {
 		int bx = (levelItemWidth - tilesize * b.getNumHorizontalTiles()) / 2 + itemLeftX;
 		
 		if(shift){
+			int fullheight = b.getTileSize() * b.getNumVerticalTiles();
+			int fullwidth = b.getTileSize() * b.getNumHorizontalTiles();
+			
+			int nowheight = tilesize * b.getNumVerticalTiles();
+			int nowwidth = tilesize * b.getNumHorizontalTiles();
+			
+			shiftBoardBuffer = new FrameBuffer(Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+			shiftBoardBuffer.begin();
+			dg.drawBoard(b, 0, 0, b.getTileSize(), curBG);
+			shiftBoardBuffer.end();	
+			
+			TextureRegion boardTex = new TextureRegion(shiftBoardBuffer.getColorBufferTexture(), 0, 0, fullwidth, fullheight);
+			boardTex.flip(false, true);
+			Sprite boardSprite = new Sprite(boardTex);
+			boardSprite.setSize(nowwidth + ((fullwidth - nowwidth) * shiftProgress), nowheight + ((fullheight - nowheight) * shiftProgress));
+
 			bx += (b.getBotLeftX() - bx) * shiftProgress;
 			by += (b.getBotLeftY() - by) * shiftProgress;
-			tilesize += (b.getTileSize() - tilesize) * shiftProgress;
-		}
+			
+			boardSprite.setPosition(bx, by);
+			batch.begin();
+			boardSprite.draw(batch);
+			batch.end();
+		} else {
 		
-		//Draw the board in the appropriate location
-		dg.drawBoard(b, bx, by, tilesize, curBG);
+			//Draw the board in the appropriate location
+			dg.drawBoard(b, bx, by, tilesize, curBG);
+		}
 	}
 
 	/**
 	 * Disposes any batches, textures, and fonts being used
 	 */
 	public void dispose(){
+		if(bgBuffer != null)
+			bgBuffer.dispose();
 		numberFont.dispose();
 		batch.dispose();
 	}

@@ -302,7 +302,6 @@ public class GameEngine implements ApplicationListener {
 						break;
 					case MENU_TO_LEVEL_TRANSITION:
 						if(timeSpentLeavingMenu >= Constants.TIME_FOR_MENU_TRANSITION){
-							timeSpentLeavingMenu = 0;
 							mainMenuShowing = false;
 							state = GameState.INTRO;
 						} else {
@@ -339,10 +338,13 @@ public class GameEngine implements ApplicationListener {
 
 		// Draw the game or menu
 		if (mainMenuShowing || wasMenuShowing){
-			if(state != GameState.MENU_TO_LEVEL_TRANSITION){
-				dm.draw(b, currentWorld, currentOrdinalInWorld, false, 0);
-			} else {
+			if(state == GameState.MENU_TO_LEVEL_TRANSITION || state == GameState.INTRO){
 				dm.draw(b, currentWorld, currentOrdinalInWorld, true, (float)(timeSpentLeavingMenu) / Constants.TIME_FOR_MENU_TRANSITION);
+				if(wasMenuShowing && !mainMenuShowing){
+					timeSpentLeavingMenu = 0;
+				}
+			} else {
+				dm.draw(b, currentWorld, currentOrdinalInWorld, false, 0);
 			}
 		} else if (state == GameState.LEVEL_TRANSITION) {
 			float transPart = ((float) (timeSpentOnTransition))
@@ -442,7 +444,7 @@ public class GameEngine implements ApplicationListener {
 
 		// Make sure to not check for input if we're in the middle of inputing a
 		// move or transitioning between levels
-		if (state != GameState.DECIDING && state != GameState.LEVEL_TRANSITION) {
+		if (state != GameState.DECIDING && state != GameState.LEVEL_TRANSITION && state != GameState.MENU_TO_LEVEL_TRANSITION) {
 
 			// Get the button that was pressed
 			ButtonPress button = inputHandler.checkForButtonPress(state,

@@ -1087,6 +1087,21 @@ public class DrawGame {
 			shapes.end();			
 	}
 	
+	public void drawBoardless(Color bg, int currentWorld, int currentOrdinalInWorld, Board b){
+		Color curBG = bg;
+		Gdx.gl.glClearColor(curBG.r, curBG.g, curBG.b, 1);
+		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		
+		int width = Gdx.graphics.getWidth();
+		int height = Gdx.graphics.getHeight();
+		TextBounds tb = null;
+		
+		// Draw the buttons
+		drawNongameButtons(width, height, tb);
+		//Draw the level header
+		drawHeader(width, height, tb, currentWorld, currentOrdinalInWorld, b);
+	}
+	
 	/**
 	 * This is the primary game drawing method
 	 * 
