@@ -1,6 +1,5 @@
 package view;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Set;
@@ -47,7 +46,6 @@ public class DrawGame {
 	public ShapeRenderer shapes;
 
 
-	BitmapFont buttonFont;
 	BitmapFont titleFont;
 	BitmapFont titleFontNoBest;
 	BitmapFont menuButtonFont;
@@ -57,6 +55,8 @@ public class DrawGame {
 	BitmapFont moveWordFont;
 	BitmapFont beamGoalFont;
 	BitmapFont gameButtonFont;
+	BitmapFont nonGameMButtonFont;
+	BitmapFont nonGameNLButtonFont;
 
 
 	public static Color translateColor(GameEngine.Color c) {
@@ -106,7 +106,6 @@ public class DrawGame {
 	public void initFonts() {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
 				Gdx.files.internal("data/fonts/swanse.ttf"));
-		buttonFont = generator.generateFont(Gdx.graphics.getHeight() / 35);
 		titleFont = generator.generateFont(Gdx.graphics.getHeight() / 28);
 		titleFontNoBest = generator.generateFont(Gdx.graphics.getHeight() / 25);
 		menuButtonFont = generator.generateFont(Gdx.graphics.getHeight() / 45);
@@ -115,7 +114,9 @@ public class DrawGame {
 		moveWordFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.TOP_BAR_SIZE * 0.2f));
 		movesFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.TOP_BAR_SIZE * 0.45f));
 		beamGoalFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.BEAM_GOAL_HEIGHT * 0.5f));
-		gameButtonFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.GAME_BUTTON_SIZE * 0.7f));
+		gameButtonFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.GAME_BUTTON_HEIGHT * 0.7f));
+		nonGameMButtonFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.NON_GAME_BUTTON_HEIGHT * 0.7f));
+		nonGameNLButtonFont = generator.generateFont((int) (Gdx.graphics.getHeight() * Constants.NON_GAME_BUTTON_HEIGHT * 0.5f));
 		
 		generator.dispose();
 	}
@@ -420,28 +421,25 @@ public class DrawGame {
 	/**
 	 * Draws the control buttons on the HUD
 	 */
-	private void drawButtons(int width, int height, TextBounds tb){
+	private void drawNongameButtons(int width, int height, TextBounds tb){
+		
 		batch.begin();
-		buttonFont.setColor(Color.WHITE);
+		nonGameMButtonFont.setColor(Constants.BOARD_COLOR);
+		tb = nonGameMButtonFont.getBounds("Menu");
 
-		tb = buttonFont.getBounds("UNDO");
+		float textHeight = (height * Constants.NON_GAME_BUTTON_HEIGHT + tb.height) / 2;
+		nonGameMButtonFont.draw(batch, "Menu", Menu.B_MENU_LEFT_X * width
+				+ (Menu.B_MENU_WIDTH * width - tb.width) / 2, textHeight);
+		
+		//TODO: Draw the info button here
+		
+		nonGameNLButtonFont.setColor(Constants.BOARD_COLOR);
+		tb = nonGameNLButtonFont.getBounds("Next Level");
 
-		float textHeight = height * Menu.buttonBotY
-				+ (Menu.buttonHeight * height + tb.height) / 2;
-		buttonFont.draw(batch, "UNDO", Menu.undoButtonLeftX * width
-				+ (Menu.undoButtonWidth * width - tb.width) / 2, textHeight);
-		buttonFont.draw(batch, "REDO", Menu.redoButtonLeftX * width
-				+ (Menu.redoButtonWidth * width - tb.width) / 2, textHeight);
-		tb = buttonFont.getBounds("RESET");
-		buttonFont.draw(batch, "RESET", Menu.resetButtonLeftX * width
-				+ (Menu.resetButtonWidth * width - tb.width) / 2, textHeight);
-
-		menuButtonFont.setColor(Color.WHITE);
-		tb = menuButtonFont.getBounds("MENU");
-		textHeight = height * Menu.menuButtonBotY
-				+ (Menu.menuButtonHeight * height + tb.height) / 2;
-		menuButtonFont.draw(batch, "MENU", Menu.menuButtonLeftX * width
-				+ (Menu.menuButtonWidth * width - tb.width) / 2, textHeight);
+		textHeight = (height * Constants.NON_GAME_BUTTON_HEIGHT + tb.height) / 2;
+		nonGameNLButtonFont.draw(batch, "Next Level", Menu.B_NEXT_LEVEL_LEFT_X * width
+				+ (Menu.B_NEXT_LEVEL_WIDTH * width - tb.width) / 2, textHeight);
+		
 		batch.end();
 	}
 
@@ -450,16 +448,24 @@ public class DrawGame {
 	 * Draws the game buttons above the level
 	 */
 	private void drawGameButtons(int bx, int by, int tilesize, Board b, TextBounds tb){
-		int baseY = by + (tilesize * b.getNumVerticalTiles());
-		int endX = bx +  (tilesize * b.getNumHorizontalTiles());
+		int baseY = b.getTopYCoord();
+		
 		String undo = "Undo";
 		gameButtonFont.setColor(Constants.BOARD_COLOR);
+		
+		int screenHeight = Gdx.graphics.getHeight();
+		int screenWidth = Gdx.graphics.getWidth();
+		
 		tb = gameButtonFont.getBounds(undo);
 		batch.begin();
-		gameButtonFont.draw(batch, undo, bx, baseY + (tb.height * 1.4f));
+		float height =  baseY + (Constants.GAME_BUTTON_HEIGHT * screenHeight + tb.height) / 2;
+		float xPos = Menu.B_UNDO_LEFT_X * screenWidth + (Menu.B_UNDO_WIDTH * screenWidth - tb.width) / 2;
+		gameButtonFont.draw(batch, undo, xPos, height);
+		
 		String reset = "Reset";
 		tb = gameButtonFont.getBounds(reset);
-		gameButtonFont.draw(batch, reset, endX - tb.width, baseY + (tb.height * 1.4f));
+		xPos = Menu.B_RESET_LEFT_X * screenWidth + (Menu.B_RESET_WIDTH * screenWidth - tb.width) / 2;
+		gameButtonFont.draw(batch, reset, Menu.B_RESET_LEFT_X * screenWidth, height);
 		batch.end();
 	}
 	
@@ -663,7 +669,9 @@ public class DrawGame {
 	 * Draws the sequence that appears after completing a level
 	 */
 	private void drawOutro(int width, int height, Board b){
-		float au = GameEngine.getWonAnimationUnit();
+		
+		
+		/*float au = GameEngine.getWonAnimationUnit();
 		float timeWon = GameEngine.getTimeWon();
 		float starBeamWidth = width / 6.0f;
 		float squareSize = 0;
@@ -778,7 +786,7 @@ public class DrawGame {
 		drawVerticalTempBeam(beam1Progress, beam1X, starBeamWidth, translateColor(GameEngine.Color.RED));
 		drawVerticalTempBeam(beam2Progress, beam2X, starBeamWidth, translateColor(GameEngine.Color.BLUE));
 		drawVerticalTempBeam(beam3Progress, beam3X, starBeamWidth, translateColor(GameEngine.Color.GREEN));
-		drawHorizontalTempBeam(horBeamProgress, horBeamY, horBeamHeight, translateColor(GameEngine.Color.BLUE));
+		drawHorizontalTempBeam(horBeamProgress, horBeamY, horBeamHeight, translateColor(GameEngine.Color.BLUE));*/
 	}
 
 	/**
@@ -1185,7 +1193,7 @@ public class DrawGame {
 
 		if(!partial){
 			// Draw the buttons
-			drawButtons(width, height, tb);
+			drawNongameButtons(width, height, tb);
 			//Draw the level header
 			drawHeader(width, height, tb, currentWorld, currentOrdinalInWorld, b);
 		}
@@ -1222,7 +1230,8 @@ public class DrawGame {
 		pieceTexture.dispose();
 		titleFont.dispose();
 		titleFontNoBest.dispose();
-		buttonFont.dispose();
+		nonGameMButtonFont.dispose();
+		nonGameNLButtonFont.dispose();
 		menuButtonFont.dispose();
 	}
 

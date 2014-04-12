@@ -36,9 +36,10 @@ public class Constants {
 	 * SCREEN SIZE CONSTANTS
 	 */
 	public static final float TOP_BAR_SIZE = 0.15f;
-	public static final float BOT_BAR_SIZE = 0.13f;
+	public static final float BOT_BAR_SIZE = 0.09f;
 	public static final float SIDE_EMPTY_SIZE = 0.02f;
-	public static final float GAME_BUTTON_SIZE = 0.08f;
+	public static final float GAME_BUTTON_HEIGHT = 0.08f;
+	public static final float NON_GAME_BUTTON_HEIGHT = 0.08f;
 	
 	/**
 	 * GOAL PROGRESS CONSTANTS

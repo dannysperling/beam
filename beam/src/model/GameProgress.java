@@ -10,7 +10,6 @@ import utilities.Constants;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 
-import controller.GameEngine;
 import controller.LevelOrderer;
 import controller.Logger;
 import controller.Logger.LogType;
