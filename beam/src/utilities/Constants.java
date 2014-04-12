@@ -71,14 +71,16 @@ public class Constants {
 		return new Color(r/255.0f, g/255.0f, b/255.0f,1);
 	}
 	public static final Color[] WORLD_COLORS = 
-		{	colorFromRGB(75,125,204),
-			colorFromRGB(121,224,224),
-			colorFromRGB(34,233,38),
-			colorFromRGB(240,128,10),
-			colorFromRGB(240,22,22),
-			colorFromRGB(212,60,204),
-			colorFromRGB(0,0,0),
-			colorFromRGB(0,0,0),
+		{	colorFromRGB(85, 5, 130),
+			colorFromRGB(40,10,100),
+			colorFromRGB(75,125,204),
+			colorFromRGB(115,200,212),
+			colorFromRGB(20,175,22),
+			colorFromRGB(20,100,11),
+			colorFromRGB(230,130,10),
+			colorFromRGB(200,50,10),
+			colorFromRGB(230,100,32),
+			colorFromRGB(150,30,150),
 			colorFromRGB(0,0,0),
 			colorFromRGB(0,0,0),
 			colorFromRGB(0,0,0),
@@ -86,4 +88,6 @@ public class Constants {
 		 	};
 	public final static Color BOARD_COLOR = new Color(.95f, .95f, .9f, .85f);
 	public final static Color LINE_COLOR = new Color(.1f, .1f, .1f, 1);
+	public static final float START_COLOR_MUL = 1.1f;
+	public static final float END_COLOR_MUL = .75f;
 }
