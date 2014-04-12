@@ -197,7 +197,7 @@ public class Menu {
 		int itemHeight = getWorldHeight();
 		
 		//Danny please fix this :(
-		int maxHeight =  (itemHeight * numWorlds)+(getSpaceHeight() * (numWorlds-3)) - Gdx.graphics.getHeight() - 1;
+		int maxHeight =  (itemHeight * numWorlds)+(getSpaceHeight() * (numWorlds - 1)) - Gdx.graphics.getHeight() - 1;
 		
 		//If going off bottom
 		if (downScrollAmount + scrollDownAmount > maxHeight){
@@ -466,12 +466,22 @@ public class Menu {
 	 * @param screenYPos
 	 * 			The height on the screen
 	 * @return
-	 * 			The world at that height. Can be out of bounds
+	 * 			The world at that height. Can be out of bounds.
+	 * 			If screenYPos selected between world, will return 1000 + previous level
 	 */
 	public int getWorldAtPosition(int screenYPos){
 		int selectedY = downScrollAmount - screenYPos + Gdx.graphics.getHeight() + 1;
 		int itemHeight = getWorldHeight();
-		return (selectedY / itemHeight) + 1;
+		int itemHeightPlus = itemHeight + getSpaceHeight();
+		
+		//Determine if we're between worlds
+		int associatedWorld = (selectedY / itemHeightPlus) + 1;
+		float fractionAbove = (selectedY % itemHeightPlus) / (float)itemHeightPlus;
+		
+		//If in the space between, add 1000
+		if (fractionAbove > ((float)itemHeight) / itemHeightPlus)
+			return associatedWorld + 1000;
+		return associatedWorld;
 	}
 	
 	/**

@@ -475,6 +475,7 @@ public class InputHandler {
 				firstTouchY = y;
 				firstTouchX = x;
 				worldTouched = menu.getWorldAtPosition(y);
+				System.out.println(worldTouched);
 				momentumX = 0;
 				momentumY = 0;
 			} 
@@ -492,7 +493,7 @@ public class InputHandler {
 						menu.scrollUpDown(y - firstTouchY, true);
 					} 
 					//Otherwise, same thing for moving horizontally
-					else if (Math.abs(firstTouchX - x) > Constants.HORIZ_MOVE_BOUNDS){
+					else if (menu.worldInBounds(worldTouched) && Math.abs(firstTouchX - x) > Constants.HORIZ_MOVE_BOUNDS){
 						movingHorizontally = true;
 						momentumX = (lastTouchX - x);
 						
@@ -539,7 +540,7 @@ public class InputHandler {
 				firstTouchY = -1;
 				
 				//Didn't move too far - clicked wherever we last were
-				if (!movedTooFar){
+				if (!movedTooFar && menu.worldInBounds(worldTouched)){
 					int selected = menu.getLevelAtPositionInWorld(worldTouched, lastTouchX);
 
 					//Reset other variables for later

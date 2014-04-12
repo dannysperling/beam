@@ -94,10 +94,14 @@ public class DrawMenu {
 
 		//Start at the top of the screen
 		int world = menu.getWorldAtPosition(height);
+		
+		//Handle in-between world states
+		if (world > 1000)
+			world -= 1000;
 
 		//Determine the top of the first world showing
 		int verticalScrolled = menu.getVerticalScrollAmount();
-		int itemTopY = (verticalScrolled + 1) % worldHeight + height;
+		int itemTopY = (verticalScrolled + 1) % (worldHeight + menu.getSpaceHeight()) + height;
 
 		Board shiftBoard = null;
 		int shiftBotY = 0;
