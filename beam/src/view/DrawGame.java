@@ -122,6 +122,7 @@ public class DrawGame {
 
 	/**
 	 * Draws the grid on which the game is played
+	 * Scrolls with animation
 	 */
 	private void drawGrid(int bx, int by, int tilesize, Board b){
 		shapes.begin(ShapeType.Line);
@@ -141,6 +142,7 @@ public class DrawGame {
 
 	/**
 	 * Draws anything that appears in a tile which never moves. This includes glass, painters, and goals
+	 * Scrolls with animation
 	 */
 	private void drawTiles(int bx, int by, int tilesize, List<Tile> tiles){
 		shapes.begin(ShapeType.Line);
@@ -282,6 +284,7 @@ public class DrawGame {
 
 	/**
 	 * Draws all of the pieces. Draws them between spaces if they're being animated
+	 * Scrolls with animation
 	 */
 	private void drawPieces(int bx, int by, int tilesize, List<Tile> path, Color paintColor, List<Piece> pieces, float paintAnimateTime, float moveAnimateTime){
 		
@@ -314,6 +317,7 @@ public class DrawGame {
 
 	/**
 	 * Draws all of the beams between pieces. Also draws intermediate states caused by animations
+	 * scrolls with animation
 	 */
 	private void drawBeams(int bx, int by, int tilesize, Set<Laser> lasers, Laser disbandedLaser, Laser movedAlongLaser, AnimationState aState, List<Tile> path, float moveAnimateTime, float paintAnimateTime, float formAnimateTime, float breakAnimateTime){
 		shapes.begin(ShapeType.Filled);
@@ -441,7 +445,10 @@ public class DrawGame {
 		batch.end();
 	}
 
-	
+		
+	/**
+	 * Draws the game buttons above the level
+	 */
 	private void drawGameButtons(int bx, int by, int tilesize, Board b, TextBounds tb){
 		int baseY = b.getTopYCoord();
 		int endX = bx +  (tilesize * b.getNumHorizontalTiles());
@@ -499,7 +506,7 @@ public class DrawGame {
 
 	}
 	
-	private void drawGoalProgress(int width, int height, TextBounds tb, Board b){
+	private void drawGoalProgress(int width, int height, TextBounds tb, Board b, float transitionPart){
 		if(b.getBeamObjectiveSet().isEmpty()){
 			//This is a piece placement level
 			int remGoals = b.getNumGoalTiles() - b.getNumGoalsFilled();
@@ -507,10 +514,10 @@ public class DrawGame {
 			String remains = remGoals + " remain" + (remGoals == 1?"s":"");
 			batch.begin();
 			tb = introFont.getBounds(ftg);
-			introFont.setColor(Constants.BOARD_COLOR);
-			introFont.draw(batch, ftg, (width - tb.width) / 2.0f, (height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))));
+			introFont.setColor(Constants.BOARD_COLOR); 
+			introFont.draw(batch, ftg, ((width - tb.width) / 2.0f) + transitionPart, (height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))));
 			tb = introFont.getBounds(remains);
-			introFont.draw(batch, remains, (width - tb.width) / 2.0f, (height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))) - (tb.height * 1.5f));
+			introFont.draw(batch, remains, ((width - tb.width) / 2.0f) + transitionPart, (height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))) - (tb.height * 1.5f));
 			batch.end();
 		} else {
 			int totalBeamGoals = 0;
@@ -526,9 +533,9 @@ public class DrawGame {
 				batch.begin();
 				tb = introFont.getBounds(bab);
 				introFont.setColor(Constants.BOARD_COLOR);
-				introFont.draw(batch, bab, (width - tb.width) / 2.0f, (height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))));
+				introFont.draw(batch, bab, ((width - tb.width) / 2.0f) + transitionPart, (height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))));
 				tb = introFont.getBounds(remains);
-				introFont.draw(batch, remains, (width - tb.width) / 2.0f, (height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))) - (tb.height * 1.5f));
+				introFont.draw(batch, remains, ((width - tb.width) / 2.0f) + transitionPart, (height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))) - (tb.height * 1.5f));
 				batch.end();
 			} else {
 				EnumMap<GameEngine.Color, Integer> beamObjective = new EnumMap<GameEngine.Color, Integer>(
@@ -550,18 +557,18 @@ public class DrawGame {
 					if(beamObjective.get(c) != null && beamObjective.get(c) != 0){
 						shapes.begin(ShapeType.Filled);
 						shapes.setColor(Color.BLACK);
-						shapes.rect(((width - (Constants.BEAM_GOAL_WIDTH * width)) / 2) - 2, (height * (Constants.BOT_BAR_SIZE + (Constants.BEAM_GOAL_HEIGHT*(i + .125f)))) - 2, (Constants.BEAM_GOAL_WIDTH * width) + 4, (height * 0.75f * Constants.BEAM_GOAL_HEIGHT) + 4);
+						shapes.rect((((width - (Constants.BEAM_GOAL_WIDTH * width)) / 2) - 2) + transitionPart, (height * (Constants.BOT_BAR_SIZE + (Constants.BEAM_GOAL_HEIGHT*(i + .125f)))) - 2, (Constants.BEAM_GOAL_WIDTH * width) + 4, (height * 0.75f * Constants.BEAM_GOAL_HEIGHT) + 4);
 						shapes.setColor(Constants.BOARD_COLOR);
-						shapes.rect((width - (Constants.BEAM_GOAL_WIDTH * width)) / 2, height * (Constants.BOT_BAR_SIZE + (Constants.BEAM_GOAL_HEIGHT*(i + .125f))), Constants.BEAM_GOAL_WIDTH * width, height * 0.75f * Constants.BEAM_GOAL_HEIGHT);
+						shapes.rect(((width - (Constants.BEAM_GOAL_WIDTH * width)) / 2) + transitionPart, height * (Constants.BOT_BAR_SIZE + (Constants.BEAM_GOAL_HEIGHT*(i + .125f))), Constants.BEAM_GOAL_WIDTH * width, height * 0.75f * Constants.BEAM_GOAL_HEIGHT);
 						shapes.setColor(translateColor(c));
 						float progress = (float)(curLaserCount.get(c)) / beamObjective.get(c);
-						shapes.rect((width - (Constants.BEAM_GOAL_WIDTH * width)) / 2, height * (Constants.BOT_BAR_SIZE + (Constants.BEAM_GOAL_HEIGHT*(i + .125f))), (Constants.BEAM_GOAL_WIDTH * width) * progress, height * 0.75f * Constants.BEAM_GOAL_HEIGHT);
+						shapes.rect(((width - (Constants.BEAM_GOAL_WIDTH * width)) / 2) + transitionPart, height * (Constants.BOT_BAR_SIZE + (Constants.BEAM_GOAL_HEIGHT*(i + .125f))), (Constants.BEAM_GOAL_WIDTH * width) * progress, height * 0.75f * Constants.BEAM_GOAL_HEIGHT);
 						shapes.end();
 						String text = "Form " + beamObjective.get(c) + " " + c.name() + " beam" + (beamObjective.get(c) == 1?"":"s");
 						tb = beamGoalFont.getBounds(text);
 						beamGoalFont.setColor(Color.BLACK);
 						batch.begin();
-						beamGoalFont.draw(batch, text, (width - tb.width) / 2, ((Constants.BOT_BAR_SIZE + ((i + 1) * Constants.BEAM_GOAL_HEIGHT)) * height) - (((height * Constants.BEAM_GOAL_HEIGHT) - tb.height) / 2));
+						beamGoalFont.draw(batch, text, ((width - tb.width) / 2)  + transitionPart, ((Constants.BOT_BAR_SIZE + ((i + 1) * Constants.BEAM_GOAL_HEIGHT)) * height) - (((height * Constants.BEAM_GOAL_HEIGHT) - tb.height) / 2));
 						batch.end();
 						i++;
 					}
@@ -1032,7 +1039,7 @@ public class DrawGame {
 	 */
 	public void draw(Board b, GameEngine.GameState state,
 		GameEngine.AnimationState aState, int currentWorld,
-		int currentOrdinalInWorld, Color bg) {
+		int currentOrdinalInWorld, Color bg, float transitionPart, boolean partial) {
 		
 		
 		//Define drawing variables including sizes and positions as well as objects to be drawn
@@ -1046,9 +1053,10 @@ public class DrawGame {
 		curBG.g = (float) (((1124 + Math.pow(17, currentLevel))%255)/255.0);
 		*/
 		
-		Gdx.gl.glClearColor(curBG.r, curBG.g, curBG.b, 1);
-
-		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		if(!partial){
+			Gdx.gl.glClearColor(curBG.r, curBG.g, curBG.b, 1);
+			Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		}
 		List<Piece> pieces = b.getAllPieces();
 		List<Tile> tiles = b.getAllTiles();
 		List<Tile> path = GameEngine.movePath;
@@ -1099,43 +1107,47 @@ public class DrawGame {
 		//Draw Board Background
 		shapes.begin(ShapeType.Filled);
 		shapes.setColor(Constants.BOARD_COLOR);
-		shapes.rect(bx, by, b.getNumHorizontalTiles() * tilesize, b.getNumVerticalTiles() * tilesize);
+		shapes.rect(bx + transitionPart, by, b.getNumHorizontalTiles() * tilesize, b.getNumVerticalTiles() * tilesize);
 		shapes.end();
-
+		
 		// Draw the basic grid
-		drawGrid(bx, by, tilesize, b);
+		drawGrid((int) (bx + transitionPart), by, tilesize, b);
 		
 		// Draw the tiles
-		drawTiles(bx, by, tilesize, tiles);
+		drawTiles((int) (bx + transitionPart), by, tilesize, tiles);
 
 		// Draw Paths
 		drawPaths(bx, by, tilesize, path, aState, state, moveAnimateTime);
 
 		// Draw the pieces
-		drawPieces(bx, by, tilesize, path, paintColor, pieces, paintAnimateTime, moveAnimateTime);		
+		drawPieces((int) (bx + transitionPart), by, tilesize, path, paintColor, pieces, paintAnimateTime, moveAnimateTime);		
 
 		// Draw Lasers
-		drawBeams(bx, by, tilesize, lasers, disbandedLaser, movedAlongLaser, aState, path, moveAnimateTime, paintAnimateTime, formAnimateTime, breakAnimateTime);
+		drawBeams((int) (bx + transitionPart), by, tilesize, lasers, disbandedLaser, movedAlongLaser, aState, path, moveAnimateTime, paintAnimateTime, formAnimateTime, breakAnimateTime);
 				
 		//Draw the bangs!
 		if(state == GameState.DESTROYED || aState == AnimationState.DESTRUCTION){
 			drawBangs(bx, by, tilesize);
-		}		
-
-		// Draw the buttons
-		drawButtons(width, height, tb);
-		drawGameButtons(bx, by, tilesize, b, tb);
-
-		//Draw the level header
-		drawHeader(width, height, tb, currentWorld, currentOrdinalInWorld, b);
+		}
 		
 		// Drawing progress towards level objectives
-		drawGoalProgress(width, height, tb, b);
+		drawGoalProgress(width, height, tb, b, transitionPart);
+		
+		drawGameButtons((int) (bx + transitionPart), by, tilesize, b, tb);
+
+
+		if(!partial){
+			// Draw the buttons
+			drawButtons(width, height, tb);
+			//Draw the level header
+			drawHeader(width, height, tb, currentWorld, currentOrdinalInWorld, b);
+		}
 		
 		// Draw intro
 		if (state == GameState.INTRO) {
 			drawIntro(width, height, ibeamheight, b);
 		}
+		
 		
 		//Draw level loss reminder
 		if(state == GameState.DESTROYED){
