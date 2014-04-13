@@ -33,6 +33,16 @@ goal_2,2,2,goal_2
 goal_2,1,1,goal_2
 </level>
 
+<level id=26 par=7 perfect=4>
+<attribution name="" author="Mike"/>
+1,e,e,1,e,goal_3
+e,2,e,e,2,e
+e,e,1,e,e,1
+1,e,e,1,e,e
+e,2,e,e,2,e
+3,e,1,e,e,1
+</level>
+
 <level id=41 par=7 perfect=6>
 <attribution name="Two color beam objectives" author="John"/>
 <beamGoal color=1 count=7/>
@@ -43,4 +53,31 @@ goal_2,1,1,goal_2
 1,e,e,2
 1,e,e,2
 1,e,e,2
+</level>
+
+<level id=55 par=10 perfect=8>
+<attribution name="Button1" author="Mike"/>
+3,glass,2,glass,1
+3,e,glass,e,1
+goal_1,2,e,2,goal_3
+goal_1,glass,glass,glass,goal_3
+glass,3:painter_3,2:painter_2,painter_1,glass
+</level>
+
+<level id=56 par=9 perfect=8>
+<attribution name="Button2" author="Mike"/>
+painter_2,glass,3,glass,2:painter_2
+2:painter_2,glass,e,glass,2:painter_2
+2:painter_2,glass,e,glass,2:painter_2
+1:painter_1,glass,e,glass,painter_1
+1:painter_1,glass,e,glass,painter_1
+glass,glass,goal_3,glass,glass
+</level>
+
+<level id=60 par=5 perfect=4>
+<attribution name="Loss1" author="Mike"/>
+1,e,1,goal_3
+e,painter_1,e,2
+1,e,painter_2,e
+3,2,e,2
 </level>

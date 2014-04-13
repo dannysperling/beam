@@ -6,6 +6,9 @@
 49
 1
 35
+### WORLDEND ###
+
+### WORLDSTART: Early Mechanics 2 ###
 45
 48
 47
@@ -13,63 +16,41 @@
 3 
 ### WORLDEND ###
 
-### WORLDSTART: Buttons ###
-55
-56
-57
-59
-58
-### WORLDEND ###
-
-### WORLDSTART: Lose on color change ###
-60
-61
-62
-82
-83
+### WORLDSTART: Intermediate Mechanics ###
+7
+32
+5
+6 
+10
+14
 ### WORLDEND ###
 
 ### WORLDSTART: Beam Objectives ###
 40 - beam objective tutorial
 2 
-42 - hard beam goal or two colors
-x - easy beam break level
+63
 12
-6 
-10
-7
+42 - hard beam goal or two colors
 ### WORLDEND ###
-
-
 
 ### WORLDSTART: Painters ###
 8
 33
-x - easier painter level
 9
-14
-5
-11
-15
-32
-### WORLDEND ###
-
-
-
-### WORLDSTART: Limitations ###
-x - huge intermediate gap
-26
-27
-54
-x - gap
-21
 23
-18
-16
+62
+21
+15
 13 - very hard but simple mechanics
 ### WORLDEND ###
 
-
+### WORLDSTART: Limitations ###
+11
+18
+16
+27
+54
+### WORLDEND ###
 
 ### WORLDSTART: Color Lock ###
 39 - color lock tutorial
@@ -80,12 +61,19 @@ x - gap
 24
 ### WORLDEND ###
 
-
+### WORLDSTART: Mikes spring break levels ###
+61
+82
+83
+57
+59
+58
+### WORLDEND ###
 
 ### WORLDSTART: CHALLENGE! ###
 17
-28
 50
+28
 30
 34
 31
