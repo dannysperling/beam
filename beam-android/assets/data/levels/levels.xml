@@ -541,7 +541,7 @@ e,painter_1,e,2
 3,2,e,2
 </level>
 
-<level id=61 par=7 perfect=6>
+<level id=61 par=5 perfect=4>
 <attribution name="Loss2" author="Mike (edit by Reese)"/>
 goal_3,1,1:painter_1,goal_3
 2:painter_2,e,e,2
