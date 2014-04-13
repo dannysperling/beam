@@ -74,7 +74,7 @@ public class Constants {
 		{	colorFromRGB(85, 5, 130),
 			colorFromRGB(40,10,100),
 			colorFromRGB(75,125,204),
-			colorFromRGB(115,200,212),
+			colorFromRGB(100,185,197),
 			colorFromRGB(20,175,22),
 			colorFromRGB(20,100,11),
 			colorFromRGB(230,130,10),
