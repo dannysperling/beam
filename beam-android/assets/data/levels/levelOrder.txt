@@ -23,6 +23,7 @@
 
 ### WORLDSTART: Lose on color change ###
 60
+61
 62
 82
 83
