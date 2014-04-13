@@ -460,7 +460,7 @@ public class GameEngine implements ApplicationListener {
 				} else if (GameEngine.getMoveCount() <= b.par) {
 					numStars = 2;
 				}
-				if (timeWon < (numStars + 2) * Constants.WON_ANIMATION_UNIT) {
+				if (timeWon < (numStars + 3) * Constants.WON_ANIMATION_UNIT) {
 					button = ButtonPress.SKIPWIN;
 				}
 			}

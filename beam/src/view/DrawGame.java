@@ -43,6 +43,8 @@ public class DrawGame {
 	private Sprite starSprite;
 	private Texture threeStarTexture;
 	private Sprite threeStarSprite;
+	private Texture oneStarTexture;
+	private Sprite oneStarSprite;
 	public ShapeRenderer shapes;
 
 	BitmapFont titleFont;
@@ -91,6 +93,9 @@ public class DrawGame {
 		threeStarTexture = new Texture(Gdx.files.internal("data/3Star.png"));
 		threeStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
+		oneStarTexture = new Texture(Gdx.files.internal("data/1Star.png"));
+		oneStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+
 		TextureRegion pieceregion = new TextureRegion(pieceTexture, 0, 0, 256,
 				256);
 		TextureRegion bangregion = new TextureRegion(bangTexture, 0, 0, 256,
@@ -98,12 +103,16 @@ public class DrawGame {
 		TextureRegion starregion = new TextureRegion(starTexture, 0, 0, 64, 64);
 		TextureRegion threestarregion = new TextureRegion(threeStarTexture, 0,
 				0, 128, 128);
+		TextureRegion onestarregion = new TextureRegion(oneStarTexture, 0,
+				0, 128, 128);
 
 		pieceSprite = new Sprite(pieceregion);
 
 		bangSprite = new Sprite(bangregion);
 		starSprite = new Sprite(starregion);
 		threeStarSprite = new Sprite(threestarregion);
+		oneStarSprite = new Sprite(onestarregion);
+
 		shapes = new ShapeRenderer();
 	}
 
@@ -814,7 +823,7 @@ public class DrawGame {
 	/**
 	 * Draws the sequence that appears after completing a level
 	 */
-	private void drawOutro(int bx, int by, int width, int height, Board b){
+	private void drawOutro(int bx, int by, int width, int height, Board b, TextBounds tb){
 		
 		
 		float au = GameEngine.getWonAnimationUnit();
@@ -838,25 +847,110 @@ public class DrawGame {
 		float star2size = 0;
 		float star3size = 0;
 		
+		float textAlpha = 0;
+		
 		if(timeWon < (1 + numStars) * au){
 			if(timeWon >= au && timeWon < (2 * au)){
 				star1size = starFunc(((timeWon - au) / au) * 2.05814f);
 			} else if (timeWon >= (2 * au) && timeWon < (3 * au)) {
 				star1size = 1;
-				star2size = starFunc(((timeWon - au) / au) * 2.05814f);
+				star2size = starFunc(((timeWon - (2 * au)) / au) * 2.05814f);
+			} else if (timeWon >= (3 * au) && timeWon < (4 * au)) {
+				star1size = 1;
+				star2size = 1;
+				star3size = starFunc(((timeWon - (3 * au)) / au) * 2.05814f);
 			}
+		} else {
+			star1size = 1;
+			star2size = 1;
+			star3size = 1;
+			if(timeWon < (3 + numStars) * au){
+				textAlpha = ((timeWon - ((1 + numStars) * au)) / (2 * au));
+			} else {
+				textAlpha = 1.0f;
+			}
+		
 		}
 		
-		String levelEndMessage = "GOOD!";
+		float starWidth = boardWidth * 4.0f / 10.0f;
+		star1size *= starWidth;
+		star2size *= starWidth;
+		star3size *= starWidth;
+		
+		String levelEndMessage = "Good!";
 		if(numStars == 2){
-			levelEndMessage = "EXCELLENT!";
+			levelEndMessage = "Excellent!";
 		}
 		if(numStars == 3){
-			levelEndMessage = "PERFECT!";
+			levelEndMessage = "Perfect!";
+		}	
+		
+		Gdx.gl.glEnable(GL10.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		shapes.begin(ShapeType.Filled);
+		shapes.setColor(new Color(1, 1, 1, boxAlpha));
+		shapes.rect(bx, by, boardWidth, boardHeight);
+		shapes.end();
+		Gdx.gl.glDisable(GL10.GL_BLEND);
+
+		float star1X = bx + (0.1f * boardWidth) + ((starWidth - star1size) / 2.0f);
+		float star1Y = by + (0.2f * boardHeight) + (((0.8f *boardHeight) - (1.666f * starWidth)) / 2.0f) + ((starWidth - star1size) / 2.0f);
+		float star2X = bx + (0.1f * boardWidth) + starWidth + ((starWidth - star2size) / 2.0f);
+		float star2Y = by + (0.2f * boardHeight) + (((0.8f *boardHeight) - (1.666f * starWidth)) / 2.0f) + ((starWidth - star2size) / 2.0f);
+		float star3X = bx + ((boardWidth - star3size) / 2.0f);
+		float star3Y = by + (0.2f * boardHeight) + (0.666f * starWidth) + (((0.8f *boardHeight) - (1.666f * starWidth)) / 2.0f) + ((starWidth - star3size) / 2.0f);
+		/*
+		float star1X = starWidth + ((starWidth - star1size) / 2.0f);
+		float star1Y = by + (0.5f * boardHeight) + ((starWidth - star1size) / 2.0f);
+		float star2X = (starWidth)  + starWidth + ((starWidth - star2size) / 2.0f);
+		float star2Y = by + (0.5f * boardHeight) + ((starWidth - star2size) / 2.0f);
+		float star3X = (starWidth) + (2 * starWidth) + ((starWidth - star3size) / 2.0f);
+		float star3Y = by + (0.5f * boardHeight) + ((starWidth - star3size) / 2.0f);
+		*/
+		float textY = by + (((0.2f * boardHeight) + (((0.8f *boardHeight) - (1.666f * starWidth)) / 2.0f))/ 2.0f);
+		
+		Gdx.gl.glEnable(GL10.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		batch.begin();
+		oneStarSprite.setColor(Color.WHITE);
+		oneStarSprite.setPosition(star1X, star1Y);
+		oneStarSprite.setSize(star1size, star1size);
+		oneStarSprite.draw(batch);
+		
+		if(numStars > 1){
+			oneStarSprite.setColor(Color.WHITE);
+			oneStarSprite.setPosition(star2X, star2Y);
+			oneStarSprite.setSize(star2size, star2size);
+			oneStarSprite.draw(batch);
+		} else {
+			oneStarSprite.setColor(new Color(0,0,0,textAlpha/3.0f));
+			oneStarSprite.setPosition(star2X, star2Y);
+			oneStarSprite.setSize(starWidth, starWidth);
+			oneStarSprite.draw(batch);
+
+		}
+
+		if(numStars > 2){
+			oneStarSprite.setColor(Color.WHITE);
+			oneStarSprite.setPosition(star3X, star3Y);
+			oneStarSprite.setSize(star3size, star3size);
+			oneStarSprite.draw(batch);
+		} else {
+			oneStarSprite.setColor(new Color(0,0,0,textAlpha/3.0f));
+			oneStarSprite.setPosition(star3X, star3Y);
+			oneStarSprite.setSize(starWidth, starWidth);
+			oneStarSprite.draw(batch);
 		}
 		
+		tb = introFont.getBounds(levelEndMessage);
+		introFont.setColor(new Color(0, 0, 0, textAlpha));
+		introFont.draw(batch, levelEndMessage, bx + ((boardWidth - tb.width) / 2.0f), textY + (tb.height / 2.0f));
 		
 		
+		
+		batch.end();
+		Gdx.gl.glDisable(GL10.GL_BLEND);
+
 
 	}
 	
@@ -920,7 +1014,6 @@ public class DrawGame {
 		batch.end();
 
 	}
-
 
 	/**
 	 * Draws the board statically at the given position and size
@@ -1154,6 +1247,7 @@ public class DrawGame {
 	 * Draw method called every step during play. Draws the current state of the
 	 * game and animations
 	 */
+	
 	public void draw(Board b, GameEngine.GameState state,
 			GameEngine.AnimationState aState, int currentWorld,
 			int currentOrdinalInWorld, Color bg, float transitionPart,
@@ -1301,13 +1395,14 @@ public class DrawGame {
 			}
 		}		
 		//Draw outro
-		if(state == GameState.WON){
-			drawOutro(bx, by, width, height, b);
+		if(state == GameState.WON || (state == GameState.LEVEL_TRANSITION && !partial)){
+			drawOutro((int) (bx + transitionPart), by, width, height, b, tb);
 
 		}
 
 	}
 
+	
 	/**
 	 * Disposes any batches, textures, and fonts being used
 	 */
