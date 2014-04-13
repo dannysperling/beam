@@ -357,7 +357,7 @@ e,1,glass,e,e
 e,e,e,e,goal_1
 </level>
 
-<level id=40 par=2 perfect=2>
+<level id=40 par=3 perfect=2>
 <attribution name="Intro to beam objectives" author="John"/>
 <beamGoal color=1 count=1/>
 glass,e,1
