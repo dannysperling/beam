@@ -558,9 +558,7 @@ public class GameEngine implements ApplicationListener {
 			logEnd();
 		}
 
-		// TODO: Handle bonus levels and locked levels
-
-		// Increment level and possibly world
+		// Increment level and possibly world - won't move to bonus
 		currentOrdinalInWorld++;
 		if (currentOrdinalInWorld >= levelOrderer.getWorldSize(currentWorld)) {
 			currentOrdinalInWorld = 1;
