@@ -618,7 +618,9 @@ public class DrawGame {
 	}
 
 	private void drawGoalProgress(int width, int height, TextBounds tb,
-			Board b, float transitionPart) {
+			Board b, float transitionPart, Laser disbandedLaser, Laser movedAlongLaser, 
+			float moveAnimateTime, float paintAnimateTime,
+			float formAnimateTime, float breakAnimateTime, GameEngine.AnimationState aState) {
 		if (b.getBeamObjectiveSet().isEmpty()) {
 			// This is a piece placement level
 			int remGoals = b.getNumGoalTiles() - b.getNumGoalsFilled();
@@ -647,7 +649,6 @@ public class DrawGame {
 			}
 			if (totalBeamGoals == 0) {
 				// This is a break all beams level
-				// This is a piece placement level
 				int remBeams = b.lasers.size();
 				String bab = "Break all beams:";
 				String remains = remBeams + " remain"
@@ -669,6 +670,7 @@ public class DrawGame {
 						- (tb.height * 1.5f));
 				batch.end();
 			} else {
+				//This is a beamgoal level!
 				EnumMap<GameEngine.Color, Integer> beamObjective = new EnumMap<GameEngine.Color, Integer>(
 						GameEngine.Color.class);
 				EnumMap<GameEngine.Color, Integer> curLaserCount = new EnumMap<GameEngine.Color, Integer>(
@@ -706,6 +708,7 @@ public class DrawGame {
 						shapes.setColor(translateColor(c));
 						float progress = (float) (curLaserCount.get(c))
 								/ beamObjective.get(c);
+
 						shapes.rect(
 								((width - (Constants.BEAM_GOAL_WIDTH * width)) / 2)
 								+ transitionPart,
@@ -1378,7 +1381,7 @@ public class DrawGame {
 		}
 
 		// Drawing progress towards level objectives
-		drawGoalProgress(width, height, tb, b, transitionPart);
+		drawGoalProgress(width, height, tb, b, transitionPart, disbandedLaser, movedAlongLaser, moveAnimateTime, paintAnimateTime, formAnimateTime, breakAnimateTime, aState);
 
 		drawGameButtons((int) (transitionPart), by, tilesize, b, tb);
 

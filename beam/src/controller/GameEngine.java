@@ -61,6 +61,7 @@ public class GameEngine implements ApplicationListener {
 	private static int timeSpentOnIntro = 0;
 	private static int timeSpentOnTransition = 0; 
 	private static int timeSpentLeavingMenu = 0;
+	private static int timeSpentLeavingLevel = 0;
 	private static int timeDead = 0;
 	private static int timeWon = 0;
 
@@ -85,7 +86,7 @@ public class GameEngine implements ApplicationListener {
 	 * Enumeration of each of the states the game can be in
 	 */
 	public enum GameState {
-		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO, LEVEL_TRANSITION, MENU_TO_LEVEL_TRANSITION
+		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO, LEVEL_TRANSITION, MENU_TO_LEVEL_TRANSITION, LEVEL_TO_MENU_TRANSITION
 	}
 
 	/**
@@ -262,7 +263,8 @@ public class GameEngine implements ApplicationListener {
 
 		// Handle the menu separately
 		boolean wasMenuShowing = mainMenuShowing;
-		if (mainMenuShowing && state != GameState.MENU_TO_LEVEL_TRANSITION){
+		if (mainMenuShowing && state != GameState.MENU_TO_LEVEL_TRANSITION && state != GameState.LEVEL_TO_MENU_TRANSITION){
+			timeSpentLeavingLevel = 0;
 			state = handleMainMenu(state);
 		}
 
@@ -308,6 +310,13 @@ public class GameEngine implements ApplicationListener {
 							timeSpentLeavingMenu++;
 						}
 						break;
+					case LEVEL_TO_MENU_TRANSITION:
+						if(timeSpentLeavingLevel >= Constants.TIME_FOR_MENU_TRANSITION){
+							state = GameState.IDLE;
+						} else {
+							timeSpentLeavingLevel++;
+						}
+						break;
 					case MOVING:						
 						//Just started to move from deciding
 						if (pastState == GameState.DECIDING){
@@ -343,7 +352,9 @@ public class GameEngine implements ApplicationListener {
 				if(wasMenuShowing && !mainMenuShowing){
 					timeSpentLeavingMenu = 0;
 				}
-			} else {
+			} else if(state == GameState.LEVEL_TO_MENU_TRANSITION){
+				dm.draw(b, currentWorld, currentOrdinalInWorld, true, 1 - (((float)(timeSpentLeavingLevel)) / Constants.TIME_FOR_MENU_TRANSITION));
+			}else {
 				dm.draw(b, currentWorld, currentOrdinalInWorld, false, 0);
 			}
 		} else if (state == GameState.LEVEL_TRANSITION) {
@@ -448,7 +459,7 @@ public class GameEngine implements ApplicationListener {
 
 		// Make sure to not check for input if we're in the middle of inputing a
 		// move or transitioning between levels
-		if (state != GameState.DECIDING && state != GameState.LEVEL_TRANSITION && state != GameState.MENU_TO_LEVEL_TRANSITION) {
+		if (state != GameState.DECIDING && state != GameState.LEVEL_TRANSITION && state != GameState.MENU_TO_LEVEL_TRANSITION && state != GameState.LEVEL_TO_MENU_TRANSITION) {
 
 			// Get the button that was pressed
 			ButtonPress button = inputHandler.checkForButtonPress(state,
@@ -515,8 +526,8 @@ public class GameEngine implements ApplicationListener {
 						initializeLasers(b);
 					}
 
-					state = GameState.IDLE;
-
+					state = GameState.LEVEL_TO_MENU_TRANSITION;
+					dm.shiftBoardNew = true;
 					mainMenuShowing = true;
 					menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
 					break;

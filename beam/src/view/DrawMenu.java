@@ -36,7 +36,7 @@ public class DrawMenu {
 	private static final Color LOCK_COLOR = new Color(.75f,.7f,0,1);
 	private FrameBuffer bgBuffer;
 	private FrameBuffer shiftBoardBuffer;
-	private boolean shiftBoardNew = true;
+	public boolean shiftBoardNew = true;
 	
 	private Sprite boardSprite;
 	private Sprite bgSprite;
