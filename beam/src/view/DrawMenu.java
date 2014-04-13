@@ -31,14 +31,20 @@ public class DrawMenu {
 	private List<List<Board>> allBoards;
 	private Texture lockTexture;
 	private Sprite lockSprite;
+	private Texture starTexture;
+	private Sprite starSprite;
 	private static final Color LOCK_COLOR = new Color(.75f,.7f,0,1);
 	private FrameBuffer bgBuffer;
 	private FrameBuffer shiftBoardBuffer;
 	private boolean shiftBoardNew = true;
+	
 	private Sprite boardSprite;
 	private Sprite bgSprite;
+	
 	private int fullHeight = 0;
 	private int fullWidth = 0;
+	
+	
 
 	/**
 	 * Constructs a drawMenu, with a reference to the menu, the drawgame,
@@ -63,6 +69,11 @@ public class DrawMenu {
 		lockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		TextureRegion lockregion = new TextureRegion(lockTexture, 0, 0, 128, 128);
 		lockSprite = new Sprite(lockregion);
+		
+		starTexture = new Texture(Gdx.files.internal("data/1star.png"));
+		starTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		TextureRegion starRegion = new TextureRegion(starTexture, 0, 0, 128, 128);
+		starSprite = new Sprite(starRegion);
 	}
 
 	/**
@@ -147,10 +158,11 @@ public class DrawMenu {
 							b = allBoards.get(world - 1).get(ordinalInWorld - 1);
 						}
 						//Draw the current level
-
+						
+						int stars = menu.getLevelStars(world, ordinalInWorld);
 
 						if(!shiftThisOne){
-							drawLevelBoard(worldUnlocked, world, ordinalInWorld, b, itemBotY, itemLeftX);
+							drawLevelBoard(worldUnlocked, world, ordinalInWorld, b, itemBotY, itemLeftX, stars);
 						} else {
 							shiftBoard = b;
 							shiftBotY = itemBotY;
@@ -212,10 +224,9 @@ public class DrawMenu {
 			Gdx.gl.glDisable(GL10.GL_BLEND);
 
 			//Figure out the board information
-			int by = (int)((1 - menu.boardHeightPercent) / 4 * worldHeight + shiftBotY);
+			int by = (int)(menu.starHeightPercent * worldHeight + shiftBotY);
 			int tilesize = (int)(menu.boardHeightPercent * worldHeight / shiftBoard.getNumVerticalTiles());
 			int bx = (levelItemWidth - tilesize * shiftBoard.getNumHorizontalTiles()) / 2 + shiftLeftX;
-
 
 
 			int nowheight = tilesize * shiftBoard.getNumVerticalTiles();
@@ -375,7 +386,7 @@ public class DrawMenu {
 		//Find the bounds based on the size of the drawn text
 		TextBounds tb = numberFont.getBounds(stringNumber);
 		numberFont.draw(batch, stringNumber, itemLeftX + (levelItemWidth - tb.width)/2, 
-				itemTopY - ((worldHeight * (1-menu.boardHeightPercent) * 3/4) - tb.height) / 2);
+				itemTopY - ((worldHeight * (1-menu.boardHeightPercent-menu.starHeightPercent) - tb.height) / 2));
 		batch.end();
 	}
 
@@ -390,21 +401,25 @@ public class DrawMenu {
 	 * @param itemLeftX
 	 * 				The x coordinate of the left side of the menu item
 	 */
-	private void drawLevelBoard(boolean worldUnlocked, int world, int ordinalInWorld, Board b, int itemBotY, int itemLeftX){
+	private void drawLevelBoard(boolean worldUnlocked, int world, int ordinalInWorld, Board b, int itemBotY, int itemLeftX, int stars){
 		// Get board dimensions
 		int levelItemWidth = menu.getLevelItemWidth();
 		int worldHeight = menu.getWorldHeight();
 
 		//Figure out the board information
-		int by = (int)((1 - menu.boardHeightPercent) / 4 * worldHeight + itemBotY);
+		int by = (int)(menu.starHeightPercent * worldHeight + itemBotY);
 		int tilesize = (int)(menu.boardHeightPercent * worldHeight / b.getNumVerticalTiles());
 		int bx = (levelItemWidth - tilesize * b.getNumHorizontalTiles()) / 2 + itemLeftX;
 		boolean locked = !worldUnlocked || (menu.isBonus(world, ordinalInWorld) && !menu.isBonusLevelUnlocked(world));
 		
 		//Draw the board in the appropriate location
 		dg.drawBoard(b, bx, by, tilesize, locked);
+		
 		//If locked, draw the lock
 		drawLock(itemLeftX, by, locked);
+		
+		//If stars, draw them
+		drawStars(itemLeftX, itemBotY, stars);
 	}
 
 	private void drawLock(int x, int y, boolean locked) {
@@ -416,6 +431,46 @@ public class DrawMenu {
 		lockSprite.setX(x+(menu.getLevelItemWidth()-spriteSize)/2);
 		lockSprite.setY(y+(menu.getWorldHeight()*menu.boardHeightPercent)/2 - (spriteSize)/2);
 		lockSprite.draw(batch);
+		batch.end();
+	}
+	
+	private void drawStars(int x, int y, int stars){
+		if (stars == 0) return;
+		
+		batch.begin();
+		int itemWidth = menu.getLevelItemWidth();
+		int worldHeight = menu.getWorldHeight();
+		float starPercent = 0.75f;
+		float spriteSize = worldHeight * menu.starHeightPercent * starPercent;
+		starSprite.setSize(spriteSize, spriteSize);
+		starSprite.setY(y + (1 - starPercent)/2 * menu.starHeightPercent * worldHeight);
+		
+		//Draw different sets of stars differently
+		switch(stars){
+			case 1:
+				//One star in middle
+				starSprite.setX(x + (itemWidth - spriteSize)/2);
+				starSprite.draw(batch);
+				break;
+			case 2:
+				//Two stars centered in middle
+				starSprite.setX(x + itemWidth/2 - spriteSize);
+				starSprite.draw(batch);
+				starSprite.setX(x + itemWidth/2);
+				starSprite.draw(batch);
+				break;
+			case 3:
+				//Three stars!
+				starSprite.setX(x + (itemWidth - 3*spriteSize)/2);
+				starSprite.draw(batch);
+				starSprite.setX(x + (itemWidth - spriteSize)/2);
+				starSprite.draw(batch);
+				starSprite.setX(x + (itemWidth + spriteSize)/2);
+				starSprite.draw(batch);
+				break;
+			default: //How we get here man?
+				break;
+		}
 		batch.end();
 	}
 
@@ -437,7 +492,7 @@ public class DrawMenu {
 	 */
 	public void initFonts() {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("data/fonts/swanse.ttf"));
-		numberFont = generator.generateFont((int) (menu.getWorldHeight() * (1 - menu.boardHeightPercent) / 2));
+		numberFont = generator.generateFont((int) (menu.getWorldHeight() * (1 - menu.boardHeightPercent - menu.starHeightPercent) * 3 / 4));
 		generator.dispose();
 	}
 }

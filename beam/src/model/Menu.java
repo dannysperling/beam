@@ -125,7 +125,8 @@ public class Menu {
 	 * interworldSpace = (1-k)/(n-1) then exactly n full worlds fit on screen.
 	 */
 	public final float worldItemPercent = 1/(3.0f)*0.90f;
-	public final float boardHeightPercent = 0.6f;
+	public final float boardHeightPercent = 0.55f;
+	public final float starHeightPercent = 0.22f;
 	public final float interWorldSpacePercent = 0.05f;
 	
 	/**
