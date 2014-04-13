@@ -481,7 +481,14 @@ e,3,1,2,e
 glass,3,1,2,glass
 </level>
 
-
+<level id=55 par=10 perfect=8>
+<attribution name="Button1" author="Mike"/>
+3,glass,2,glass,1
+3,e,glass,e,1
+goal_1,2,e,2,goal_3
+goal_1,glass,glass,glass,goal_3
+glass,3:painter_3,2:painter_2,painter_1,glass
+</level>
 
 <level id=56 par=9 perfect=8>
 <attribution name="Button2" author="Mike"/>
@@ -534,7 +541,14 @@ e,painter_1,e,2
 3,2,e,2
 </level>
 
-
+<level id=61 par=7 perfect=6>
+<attribution name="Loss2" author="Mike (edit by Reese)"/>
+goal_3,1,1:painter_1,goal_3
+2:painter_2,e,e,2
+painter_2,painter_2,e,painter_1
+3,e,e,2
+e,1:painter_1,1,3
+</level>
 
 <level id=62 par=11 perfect=9>
 <attribution name="Loss3" author="Mike"/>
@@ -563,22 +577,4 @@ e,3,2,2,2
 1,glass,3,e,e
 1,e,glass,1,1
 1,3,goal_2,glass,e
-</level>
-
-<level id=61 par=7 perfect=6>
-<attribution name="Loss2" author="Mike (edit by Reese)"/>
-goal_3,1,1:painter_1,goal_3
-2:painter_2,e,e,2
-painter_2,painter_2,e,painter_1
-3,e,e,2
-e,1:painter_1,1,3
-</level>
-
-<level id=55 par=10 perfect=8>
-<attribution name="Button1" author="Mike"/>
-3,glass,2,glass,1
-3,e,glass,e,1
-goal_1,2,e,2,goal_3
-goal_1,glass,glass,glass,goal_3
-glass,3:painter_3,2:painter_2,painter_1,glass
 </level>
