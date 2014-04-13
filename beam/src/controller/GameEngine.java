@@ -350,19 +350,27 @@ public class GameEngine implements ApplicationListener {
 			float transPart = ((float) (timeSpentOnTransition))
 					/ Constants.TIME_FOR_LEVEL_TRANSITION;
 			transPart = transPart * -1 * Gdx.graphics.getWidth();
+			
+			boolean isLast = menu.isLastLevelInWorld(currentWorld, currentOrdinalInWorld);
+			boolean isNextLocked = !menu.isNextLevelUnlocked(currentWorld, currentOrdinalInWorld);
 			dg.draw(b, state, currentAnimationState, currentWorld,
 					currentOrdinalInWorld,
 					menu.colorOfLevel(currentWorld, currentOrdinalInWorld),
-					transPart, false);
+					transPart, false, isLast, isNextLocked);
+			
+			isLast = menu.isLastLevelInWorld(nextLvWorld, nextOrdinal);
+			isNextLocked = !menu.isNextLevelUnlocked(nextLvWorld, nextOrdinal);
 			dg.draw(nextBoard, state, currentAnimationState, nextLvWorld,
 					nextOrdinal, menu.colorOfLevel(nextLvWorld, nextOrdinal),
-					transPart + Gdx.graphics.getWidth(), true);
+					transPart + Gdx.graphics.getWidth(), true, isLast, isNextLocked);
 
 		} else {
+			boolean isLast = menu.isLastLevelInWorld(currentWorld, currentOrdinalInWorld);
+			boolean isNextLocked = !menu.isNextLevelUnlocked(currentWorld, currentOrdinalInWorld);
 			dg.draw(b, state, currentAnimationState, currentWorld,
 					currentOrdinalInWorld,
 					menu.colorOfLevel(currentWorld, currentOrdinalInWorld), 0,
-					false);
+					false, isLast, isNextLocked);
 		}
 	}
 
@@ -547,7 +555,7 @@ public class GameEngine implements ApplicationListener {
 
 		return pushedButton;
 	}
-
+	
 	/**
 	 * Moves to the next level. Should handle bonus and locked levels but
 	 * doesn't.
