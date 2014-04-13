@@ -40,12 +40,12 @@ public class DrawGame {
 	private Sprite pieceSprite;
 	private Texture bangTexture;
 	private Sprite bangSprite;
-	private Texture starTexture;
-	private Sprite starSprite;
 	private Texture threeStarTexture;
 	private Sprite threeStarSprite;
 	private Texture oneStarTexture;
 	private Sprite oneStarSprite;
+	private Texture lockTexture;
+	private Sprite lockSprite;
 	public ShapeRenderer shapes;
 
 	BitmapFont titleFont;
@@ -86,8 +86,8 @@ public class DrawGame {
 		bangTexture = new Texture(Gdx.files.internal("data/bangbang.png"));
 		bangTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
-		starTexture = new Texture(Gdx.files.internal("data/star.png"));
-		starTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		lockTexture = new Texture(Gdx.files.internal("data/lock.png"));
+		lockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		// gameProgress = gp;
 
@@ -101,18 +101,18 @@ public class DrawGame {
 				256);
 		TextureRegion bangregion = new TextureRegion(bangTexture, 0, 0, 256,
 				256);
-		TextureRegion starregion = new TextureRegion(starTexture, 0, 0, 64, 64);
 		TextureRegion threestarregion = new TextureRegion(threeStarTexture, 0,
 				0, 128, 128);
 		TextureRegion onestarregion = new TextureRegion(oneStarTexture, 0,
 				0, 128, 128);
+		TextureRegion lockregion = new TextureRegion(lockTexture, 0, 0, 128, 128);
 
 		pieceSprite = new Sprite(pieceregion);
 
 		bangSprite = new Sprite(bangregion);
-		starSprite = new Sprite(starregion);
 		threeStarSprite = new Sprite(threestarregion);
 		oneStarSprite = new Sprite(onestarregion);
+		lockSprite = new Sprite(lockregion);
 
 		shapes = new ShapeRenderer();
 	}
@@ -491,7 +491,8 @@ public class DrawGame {
 	/**
 	 * Draws the control buttons on the HUD
 	 */
-	private void drawNongameButtons(int width, int height, TextBounds tb, GameState s) {
+	private void drawNongameButtons(int width, int height, TextBounds tb, 
+			GameState s, boolean isLast, boolean isNextLocked) {
 
 		batch.begin();
 		nonGameMButtonFont.setColor(Constants.BOARD_COLOR);
@@ -500,15 +501,17 @@ public class DrawGame {
 		float textHeight = (height * Constants.NON_GAME_BUTTON_HEIGHT + tb.height) / 2;
 		nonGameMButtonFont.draw(batch, "Menu", Menu.B_MENU_LEFT_X * width
 				+ (Menu.B_MENU_WIDTH * width - tb.width) / 2, textHeight);
+		batch.end();
 
+		
 		// TODO: Draw the info button here
 
+		String nextString = isLast? "Next World" : "Next Level";
 		nonGameNLButtonFont.setColor(Constants.BOARD_COLOR);
-		tb = nonGameNLButtonFont.getBounds("Next Level");
-
-		textHeight = (height * Constants.NON_GAME_BUTTON_HEIGHT + tb.height) / 2;
-		batch.end();
-		if(s == GameState.WON){
+		tb = nonGameNLButtonFont.getBounds(nextString);
+		
+		//Flash if they won and can move on
+		if(s == GameState.WON && ! isNextLocked){
 			float boxAlpha = (GameEngine.getTimeWon() % 60) / 300.0f;
 
 			Gdx.gl.glEnable(GL10.GL_BLEND);
@@ -519,12 +522,43 @@ public class DrawGame {
 			shapes.end();
 			Gdx.gl.glDisable(GL10.GL_BLEND);
 		}
+		
 		batch.begin();
-
-		nonGameNLButtonFont.draw(batch, "Next Level", Menu.B_NEXT_LEVEL_LEFT_X
+		textHeight = (height * Constants.NON_GAME_BUTTON_HEIGHT + tb.height) / 2;
+		nonGameNLButtonFont.draw(batch, nextString, Menu.B_NEXT_LEVEL_LEFT_X
 				* width + (Menu.B_NEXT_LEVEL_WIDTH * width - tb.width) / 2,
 				textHeight);
 		batch.end();
+		
+		//Draw a lock if next is locked!
+		if (isNextLocked){
+			
+			//Draw grayed-out background
+			Gdx.gl.glEnable(GL10.GL_BLEND);
+			Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+			
+			//Figure out the color
+			Color fade = Constants.BOARD_COLOR.cpy();
+			fade.mul(.2f);
+			fade.a = 0.50f;
+			
+			shapes.begin(ShapeType.Filled);
+			shapes.setColor(fade);
+			shapes.rect(Menu.B_NEXT_LEVEL_LEFT_X * width, 0, Menu.B_NEXT_LEVEL_WIDTH * width, Constants.NON_GAME_BUTTON_HEIGHT * height);
+			shapes.end();
+			Gdx.gl.glDisable(GL10.GL_BLEND);
+			
+			//Draw the lock symbol
+			batch.begin();
+			lockSprite.setColor(Constants.LOCK_COLOR);
+			float spriteSize = tb.height * 2;
+			lockSprite.setSize(spriteSize, spriteSize);
+			lockSprite.setX(Menu.B_NEXT_LEVEL_LEFT_X * width + (Menu.B_NEXT_LEVEL_WIDTH * width - spriteSize) / 2);
+			lockSprite.setY((height * Constants.NON_GAME_BUTTON_HEIGHT - spriteSize) / 2);
+			lockSprite.draw(batch);
+			
+			batch.end();
+		}
 		
 	}
 
@@ -744,7 +778,6 @@ public class DrawGame {
 	 */
 	private void drawIntro(int bx, int by, int tilesize, int width, int height,
 			Board b, float introProgress, TextBounds tb) {
-		GameEngine.Color baseColor = GameEngine.Color.RED;
 		float progress = introProgress;
 		float alpha;
 		if (progress < 0.15) {
@@ -978,62 +1011,6 @@ public class DrawGame {
 	}
 
 	/**
-	 * Draws a horizontal beam like the level intro, or the level loss reminder
-	 * banner.
-	 */
-	private void drawOverlayBeam(float progress, float ibeamheight,
-			float beamY, Color baseColor, String message, BitmapFont font) {
-		Color c1 = baseColor;
-		Color c2 = new Color(1.4f * c1.r, 1.4f * c1.g, 1.4f * c1.b, 1);
-		Color c3 = new Color(1.8f * c1.r, 1.8f * c1.g, 1.8f * c1.b, 1);
-		float curheight = 0;
-
-		if (progress <= 0.1) {
-			curheight = (progress / 0.1f) * ibeamheight;
-		} else if (progress > 0.9) {
-			curheight = ((1 - progress) / 0.1f) * ibeamheight;
-		} else {
-			curheight = ibeamheight;
-		}
-
-		int width = Gdx.graphics.getWidth();
-		shapes.begin(ShapeType.Filled);
-		GameEngine.debug("Curheigt" + curheight);
-		shapes.setColor(c1);
-		shapes.rect(0, beamY - (curheight / 2.0f), width, curheight);
-		curheight = curheight * .6666f;
-		shapes.setColor(c2);
-		shapes.rect(0, beamY - (curheight / 2.0f), width, curheight);
-		curheight = curheight * .5f;
-		shapes.setColor(c3);
-		shapes.rect(0, beamY - (curheight / 2.0f), width, curheight);
-		shapes.end();
-
-		TextBounds tb = font.getMultiLineBounds(message);
-		float textwidth = tb.width;
-		float textheight = tb.height;
-		float textX = 0;
-		float textY = beamY + (textheight / 2);
-		if (progress >= 0.1 && progress < 0.15) {
-			textX = ((((width - textwidth) / 2) + textwidth) * ((progress - 0.1f) / 0.05f))
-					- textwidth;
-		} else if (progress > 0.85 && progress <= 0.9) {
-			textX = ((((width - textwidth) / 2) + textwidth) * (1 + ((progress - 0.85f) / 0.05f)))
-					- textwidth;
-		} else if (progress <= 0.85 && progress >= 0.15) {
-			textX = (width - textwidth) / 2;
-		} else {
-			textX = -2 * textwidth;
-		}
-
-		batch.begin();
-		font.setColor(Color.WHITE);
-		font.drawMultiLine(batch, message, textX, textY);
-		batch.end();
-
-	}
-
-	/**
 	 * Draws the board statically at the given position and size
 	 */
 	public void drawBoard(Board b, int bx, int by, int tilesize, boolean faded) {
@@ -1244,7 +1221,7 @@ public class DrawGame {
 	}
 
 	public void drawBoardless(Color bg, int currentWorld,
-			int currentOrdinalInWorld, Board b) {
+			int currentOrdinalInWorld, Board b, boolean isLast, boolean isNextLocked) {
 		Color curBG = bg;
 		Gdx.gl.glClearColor(curBG.r, curBG.g, curBG.b, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
@@ -1254,7 +1231,8 @@ public class DrawGame {
 		TextBounds tb = null;
 
 		// Draw the buttons
-		drawNongameButtons(width, height, tb, GameState.IDLE);
+		drawNongameButtons(width, height, tb, GameState.IDLE, isLast, isNextLocked);
+		
 		// Draw the level header
 		drawHeader(width, height, tb, currentWorld, currentOrdinalInWorld, b);
 	}
@@ -1269,7 +1247,7 @@ public class DrawGame {
 	public void draw(Board b, GameEngine.GameState state,
 			GameEngine.AnimationState aState, int currentWorld,
 			int currentOrdinalInWorld, Color bg, float transitionPart,
-			boolean partial) {
+			boolean partial, boolean isLast, boolean isNextLocked) {
 
 		// Define drawing variables including sizes and positions as well as
 		// objects to be drawn
@@ -1296,7 +1274,6 @@ public class DrawGame {
 		int width = Gdx.graphics.getWidth();
 		int height = Gdx.graphics.getHeight();
 		TextBounds tb = null;
-		float ibeamheight = height / 10.0f;
 		Color paintColor = new Color(0, 0, 0, 0);
 		if (path.size() > 1) {
 			paintColor = translateColor(b.getTileAtBoardPosition(
@@ -1387,7 +1364,8 @@ public class DrawGame {
 
 		if (!partial) {
 			// Draw the buttons
-			drawNongameButtons(width, height, tb, state);
+			drawNongameButtons(width, height, tb, state, isLast, isNextLocked);
+			
 			// Draw the level header
 			drawHeader(width, height, tb, currentWorld, currentOrdinalInWorld,
 					b);
