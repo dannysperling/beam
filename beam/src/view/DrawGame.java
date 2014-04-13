@@ -91,10 +91,10 @@ public class DrawGame {
 
 		// gameProgress = gp;
 
-		threeStarTexture = new Texture(Gdx.files.internal("data/3Star.png"));
+		threeStarTexture = new Texture(Gdx.files.internal("data/3star.png"));
 		threeStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
-		oneStarTexture = new Texture(Gdx.files.internal("data/1Star.png"));
+		oneStarTexture = new Texture(Gdx.files.internal("data/1star.png"));
 		oneStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		TextureRegion pieceregion = new TextureRegion(pieceTexture, 0, 0, 256,
