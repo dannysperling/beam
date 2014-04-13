@@ -18,6 +18,7 @@ import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -736,7 +737,7 @@ public class DrawGame {
 	}
 
 	/**
-	 * Draws the level introduction beam that appears at level start
+	 * Draws the level introduction that appears at level start
 	 */
 	private void drawIntro(int bx, int by, int tilesize, int width, int height,
 			Board b, float introProgress, TextBounds tb) {
@@ -1396,20 +1397,51 @@ public class DrawGame {
 		}
 
 		// Draw level loss reminder
+		
+		String gameOverText= "You destroyed\n\n\na piece!\n\n\n\n\n\nPress Undo\n\n\nor Reset\n\n\nto try again.";
+		BitmapFont curFont = introFont;
+		tb = curFont.getBounds("You destroyed");
+		if(tb.width * 1.2f >= tilesize * b.getNumHorizontalTiles()){
+			curFont = nonGameNLButtonFont;
+		}
+		tb = curFont.getBounds("You destroyed");
+		if(tb.width * 1.2f >= tilesize * b.getNumHorizontalTiles()){
+			curFont = moveWordFont;
+		}
 		if (state == GameState.DESTROYED) {
 			if (GameEngine.getTimeDead() >= GameEngine.getTimeBeforeDeathBeam()) {
-				float progress = (GameEngine.getTimeDead() - GameEngine
-						.getTimeBeforeDeathBeam()) / 300.0f;
-				if (progress > 0.5) {
-					progress = 0.5f;
-				}
-				drawOverlayBeam(progress, ibeamheight, height / 2.0f,
-						translateColor(GameEngine.Color.BLUE),
-						"PRESS UNDO OR RESET", titleFont);
+				Gdx.gl.glEnable(GL10.GL_BLEND);
+				Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+				shapes.begin(ShapeType.Filled);
+				float alpha = 0.9f;
+				shapes.setColor(new Color(.666f, 0, 0, alpha));
+				shapes.rect(bx, by, tilesize * b.getNumHorizontalTiles(), tilesize * b.getNumVerticalTiles());
+				shapes.end();
+				batch.begin();
+				curFont.setColor(new Color(0,0,0,1));
+				tb = curFont.getMultiLineBounds(gameOverText);
+				curFont.drawMultiLine(batch, gameOverText, bx, by + ((tilesize * b.getNumVerticalTiles() + tb.height) / 2.0f), tilesize * b.getNumHorizontalTiles(), HAlignment.CENTER);
+				batch.end();
+				Gdx.gl.glDisable(GL10.GL_BLEND);
+				
+			} else {
+				Gdx.gl.glEnable(GL10.GL_BLEND);
+				Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+				shapes.begin(ShapeType.Filled);
+				float alpha = 0.9f * ((float)(GameEngine.getTimeDead()) / GameEngine.getTimeBeforeDeathBeam());
+				shapes.setColor(new Color(.666f, 0, 0, alpha));
+				shapes.rect(bx, by, tilesize * b.getNumHorizontalTiles(), tilesize * b.getNumVerticalTiles());
+				shapes.end();
+				batch.begin();
+				curFont.setColor(new Color(0,0,0,alpha * 1.111f));
+				tb = curFont.getMultiLineBounds(gameOverText);
+				curFont.drawMultiLine(batch, gameOverText, bx, by + ((tilesize * b.getNumVerticalTiles() + tb.height) / 2.0f), tilesize * b.getNumHorizontalTiles(), HAlignment.CENTER);
+				batch.end();
+				Gdx.gl.glDisable(GL10.GL_BLEND);
 			}
 		}		
 		//Draw outro
-		if(state == GameState.WON || (state == GameState.LEVEL_TRANSITION && !partial)){
+		if(state == GameState.WON || (state == GameState.LEVEL_TRANSITION && !partial && b.isWon())){
 			drawOutro((int) (bx + transitionPart), by, width, height, b, tb);
 
 		}
