@@ -352,21 +352,27 @@ public class GameEngine implements ApplicationListener {
 			float totalTransPart = transPart * -1 * Gdx.graphics.getWidth();
 			com.badlogic.gdx.graphics.Color a = menu.colorOfLevel(currentWorld, currentOrdinalInWorld);
 			com.badlogic.gdx.graphics.Color cb = menu.colorOfLevel(nextLvWorld, nextOrdinal);
-			com.badlogic.gdx.graphics.Color mixed = new com.badlogic.gdx.graphics.Color(a.r + ((cb.r - a.r) * transPart), a.g + ((cb.g - a.g) * transPart), a.b + ((cb.b - a.b) * transPart), a.a + ((cb.a - a.a) * transPart));
+			com.badlogic.gdx.graphics.Color mixed = new com.badlogic.gdx.graphics.Color(a.r + ((cb.r - a.r) * transPart), 
+					a.g + ((cb.g - a.g) * transPart), a.b + ((cb.b - a.b) * transPart), a.a + ((cb.a - a.a) * transPart));
 			
+			boolean isLast = menu.isLastLevelInWorld(currentWorld, currentOrdinalInWorld);
+			boolean isNextLocked = !menu.isNextLevelUnlocked(currentWorld, currentOrdinalInWorld);
 			dg.draw(b, state, currentAnimationState, currentWorld,
-					currentOrdinalInWorld,
-					mixed,
-					totalTransPart, false);
+					currentOrdinalInWorld, mixed, totalTransPart, false, isLast, isNextLocked);
+			
+			isLast = menu.isLastLevelInWorld(nextLvWorld, nextOrdinal);
+			isNextLocked = !menu.isNextLevelUnlocked(nextLvWorld, nextOrdinal);
 			dg.draw(nextBoard, state, currentAnimationState, nextLvWorld,
 					nextOrdinal, menu.colorOfLevel(nextLvWorld, nextOrdinal),
-					totalTransPart + Gdx.graphics.getWidth(), true);
+					totalTransPart + Gdx.graphics.getWidth(), true, isLast, isNextLocked);
 
 		} else {
+			boolean isLast = menu.isLastLevelInWorld(currentWorld, currentOrdinalInWorld);
+			boolean isNextLocked = !menu.isNextLevelUnlocked(currentWorld, currentOrdinalInWorld);
 			dg.draw(b, state, currentAnimationState, currentWorld,
 					currentOrdinalInWorld,
 					menu.colorOfLevel(currentWorld, currentOrdinalInWorld), 0,
-					false);
+					false, isLast, isNextLocked);
 		}
 	}
 
@@ -551,7 +557,7 @@ public class GameEngine implements ApplicationListener {
 
 		return pushedButton;
 	}
-
+	
 	/**
 	 * Moves to the next level. Should handle bonus and locked levels but
 	 * doesn't.

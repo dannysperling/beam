@@ -33,7 +33,6 @@ public class DrawMenu {
 	private Sprite lockSprite;
 	private Texture starTexture;
 	private Sprite starSprite;
-	private static final Color LOCK_COLOR = new Color(.75f,.7f,0,1);
 	private FrameBuffer bgBuffer;
 	private FrameBuffer shiftBoardBuffer;
 	private boolean shiftBoardNew = true;
@@ -118,6 +117,9 @@ public class DrawMenu {
 		Board shiftBoard = null;
 		int shiftBotY = 0;
 		int shiftLeftX = 0;
+		
+		boolean shiftIsLastLevel = false;
+		boolean shiftNextLevelLocked = false;
 
 		//Loop down until the current world wouldn't show at all - 
 		//the top of the world is below the bottom of the scren
@@ -167,6 +169,8 @@ public class DrawMenu {
 							shiftBoard = b;
 							shiftBotY = itemBotY;
 							shiftLeftX = itemLeftX;
+							shiftIsLastLevel = menu.isLastLevelInWorld(world, ordinalInWorld);
+							shiftNextLevelLocked = !menu.isNextLevelUnlocked(world, ordinalInWorld);
 						}
 					}
 
@@ -195,7 +199,8 @@ public class DrawMenu {
 
 				bgBuffer = new FrameBuffer(Format.RGBA8888, width, height, false);
 				bgBuffer.begin();
-				dg.drawBoardless(menu.colorOfLevel(curWorld, curOrdinalInWorld), curWorld, curOrdinalInWorld, shiftBoard);
+				dg.drawBoardless(menu.colorOfLevel(curWorld, curOrdinalInWorld), curWorld, curOrdinalInWorld, shiftBoard, 
+						shiftIsLastLevel, shiftNextLevelLocked);
 				bgBuffer.end();
 
 				TextureRegion background = new TextureRegion(bgBuffer.getColorBufferTexture());
@@ -310,7 +315,8 @@ public class DrawMenu {
 		shape.end();
 	}
 	
-	//THIS IS BROKEN
+	//TODO: THIS IS BROKEN
+	@SuppressWarnings("unused")
 	private Color setSaturation(Color color, float goalSat) {
 		Color ret;
 		float cMax = Math.max((Math.max(color.r, color.b)), color.g);
@@ -425,7 +431,7 @@ public class DrawMenu {
 	private void drawLock(int x, int y, boolean locked) {
 		if (!locked) return;
 		batch.begin();
-		lockSprite.setColor(LOCK_COLOR);
+		lockSprite.setColor(Constants.LOCK_COLOR);
 		float spriteSize = menu.getLevelItemWidth()*0.6f;
 		lockSprite.setSize(spriteSize, spriteSize);
 		lockSprite.setX(x+(menu.getLevelItemWidth()-spriteSize)/2);

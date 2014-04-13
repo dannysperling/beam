@@ -359,8 +359,8 @@ public class Menu {
 				//Scroll down
 				int scrollToY = Math.max(worldIndex - 1, 0);
 				int itemHeight = getWorldHeight();
-				int maxHeight =  itemHeight * numWorlds - Gdx.graphics.getHeight();
-				downScrollAmount = Math.min(itemHeight * scrollToY, maxHeight - 1);
+				int maxHeight =  (itemHeight * numWorlds)+(getSpaceHeight() * (numWorlds - 1)) - Gdx.graphics.getHeight() - 1;
+				downScrollAmount = Math.min((itemHeight + getSpaceHeight()) * scrollToY, maxHeight - 1);
 				
 				//And over
 				int over = ordinalInWorld - 1;
@@ -458,6 +458,32 @@ public class Menu {
 	 */
 	public boolean isLevelUnlocked(int world, int ordinalInWorld){
 		return isWorldUnlocked(world) && (!isBonus(world, ordinalInWorld) || isBonusLevelUnlocked(world));
+	}
+	
+
+	/**
+	 * Checks if the next level is unlocked after this one
+	 */
+	public boolean isNextLevelUnlocked(int currentWorld, int currentOrdinalInWorld) {
+		
+		int nextLevelOrdinal = currentOrdinalInWorld + 1;
+		int nextWorld = currentWorld;
+		
+		//Will never go to the bonus level
+		if (nextLevelOrdinal >= worldSizes.get(nextWorld - 1)){
+			nextLevelOrdinal = 1;
+			nextWorld++;
+		}
+		
+		return isLevelUnlocked(nextWorld, nextLevelOrdinal);
+	}
+	
+	/**
+	 * Check if this level is the last level in the world
+	 */
+	public boolean isLastLevelInWorld(int world, int ordinalInWorld) {
+
+		return (ordinalInWorld >= worldSizes.get(world-1) - 1);
 	}
 	
 	/**

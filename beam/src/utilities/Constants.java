@@ -90,4 +90,5 @@ public class Constants {
 	public final static Color LINE_COLOR = new Color(.1f, .1f, .1f, 1);
 	public static final float START_COLOR_MUL = 1.1f;
 	public static final float END_COLOR_MUL = .75f;
+	public static final Color LOCK_COLOR = new Color(.75f,.7f,0,1);
 }
