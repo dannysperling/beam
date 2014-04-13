@@ -34,7 +34,7 @@ public class Board {
 	public int id; // ID in its levels file
 	public int par; // Good solution
 	public int perfect; // Optimal solution
-
+	
 	/**
 	 * Private data on what the objectives are for the goals on beam counts
 	 */
