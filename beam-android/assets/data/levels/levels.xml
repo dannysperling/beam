@@ -551,3 +551,20 @@ e,3,2,2,2
 1,e,glass,1,1
 1,3,goal_2,glass,e
 </level>
+
+
+
+
+
+
+
+
+
+<level id=84 par=13 perfect=10>
+<attribution name="Dual Directives" author="Reese"/>
+<beamGoal color=1 count=2/>
+2,1,e
+e,e,e
+glass,glass,e
+1:goal_2,1:goal_1,2
+</level>
