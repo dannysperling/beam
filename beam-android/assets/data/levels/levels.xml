@@ -551,3 +551,26 @@ e,3,2,2,2
 1,e,glass,1,1
 1,3,goal_2,glass,e
 </level>
+
+
+<level id=101 par=25 perfect=25>
+<attribution name="To The Center" author="Danny"/>
+3,e,1,e,1,e
+painter_1,glass,painter_2,glass,painter_1,2
+e,e,1,e,glass,e
+2,glass,painter_1,e,glass,2
+e,painter_1,2:goal_3,e,1:painter_1,e
+e,glass,painter_2,glass,glass,e
+e,e,2,e,1,e
+</level>
+
+<level id=102 par=18 perfect=13>
+<attribution name="Form beams carefully" author="Danny"/>
+<beamGoal color=3 count=4/>
+glass,e,e,3,glass,glass
+glass,painter_1,2,painter_2,painter_1,3
+e,painter_2,1,1,2,e
+e,2,1,1,painter_2,e
+3,painter_1,painter_2,2,painter_1,glass
+glass,glass,3,e,e,glass
+</level>
