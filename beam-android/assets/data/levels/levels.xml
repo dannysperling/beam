@@ -245,7 +245,7 @@ e,e,glass,glass
 goal_2,goal_2,3,3:goal_2
 </level>
 
-<level id=29 par=17 perfect=15>
+<level id=29 par=15 perfect=13>
 <attribution name="" author="Mike"/>
 <beamGoal color=2 count=10/>
 glass,glass,2,glass,glass
