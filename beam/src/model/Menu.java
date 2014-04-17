@@ -162,17 +162,42 @@ public class Menu {
 	 * 				the scrolling is up-down, or the screen width if the
 	 * 				scrolling is left-right
 	 * @return
-	 * 				The new scroll amount
+	 * 				The new scroll amount factor
 	 */
 	private float determineScrollAmount(int border, int attemptScroll, int referenceDim){
+		
+		//Figure out how far past it is
+		float percentPast = determinePercentPast(border, attemptScroll, referenceDim);
+		
+		//Can't be less than zero past, in case its a very far scroll
+		return Math.max((1 - percentPast) / 2, 0); 
+	}
+	
+	/**
+	 * Figure out how far past, by percentage of the allowable amount, scrolling
+	 * has occurred
+	 * @param border
+	 * 				The border value. This would be 0 for the left or top,
+	 * 				or the max height or width for up-down or left-right
+	 * @param attemptScroll
+	 * 				The amount that is trying to be scrolled. This is where
+	 * 				the scroll would be if there weren't a limitation
+	 * @param referenceDim
+	 * 				The dimension referenced. This is the screen height if 
+	 * 				the scrolling is up-down, or the screen width if the
+	 * 				scrolling is left-right
+	 * @return
+	 * 				The percentage of the allowable amount off
+	 */
+	private float determinePercentPast(int border, int attemptScroll, int referenceDim){
 		//Determine how far past the border it was
 		float pastBorder = Math.abs(attemptScroll - border);
-		
+				
 		//The percentage past the border
 		float percentPast = pastBorder / referenceDim;
 		
-		//Can't be less than zero past, in case its a very far scroll
-		return Math.max((1 - percentPast / Constants.PERCENT_OFF_SCROLL) / 2, 0); 
+		//Factor over the PERCENT_OFF allowance
+		return percentPast/Constants.PERCENT_OFF_SCROLL;
 	}
 	
 	
@@ -210,7 +235,12 @@ public class Menu {
 				downScrollAmount = maxHeight;
 			
 			//Get reduced amount based on how close to end currently
+			boolean goingBack = scrollDownAmount < 0;
 			scrollDownAmount *= determineScrollAmount(maxHeight, downScrollAmount, height);
+			//Always allow to scroll back down
+			if (goingBack){
+				scrollDownAmount = Math.min(-1, scrollDownAmount);
+			}
 			
 			//Figure out reverse effect if not held
 			boolean turned = false;
@@ -222,6 +252,11 @@ public class Menu {
 			}
 			//And scroll.
 			downScrollAmount += scrollDownAmount;
+			
+			//Prevent going past bottom
+			int farthestDown = (int)(maxHeight + height * Constants.PERCENT_OFF_SCROLL);
+			downScrollAmount = Math.min(farthestDown, downScrollAmount);
+			
 			return turned;
 			
 		} else if (downScrollAmount + scrollDownAmount < 0){
@@ -234,7 +269,11 @@ public class Menu {
 				downScrollAmount = 0;
 			
 			//Get reduced amount based on how close to end currently
+			boolean goingBack = scrollDownAmount > 0;
 			scrollDownAmount *= determineScrollAmount(0, downScrollAmount, height);
+			if (goingBack){
+				scrollDownAmount = Math.max(1, scrollDownAmount);
+			}
 			
 			//Figure out reverse effect if not held
 			boolean turned = false;
@@ -244,8 +283,14 @@ public class Menu {
 				//Managed to reverse
 				turned = (scrollDownAmount >= 0);
 			}
+			
 			//And scroll.
 			downScrollAmount += scrollDownAmount;
+			
+			//Prevent from going past bottom
+			int farthestUp = (int)(-height * Constants.PERCENT_OFF_SCROLL);
+			downScrollAmount = Math.max(farthestUp, downScrollAmount);
+			
 			return turned;
 		} else {
 			//Regular case: just scroll
@@ -275,14 +320,28 @@ public class Menu {
 	 */
 	public boolean scrollLeftRight(int world, int scrollRightAmount, boolean held){
 		
+		
+		int worldIndex = world - 1;
+		int width = Gdx.graphics.getWidth();
+		int itemWidth = getLevelItemWidth();
+		
+		//Scroll all other levels back to the middle if they need to be
+		for (int i = 0; i < numWorlds; i++){
+			if (i != worldIndex){
+				int maxWidth =  Math.max(itemWidth * worldSizes.get(i) - width - 1, 0);
+				int change = (int)(Constants.RESCROLL_BOUNCE * width);
+				if (worldScrollAmounts[i] > maxWidth){
+					worldScrollAmounts[i] = Math.max(worldScrollAmounts[i] - change, maxWidth);
+				} else if (worldScrollAmounts[i] < 0){
+					worldScrollAmounts[i] = Math.min(worldScrollAmounts[i] + change, 0);
+				}
+			}
+		}
+		
 		//If it's not in bounds, don't do anything!
 		if (!worldInBounds(world))
 			return false;
 		
-		int worldIndex = world - 1;
-		
-		int width = Gdx.graphics.getWidth();
-		int itemWidth = getLevelItemWidth();
 		int maxWidth =  Math.max(itemWidth * worldSizes.get(worldIndex) - width - 1, 0);
 		
 		//Account for the fact that world is an ordinal
@@ -296,7 +355,12 @@ public class Menu {
 				worldScrollAmounts[worldIndex] = maxWidth;
 			
 			//Get reduced amount based on how close to end currently
+			boolean goingLeft = scrollRightAmount < 0;
 			scrollRightAmount *= determineScrollAmount(maxWidth, worldScrollAmounts[worldIndex], width);
+			//Always allow to scroll back left
+			if (goingLeft){
+				scrollRightAmount = Math.min(-1, scrollRightAmount);
+			}
 			
 			//Figure out reverse effect if not held
 			boolean turned = false;
@@ -308,6 +372,11 @@ public class Menu {
 			}
 			//And scroll.
 			worldScrollAmounts[worldIndex] += scrollRightAmount;
+			
+			//Prevent going past right edge
+			int farthestRight = (int)(maxWidth + width * Constants.PERCENT_OFF_SCROLL);
+			worldScrollAmounts[worldIndex] = Math.min(farthestRight, worldScrollAmounts[worldIndex]);
+			
 			return turned;
 		} else if (worldScrollAmounts[worldIndex] < 0){
 			//Take the scroll down amount up past the top
@@ -319,7 +388,11 @@ public class Menu {
 				worldScrollAmounts[worldIndex] = 0;
 			
 			//Get reduced amount based on how close to end currently
+			boolean goingRight = scrollRightAmount > 0;
 			scrollRightAmount *= determineScrollAmount(0, worldScrollAmounts[worldIndex], width);
+			if (goingRight){
+				scrollRightAmount = Math.max(1,  scrollRightAmount);
+			}
 			
 			//Figure out reverse effect if not held
 			boolean turned = false;
@@ -331,6 +404,11 @@ public class Menu {
 			}
 			//And scroll.
 			worldScrollAmounts[worldIndex] += scrollRightAmount;
+			
+			//Prevent going past left edge
+			int farthestLeft = (int)(-width * Constants.PERCENT_OFF_SCROLL);
+			worldScrollAmounts[worldIndex] = Math.max(farthestLeft, worldScrollAmounts[worldIndex]);
+			
 			return turned;
 		} else {
 			//Regular scrolling
@@ -530,7 +608,12 @@ public class Menu {
 		int itemWidth = getLevelItemWidth();
 		
 		//Calculate the given ordinal
-		int ordinalInWorld = (selectedX / itemWidth) + 1;
+		float ordinalInWorldFrac = (selectedX / (float) itemWidth);
+		
+		//Handle the fact that negative truncates to zero
+		int ordinalInWorld = (int) ordinalInWorldFrac;
+		if (ordinalInWorldFrac >= 0)
+			ordinalInWorld++;
 		
 		//Make sure it's in bounds
 		if (ordinalInWorld < 1 || ordinalInWorld > worldSizes.get(worldIndex)){

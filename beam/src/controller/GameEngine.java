@@ -505,6 +505,13 @@ public class GameEngine implements ApplicationListener {
 						undoTimes++;
 					}
 					b.resetPieces(boardStack.get(moveCounter));
+					
+					// Remove the move just backtracked from
+					List<Collection<Short>> newStack = new ArrayList<Collection<Short>>();
+					for (int i = 0; i <= moveCounter; i++)
+						newStack.add(boardStack.get(i));
+					boardStack = newStack;
+
 					movingPiece = null;
 					movePath.clear();
 					prepAnimationBeginning();
@@ -653,9 +660,8 @@ public class GameEngine implements ApplicationListener {
 			// Done animating - move on
 			else {
 				// Get the board where it should be now
-				if (currentAnimationState != AnimationState.DESTRUCTION) {
+				if (currentAnimationState != AnimationState.DESTRUCTION)
 					goBackToTheFuture();
-				}
 
 				// Reset the animation data
 				prepAnimationBeginning();
@@ -703,6 +709,9 @@ public class GameEngine implements ApplicationListener {
 		// transition there.
 		if (wasPieceDestroyed) {
 			state = GameState.DESTROYED;
+			
+			//Push move onto the stack
+			boardStack.add(moveCounter, (b.encodePieces()));
 		}
 		// Otherwise, we're still in a playable state
 		else {
@@ -711,14 +720,6 @@ public class GameEngine implements ApplicationListener {
 
 			// Push the move onto the stack
 			boardStack.add(moveCounter, (b.encodePieces()));
-
-			// Remove the future REDO stack, if it exists
-			if (boardStack.size() >= moveCounter + 1) {
-				List<Collection<Short>> newStack = new ArrayList<Collection<Short>>();
-				for (int i = 0; i < moveCounter + 1; i++)
-					newStack.add(boardStack.get(i));
-				boardStack = newStack;
-			}
 
 			// Check to see if we've beaten the level
 			if (b.isWon()) {
@@ -1280,23 +1281,12 @@ public class GameEngine implements ApplicationListener {
 	public void pause() {
 		// Only save if there's something to save
 		if (currentWorld != -1) {
-
-			List<Collection<Short>> saveStack;
-			// If the game is currently in a destroyed state, undo that
-			if (state == GameState.DESTROYED) {
-				moveCounter--;
-
-				// Only take up to a portion
-				saveStack = boardStack.subList(0, moveCounter + 1);
-
-			} else {
-				saveStack = boardStack;
-			}
-
-			// Store the level number, move counter, whether the menu is
-			// showing,
-			// and information about the boards in the stack
-			String toSave = currentWorld + ";" + currentOrdinalInWorld + ";"
+			
+			List<Collection<Short>> saveStack = boardStack;
+			
+			// Store the current state, level number, move counter, whether the menu is
+			// showing, and information about the boards in the stack
+			String toSave = state + ";" + currentWorld + ";" + currentOrdinalInWorld + ";"
 					+ moveCounter + ";" + mainMenuShowing + ";";
 			for (Collection<Short> curBoard : saveStack) {
 				for (Short s : curBoard) {
@@ -1333,17 +1323,20 @@ public class GameEngine implements ApplicationListener {
 			String[] parts = fromTemp.split(";");
 
 			// Get the level
-			currentWorld = Integer.parseInt(parts[0]);
-			currentOrdinalInWorld = Integer.parseInt(parts[1]);
+			currentWorld = Integer.parseInt(parts[1]);
+			currentOrdinalInWorld = Integer.parseInt(parts[2]);
 			loadLevel(currentWorld, currentOrdinalInWorld);
+			
+			//Load the state
+			state = GameState.valueOf(parts[0]);
 
 			// Set up moves and menu
-			moveCounter = Integer.parseInt(parts[2]);
-			mainMenuShowing = Boolean.parseBoolean(parts[3]);
+			moveCounter = Integer.parseInt(parts[3]);
+			mainMenuShowing = Boolean.parseBoolean(parts[4]);
 
 			// Set up the stack
 			boardStack.clear();
-			for (int i = 4; i < parts.length; i++) {
+			for (int i = 5; i < parts.length; i++) {
 				List<Short> move = new ArrayList<Short>();
 				String[] subParts = parts[i].split("--");
 				for (String s : subParts) {
@@ -1357,12 +1350,17 @@ public class GameEngine implements ApplicationListener {
 				moveCounter--;
 			b.resetPieces(boardStack.get(moveCounter));
 			initializeLasers(b);
-
-			// Handle having won on restarting level
-			if (!mainMenuShowing && b.isWon()) {
-				state = GameState.WON;
-				timeWon = Constants.WON_ANIMATION_UNIT * 10;
+			
+			//Figure out the state
+			if (state != GameState.WON && state != GameState.DESTROYED){
+				state = GameState.INTRO;
 			}
+			if (state == GameState.WON){
+				timeWon = Constants.WON_ANIMATION_UNIT * 10;
+			} else if (state == GameState.DESTROYED){
+				timeDead = Constants.TIME_BEFORE_DEATH_MESSAGE;
+			}
+			
 			menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
 		}
 	}

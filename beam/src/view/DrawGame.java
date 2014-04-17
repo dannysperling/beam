@@ -1352,8 +1352,7 @@ public class DrawGame {
 				paintAnimateTime, formAnimateTime, breakAnimateTime);
 
 		// Draw the bangs!
-		if (state == GameState.DESTROYED
-				|| aState == AnimationState.DESTRUCTION) {
+		if (aState == AnimationState.DESTRUCTION) {
 			drawBangs(bx, by, tilesize);
 		}
 

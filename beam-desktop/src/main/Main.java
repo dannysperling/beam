@@ -18,7 +18,7 @@ public class Main {
 
 		cfg.foregroundFPS = 60;
 		
-		if (args[0].equalsIgnoreCase("--unlock"))
+		if (args.length >= 1 && args[0].equalsIgnoreCase("--unlock"))
 			Constants.UNLOCK_MODE = true;
 
 		new LwjglApplication(new GameEngine(), cfg);

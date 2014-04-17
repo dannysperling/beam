@@ -490,6 +490,7 @@ public class InputHandler {
 						
 						//Scroll up down, while saying we are still holding the screen
 						menu.scrollUpDown(y - firstTouchY, true);
+						menu.scrollLeftRight(worldTouched, 0, true);
 					} 
 					//Otherwise, same thing for moving horizontally
 					else if (menu.worldInBounds(worldTouched) && Math.abs(firstTouchX - x) > Constants.HORIZ_MOVE_BOUNDS){
@@ -498,7 +499,9 @@ public class InputHandler {
 						
 						//Scroll the world, while saying we are still holding the screen
 						menu.scrollLeftRight(worldTouched, firstTouchX - x, true);
-					} 
+					} else {
+						menu.scrollLeftRight(worldTouched, 0, true);
+					}
 				}
 				//Otherwise, already moving vertically or horizontally. Continue
 				else if (movingVertically){
@@ -506,6 +509,7 @@ public class InputHandler {
 					
 					//Scroll up down, while saying we are still holding the screen
 					menu.scrollUpDown((int)momentumY, true);
+					menu.scrollLeftRight(worldTouched, 0, true);
 				} else {
 					momentumX = (lastTouchX - x);
 					
