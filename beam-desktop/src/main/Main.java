@@ -1,5 +1,7 @@
 package main;
 
+import utilities.Constants;
+
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
@@ -15,6 +17,9 @@ public class Main {
 		cfg.height = 640;
 
 		cfg.foregroundFPS = 60;
+		
+		if (args[0].equalsIgnoreCase("--unlock"))
+			Constants.UNLOCK_MODE = true;
 
 		new LwjglApplication(new GameEngine(), cfg);
 	}
