@@ -234,7 +234,8 @@ public class Solver {
 	private int heuristic(Piece[][] pieces) {
 		int heuristic = board.getNumGoalsUnfilled(pieces);
 
-		// for level 6-1
+		// for level 9-1
+		// int sum = 0;
 		// sum += enforceNotColor(pieces, 3, 1, Color.BLUE);
 		// sum += enforceNotColor(pieces, 1, 3, Color.BLUE);
 		// sum += enforceNotColor(pieces, 3, 5, Color.BLUE);
@@ -254,6 +255,11 @@ public class Solver {
 		// sum += enforceNotColor(pieces, 1, 5, Color.GREEN);
 		// sum += enforceNotColor(pieces, 5, 5, Color.GREEN);
 		// sum += enforceNotColor(pieces, 5, 1, Color.GREEN);
+		// heuristic += sum;
+
+		if (heuristic > 0) {
+			return heuristic;
+		}
 
 		for (Color c : board.getBeamObjectiveSet()) {
 			int laserCount = board.getLaserCount(pieces, c);
