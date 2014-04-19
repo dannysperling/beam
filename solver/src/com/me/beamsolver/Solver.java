@@ -11,7 +11,7 @@ import java.util.Set;
 
 import model.Board;
 import model.Piece;
-
+import model.Tile;
 import controller.LevelLoader;
 import controller.LevelOrderer;
 import controller.GameEngine.Color;
@@ -53,6 +53,7 @@ public class Solver {
 	private long startTime;
 	private static final int moveIntervalStart = 100000;
 	private static final int moveInterval = 10000;
+	private Set<Piece> searchesCompleted; // for painters
 
 	public static void main(String[] args) {
 
@@ -338,7 +339,19 @@ public class Solver {
 		for (int i = 0; i < pieces.length; i++) {
 			for (int j = 0; j < pieces[i].length; j++) {
 				if (pieces[i][j] != null) {
-					newStates.addAll(getMoves(pieces, pieces[i][j]));
+					Piece p = pieces[i][j];
+
+					// To avoid exponential explosion on painter levels,
+					// we'll store what pieces have been searched on:
+					this.searchesCompleted = new HashSet<Piece>();
+
+					// Temporarily remove p from the pieces.
+					pieces[p.getXCoord()][p.getYCoord()] = null;
+
+					newStates.addAll(getMoves(pieces, p));
+
+					// Add p back to the pieces so there are no side effects.
+					pieces[p.getXCoord()][p.getYCoord()] = p;
 				}
 			}
 		}
@@ -394,22 +407,51 @@ public class Solver {
 		if (!this.board.isTilePassable(p.getXCoord(), p.getYCoord(), pieces)) {
 			return false;
 		}
-		if (!doesPieceDestroy(pieces, p) && !isPieceDestroyed(pieces, p)) {
-			return true;
+		if (isPieceDestroyed(pieces, p)) {
+			return false;
 		}
-		return false;
+		Tile t = board.getTileAtBoardPosition(p.getXCoord(), p.getYCoord());
+		if (t.hasPainter() && t.getPainterColor() != p.getColor()) {
+			// The piece is moving onto a painter of a different color
+			Piece recoloredPiece = new Piece(p.getXCoord(), p.getYCoord(),
+					t.getPainterColor());
+			return !doesPieceDestroy(pieces, recoloredPiece)
+					&& !isPieceDestroyed(pieces, recoloredPiece);
+		}
+		return !doesPieceDestroy(pieces, p);
 	}
 
 	// Call with the current piece array and the piece to move,
 	// this returns a set of new states (not including pieces) that
 	// the board can now be in.
 	private Set<Piece[][]> getMoves(Piece[][] pieces, Piece p) {
-		// Temporarily remove p from the pieces.
-		pieces[p.getXCoord()][p.getYCoord()] = null;
-		Set<Point> moves = getContiguousPoints(pieces, p);
+		boolean success = this.searchesCompleted.add(p);
+		if (!success) {
+			return null;
+		}
 
+		Set<Point> moves = getContiguousPoints(pieces, p);
 		Set<Piece[][]> moveStates = new HashSet<Piece[][]>();
 
+		for (Point move : moves) {
+			// Handle painters:
+			Tile t = board.getTileAtBoardPosition(move.x, move.y);
+			if (t.hasPainter() && t.getPainterColor() != p.getColor()) {
+				Piece coloredPiece = new Piece(move.x, move.y,
+						t.getPainterColor());
+				Set<Piece[][]> temp = getMoves(pieces, coloredPiece);
+				if (temp != null) {
+					moveStates.addAll(temp);
+				}
+			}
+		}
+
+		fillMoveStates(moveStates, moves, pieces, p.getColor());
+		return moveStates;
+	}
+
+	private void fillMoveStates(Set<Piece[][]> moveStates, Set<Point> moves,
+			Piece[][] pieces, Color color) {
 		for (Point movePoint : moves) {
 			Piece[][] copy = new Piece[board.getNumHorizontalTiles()][board
 					.getNumVerticalTiles()];
@@ -420,12 +462,9 @@ public class Solver {
 			}
 			int x = movePoint.x;
 			int y = movePoint.y;
-			copy[x][y] = new Piece(x, y, p.getColor());
+			copy[x][y] = new Piece(x, y, color);
 			moveStates.add(copy);
 		}
-		// Add p back to the pieces so there are no side effects.
-		pieces[p.getXCoord()][p.getYCoord()] = p;
-		return moveStates;
 	}
 
 	private Set<Point> getContiguousPoints(Piece[][] pieces, Piece p) {
@@ -435,6 +474,12 @@ public class Solver {
 
 		while (searchQueue.size() > 0) {
 			Point tempPoint = searchQueue.remove(0);
+
+			// Handle painters
+			Tile t = board.getTileAtBoardPosition(tempPoint.x, tempPoint.y);
+			if (t.hasPainter() && t.getPainterColor() != p.getColor()) {
+				continue;
+			}
 
 			Point up_point = new Point(tempPoint.x, tempPoint.y + 1);
 			Piece up = new Piece(up_point, p.getColor());
