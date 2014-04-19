@@ -493,7 +493,7 @@ e,1,glass,glass,2,e
 1,glass,2:painter_2,painter_1,glass,2
 </level>
 
-<level id=59 par=13 perfect=11>
+<level id=59 par=14 perfect=12>
 <attribution name="Button5" author="Mike"/>
 2,2,1,1
 glass,glass,glass,glass
