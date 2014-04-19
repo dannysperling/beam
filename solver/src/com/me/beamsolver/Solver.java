@@ -93,6 +93,9 @@ public class Solver {
 		if (!solved) {
 			solve();
 		}
+		if (solution == null) {
+			return -1;
+		}
 		return getMovesToReach(solution);
 	}
 
@@ -106,6 +109,9 @@ public class Solver {
 	public void printSolutionTrace() {
 		if (!solved) {
 			solve();
+		}
+		if (solution == null) {
+			return;
 		}
 		List<Piece[][]> solutionTrace = new ArrayList<Piece[][]>();
 		solutionTrace.add(solution);
