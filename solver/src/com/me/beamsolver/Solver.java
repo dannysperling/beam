@@ -51,9 +51,10 @@ public class Solver {
 	private int positionsInQueue;
 	private int positionsExpandedThisDepth;
 	private long startTime;
-	private static final int moveIntervalStart = 100000;
+	private static final int moveIntervalStart = 10000;
 	private static final int moveInterval = 10000;
 	private Set<Piece> searchesCompleted; // for painters
+	private List<Piece> blockingPieces;
 
 	public static void main(String[] args) {
 
@@ -65,8 +66,8 @@ public class Solver {
 				"../beam-android/assets/data/levels/levels.xml", levelOrderer,
 				false);
 
-		int world = 4;
-		int ordinalInWorld = 3;
+		int world = 9;
+		int ordinalInWorld = 7;
 		Board toSolve = levelLoader.getLevel(world, ordinalInWorld);
 		printPieces(toSolve.getPieces());
 		System.out.println("Solving level " + world + "-" + ordinalInWorld);
@@ -88,6 +89,10 @@ public class Solver {
 		this.cutoffs = 0;
 		this.positionsInQueue = 0;
 		this.positionsExpandedThisDepth = 1;
+		initializeBlockedPieces();
+		for (Piece p : blockingPieces) {
+			System.out.println(p.getXCoord() + ", " + p.getYCoord() + ", " + p.getColor());
+		}
 	}
 
 	public int getMovesNeeded() {
@@ -241,28 +246,9 @@ public class Solver {
 	private int heuristic(Piece[][] pieces) {
 		int heuristic = board.getNumGoalsUnfilled(pieces);
 
-		// for level 9-1
-		// int sum = 0;
-		// sum += enforceNotColor(pieces, 3, 1, Color.BLUE);
-		// sum += enforceNotColor(pieces, 1, 3, Color.BLUE);
-		// sum += enforceNotColor(pieces, 3, 5, Color.BLUE);
-		// sum += enforceNotColor(pieces, 5, 3, Color.BLUE);
-		//
-		// sum += enforceNotColor(pieces, 3, 1, Color.GREEN);
-		// sum += enforceNotColor(pieces, 1, 3, Color.GREEN);
-		// sum += enforceNotColor(pieces, 3, 5, Color.GREEN);
-		// sum += enforceNotColor(pieces, 5, 3, Color.GREEN);
-		//
-		// sum += enforceNotColor(pieces, 1, 1, Color.BLUE);
-		// sum += enforceNotColor(pieces, 1, 5, Color.BLUE);
-		// sum += enforceNotColor(pieces, 5, 5, Color.BLUE);
-		// sum += enforceNotColor(pieces, 5, 1, Color.BLUE);
-		//
-		// sum += enforceNotColor(pieces, 1, 1, Color.GREEN);
-		// sum += enforceNotColor(pieces, 1, 5, Color.GREEN);
-		// sum += enforceNotColor(pieces, 5, 5, Color.GREEN);
-		// sum += enforceNotColor(pieces, 5, 1, Color.GREEN);
-		// heuristic += sum;
+		for (Piece blockingPiece : blockingPieces) {
+			heuristic += encourageNotPiece(pieces, blockingPiece);
+		}
 
 		if (heuristic > 0) {
 			return heuristic;
@@ -278,10 +264,99 @@ public class Solver {
 		return heuristic;
 	}
 
+	private void initializeBlockedPieces() {
+		Set<Color> blockingColors = getBlockingColors(board.getPieces());
+		Piece[][] fantasyPieces = getFantasyPieces();
+		this.blockingPieces = new ArrayList<Piece>();
+		
+		int numH = board.getNumHorizontalTiles();
+		int numV = board.getNumVerticalTiles();
+		for (int x = 0; x < numH; x++) {
+			for (int y = 0; y < numV; y++) {
+				for (Color c : blockingColors) {
+					Piece p = new Piece(x, y, c);
+					Tile t = board.getTileAtBoardPosition(x, y);
+					if (t.hasGlass()) {
+						continue;
+					}
+					if (!this.isPlaceSafe(fantasyPieces, p)) {
+						blockingPieces.add(p);
+					}
+				}
+			}
+		}
+	}
+
+	private Set<Color> getInvolvedColors(Piece[][] pieces) {
+		Set<Color> involvedColors = new HashSet<Color>();
+		for (int i = 0; i < pieces.length; i++) {
+			for (int j = 0; j < pieces[0].length; j++) {
+				if (pieces[i][j] != null) {
+					involvedColors.add(pieces[i][j].getColor());
+				}
+				Tile t = board.getTileAtBoardPosition(i, j);
+				if (t.hasPainter()) {
+					involvedColors.add(t.getPainterColor());
+				}
+			}
+		}
+		return involvedColors;
+	}
+
+	private Set<Color> getBlockingColors(Piece[][] pieces) {
+		Set<Color> ret = getInvolvedColors(pieces);
+		ret.removeAll(getGoalColors());
+		return ret;
+	}
+
+	private Set<Color> getGoalColors() {
+		int numH = board.getNumHorizontalTiles();
+		int numV = board.getNumVerticalTiles();
+		Set<Color> objectiveColors = new HashSet<Color>();
+		for (int i = 0; i < numH; i++) {
+			for (int j = 0; j < numV; j++) {
+				Tile t = board.getTileAtBoardPosition(i, j);
+				if (t.hasGoal()) {
+					objectiveColors.add(t.getGoalColor());
+				}
+			}
+		}
+		objectiveColors.addAll(board.getBeamObjectiveSet());
+		return objectiveColors;
+	}
+
+	private Piece[][] getFantasyPieces() {
+		int numH = board.getNumHorizontalTiles();
+		int numV = board.getNumVerticalTiles();
+		Piece[][] pieces = new Piece[numH][numV];
+		for (int i = 0; i < numH; i++) {
+			for (int j = 0; j < numV; j++) {
+				Tile t = board.getTileAtBoardPosition(i, j);
+				if (t.hasGoal()) {
+					pieces[i][j] = new Piece(i, j, t.getGoalColor());
+				}
+			}
+		}
+		return pieces;
+	}
+
 	// returns 1 if the piece is the color (which it shouldn't be)
-	private int enforceNotColor(Piece[][] pieces, int x, int y, Color color) {
-		return (pieces[x][y] != null && pieces[x][y].getColor() == color) ? 1
+	private int encourageNotPiece(Piece[][] pieces, Piece p) {
+		return (pieces[p.getXCoord()][p.getYCoord()] != null && pieces[p
+				.getXCoord()][p.getYCoord()].getColor() == p.getColor()) ? 1
 				: 0;
+	}
+
+	private int countPiecesOfColor(Piece[][] pieces, Color color) {
+		int count = 0;
+		for (int i = 0; i < pieces.length; i++) {
+			for (int j = 0; j < pieces[0].length; j++) {
+				if (pieces[i][j] != null && pieces[i][j].getColor() == color) {
+					count++;
+				}
+			}
+		}
+		return count;
 	}
 
 	private boolean isHSym() {
@@ -430,10 +505,12 @@ public class Solver {
 			return null;
 		}
 
-		Set<Point> moves = getContiguousPoints(pieces, p);
+		List<Point> moves = new ArrayList<Point>();
+		moves.addAll(getContiguousPoints(pieces, p));
 		Set<Piece[][]> moveStates = new HashSet<Piece[][]>();
 
-		for (Point move : moves) {
+		for (int i = 0; i < moves.size(); i++) {
+			Point move = moves.get(i);
 			// Handle painters:
 			Tile t = board.getTileAtBoardPosition(move.x, move.y);
 			if (t.hasPainter() && t.getPainterColor() != p.getColor()) {
@@ -443,14 +520,19 @@ public class Solver {
 				if (temp != null) {
 					moveStates.addAll(temp);
 				}
+				// Since the move ended on a painter
+				// remove it from the original color moves
+				moves.remove(i);
+				i--;
 			}
 		}
 
+		// moves shouldn't contain any
 		fillMoveStates(moveStates, moves, pieces, p.getColor());
 		return moveStates;
 	}
 
-	private void fillMoveStates(Set<Piece[][]> moveStates, Set<Point> moves,
+	private void fillMoveStates(Set<Piece[][]> moveStates, List<Point> moves,
 			Piece[][] pieces, Color color) {
 		for (Point movePoint : moves) {
 			Piece[][] copy = new Piece[board.getNumHorizontalTiles()][board
@@ -470,7 +552,9 @@ public class Solver {
 	private Set<Point> getContiguousPoints(Piece[][] pieces, Piece p) {
 		Set<Point> contiguousPoints = new HashSet<Point>();
 		List<Point> searchQueue = new ArrayList<Point>();
-		searchQueue.add(new Point(p.getXCoord(), p.getYCoord()));
+		Point originalPoint = new Point(p.getXCoord(), p.getYCoord());
+		searchQueue.add(originalPoint);
+		contiguousPoints.add(originalPoint);
 
 		while (searchQueue.size() > 0) {
 			Point tempPoint = searchQueue.remove(0);
