@@ -46,6 +46,11 @@ public class Piece {
 		return (this.xCoord == p2.xCoord) &&  (this.yCoord == p2.yCoord) && (this.color == p2.color);
 	}
 	
+	@Override
+	public int hashCode() {
+		return 2 * xCoord + 3 * yCoord + 5 * this.color.ordinal();
+	}
+
 	/**
 	 * Getters and setters for the piece.
 	 */
