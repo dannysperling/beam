@@ -14,6 +14,7 @@ import model.Laser;
 import model.Menu;
 import model.Piece;
 import model.Tile;
+import model.Tutorial;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -28,11 +29,18 @@ public class GameEngine implements ApplicationListener {
 	 */
 	private Board b;
 	private Board nextBoard;
+	
+	/**
+	 * The current tutorial, if there is one, or null if there isn't
+	 */
+	private Tutorial tutorial;
+	
 	private DrawGame dg;
 	private InputHandler inputHandler;
 	private LevelLoader levelLoader;
 	private GameProgress progress;
 	private LevelOrderer levelOrderer;
+	private TutorialLoader tutorialLoader;
 	private Menu menu;
 	private DrawMenu dm;
 
@@ -185,6 +193,9 @@ public class GameEngine implements ApplicationListener {
 		levelLoader = new LevelLoader("data/levels/levels.xml", levelOrderer,
 				true);
 		progress = new GameProgress(levelOrderer);
+		
+		//Set up tutorials
+		tutorialLoader = new TutorialLoader("data/tutorials/tutorialDescriptions.txt", levelOrderer);
 
 		// Create the drawing
 		dg = new DrawGame(progress);
@@ -828,6 +839,9 @@ public class GameEngine implements ApplicationListener {
 			debug("No further levels exist.");
 			System.exit(1);
 		}
+		
+		// Load the tutorial
+		tutorial = tutorialLoader.getTutorial(world, ordinalInWorld);
 
 		// Clean out all the inits
 		movingPiece = null;

@@ -1,0 +1,9 @@
+TUTORIAL FOR LEVEL UNIQUE ID: 37
+Drag the piece to move it
+IMAGE: 5 frames, 128 side, movetutorial.png
+Square is goal
+END TUTORIAL
+
+TUTORIAL FOR LEVEL UNIQUE ID: 53
+Pieces can't move through glass
+END TUTORIAL
