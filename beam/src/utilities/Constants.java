@@ -101,4 +101,6 @@ public class Constants {
 	public static final Color LOCK_COLOR = new Color(.75f,.7f,0,1);
 	public static final Color LOCKED_WORLD_OVERLAY = new Color (0,0,0,0.85f);
 	public static final Color LOCKED_LEVEL_NUMBER_COLOR = new Color(.95f, .95f, .9f, .25f);
+	public static final Color GLASS_COLOR = new Color(.18f,.18f,.18f,.5f);
+	public static int GLASS_STYLE = 2;
 }
