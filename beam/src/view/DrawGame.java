@@ -10,6 +10,8 @@ import model.Laser;
 import model.Menu;
 import model.Piece;
 import model.Tile;
+import model.Tutorial;
+import model.Tutorial.ElementType;
 import utilities.Constants;
 
 import com.badlogic.gdx.Gdx;
@@ -1237,6 +1239,122 @@ public class DrawGame {
 		drawHeader(width, height, tb, currentWorld, currentOrdinalInWorld, b);
 	}
 
+	private String correctlyWrap(String s, BitmapFont font, TextBounds tb, float wrapWidth){
+		tb = font.getBounds(s);
+		if(tb.width <= wrapWidth){
+			return s;
+		} else {
+			tb = font.getBounds("");
+			int mostRecentSpace = 0;
+			int nextSpace = 0;
+			while(tb.width <= wrapWidth){
+				mostRecentSpace = nextSpace;
+				nextSpace = s.indexOf(' ', mostRecentSpace + 1);
+				if(nextSpace == -1){
+					return s;
+				}
+				tb = font.getBounds(s.substring(0, nextSpace));
+			}
+			return s.substring(0, mostRecentSpace) + "\n\n" + correctlyWrap(s.substring(mostRecentSpace + 1), font, tb, wrapWidth);
+		}		
+	}
+	
+	public void drawTutorial(Tutorial tutorial, TextBounds tb, int width, int height){
+		if(tutorial == null){
+			return;
+		}
+		
+		BitmapFont curFont = introFont;
+		if(tutorialTooBig(curFont, tutorial, tb, width, height)){
+			curFont = nonGameNLButtonFont;
+		}
+		if(tutorialTooBig(curFont, tutorial, tb, width, height)){
+			curFont = moveWordFont;
+		}
+		
+		float textHeight = 0;
+		float imageHeight = 0;
+
+		for(int i = 0; i < tutorial.getNumElements(); i++){
+			if(tutorial.getElementTypeAt(i) == ElementType.TEXT){
+				String nextPart = correctlyWrap(tutorial.getTextElementAt(i), curFont, tb, width * 0.9f);
+				tb = curFont.getMultiLineBounds(nextPart);
+				textHeight += tb.height;
+			} else if (tutorial.getElementTypeAt(i) == ElementType.ANIMATED_IMAGE){
+				imageHeight += tutorial.getImageElementAt(i).get(0).getHeight();
+			}
+		}
+		float allowedImageSpace = height - textHeight;
+		float imageFactor = Math.min(1.0f, allowedImageSpace / imageHeight);
+		float totalHeight = textHeight + (imageHeight * imageFactor) + ((tutorial.getNumElements() + 1) * Constants.TUTORIAL_V_BREAK * height);
+		
+		
+		float upshift = 0;
+		if(GameEngine.timeSpentOnTutorial < Constants.TUTORIAL_IN_TIME){
+			upshift = 1 - (float)(GameEngine.timeSpentOnTutorial) / Constants.TUTORIAL_IN_TIME; 
+			upshift *= height;
+		} 
+		if((GameEngine.timeToStopTutorial - GameEngine.timeSpentOnTutorial) < Constants.TUTORIAL_IN_TIME){
+			upshift = 1 - (float)(GameEngine.timeToStopTutorial - GameEngine.timeSpentOnTutorial) / Constants.TUTORIAL_IN_TIME;
+			upshift *= height; 
+		}
+		
+		float curHeight = height - ((height - totalHeight) / 2.0f) + upshift;
+		curHeight -= Constants.TUTORIAL_V_BREAK * height;
+		
+		Gdx.gl.glEnable(GL10.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		shapes.begin(ShapeType.Filled);
+		shapes.setColor(new Color(.95f, .95f, .95f, 0.95f));
+		shapes.rect(0, upshift, width, height);
+		shapes.end();
+		Gdx.gl.glDisable(GL10.GL_BLEND);
+
+		
+		for(int i = 0; i < tutorial.getNumElements(); i++){
+			if(tutorial.getElementTypeAt(i) == ElementType.TEXT){
+				String nextPart = correctlyWrap(tutorial.getTextElementAt(i), curFont, tb, width * 0.9f);
+				tb = curFont.getMultiLineBounds(nextPart);
+				batch.begin();
+				batch.setColor(Color.BLACK);
+				curFont.setColor(Color.BLACK);
+				curFont.drawMultiLine(batch, nextPart, (((width * 0.9f) - tb.width) / 2.0f) + (width * (0.05f)) , curHeight, tb.width, HAlignment.CENTER);
+				batch.end();
+				curHeight -= tb.height;
+				curHeight -= Constants.TUTORIAL_V_BREAK * height;
+			} else if (tutorial.getElementTypeAt(i) == ElementType.ANIMATED_IMAGE){
+				int frame = (int) ((GameEngine.timeSpentOnTutorial / Constants.TUTORIAL_TICKS_PER_FRAME) % tutorial.getImageElementAt(i).size());
+				Sprite toDraw = tutorial.getImageElementAt(i).get(frame);
+				toDraw.setSize(toDraw.getWidth() * imageFactor, toDraw.getHeight() * imageFactor);
+				curHeight -= toDraw.getHeight();
+				toDraw.setPosition((((width * 0.9f) - toDraw.getWidth()) / 2.0f) + (width * 0.05f), curHeight);
+				batch.begin();
+				toDraw.draw(batch);
+				batch.end();
+				curHeight -= Constants.TUTORIAL_V_BREAK * height;
+			}
+		}
+		
+	}
+	
+	private boolean tutorialTooBig(BitmapFont font, Tutorial tutorial, TextBounds tb, int width, int height){
+		float textHeight = 0;
+		float halfImageHeight = 0;
+		float spacingHeight = (tutorial.getNumElements() + 1) * Constants.TUTORIAL_V_BREAK * height;
+
+		for(int i = 0; i < tutorial.getNumElements(); i++){
+			if(tutorial.getElementTypeAt(i) == ElementType.TEXT){
+				String nextPart = correctlyWrap(tutorial.getTextElementAt(i), font, tb, width * 0.9f);
+				tb = font.getMultiLineBounds(nextPart);
+				textHeight += tb.height;
+			} else if (tutorial.getElementTypeAt(i) == ElementType.ANIMATED_IMAGE){
+				halfImageHeight += tutorial.getImageElementAt(i).get(0).getHeight() / 2.0f;
+			}
+		}
+		
+		return (textHeight + halfImageHeight + spacingHeight >= height);		
+	}
+	
 	/**
 	 * This is the primary game drawing method
 	 * 
@@ -1420,6 +1538,10 @@ public class DrawGame {
 				Gdx.gl.glDisable(GL10.GL_BLEND);
 			}
 		}		
+		
+		if(state == GameState.TUTORIAL){
+			drawTutorial(GameEngine.getTutorial(), tb, width, height);
+		}
 		//Draw outro
 		if(state == GameState.WON || (state == GameState.LEVEL_TRANSITION && !partial && b.isWon())){
 			drawOutro((int) (bx + transitionPart), by, width, height, b, tb);

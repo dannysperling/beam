@@ -12,7 +12,7 @@ public class Constants {
 	 */
 	public static final boolean DEBUG_MODE = false;
 	public static boolean UNLOCK_MODE = false;
-	public static final boolean LOGGING = true;
+	public static final boolean LOGGING = false;
 	
 	
 	/**
@@ -30,6 +30,14 @@ public class Constants {
 	
 	public static final int TIME_FOR_LEVEL_TRANSITION = 30;
 	public static final int TIME_FOR_MENU_TRANSITION = 25;
+	
+	
+	/**
+	 * TUTORIAL CONSTANTS
+	 */
+	public static final float TUTORIAL_V_BREAK = 0.05f;
+	public static final int TUTORIAL_IN_TIME = 30;
+	public static final float TUTORIAL_TICKS_PER_FRAME = 45;
 
 	
 	/**

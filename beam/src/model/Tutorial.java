@@ -80,6 +80,7 @@ public class Tutorial {
 			col = 0;
 			row++;
 		}
+		imageElements.put(numElements, spriteFrames);
 		
 		//Increment number of elements
 		numElements++;
