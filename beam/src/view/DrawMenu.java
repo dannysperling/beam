@@ -164,7 +164,7 @@ public class DrawMenu {
 						int stars = menu.getLevelStars(world, ordinalInWorld);
 
 						if(!shiftThisOne){
-							drawLevelBoard(worldUnlocked, world, ordinalInWorld, b, itemBotY, itemLeftX, stars);
+							drawLevelBoard(true, world, ordinalInWorld, b, itemBotY, itemLeftX, stars);
 						} else {
 							shiftBoard = b;
 							shiftBotY = itemBotY;
@@ -180,6 +180,7 @@ public class DrawMenu {
 					//Grab the next ordinal. That way, we get -1 if we're past the bounds
 					ordinalInWorld = menu.getLevelAtPositionInWorld(world, itemLeftX + levelItemWidth / 2);
 				}
+				drawWorldOverlay(world, itemBotY);
 			}
 
 			//Drawing from top to bottom, so decrement the y coordinate
@@ -257,6 +258,42 @@ public class DrawMenu {
 
 	}
 
+	private void drawWorldOverlay(int world, int itemBotY) {
+		if (menu.isWorldUnlocked(world)) return;
+		Gdx.gl.glEnable(GL10.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		ShapeRenderer shape = dg.shapes;
+		shape.begin(ShapeType.Filled);
+		//Grey out world
+		shape.setColor(Constants.LOCKED_WORLD_OVERLAY);
+		shape.rect(0, itemBotY, Gdx.graphics.getWidth(),  menu.getWorldHeight());
+		shape.end();
+		//If not next just draw lock
+		if (!menu.isWorldUnlocked(world-1)){
+			batch.begin();
+			lockSprite.setColor(Constants.LOCK_COLOR);
+			float spriteSize = menu.getLevelItemWidth();
+			lockSprite.setSize(spriteSize, spriteSize);
+			lockSprite.setX(Gdx.graphics.getWidth()/2-spriteSize/2);
+			lockSprite.setY(itemBotY+(menu.getWorldHeight()*menu.boardHeightPercent)/2);
+			lockSprite.draw(batch);
+			batch.end();
+		} else{
+			//Draw text telling user how many stars they need
+			String text = menu.getNumStarsEarned(world-1)+" of "+menu.getNumStarsNeeded(world-1);
+			batch.begin();
+			numberFont.setColor(Constants.BOARD_COLOR);
+			//Find the bounds based on the size of the drawn text
+			TextBounds tb = numberFont.getBounds(text);
+			numberFont.draw(batch, text, Gdx.graphics.getWidth()/2-tb.width/2, 
+					itemBotY+(menu.getWorldHeight()*menu.boardHeightPercent)/2);
+			batch.end();
+		}
+		
+		Gdx.gl.glDisable(GL10.GL_BLEND);
+		
+	}
+
 	/**
 	 * Draws the colored background of a given world
 	 * 
@@ -315,55 +352,6 @@ public class DrawMenu {
 		shape.end();
 	}
 	
-	//TODO: THIS IS BROKEN
-	@SuppressWarnings("unused")
-	private Color setSaturation(Color color, float goalSat) {
-		Color ret;
-		float cMax = Math.max((Math.max(color.r, color.b)), color.g);
-		float cMin = Math.min((Math.min(color.r, color.b)), color.g);
-		float delta = cMax - cMin;
-		float hue = 60;//in Degrees
-		if (color.r == cMax){
-			hue *= ((color.g - color.b)/delta);
-			if (hue < 0){
-				hue *= -1;
-				hue %= 6;
-				hue *= -1;
-			} else {
-				hue %= 6;
-			}
-		}else if (color.g == cMax){
-			hue *= ((color.b - color.r)/delta)+2;
-		}else if (color.b == cMax){
-			hue *= ((color.r - color.g)/delta)+4;
-		}
-		hue += 360*2;
-		hue %= 360;
-		float luma = (cMax+cMin)/2;
-		//float sat = delta/(1-Math.abs(2*luma - 1));
-		float C = (1-Math.abs(2*luma - 1))*goalSat;
-		float X = C * (1-Math.abs(((hue/60) %2)-1));
-		if (hue < 60){
-			ret = new Color(C,X,0,1);
-		}else if (hue < 120){
-			ret = new Color(X,C,0,1);
-		}else if (hue < 120){
-			ret = new Color(0,C,X,1);
-		}else if (hue < 120){
-			ret = new Color(0,X,C,1);
-		}else if (hue < 120){
-			ret = new Color(X,0,C,1);
-		}else{
-			ret = new Color(C,0,X,1);
-		}
-		float m = luma - (C/2);
-		ret.r += m;
-		ret.g += m;
-		ret.b += m;
-		//System.out.println(ret.r+","+ret.g+","+ret.b);
-		return ret;
-	}
-
 	/**
 	 * Draws the number above the board inside the menu item. At present, the number
 	 * is red if locked, green if completed, and blue otherwise.
@@ -380,7 +368,7 @@ public class DrawMenu {
 	 * 						The left x position of the menu item being drawn
 	 */
 	private void drawLevelNumber(boolean worldUnlocked, int world, int ordinalInWorld, int itemTopY, int itemLeftX){
-		numberFont.setColor(Constants.BOARD_COLOR);
+		numberFont.setColor(worldUnlocked?Constants.BOARD_COLOR:Constants.LOCKED_LEVEL_NUMBER_COLOR);
 
 		int levelItemWidth = menu.getLevelItemWidth();
 		int worldHeight = menu.getWorldHeight();

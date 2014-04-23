@@ -203,6 +203,16 @@ public class GameProgress {
 	}
 	
 	/**
+	 * Number of stars needed to clear world 'world'
+	 * @param world
+	 * @return
+	 */
+	public int numStarsNeeded(int world){
+		int numConsideredLevels = levelOrderer.getWorldSize(world) - 1;
+		return numConsideredLevels * WORLD_UNLOCK_STARS;
+	}
+	
+	/**
 	 * Check to see whether the bonus level of a given world is unlocked
 	 * 
 	 * @param world
