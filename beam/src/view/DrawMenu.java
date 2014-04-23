@@ -9,6 +9,7 @@ import model.Menu;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -30,7 +31,9 @@ public class DrawMenu {
 	private DrawGame dg;
 	private List<List<Board>> allBoards;
 	private Texture lockTexture;
+	private Texture unlockTexture;
 	private Sprite lockSprite;
+	private Sprite unlockSprite;
 	private Texture starTexture;
 	private Sprite starSprite;
 	private FrameBuffer bgBuffer;
@@ -42,6 +45,7 @@ public class DrawMenu {
 	
 	private int fullHeight = 0;
 	private int fullWidth = 0;
+	
 	
 	
 
@@ -63,6 +67,10 @@ public class DrawMenu {
 		this.allBoards = allBoards;
 		
 		///
+		unlockTexture = new Texture(Gdx.files.internal("data/unlock.png"));
+		unlockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		TextureRegion unlockregion = new TextureRegion(unlockTexture, 0, 0, 256, 128);
+		unlockSprite = new Sprite(unlockregion);
 		
 		lockTexture = new Texture(Gdx.files.internal("data/lock.png"));
 		lockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
@@ -278,7 +286,7 @@ public class DrawMenu {
 			lockSprite.setY(itemBotY+(menu.getWorldHeight()*menu.boardHeightPercent)/2);
 			lockSprite.draw(batch);
 			batch.end();
-		} else{
+		} else if (menu.getNumStarsEarned(world-1) < menu.getNumStarsNeeded(world-1)){
 			//Draw text telling user how many stars they need
 			String text = menu.getNumStarsEarned(world-1)+" of "+menu.getNumStarsNeeded(world-1);
 			batch.begin();
@@ -287,6 +295,16 @@ public class DrawMenu {
 			TextBounds tb = numberFont.getBounds(text);
 			numberFont.draw(batch, text, Gdx.graphics.getWidth()/2-tb.width/2, 
 					itemBotY+(menu.getWorldHeight()*menu.boardHeightPercent)/2);
+			batch.end();
+		} else {
+			// They just need to finish the levels, draw unlockedlock
+			batch.begin();
+			unlockSprite.setColor(Constants.LOCK_COLOR);
+			float spriteSize = menu.getLevelItemWidth();
+			unlockSprite.setSize(spriteSize*2, spriteSize);
+			unlockSprite.setX(Gdx.graphics.getWidth()/2-spriteSize);
+			unlockSprite.setY(itemBotY+(menu.getWorldHeight()*menu.boardHeightPercent)/2);
+			unlockSprite.draw(batch);
 			batch.end();
 		}
 		
