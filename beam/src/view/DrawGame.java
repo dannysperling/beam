@@ -61,6 +61,9 @@ public class DrawGame {
 	BitmapFont gameButtonFont;
 	BitmapFont nonGameMButtonFont;
 	BitmapFont nonGameNLButtonFont;
+	private Texture painterTexture;
+
+	private Sprite painterSprite;
 
 	public static Color translateColor(GameEngine.Color c) {
 		switch (c) {
@@ -84,6 +87,9 @@ public class DrawGame {
 
 		pieceTexture = new Texture(Gdx.files.internal("data/piece.png"));
 		pieceTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		
+		painterTexture = new Texture(Gdx.files.internal("data/painter.png"));
+		painterTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		bangTexture = new Texture(Gdx.files.internal("data/bangbang.png"));
 		bangTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
@@ -101,6 +107,8 @@ public class DrawGame {
 
 		TextureRegion pieceregion = new TextureRegion(pieceTexture, 0, 0, 256,
 				256);
+		TextureRegion painterregion = new TextureRegion(painterTexture, 0, 0, 256,
+				256);
 		TextureRegion bangregion = new TextureRegion(bangTexture, 0, 0, 256,
 				256);
 		TextureRegion threestarregion = new TextureRegion(threeStarTexture, 0,
@@ -111,7 +119,7 @@ public class DrawGame {
 				128);
 
 		pieceSprite = new Sprite(pieceregion);
-
+		painterSprite = new Sprite(painterregion);
 		bangSprite = new Sprite(bangregion);
 		threeStarSprite = new Sprite(threestarregion);
 		oneStarSprite = new Sprite(onestarregion);
@@ -185,34 +193,31 @@ public class DrawGame {
 						+ (0.12f * tilesize), 0.76f * tilesize,
 						0.76f * tilesize);
 			}
-		}
-		shapes.end();
-		shapes.begin(ShapeType.Filled);
+		} shapes.end();
 		for (Tile t : tiles) {
-			if (t.hasPainter()) {
-				int paintX = bx + (t.getXCoord() * tilesize);
-				int paintY = by + (t.getYCoord() * tilesize);
-				switch (t.getPainterColor()) {
-				case RED:
-					shapes.setColor(new Color(.3f, 0, 0, 1));
-					break;
-				case BLUE:
-					shapes.setColor(new Color(0, 0, .3f, 1));
-					break;
-				case GREEN:
-					shapes.setColor(new Color(0, .3f, 0, 1));
-					break;
-				default:
-					shapes.setColor(new Color(0, 0, 0, 0));
-					break;
-				}
-				shapes.rect(paintX + (0.05f * tilesize), paintY
-						+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
-			}
+			drawPainter(t,tilesize,bx,by, Constants.PAINTER_MODE);
 		}
-		shapes.end();
 	}
 
+	private void drawPainter(Tile t, int tilesize, int bx, int by, int mode) {
+		if (!t.hasPainter()) return;
+		if (mode == 0){
+		shapes.begin(ShapeType.Filled);
+			int paintX = bx + (t.getXCoord() * tilesize);
+			int paintY = by + (t.getYCoord() * tilesize);
+			shapes.setColor(Constants.painterColor[t.getPainterColor().toIndex()]);
+			shapes.rect(paintX + (0.05f * tilesize), paintY
+					+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
+		shapes.end();
+		} else {
+			batch.begin();
+			painterSprite.setColor(Constants.painterColor[t.getPainterColor().toIndex()]);
+			painterSprite.setSize(tilesize, tilesize);
+			painterSprite.setPosition(bx + (t.getXCoord() * tilesize), by + (t.getYCoord() * tilesize));
+			painterSprite.draw(batch);
+			batch.end();
+		}
+	}
 
 	private void drawGlass(Tile t, int tilesize, int bx, int by) {
 		if (t.hasGlass()) {
