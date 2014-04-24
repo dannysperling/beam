@@ -75,7 +75,7 @@ public class Constants {
 	 * COLOR CONSTANTS
 	 * TODO: remove extra colorFromRGB and make the game not crash if they're there
 	 */
-	private static Color colorFromRGB(int r, int g, int b) {
+	public static Color colorFromRGB(int r, int g, int b) {
 		return new Color(r/255.0f, g/255.0f, b/255.0f,1);
 	}
 	public static final Color[] WORLD_COLORS = 
@@ -83,7 +83,7 @@ public class Constants {
 			colorFromRGB(40,10,100),
 			colorFromRGB(75,125,204),
 			colorFromRGB(100,185,197),
-			colorFromRGB(20,175,22),
+			colorFromRGB(25,160,27),
 			colorFromRGB(20,100,11),
 			colorFromRGB(230,130,10),
 			colorFromRGB(230,100,32),
@@ -99,4 +99,10 @@ public class Constants {
 	public static final float START_COLOR_MUL = 1.1f;
 	public static final float END_COLOR_MUL = .75f;
 	public static final Color LOCK_COLOR = new Color(.75f,.7f,0,1);
+	public static final Color LOCKED_WORLD_OVERLAY = new Color (0,0,0,0.85f);
+	public static final Color LOCKED_LEVEL_NUMBER_COLOR = new Color(.95f, .95f, .9f, .25f);
+	public static final Color GLASS_COLOR = new Color(.18f,.18f,.18f,.5f);
+	public static final int PAINTER_MODE = 0;
+	public static final Color[] painterColor = {null,new Color(.6f, .1f, .1f, 1),new Color(.1f, .1f, .6f, 1),new Color(.1f, .6f, .1f, 1)};
+	public static int GLASS_STYLE = 2;
 }

@@ -524,6 +524,27 @@ public class Menu {
 	}
 	
 	/**
+	 * Returns number of non-bonus stars earned in the given world
+	 * @param world
+	 * @return
+	 */
+	public int getNumStarsEarned(int world){
+		return progress.getBaseWorldStars(world);
+	}
+	
+	/**
+	 * Returns the number of stars needed in 'world' to unlock
+	 * 'world+1'. That is to say world n+1 is unlocked iff
+	 * genNumStarsEarned(n)>=getNumStarsNeeded(n). This may
+	 * be slightly misleading.
+	 * @param world
+	 * @return
+	 */
+	public int getNumStarsNeeded(int world){
+		return progress.numStarsNeeded(world);
+	}
+	
+	/**
 	 * Allow read-through to the progress - is the bonus level of
 	 * a world unlocked
 	 */
