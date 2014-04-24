@@ -1539,9 +1539,25 @@ public class DrawGame {
 			}
 		}		
 		
+		if(GameEngine.getTutorial() != null){
+			shapes.begin(ShapeType.Filled);
+			shapes.setColor(Color.RED);
+			shapes.rect((width - (2 * Menu.B_INFO_WIDTH * width)) / 2.0f, 0, Menu.B_INFO_WIDTH * width, Constants.GAME_BUTTON_HEIGHT * height);
+			shapes.setColor(Color.BLUE);
+			shapes.rect(width / 2.0f , 0, Menu.B_INFO_WIDTH * width, Constants.GAME_BUTTON_HEIGHT * height);
+			shapes.end();
+		} else {
+			shapes.begin(ShapeType.Filled);
+			shapes.setColor(Color.RED);
+			shapes.rect((width - (Menu.B_INFO_WIDTH * width)) / 2.0f, 0, Menu.B_INFO_WIDTH * width, Constants.GAME_BUTTON_HEIGHT * height);
+			shapes.end();
+		}
+		
 		if(state == GameState.TUTORIAL){
 			drawTutorial(GameEngine.getTutorial(), tb, width, height);
 		}
+
+		
 		//Draw outro
 		if(state == GameState.WON || (state == GameState.LEVEL_TRANSITION && !partial && b.isWon())){
 			drawOutro((int) (bx + transitionPart), by, width, height, b, tb);
