@@ -1,16 +1,11 @@
 TUTORIAL FOR LEVEL UNIQUE ID: 37
-Drag the piece to move it
-IMAGE: 5 frames, 128 side, movetutorial.png
-Square is goal
-herpa derpa derpa derp, querpa flerpa merpa derp lerpa perpa
-derpa derpa
-derpa
-werpa derpa derp yerpa merp klerpa flerp kerpa lerpa merpa yerp
-flerp terp merp glerpa lerpa jerpa merpa derp
-lerpa 4urpa vurpa 0urp
-merpa derpuh muguhrpa
+Basic Movement
+IMAGE: 6 frames, 128 side, movetutorial.png
+Drag your finger to create a path for the peice to follow.
 END TUTORIAL
 
 TUTORIAL FOR LEVEL UNIQUE ID: 53
-Pieces can't move through glass
+Pieces can't move through grey tiles!
+IMAGE: 1 frames, 128 side, glasstutorial_1.png
+ 
 END TUTORIAL
