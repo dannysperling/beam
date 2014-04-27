@@ -403,6 +403,10 @@ public class Board {
 	public Piece getPieceOnTile(Tile t, Piece[][] pieces) {
 		return pieces[t.getXCoord()][t.getYCoord()];
 	}
+	
+	public boolean isGlassAt(int x, int y){
+		return tiles[x][y].hasGlass();
+	}
 
 	/**
 	 * Gets whether the goal is met on a given tile, possibly
