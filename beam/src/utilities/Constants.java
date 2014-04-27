@@ -11,8 +11,10 @@ public class Constants {
 	 * the final game version.
 	 */
 	public static final boolean DEBUG_MODE = false;
-	public static boolean UNLOCK_MODE = false;
+	public static boolean UNLOCK_MODE = true;
 	public static final boolean LOGGING = false;
+	
+	
 	
 	
 	/**
@@ -94,14 +96,14 @@ public class Constants {
 			colorFromRGB(0,0,0),
 			colorFromRGB(0,0,0),
 		 	};
-	public final static Color BOARD_COLOR = new Color(.95f, .95f, .9f, .85f);
+	public final static Color BOARD_COLOR = new Color(.95f, .95f, .9f, 1f);
 	public final static Color LINE_COLOR = new Color(.1f, .1f, .1f, 1);
 	public static final float START_COLOR_MUL = 1.1f;
 	public static final float END_COLOR_MUL = .75f;
 	public static final Color LOCK_COLOR = new Color(.75f,.7f,0,1);
 	public static final Color LOCKED_WORLD_OVERLAY = new Color (0,0,0,0.85f);
 	public static final Color LOCKED_LEVEL_NUMBER_COLOR = new Color(.95f, .95f, .9f, .25f);
-	public static final Color GLASS_COLOR = new Color(.18f,.18f,.18f,.5f);
+	public static final Color GLASS_COLOR = new Color(.18f,.18f,.18f,.7f);
 	public static final int PAINTER_MODE = 0;
 	public static final Color[] painterColor = {null,new Color(.6f, .1f, .1f, 1),new Color(.1f, .1f, .6f, 1),new Color(.1f, .6f, .1f, 1)};
 	public static int GLASS_STYLE = 2;

@@ -129,7 +129,7 @@ public class GameEngine implements ApplicationListener {
 	 * Enumeration of all button press types
 	 */
 	public enum ButtonPress {
-		UNDO, RESET, MENU, INFO, NEXT_LEVEL, SKIPWIN, NONE
+		UNDO, RESET, MENU, INFO, TUTORIAL, NEXT_LEVEL, SKIPWIN, NONE
 	}
 
 	/**
@@ -595,7 +595,11 @@ public class GameEngine implements ApplicationListener {
 					initializeLasers(nextBoard);
 					break;
 				case INFO:
-					// TODO
+					System.out.println("INFOOOOO");
+					break;
+				case TUTORIAL:
+					state = GameState.TUTORIAL;
+					break;
 				default:
 					break;
 				}
