@@ -15,6 +15,10 @@ public class Constants {
 	public static final boolean LOGGING = false;
 	
 	
+	/**
+	 * LOADING CONSTANTS
+	 */
+	public static final int LOAD_FADE_TIME = 60;
 	
 	
 	/**

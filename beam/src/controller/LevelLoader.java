@@ -14,12 +14,12 @@ import com.badlogic.gdx.files.FileHandle;
 import controller.GameEngine.Color;
 
 public class LevelLoader {
-	
+
 	/**
-	 * Stores the name of the level ID file
+	 * Stores the data of the level
 	 */
-	private String file;
-	
+	private String fileData;
+
 	/**
 	 * Handle regex parsing of levels. Integers are used for groups because
 	 * named capture isn't supported on android.
@@ -34,11 +34,6 @@ public class LevelLoader {
 	 * Has a reference to the level orderer to allow the loader to find the correct IDs
 	 */
 	private LevelOrderer levelOrderer;
-	
-	/**
-	 * Indicates whether to use GDX for file reading or standard IO
-	 */
-	private boolean useGDX;
 
 	/**
 	 * Create a LeveLoader for the given file. Any FileNotFound or IO exceptions
@@ -53,9 +48,26 @@ public class LevelLoader {
 	 * 				
 	 */
 	public LevelLoader(String fn, LevelOrderer levelOrderer, boolean useGDX) {
-		file = fn;
+
+		//Either use simple gdx or the buffered reader depending on the application
+		fileData = "";
+		if (useGDX) {
+			FileHandle fh = Gdx.files.internal(fn);
+			fileData = fh.readString();
+		} else {
+			try {
+				BufferedReader reader = new BufferedReader(new FileReader(fn));
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					fileData += line + "\n";
+				}
+				reader.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
 		this.levelOrderer = levelOrderer;
-		this.useGDX = useGDX;
 	}
 
 	/**
@@ -72,11 +84,11 @@ public class LevelLoader {
 
 		//Get the unique ID
 		int id = levelOrderer.getUniqueId(world, ordinalInWorld);
-		
+
 		//Access from board. Will correctly be null if malformed or out of bounds
 		return loadLevelByID(id);
 	}
-	
+
 	/**
 	 * Loads a level from file based on the id. 
 	 * 
@@ -107,7 +119,7 @@ public class LevelLoader {
 	 * 				The built board, or null if malformed
 	 */
 	private Board buildBoard(String spec) {
-		
+
 		//Match the full level to the specification to trim off excess characters,
 		//ensure the spec matches and group out the various parts
 		Pattern pat = Pattern.compile(FULL_LEVEL_REGEX, Pattern.UNIX_LINES);
@@ -116,40 +128,40 @@ public class LevelLoader {
 			GameEngine.debug("Regex doesn't match");
 			return null;
 		}
-		
+
 		//Extract out the specification for the tiles
 		String tileSpec = extractBoard(match.group());
-		
+
 		//Separate out the rows and collumns
 		String[] rows = tileSpec.split("\\n");
 		int height = rows.length;
 		int width = rows[0].split(",").length;
 		GameEngine.debug("Level is " + width + " x " + height);
-		
+
 		//Build the tiles and pieces for the board
 		Tile[][] tiles = new Tile[width][height];
 		Piece[][] pieces = new Piece[width][height];
-		
+
 		//Go row by row
 		for (int y = 0; y < height; y++) {
 			//Build the row and associated columns
 			String row = rows[y];
 			String[] cols = row.split(",");
-			
+
 			//Ensure each row has the same number of columns
 			if (cols.length != width)
 				return null;
-			
+
 			//Go column by column
 			for (int x = 0; x < width; x++) {
-				
+
 				//Work on a single tile
 				String cell = cols[x];
-				
+
 				//Flip the row to get the correct y position
 				Tile t = new Tile(x, height - 1 - y);
 				Piece p = null;
-				
+
 				//Tiles can have multiple elements - go through and add each
 				String[] contents = cell.split(":");
 				for (String s : contents) {
@@ -173,21 +185,21 @@ public class LevelLoader {
 								.parseInt(s)));
 					}
 				}
-				
+
 				//Toss the tile and (possible) piece into the arrays
 				tiles[x][height - 1 - y] = t;
 				pieces[x][height - 1 - y] = p;
 			}
 		}
-		
+
 		//Fill in other assoceiated information based on matches
 		int id = Integer.parseInt(match.group(IDgroup));
 		int perfect = Integer.parseInt(match.group(PERFECTgroup));
 		int par = Integer.parseInt(match.group(PARgroup));
-		
+
 		//Created the board
 		Board b = new Board(tiles, pieces, id, perfect, par);
-		
+
 		//Add beam goals separately
 		processBeamGoals(b, match.group());
 		b.recalculateSizing();
@@ -202,7 +214,7 @@ public class LevelLoader {
 	 * 				The level specification regex
 	 */
 	private void processBeamGoals(Board b, String group) {
-		
+
 		//Add any found beam goals
 		Pattern pat = Pattern
 				.compile("<beamGoal\\s*color=(\\d+)\\s*count=(\\d+)/>");
@@ -240,29 +252,11 @@ public class LevelLoader {
 	 * 				The string representation of the level
 	 */
 	private String findLevelByID(int id) {
-		String text = "";
-		
-		//Either use simple gdx or the buffered reader depending on the application
-		if (useGDX) {
-			FileHandle fh = Gdx.files.internal(file);
-			text = fh.readString();
-		} else {
-			try {
-				BufferedReader reader = new BufferedReader(new FileReader(file));
-				String line = null;
-				while ((line = reader.readLine()) != null) {
-					text += line + "\n";
-				}
-				reader.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
 		
 		//Search for the generic pattern of the level
 		Pattern pat = Pattern.compile("<level(.|\n)*?/level>",
 				Pattern.UNIX_LINES);
-		Matcher match = pat.matcher(text);
+		Matcher match = pat.matcher(fileData);
 		while (match.find()) {
 			if (match.group().contains("id=" + id)) {
 				return match.group();

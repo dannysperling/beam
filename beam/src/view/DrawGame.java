@@ -12,6 +12,7 @@ import model.Piece;
 import model.Tile;
 import model.Tutorial;
 import model.Tutorial.ElementType;
+import utilities.AssetInitializer;
 import utilities.Constants;
 
 import com.badlogic.gdx.Gdx;
@@ -110,31 +111,29 @@ public class DrawGame {
 	public DrawGame(GameProgress gp) {
 		batch = new SpriteBatch();
 
-		pieceTexture = new Texture(Gdx.files.internal("data/piece.png"));
-		pieceTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		pieceTexture = AssetInitializer.getTexture(AssetInitializer.piece);
+		//pieceTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		
-		painterTexture = new Texture(Gdx.files.internal("data/painter.png"));
-		painterTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		painterTexture = AssetInitializer.getTexture(AssetInitializer.painter);
+		//painterTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
-		bangTexture = new Texture(Gdx.files.internal("data/bangbang.png"));
-		bangTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		bangTexture = AssetInitializer.getTexture(AssetInitializer.bangbang);
+		//bangTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
-		lockTexture = new Texture(Gdx.files.internal("data/lock.png"));
-		lockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		lockTexture = AssetInitializer.getTexture(AssetInitializer.lock);
+		//lockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
-		infoTexture = new Texture(Gdx.files.internal("data/info.png"));
-		infoTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		infoTexture = AssetInitializer.getTexture(AssetInitializer.info);
+		//infoTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
-		tutorialTexture = new Texture(Gdx.files.internal("data/help.png"));
-		tutorialTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		tutorialTexture = AssetInitializer.getTexture(AssetInitializer.tutorial);
+		//tutorialTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
-		// gameProgress = gp;
+		threeStarTexture = AssetInitializer.getTexture(AssetInitializer.three_star);
+		//threeStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
-		threeStarTexture = new Texture(Gdx.files.internal("data/3star.png"));
-		threeStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-
-		oneStarTexture = new Texture(Gdx.files.internal("data/1star.png"));
-		oneStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		oneStarTexture = AssetInitializer.getTexture(AssetInitializer.one_star);
+		//oneStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		TextureRegion pieceregion = new TextureRegion(pieceTexture, 0, 0, 256,
 				256);
