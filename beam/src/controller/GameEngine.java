@@ -79,6 +79,9 @@ public class GameEngine implements ApplicationListener {
 	public static int timeToStopTutorial = Integer.MAX_VALUE;
 	public static int timeSpentOnTutorial = 0;
 
+	public static int timeToStopInfo = Integer.MAX_VALUE;
+	public static int timeSpentOnInfo = 0;
+
 	/**
 	 * Keep track of our current animation, and where it's going
 	 */
@@ -100,7 +103,7 @@ public class GameEngine implements ApplicationListener {
 	 * Enumeration of each of the states the game can be in
 	 */
 	public enum GameState {
-		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO, TUTORIAL, LEVEL_TRANSITION, MENU_TO_LEVEL_TRANSITION, LEVEL_TO_MENU_TRANSITION
+		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO, TUTORIAL, INFO, LEVEL_TRANSITION, MENU_TO_LEVEL_TRANSITION, LEVEL_TO_MENU_TRANSITION
 	}
 
 	/**
@@ -359,6 +362,15 @@ public class GameEngine implements ApplicationListener {
 							timeSpentOnTutorial++;
 						}
 						break;
+					case INFO:
+						if(timeSpentOnInfo >= timeToStopInfo){
+							state = GameState.IDLE;
+							timeSpentOnInfo = 0;
+							timeToStopInfo = Integer.MAX_VALUE;
+						} else {
+							timeSpentOnInfo++;
+						}
+						break;	
 					case WON:
 						timeWon++;
 						break;
@@ -440,13 +452,13 @@ public class GameEngine implements ApplicationListener {
 			boolean isLast = menu.isLastLevelInWorld(currentWorld, currentOrdinalInWorld);
 			boolean isNextLocked = !menu.isNextLevelUnlocked(currentWorld, currentOrdinalInWorld);
 			dg.draw(b, state, currentAnimationState, currentWorld,
-					currentOrdinalInWorld, mixed, totalTransPart, false, isLast, isNextLocked);
+					currentOrdinalInWorld, mixed, totalTransPart, false, isLast, isNextLocked, progress);
 			
 			isLast = menu.isLastLevelInWorld(nextLvWorld, nextOrdinal);
 			isNextLocked = !menu.isNextLevelUnlocked(nextLvWorld, nextOrdinal);
 			dg.draw(nextBoard, state, currentAnimationState, nextLvWorld,
 					nextOrdinal, menu.colorOfLevel(nextLvWorld, nextOrdinal),
-					totalTransPart + Gdx.graphics.getWidth(), true, isLast, isNextLocked);
+					totalTransPart + Gdx.graphics.getWidth(), true, isLast, isNextLocked, progress);
 
 		} else {
 			boolean isLast = menu.isLastLevelInWorld(currentWorld, currentOrdinalInWorld);
@@ -454,7 +466,7 @@ public class GameEngine implements ApplicationListener {
 			dg.draw(b, state, currentAnimationState, currentWorld,
 					currentOrdinalInWorld,
 					menu.colorOfLevel(currentWorld, currentOrdinalInWorld), 0,
-					false, isLast, isNextLocked);
+					false, isLast, isNextLocked, progress);
 			}
 	}
 
@@ -536,7 +548,9 @@ public class GameEngine implements ApplicationListener {
 
 		// Make sure to not check for input if we're in the middle of inputing a
 		// move or transitioning between levels
-		if (state != GameState.DECIDING && state != GameState.LEVEL_TRANSITION && state != GameState.MENU_TO_LEVEL_TRANSITION && state != GameState.LEVEL_TO_MENU_TRANSITION) {
+		if (state != GameState.DECIDING && state != GameState.LEVEL_TRANSITION && 
+				state != GameState.MENU_TO_LEVEL_TRANSITION && state != GameState.LEVEL_TO_MENU_TRANSITION
+				&& state != GameState.TUTORIAL) {
 
 			// Get the button that was pressed
 			ButtonPress button = inputHandler.checkForButtonPress(state,
@@ -637,7 +651,7 @@ public class GameEngine implements ApplicationListener {
 					initializeLasers(nextBoard);
 					break;
 				case INFO:
-					System.out.println("INFOOOOO");
+					state = GameState.INFO;
 					break;
 				case TUTORIAL:
 					state = GameState.TUTORIAL;
