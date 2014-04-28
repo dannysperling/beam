@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import utilities.AssetInitializer;
 import utilities.Constants;
 import view.DrawGame;
+import view.DrawLoading;
 import view.DrawMenu;
 
 import model.Board;
@@ -43,6 +45,7 @@ public class GameEngine implements ApplicationListener {
 	private TutorialLoader tutorialLoader;
 	private Menu menu;
 	private DrawMenu dm;
+	private DrawLoading dl;
 
 	/**
 	 * Keep a reference to which level we're on
@@ -190,6 +193,8 @@ public class GameEngine implements ApplicationListener {
 	 */
 	@Override
 	public void create() {
+		
+		AssetInitializer.initialize();
 
 		// Use GDX for both the orderer and the loader
 		levelOrderer = new LevelOrderer("data/levels/levelOrder.txt", true);
@@ -200,17 +205,8 @@ public class GameEngine implements ApplicationListener {
 		//Set up tutorials
 		tutorialLoader = new TutorialLoader("data/tutorials/tutorialDescriptions.txt", levelOrderer);
 
-		// Create the drawing
-		dg = new DrawGame(progress);
-		dg.initFonts();
-
 		// Create the menu
 		menu = new Menu(levelOrderer.getWorldSizes(), progress);
-
-		// Create the menu drawer
-		List<List<Board>> allBoards = initializeBoards();
-		dm = new DrawMenu(menu, dg, allBoards);
-		dm.initFonts();
 
 		// Set up input handling
 		inputHandler = new InputHandler();
@@ -218,6 +214,9 @@ public class GameEngine implements ApplicationListener {
 
 		// Set up restoration
 		tempFile = Gdx.files.local(tempData);
+		
+		//Set up the loading drawer
+		dl = new DrawLoading();
 
 		// Set up logging, if applicable
 		if (Constants.LOGGING)
@@ -229,8 +228,9 @@ public class GameEngine implements ApplicationListener {
 	 */
 	@Override
 	public void dispose() {
-		dg.dispose();
-		dm.dispose();
+		//For now, avoid disposing
+		/*dg.dispose();
+		dm.dispose();*/
 	}
 
 	/**
@@ -264,6 +264,24 @@ public class GameEngine implements ApplicationListener {
 
 		return allBoards;
 	}
+	
+	private boolean finishedLoading = false;
+	private int timeLoading = 0;
+	
+	/**
+	 * Initializes the various drawing screens. Needs to wait until after the assets are loaded
+	 */
+	private void initializeDrawing(){
+		
+		// Create the game drawing
+		dg = new DrawGame(progress);
+		dg.initFonts();
+		
+		// Create the menu drawer
+		List<List<Board>> allBoards = initializeBoards();
+		dm = new DrawMenu(menu, dg, allBoards);
+		dm.initFonts();
+	}
 
 	/**
 	 * This is the primary game loop. It is called once per cycle. All other
@@ -271,7 +289,31 @@ public class GameEngine implements ApplicationListener {
 	 */
 	@Override
 	public void render() {
+		
+		//Start by loading
+		if (!finishedLoading){
+			
+			//Check if we're finished
+			if (AssetInitializer.isFinished() && timeLoading == Constants.LOAD_FADE_TIME){
+				initializeDrawing();
+				finishedLoading = true;
+			}
+			
+			dl.draw(timeLoading / (float) Constants.LOAD_FADE_TIME);
+			timeLoading = Math.min(timeLoading+1, Constants.LOAD_FADE_TIME);
+			//Always return from here if not loaded previously
+			return;
+		} 
+		//Fade out the loading
+		else if (timeLoading > 0){
+			timeLoading--;
+			dl.draw(timeLoading / (float) Constants.LOAD_FADE_TIME);
+			return;
+		}
 
+			
+		//Otherwise, game loop!
+			
 		// Check for back pressed first
 		inputHandler.checkBackPressed();
 

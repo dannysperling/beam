@@ -2,6 +2,7 @@ package view;
 
 import java.util.List;
 
+import utilities.AssetInitializer;
 import utilities.Constants;
 import model.Board;
 import model.Menu;
@@ -9,7 +10,6 @@ import model.Menu;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -66,18 +66,17 @@ public class DrawMenu {
 		this.dg = dg;
 		this.allBoards = allBoards;
 		
-		///
-		unlockTexture = new Texture(Gdx.files.internal("data/unlock.png"));
+		unlockTexture = AssetInitializer.getTexture(AssetInitializer.unlock);
 		unlockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		TextureRegion unlockregion = new TextureRegion(unlockTexture, 0, 0, 256, 128);
 		unlockSprite = new Sprite(unlockregion);
 		
-		lockTexture = new Texture(Gdx.files.internal("data/lock.png"));
+		lockTexture = AssetInitializer.getTexture(AssetInitializer.lock);
 		lockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		TextureRegion lockregion = new TextureRegion(lockTexture, 0, 0, 128, 128);
 		lockSprite = new Sprite(lockregion);
 		
-		starTexture = new Texture(Gdx.files.internal("data/1star.png"));
+		starTexture = AssetInitializer.getTexture(AssetInitializer.one_star);
 		starTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		TextureRegion starRegion = new TextureRegion(starTexture, 0, 0, 128, 128);
 		starSprite = new Sprite(starRegion);

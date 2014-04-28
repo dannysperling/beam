@@ -118,7 +118,7 @@ public class TutorialLoader {
 			boolean finding = false, found = false;
 			while ((line = reader.readLine()) != null && !found) {
 				//Found the id
-				if (line.contains("TUTORIAL FOR LEVEL UNIQUE ID: " + id)){
+				if (line.contains("TUTORIAL FOR LEVEL UNIQUE ID: " + id + ".")){
 					finding = true;
 					foundElements = new ArrayList<String>();
 				}
