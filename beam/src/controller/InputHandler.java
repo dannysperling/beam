@@ -65,6 +65,10 @@ public class InputHandler {
 			GameEngine.timeToStopTutorial = GameEngine.timeSpentOnTutorial + Constants.TUTORIAL_IN_TIME;
 		}
 		
+		if(state == GameState.INFO && Gdx.input.isTouched() && GameEngine.timeToStopInfo == Integer.MAX_VALUE){
+			GameEngine.timeToStopInfo = GameEngine.timeSpentOnInfo + Constants.TUTORIAL_IN_TIME;
+		}
+		
 		/* Handles input if the player is already touching a piece. */
 		if (state == GameEngine.GameState.DECIDING) {
 			//Either still touching - set path

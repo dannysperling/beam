@@ -1478,6 +1478,36 @@ public class DrawGame {
 		return (textHeight + halfImageHeight + spacingHeight >= height);
 	}
 
+	
+	private void drawInfo(TextBounds tb, int width, int height, int currentWorld, int currentOrdinalInWorld){
+		float upshift = 0;
+		if (GameEngine.timeSpentOnInfo < Constants.TUTORIAL_IN_TIME) {
+			upshift = 1 - (float) (GameEngine.timeSpentOnInfo)
+					/ Constants.TUTORIAL_IN_TIME;
+			upshift *= height;
+		}
+		if ((GameEngine.timeToStopInfo - GameEngine.timeSpentOnInfo) < Constants.TUTORIAL_IN_TIME) {
+			upshift = 1
+					- (float) (GameEngine.timeToStopInfo - GameEngine.timeSpentOnInfo)
+					/ Constants.TUTORIAL_IN_TIME;
+			upshift *= height;
+		}
+
+		Gdx.gl.glEnable(GL10.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		shapes.begin(ShapeType.Filled);
+		shapes.setColor(new Color(.95f, .95f, .95f, 0.95f));
+		shapes.rect(0, upshift, width, height);
+		shapes.end();
+		Gdx.gl.glDisable(GL10.GL_BLEND);
+		
+		String header = "Level " + currentWorld + "-" + currentOrdinalInWorld;
+		tb = levelNameFont.getBounds(header);
+		batch.begin();
+		levelNameFont.setColor(Color.BLACK);
+		levelNameFont.draw(batch, header, (width - tb.width) / 2.0f, (height * 0.75f) + upshift);
+		batch.end();
+	}
 	/**
 	 * This is the primary game drawing method
 	 * 
@@ -1721,6 +1751,10 @@ public class DrawGame {
 		
 		if(state == GameState.TUTORIAL){
 			drawTutorial(GameEngine.getTutorial(), tb, width, height);
+		}
+		
+		if(state == GameState.INFO){
+			drawInfo(tb, width, height, currentWorld, currentOrdinalInWorld);
 		}
 
 		
