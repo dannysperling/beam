@@ -1354,6 +1354,10 @@ public class DrawGame {
 	private String correctlyWrap(String s, BitmapFont font, TextBounds tb,
 			float wrapWidth) {
 		tb = font.getBounds(s);
+		System.out.println(tb.width);
+		System.out.println(wrapWidth);
+		System.out.println(Gdx.graphics.getWidth());
+		System.out.println("______________________");
 		if (tb.width <= wrapWidth) {
 			return s;
 		} else {
@@ -1364,10 +1368,11 @@ public class DrawGame {
 				mostRecentSpace = nextSpace;
 				nextSpace = s.indexOf(' ', mostRecentSpace + 1);
 				if (nextSpace == -1) {
-					return s;
+					nextSpace = s.length();
 				}
 				tb = font.getBounds(s.substring(0, nextSpace));
 			}
+			//System.out.println(s.substring(0, mostRecentSpace));
 			return s.substring(0, mostRecentSpace)
 					+ "\n\n"
 					+ correctlyWrap(s.substring(mostRecentSpace + 1), font, tb,
