@@ -81,6 +81,8 @@ public class GameEngine implements ApplicationListener {
 
 	public static int timeToStopInfo = Integer.MAX_VALUE;
 	public static int timeSpentOnInfo = 0;
+	
+	public static boolean nextWorldUnlocked = false;
 
 	/**
 	 * Keep track of our current animation, and where it's going
@@ -824,8 +826,15 @@ public class GameEngine implements ApplicationListener {
 				} else if (moveCounter <= b.par) {
 					numStars = 2;
 				}
+				
+				boolean wasNextWorldUnlocked = progress.isWorldUnlocked(currentWorld + 1);
 				progress.setLevelScore(currentWorld, currentOrdinalInWorld,
 						moveCounter, numStars);
+				if (!wasNextWorldUnlocked && progress.isWorldUnlocked(currentWorld + 1)){
+					GameEngine.nextWorldUnlocked = true;
+				} else {
+					GameEngine.nextWorldUnlocked = false;
+				}
 			}
 		}
 	}
