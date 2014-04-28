@@ -91,18 +91,17 @@ public class InputHandler {
 	 * 			The new state. IDLE if no piece was touched, or DECIDING if piece touched
 	 */
 	private GameState selectPiece(Board b) {
-		
+		Tile destination = b.getTileAtClickPosition(getX(), getY());
 		/* Check first if the screen is even being touched on a valid tile */
 		if (Gdx.input.isTouched()
-				&& b.getTileAtClickPosition(getX(), getY()) != null) {
-			Tile t = b.getTileAtClickPosition(getX(), getY());
-			Piece piece = b.getPieceOnTile(t);
+				&& destination != null) {
+			Piece piece = b.getPieceOnTile(destination);
 			/*
 			 * Given a touch on the board and on a piece, read piece as held.
 			 */
 			if (piece != null) {
 				GameEngine.movingPiece = piece;
-				GameEngine.movePath.add(t);
+				GameEngine.movePath.add(destination);
 				return GameEngine.GameState.DECIDING;
 				/* If the touch was anywhere else, don't change states */
 			} else {
@@ -142,13 +141,12 @@ public class InputHandler {
 	 * 			GameState.DECIDING, as the state at present can't change in this method.
 	 */
 	private GameState setPath(Board b) {
-		
+		Tile destination = b.getTileAtClickPosition(getX(), getY());
 		// Ensure the user is still pressing on a valid tile.
-		if (b.getTileAtClickPosition(getX(), getY()) != null) {
+		if (destination != null) {
 			
 			//Get where they were and where they're going
 			Tile source = GameEngine.movePath.get(GameEngine.movePath.size() - 1);
-			Tile destination = b.getTileAtClickPosition(getX(), getY());
 
 			// If the destination is on the path, short circuit the
 			// path.
