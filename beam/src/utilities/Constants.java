@@ -12,7 +12,9 @@ public class Constants {
 	 */
 	public static final boolean DEBUG_MODE = false;
 	public static boolean UNLOCK_MODE = false;
-	public static final boolean LOGGING = true;
+	public static final boolean LOGGING = false;
+	
+	
 	
 	
 	/**
@@ -30,6 +32,14 @@ public class Constants {
 	
 	public static final int TIME_FOR_LEVEL_TRANSITION = 30;
 	public static final int TIME_FOR_MENU_TRANSITION = 25;
+	
+	
+	/**
+	 * TUTORIAL CONSTANTS
+	 */
+	public static final float TUTORIAL_V_BREAK = 0.05f;
+	public static final int TUTORIAL_IN_TIME = 30;
+	public static final float TUTORIAL_TICKS_PER_FRAME = 45;
 
 	
 	/**
@@ -67,7 +77,7 @@ public class Constants {
 	 * COLOR CONSTANTS
 	 * TODO: remove extra colorFromRGB and make the game not crash if they're there
 	 */
-	private static Color colorFromRGB(int r, int g, int b) {
+	public static Color colorFromRGB(int r, int g, int b) {
 		return new Color(r/255.0f, g/255.0f, b/255.0f,1);
 	}
 	public static final Color[] WORLD_COLORS = 
@@ -75,7 +85,7 @@ public class Constants {
 			colorFromRGB(40,10,100),
 			colorFromRGB(75,125,204),
 			colorFromRGB(100,185,197),
-			colorFromRGB(20,175,22),
+			colorFromRGB(25,160,27),
 			colorFromRGB(20,100,11),
 			colorFromRGB(230,130,10),
 			colorFromRGB(230,100,32),
@@ -86,9 +96,15 @@ public class Constants {
 			colorFromRGB(0,0,0),
 			colorFromRGB(0,0,0),
 		 	};
-	public final static Color BOARD_COLOR = new Color(.95f, .95f, .9f, .85f);
+	public final static Color BOARD_COLOR = new Color(.95f, .95f, .9f, 1f);
 	public final static Color LINE_COLOR = new Color(.1f, .1f, .1f, 1);
 	public static final float START_COLOR_MUL = 1.1f;
 	public static final float END_COLOR_MUL = .75f;
 	public static final Color LOCK_COLOR = new Color(.75f,.7f,0,1);
+	public static final Color LOCKED_WORLD_OVERLAY = new Color (0,0,0,0.85f);
+	public static final Color LOCKED_LEVEL_NUMBER_COLOR = new Color(.95f, .95f, .9f, .25f);
+	public static final Color GLASS_COLOR = new Color(.18f,.18f,.18f,.7f);
+	public static final int PAINTER_MODE = 0;
+	public static final Color[] painterColor = {null,new Color(.6f, .1f, .1f, 1),new Color(.1f, .1f, .6f, 1),new Color(.1f, .6f, .1f, 1)};
+	public static int GLASS_STYLE = 2;
 }

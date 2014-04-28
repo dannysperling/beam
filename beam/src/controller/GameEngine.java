@@ -14,6 +14,7 @@ import model.Laser;
 import model.Menu;
 import model.Piece;
 import model.Tile;
+import model.Tutorial;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -28,11 +29,18 @@ public class GameEngine implements ApplicationListener {
 	 */
 	private Board b;
 	private Board nextBoard;
+	
+	/**
+	 * The current tutorial, if there is one, or null if there isn't
+	 */
+	private static Tutorial tutorial;
+	
 	private DrawGame dg;
 	private InputHandler inputHandler;
 	private LevelLoader levelLoader;
 	private GameProgress progress;
 	private LevelOrderer levelOrderer;
+	private TutorialLoader tutorialLoader;
 	private Menu menu;
 	private DrawMenu dm;
 
@@ -64,6 +72,9 @@ public class GameEngine implements ApplicationListener {
 	private static int timeSpentLeavingLevel = 0;
 	private static int timeDead = 0;
 	private static int timeWon = 0;
+	
+	public static int timeToStopTutorial = Integer.MAX_VALUE;
+	public static int timeSpentOnTutorial = 0;
 
 	/**
 	 * Keep track of our current animation, and where it's going
@@ -86,7 +97,7 @@ public class GameEngine implements ApplicationListener {
 	 * Enumeration of each of the states the game can be in
 	 */
 	public enum GameState {
-		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO, LEVEL_TRANSITION, MENU_TO_LEVEL_TRANSITION, LEVEL_TO_MENU_TRANSITION
+		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO, TUTORIAL, LEVEL_TRANSITION, MENU_TO_LEVEL_TRANSITION, LEVEL_TO_MENU_TRANSITION
 	}
 
 	/**
@@ -118,7 +129,7 @@ public class GameEngine implements ApplicationListener {
 	 * Enumeration of all button press types
 	 */
 	public enum ButtonPress {
-		UNDO, RESET, MENU, INFO, NEXT_LEVEL, SKIPWIN, NONE
+		UNDO, RESET, MENU, INFO, TUTORIAL, NEXT_LEVEL, SKIPWIN, NONE
 	}
 
 	/**
@@ -185,6 +196,9 @@ public class GameEngine implements ApplicationListener {
 		levelLoader = new LevelLoader("data/levels/levels.xml", levelOrderer,
 				true);
 		progress = new GameProgress(levelOrderer);
+		
+		//Set up tutorials
+		tutorialLoader = new TutorialLoader("data/tutorials/tutorialDescriptions.txt", levelOrderer);
 
 		// Create the drawing
 		dg = new DrawGame(progress);
@@ -292,6 +306,17 @@ public class GameEngine implements ApplicationListener {
 						} else {
 							timeSpentOnIntro++;
 						}
+						break;
+					case TUTORIAL:
+						if(timeSpentOnTutorial >= timeToStopTutorial){
+							state = GameState.INTRO;
+							timeSpentOnIntro = 0;
+							timeSpentOnTutorial = 0;
+							timeToStopTutorial = Integer.MAX_VALUE;
+						} else {
+							timeSpentOnTutorial++;
+						}
+						break;
 					case WON:
 						timeWon++;
 						break;
@@ -305,7 +330,11 @@ public class GameEngine implements ApplicationListener {
 					case MENU_TO_LEVEL_TRANSITION:
 						if(timeSpentLeavingMenu >= Constants.TIME_FOR_MENU_TRANSITION){
 							mainMenuShowing = false;
-							state = GameState.INTRO;
+							if(tutorial != null){
+								state = GameState.TUTORIAL;
+							} else {
+								state = GameState.INTRO;
+							}
 						} else {
 							timeSpentLeavingMenu++;
 						}
@@ -347,7 +376,7 @@ public class GameEngine implements ApplicationListener {
 
 		// Draw the game or menu
 		if (mainMenuShowing || wasMenuShowing){
-			if(state == GameState.MENU_TO_LEVEL_TRANSITION || state == GameState.INTRO){
+			if(state == GameState.MENU_TO_LEVEL_TRANSITION || state == GameState.INTRO || state == GameState.TUTORIAL){
 				dm.draw(b, currentWorld, currentOrdinalInWorld, true, (float)(timeSpentLeavingMenu) / Constants.TIME_FOR_MENU_TRANSITION);
 				if(wasMenuShowing && !mainMenuShowing){
 					timeSpentLeavingMenu = 0;
@@ -384,7 +413,7 @@ public class GameEngine implements ApplicationListener {
 					currentOrdinalInWorld,
 					menu.colorOfLevel(currentWorld, currentOrdinalInWorld), 0,
 					false, isLast, isNextLocked);
-		}
+			}
 	}
 
 	/**
@@ -566,7 +595,11 @@ public class GameEngine implements ApplicationListener {
 					initializeLasers(nextBoard);
 					break;
 				case INFO:
-					// TODO
+					System.out.println("INFOOOOO");
+					break;
+				case TUTORIAL:
+					state = GameState.TUTORIAL;
+					break;
 				default:
 					break;
 				}
@@ -828,6 +861,9 @@ public class GameEngine implements ApplicationListener {
 			debug("No further levels exist.");
 			System.exit(1);
 		}
+		
+		// Load the tutorial
+		tutorial = tutorialLoader.getTutorial(world, ordinalInWorld);
 
 		// Clean out all the inits
 		movingPiece = null;
@@ -838,8 +874,14 @@ public class GameEngine implements ApplicationListener {
 		boardStack.add(b.encodePieces());
 
 		// Set up the state and move counter
-		state = GameState.INTRO;
-		timeSpentOnIntro = 0;
+		
+		if(tutorial != null){
+			state = GameState.TUTORIAL;
+			timeSpentOnTutorial = 0;
+		} else {
+			state = GameState.INTRO;
+			timeSpentOnIntro = 0;
+		}
 		moveCounter = 0;
 
 		// Initialize the lasers
@@ -1411,7 +1453,11 @@ public class GameEngine implements ApplicationListener {
 	public static List<Piece> getDestroyedPieces() {
 		return piecesDestroyed;
 	}
-
+	
+	public static Tutorial getTutorial(){
+		return tutorial;
+	}
+	
 	/**
 	 * Debugging method. Prints anything given to it.
 	 * 

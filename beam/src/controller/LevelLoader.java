@@ -46,8 +46,8 @@ public class LevelLoader {
 	 * 
 	 * @param fn
 	 *            The path to the level file
-	 * @param fon
-	 *            The path to the fileOrder file
+	 * @param levelOrderer
+	 * 			  The orderer to be used
 	 * @param useGDX
 	 *		      Whether to use GDX for file loading or java readers
 	 * 				

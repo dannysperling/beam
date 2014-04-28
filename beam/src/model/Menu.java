@@ -6,6 +6,7 @@ import utilities.Constants;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
 import controller.GameEngine;
 
@@ -30,7 +31,7 @@ public class Menu {
 	public static final float B_NEXT_LEVEL_WIDTH = 0.35f;
 	public static final float B_NEXT_LEVEL_LEFT_X = 1 - B_NEXT_LEVEL_WIDTH - 0.02f;
 	//Info
-	public static final float B_INFO_WIDTH = 0.08f;
+	public static final float B_INFO_WIDTH = 0.10f;
 	public static final float B_INFO_LEFT_X = 0.5f - B_INFO_WIDTH / 2;
 
 
@@ -64,8 +65,16 @@ public class Menu {
 				return GameEngine.ButtonPress.NEXT_LEVEL;
 			}
 			//Info
-			else if (x > B_INFO_LEFT_X * width && x < (B_INFO_LEFT_X + B_INFO_WIDTH) * width){
-				return GameEngine.ButtonPress.INFO;
+			else if (GameEngine.getTutorial() == null){
+				if(x > B_INFO_LEFT_X * width && x < (B_INFO_LEFT_X + B_INFO_WIDTH) * width){
+					return GameEngine.ButtonPress.INFO;
+				}
+			} else if (GameEngine.getTutorial() != null){
+				if(x > ((width - (2 * Menu.B_INFO_WIDTH * width)) / 2.0f) && x < ((width - (2 * Menu.B_INFO_WIDTH * width)) / 2.0f) + (B_INFO_WIDTH * width)){
+					return GameEngine.ButtonPress.INFO;
+				} else if ( x > width/2.0f && x < ((width / 2.0f) + B_INFO_WIDTH * width)){
+					return GameEngine.ButtonPress.TUTORIAL;
+				}
 			}
 		}
 		
@@ -512,6 +521,27 @@ public class Menu {
 	 */
 	public boolean isWorldUnlocked(int world){
 		return progress.isWorldUnlocked(world);
+	}
+	
+	/**
+	 * Returns number of non-bonus stars earned in the given world
+	 * @param world
+	 * @return
+	 */
+	public int getNumStarsEarned(int world){
+		return progress.getBaseWorldStars(world);
+	}
+	
+	/**
+	 * Returns the number of stars needed in 'world' to unlock
+	 * 'world+1'. That is to say world n+1 is unlocked iff
+	 * genNumStarsEarned(n)>=getNumStarsNeeded(n). This may
+	 * be slightly misleading.
+	 * @param world
+	 * @return
+	 */
+	public int getNumStarsNeeded(int world){
+		return progress.numStarsNeeded(world);
 	}
 	
 	/**

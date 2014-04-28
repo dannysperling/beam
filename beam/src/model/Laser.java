@@ -58,6 +58,10 @@ public class Laser {
 		return 7*xStart + 13*yStart + 11*xFinish + 29*yFinish;
 	}
 	
+	public boolean isHorizontal(){
+		return (yStart == yFinish);
+	}
+	
 	/**
 	 * Getters for the various laser fields
 	 */
