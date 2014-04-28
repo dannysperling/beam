@@ -1,20 +1,21 @@
 package com.me.beamsolver;
 
-import java.util.Map;
-
 import model.Board;
 import model.Piece;
 
 public class Arrangement {
 	private Piece[][] pieces;
+	private Piece maskedPiece;
 
 	public Arrangement(Piece[][] ps) {
 		this.pieces = new Piece[ps.length][ps[0].length];
 		for (int i = 0; i < pieces.length; i++) {
 			for (int j = 0; j < pieces[0].length; j++) {
 				Piece temp = ps[i][j];
-				this.pieces[i][j] = new Piece(temp.getXCoord(),
+				if (temp != null) {
+					this.pieces[i][j] = new Piece(temp.getXCoord(),
 						temp.getYCoord(), temp.getColor());
+				}
 			}
 		}
 	}
@@ -29,6 +30,22 @@ public class Arrangement {
 	
 	public Piece getPiece(int x, int y) {
 		return pieces[x][y];
+	}
+	
+	public void mask(int x, int y) {
+		if (pieces[x][y] == null || maskedPiece != null) {
+			System.err.println("Error in Arrangement mask");
+		}
+		maskedPiece = pieces[x][y];
+		pieces[x][y] = null;
+	}
+	
+	public void unmask(int x, int y) {
+		if (pieces[x][y] != null || maskedPiece == null) {
+			System.err.println("Error in Arrangement unmask");
+		}
+		pieces[x][y] = maskedPiece;
+		maskedPiece = null;
 	}
 	
 	public Piece[][] getPieces() {
@@ -73,6 +90,11 @@ public class Arrangement {
 		return temp;
 	}
 	
+	@Override
+	public int hashCode() {
+		return this.toString().hashCode();
+	}
+	
 	public String toStringDense(Board board) {
 		StringBuffer temp = new StringBuffer();
 		int count = 0;
@@ -93,15 +115,5 @@ public class Arrangement {
 			}
 		}
 		return temp.toString();
-	}
-	
-	private void checkSolution(Map<String, Integer> table) {
-		System.out.println("0 : " + table.get("G5G1BB2BGR2RR1G5G"));
-		System.out.println("1 : " + table.get("G7BBG1BGR2RR1G5G"));
-		System.out.println("2 : " + table.get("G1B5B1G1BGR2RR1G5G"));
-		System.out.println("3 : " + table.get("G1B5BG2BGR2RR1G5G"));
-		System.out.println("4 : " + table.get("G1B1R3BG2BGR2R2G5G"));
-		System.out.println("5 : " + table.get("G1B1R3BG2BGR2RG1G"));
-		System.out.println("6 : " + table.get("G1B1R1R1BG2BGR3G1G"));
 	}
 }
