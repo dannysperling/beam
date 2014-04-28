@@ -7,4 +7,4 @@ END TUTORIAL
 TUTORIAL FOR LEVEL UNIQUE ID: 53.
 Pieces can't move through grey tiles!
 IMAGE: 1 frames, 128 side, glasstutorial_1.png
- END TUTORIAL
+END TUTORIAL
