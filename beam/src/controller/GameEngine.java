@@ -548,7 +548,9 @@ public class GameEngine implements ApplicationListener {
 
 		// Make sure to not check for input if we're in the middle of inputing a
 		// move or transitioning between levels
-		if (state != GameState.DECIDING && state != GameState.LEVEL_TRANSITION && state != GameState.MENU_TO_LEVEL_TRANSITION && state != GameState.LEVEL_TO_MENU_TRANSITION) {
+		if (state != GameState.DECIDING && state != GameState.LEVEL_TRANSITION && 
+				state != GameState.MENU_TO_LEVEL_TRANSITION && state != GameState.LEVEL_TO_MENU_TRANSITION
+				&& state != GameState.TUTORIAL) {
 
 			// Get the button that was pressed
 			ButtonPress button = inputHandler.checkForButtonPress(state,

@@ -61,8 +61,12 @@ public class InputHandler {
 			return GameState.IDLE;
 		}
 
-		if(state == GameState.TUTORIAL && Gdx.input.isTouched() && GameEngine.timeToStopTutorial == Integer.MAX_VALUE){
-			GameEngine.timeToStopTutorial = GameEngine.timeSpentOnTutorial + Constants.TUTORIAL_IN_TIME;
+		/* Can remove tutorial once it's gotten to the bottom */
+		if(state == GameState.TUTORIAL && Gdx.input.isTouched()) {
+			if (GameEngine.timeToStopTutorial == Integer.MAX_VALUE && GameEngine.timeSpentOnTutorial >= Constants.TUTORIAL_IN_TIME){
+				GameEngine.timeToStopTutorial = GameEngine.timeSpentOnTutorial + Constants.TUTORIAL_IN_TIME;
+			}
+			return GameState.TUTORIAL;
 		}
 		
 		if(state == GameState.INFO && Gdx.input.isTouched() && GameEngine.timeToStopInfo == Integer.MAX_VALUE){
@@ -95,18 +99,17 @@ public class InputHandler {
 	 * 			The new state. IDLE if no piece was touched, or DECIDING if piece touched
 	 */
 	private GameState selectPiece(Board b) {
-		
+		Tile destination = b.getTileAtClickPosition(getX(), getY());
 		/* Check first if the screen is even being touched on a valid tile */
 		if (Gdx.input.isTouched()
-				&& b.getTileAtClickPosition(getX(), getY()) != null) {
-			Tile t = b.getTileAtClickPosition(getX(), getY());
-			Piece piece = b.getPieceOnTile(t);
+				&& destination != null) {
+			Piece piece = b.getPieceOnTile(destination);
 			/*
 			 * Given a touch on the board and on a piece, read piece as held.
 			 */
 			if (piece != null) {
 				GameEngine.movingPiece = piece;
-				GameEngine.movePath.add(t);
+				GameEngine.movePath.add(destination);
 				return GameEngine.GameState.DECIDING;
 				/* If the touch was anywhere else, don't change states */
 			} else {
@@ -146,13 +149,12 @@ public class InputHandler {
 	 * 			GameState.DECIDING, as the state at present can't change in this method.
 	 */
 	private GameState setPath(Board b) {
-		
+		Tile destination = b.getTileAtClickPosition(getX(), getY());
 		// Ensure the user is still pressing on a valid tile.
-		if (b.getTileAtClickPosition(getX(), getY()) != null) {
+		if (destination != null) {
 			
 			//Get where they were and where they're going
 			Tile source = GameEngine.movePath.get(GameEngine.movePath.size() - 1);
-			Tile destination = b.getTileAtClickPosition(getX(), getY());
 
 			// If the destination is on the path, short circuit the
 			// path.
