@@ -61,8 +61,12 @@ public class InputHandler {
 			return GameState.IDLE;
 		}
 
-		if(state == GameState.TUTORIAL && Gdx.input.isTouched() && GameEngine.timeToStopTutorial == Integer.MAX_VALUE){
-			GameEngine.timeToStopTutorial = GameEngine.timeSpentOnTutorial + Constants.TUTORIAL_IN_TIME;
+		/* Can remove tutorial once it's gotten to the bottom */
+		if(state == GameState.TUTORIAL && Gdx.input.isTouched()) {
+			if (GameEngine.timeToStopTutorial == Integer.MAX_VALUE && GameEngine.timeSpentOnTutorial >= Constants.TUTORIAL_IN_TIME){
+				GameEngine.timeToStopTutorial = GameEngine.timeSpentOnTutorial + Constants.TUTORIAL_IN_TIME;
+			}
+			return GameState.TUTORIAL;
 		}
 		
 		/* Handles input if the player is already touching a piece. */
