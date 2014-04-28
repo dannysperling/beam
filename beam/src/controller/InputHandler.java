@@ -69,8 +69,12 @@ public class InputHandler {
 			return GameState.TUTORIAL;
 		}
 		
-		if(state == GameState.INFO && Gdx.input.isTouched() && GameEngine.timeToStopInfo == Integer.MAX_VALUE){
-			GameEngine.timeToStopInfo = GameEngine.timeSpentOnInfo + Constants.TUTORIAL_IN_TIME;
+		/* Can remove info once it's gotten to the bottom */
+		if(state == GameState.INFO && Gdx.input.isTouched()){
+			if (GameEngine.timeToStopInfo == Integer.MAX_VALUE && GameEngine.timeSpentOnInfo >= Constants.TUTORIAL_IN_TIME){
+				GameEngine.timeToStopInfo = GameEngine.timeSpentOnInfo + Constants.TUTORIAL_IN_TIME;
+			}
+			return GameState.INFO;
 		}
 		
 		/* Handles input if the player is already touching a piece. */

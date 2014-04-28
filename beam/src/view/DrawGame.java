@@ -19,7 +19,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
@@ -1354,10 +1353,6 @@ public class DrawGame {
 	private String correctlyWrap(String s, BitmapFont font, TextBounds tb,
 			float wrapWidth) {
 		tb = font.getBounds(s);
-		System.out.println(tb.width);
-		System.out.println(wrapWidth);
-		System.out.println(Gdx.graphics.getWidth());
-		System.out.println("______________________");
 		if (tb.width <= wrapWidth) {
 			return s;
 		} else {
