@@ -19,7 +19,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.HAlignment;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
@@ -223,9 +222,9 @@ public class DrawGame {
 	 * Draws anything that appears in a tile which never moves. This includes
 	 * glass, painters, and goals Scrolls with animation
 	 */
-	private void drawTiles(int bx, int by, int tilesize, List<Tile> tiles, Board b) {
+	private void drawTiles(int bx, int by, int tilesize, List<Tile> tiles, Board b, int lw) {
 		for (Tile t : tiles) {
-			drawGlass(t, tilesize, bx, by, b);
+			drawGlass(t, tilesize, bx, by, b, lw);
 		}
 		shapes.begin(ShapeType.Filled);
 		for (Tile t : tiles) {
@@ -266,7 +265,7 @@ public class DrawGame {
 		}
 	}
 
-	private void drawGlass(Tile t, int tilesize, int bx, int by, Board b) {
+	private void drawGlass(Tile t, int tilesize, int bx, int by, Board b, int lw) {
 		if (t.hasGlass()) {
 			if (Constants.GLASS_STYLE == 0) {
 				shapes.begin(ShapeType.Line);
@@ -307,20 +306,20 @@ public class DrawGame {
 				shapes.setColor(new Color(.25f,.25f,.25f,.75f));
 				int glassX = bx + (t.getXCoord() * tilesize);
 				int glassY = by + (t.getYCoord() * tilesize);
-				shapes.rect(glassX+1, glassY+1, tilesize-2, tilesize-2);
+				shapes.rect(glassX+(lw - 1), glassY+1, tilesize-lw, tilesize-lw);
 				shapes.end();
 				if(t.getYCoord() > 0 && b.isGlassAt(t.getXCoord(), t.getYCoord() - 1)){
 					shapes.begin(ShapeType.Filled);
 					glassX = bx + (t.getXCoord() * tilesize);
 					glassY = by + (t.getYCoord() * tilesize) - 2;
-					shapes.rect(glassX+1, glassY+1, tilesize-2, 2);
+					shapes.rect(glassX+(lw - 1), glassY+1, tilesize-lw, 2);
 					shapes.end();
 				}
 				if(t.getXCoord() > 0 && b.isGlassAt(t.getXCoord() - 1, t.getYCoord())){
 					shapes.begin(ShapeType.Filled);
 					glassX = bx + (t.getXCoord() * tilesize) - 2;
 					glassY = by + (t.getYCoord() * tilesize);
-					shapes.rect(glassX+1, glassY+1, 2, tilesize - 2);
+					shapes.rect(glassX+1, glassY+1, 2, tilesize - lw);
 					shapes.end();
 				}
 				if(t.getXCoord() > 0 && b.isGlassAt(t.getXCoord() - 1, t.getYCoord()) && t.getYCoord() > 0 && b.isGlassAt(t.getXCoord(), t.getYCoord() - 1) && b.isGlassAt(t.getXCoord() - 1, t.getYCoord() - 1)){
@@ -1060,6 +1059,10 @@ public class DrawGame {
 		if (numStars == 3) {
 			levelEndMessage = "Perfect!";
 		}
+		
+		if(GameEngine.nextWorldUnlocked){
+			//levelEndMessage += "\n\nNext world unlocked!";
+		}
 
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
@@ -1128,10 +1131,10 @@ public class DrawGame {
 			oneStarSprite.draw(batch);
 		}
 
-		tb = introFont.getBounds(levelEndMessage);
+		tb = introFont.getMultiLineBounds(levelEndMessage);
 		introFont.setColor(new Color(0, 0, 0, textAlpha));
-		introFont.draw(batch, levelEndMessage, bx
-				+ ((boardWidth - tb.width) / 2.0f), textY + (tb.height / 2.0f));
+		introFont.drawMultiLine(batch, levelEndMessage, bx
+				+ ((boardWidth - tb.width) / 2.0f), textY + (tb.height / 2.0f), tb.width, HAlignment.CENTER);
 
 		batch.end();
 		Gdx.gl.glDisable(GL10.GL_BLEND);
@@ -1175,7 +1178,7 @@ public class DrawGame {
 
 		// Draw the tiles
 		for (Tile t : tiles) {
-			drawGlass(t, tilesize, bx, by, b);
+			drawGlass(t, tilesize, bx, by, b, 1);
 		}
 		shapes.begin(ShapeType.Filled);
 		for (Tile t : tiles) {
@@ -1354,10 +1357,6 @@ public class DrawGame {
 	private String correctlyWrap(String s, BitmapFont font, TextBounds tb,
 			float wrapWidth) {
 		tb = font.getBounds(s);
-		System.out.println(tb.width);
-		System.out.println(wrapWidth);
-		System.out.println(Gdx.graphics.getWidth());
-		System.out.println("______________________");
 		if (tb.width <= wrapWidth) {
 			return s;
 		} else {
@@ -1655,7 +1654,7 @@ public class DrawGame {
 		drawGrid((int) (bx + transitionPart), by, tilesize, b);
 
 		// Draw the tiles
-		drawTiles((int) (bx + transitionPart), by, tilesize, tiles, b);
+		drawTiles((int) (bx + transitionPart), by, tilesize, tiles, b, 2);
 
 		// Draw Paths
 		drawPaths((int) (bx + transitionPart), by, tilesize, path, aState,
