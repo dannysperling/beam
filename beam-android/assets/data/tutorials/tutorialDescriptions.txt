@@ -12,3 +12,16 @@ END TUTORIAL
 TUTORIAL FOR LEVEL UNIQUE ID: 49.
 Pieces can move through goals of other colors.
 END TUTORIAL
+
+TUTORIAL FOR LEVEL UNIQUE ID: 1.
+Beams destroy pieces of other colors!
+END TUTORIAL
+
+TUTORIAL FOR LEVEL UNIQUE ID: 45.
+Lining up pieces of the same color forms beams!
+END TUTORIAL
+
+TUTORIAL FOR LEVEL UNIQUE ID: 8.
+Painters change pieces to their color.
+END TUTORIAL
+
