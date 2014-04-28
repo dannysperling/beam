@@ -452,13 +452,13 @@ public class GameEngine implements ApplicationListener {
 			boolean isLast = menu.isLastLevelInWorld(currentWorld, currentOrdinalInWorld);
 			boolean isNextLocked = !menu.isNextLevelUnlocked(currentWorld, currentOrdinalInWorld);
 			dg.draw(b, state, currentAnimationState, currentWorld,
-					currentOrdinalInWorld, mixed, totalTransPart, false, isLast, isNextLocked);
+					currentOrdinalInWorld, mixed, totalTransPart, false, isLast, isNextLocked, progress);
 			
 			isLast = menu.isLastLevelInWorld(nextLvWorld, nextOrdinal);
 			isNextLocked = !menu.isNextLevelUnlocked(nextLvWorld, nextOrdinal);
 			dg.draw(nextBoard, state, currentAnimationState, nextLvWorld,
 					nextOrdinal, menu.colorOfLevel(nextLvWorld, nextOrdinal),
-					totalTransPart + Gdx.graphics.getWidth(), true, isLast, isNextLocked);
+					totalTransPart + Gdx.graphics.getWidth(), true, isLast, isNextLocked, progress);
 
 		} else {
 			boolean isLast = menu.isLastLevelInWorld(currentWorld, currentOrdinalInWorld);
@@ -466,7 +466,7 @@ public class GameEngine implements ApplicationListener {
 			dg.draw(b, state, currentAnimationState, currentWorld,
 					currentOrdinalInWorld,
 					menu.colorOfLevel(currentWorld, currentOrdinalInWorld), 0,
-					false, isLast, isNextLocked);
+					false, isLast, isNextLocked, progress);
 			}
 	}
 

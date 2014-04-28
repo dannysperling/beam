@@ -47,6 +47,8 @@ public class DrawGame {
 	private Sprite threeStarSprite;
 	private Texture oneStarTexture;
 	private Sprite oneStarSprite;
+	private Texture twoStarTexture;
+	private Sprite twoStarSprite;
 	private Texture lockTexture;
 	private Sprite lockSprite;
 	private Texture infoTexture;
@@ -65,6 +67,7 @@ public class DrawGame {
 	BitmapFont beamGoalFont;
 	BitmapFont gameButtonFont;
 	BitmapFont nonGameMButtonFont;
+	BitmapFont starGoalFont;
 	BitmapFont nonGameNLButtonFont;
 	private Texture painterTexture;
 
@@ -134,6 +137,9 @@ public class DrawGame {
 
 		oneStarTexture = AssetInitializer.getTexture(AssetInitializer.one_star);
 		//oneStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		
+		twoStarTexture = AssetInitializer.getTexture(AssetInitializer.two_star);
+
 
 		TextureRegion pieceregion = new TextureRegion(pieceTexture, 0, 0, 256,
 				256);
@@ -149,6 +155,8 @@ public class DrawGame {
 				0, 128, 128);
 		TextureRegion onestarregion = new TextureRegion(oneStarTexture, 0, 0,
 				128, 128);
+		TextureRegion twostarregion = new TextureRegion(twoStarTexture, 0, 0,
+				128, 128);
 		TextureRegion lockregion = new TextureRegion(lockTexture, 0, 0, 128,
 				128);
 
@@ -160,6 +168,7 @@ public class DrawGame {
 		lockSprite = new Sprite(lockregion);
 		infoSprite = new Sprite(inforegion);
 		tutorialSprite = new Sprite(tutregion);
+		twoStarSprite = new Sprite(twostarregion);
 
 		shapes = new ShapeRenderer();
 	}
@@ -173,6 +182,8 @@ public class DrawGame {
 		introFont = generator.generateFont(Gdx.graphics.getHeight() / 20);
 		levelNameFont = generator.generateFont((int) (Gdx.graphics.getHeight()
 				* Constants.TOP_BAR_SIZE * 0.8f));
+		starGoalFont = generator.generateFont((int) (Gdx.graphics.getHeight()
+				* Constants.TOP_BAR_SIZE * 0.5f));
 		moveWordFont = generator.generateFont((int) (Gdx.graphics.getHeight()
 				* Constants.TOP_BAR_SIZE * 0.2f));
 		movesFont = generator.generateFont((int) (Gdx.graphics.getHeight()
@@ -1478,7 +1489,7 @@ public class DrawGame {
 	}
 
 	
-	private void drawInfo(TextBounds tb, int width, int height, int currentWorld, int currentOrdinalInWorld){
+	private void drawInfo(TextBounds tb, int width, int height, int currentWorld, int currentOrdinalInWorld, Board b, int bestMoves){
 		float upshift = 0;
 		if (GameEngine.timeSpentOnInfo < Constants.TUTORIAL_IN_TIME) {
 			upshift = 1 - (float) (GameEngine.timeSpentOnInfo)
@@ -1500,12 +1511,45 @@ public class DrawGame {
 		shapes.end();
 		Gdx.gl.glDisable(GL10.GL_BLEND);
 		
-		String header = "Level " + currentWorld + "-" + currentOrdinalInWorld;
+		String header = currentWorld + "-" + currentOrdinalInWorld;
 		tb = levelNameFont.getBounds(header);
 		batch.begin();
 		levelNameFont.setColor(Color.BLACK);
-		levelNameFont.draw(batch, header, (width - tb.width) / 2.0f, (height * 0.75f) + upshift);
+		levelNameFont.draw(batch, header, (width - tb.width) / 2.0f, (height * 0.8f) + upshift);
 		batch.end();
+		
+		String twoStars = b.par + " Moves";
+		String threeStars = b.perfect + " Moves";
+		starGoalFont.setColor(Color.BLACK);
+		tb = starGoalFont.getBounds(twoStars);
+		twoStarSprite.setSize(tb.height * 2.0f, tb.height * 2.0f);
+		float twoStarWidth = tb.width + (3 * tb.height);
+		float curHeight = height * 0.6f;
+		twoStarSprite.setPosition((width - twoStarWidth) / 2.0f, curHeight - (0.5f * tb.height) + upshift - (twoStarSprite.getHeight() / 2.0f));
+		batch.begin();
+		twoStarSprite.draw(batch);
+		starGoalFont.draw(batch, twoStars, (width - twoStarWidth) / 2.0f + (3.0f * tb.height) , curHeight + upshift);
+		batch.end();
+		curHeight -= 2 * tb.height;
+		
+		tb = starGoalFont.getBounds(threeStars);
+		threeStarSprite.setSize(tb.height * 2.0f, tb.height * 2.0f);
+		float threeStarWidth = tb.width + (3 * tb.height);
+		threeStarSprite.setPosition((width - threeStarWidth) / 2.0f, curHeight - (0.5f * tb.height) + upshift - (threeStarSprite.getHeight() / 2.0f));
+		batch.begin();
+		threeStarSprite.draw(batch);
+		starGoalFont.draw(batch, threeStars, (width - threeStarWidth) / 2.0f + (3.0f * tb.height) , curHeight + upshift);
+		batch.end();
+		
+		
+		if(bestMoves != 0){
+		curHeight -= 3 * tb.height;
+		String yourBest = "Your Best:\n\n" + bestMoves + " Move" + (bestMoves==1?"":"s");
+		tb = starGoalFont.getMultiLineBounds(yourBest);
+		batch.begin();
+		starGoalFont.drawMultiLine(batch, yourBest, (width - tb.width) / 2.0f, curHeight + upshift, tb.width, HAlignment.CENTER);
+		batch.end();
+		}
 	}
 	/**
 	 * This is the primary game drawing method
@@ -1517,10 +1561,10 @@ public class DrawGame {
 	public void draw(Board b, GameEngine.GameState state,
 			GameEngine.AnimationState aState, int currentWorld,
 			int currentOrdinalInWorld, Color bg, float transitionPart,
-			boolean partial, boolean isLast, boolean isNextLocked) {
+			boolean partial, boolean isLast, boolean isNextLocked, GameProgress gp) {
 
 		// Define drawing variables including sizes and positions as well as
-		// objects to be drawn
+		// objects to be drawn 
 		int bx = b.getBotLeftX();
 		int by = b.getBotLeftY();
 		int tilesize = b.getTileSize();
@@ -1753,7 +1797,7 @@ public class DrawGame {
 		}
 		
 		if(state == GameState.INFO){
-			drawInfo(tb, width, height, currentWorld, currentOrdinalInWorld);
+			drawInfo(tb, width, height, currentWorld, currentOrdinalInWorld, b, gp.getLevelMoves(currentWorld, currentOrdinalInWorld));
 		}
 
 		

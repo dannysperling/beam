@@ -20,7 +20,8 @@ public class AssetInitializer {
 	public static final String piece = "data/piece.png";
 	public static final String painter = "data/painter.png";
 	public static final String unlock = "data/unlock.png";
-	
+	public static final String two_star = "data/2star.png";
+
 	
 	public static void initialize(){
 		
@@ -41,6 +42,8 @@ public class AssetInitializer {
 		assetManager.load(piece, Texture.class, param);
 		assetManager.load(painter, Texture.class, param);
 		assetManager.load(unlock, Texture.class, param);
+		assetManager.load(two_star, Texture.class, param);
+
 	}
 	
 	public static boolean isFinished(){
