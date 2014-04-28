@@ -11,5 +11,4 @@ END TUTORIAL
 
 TUTORIAL FOR LEVEL UNIQUE ID: 49.
 Pieces can move through goals of other colors.
-IMAGE: 1 frames, 128 side
 END TUTORIAL
