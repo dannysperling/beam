@@ -11,7 +11,7 @@ public class Constants {
 	 * the final game version.
 	 */
 	public static final boolean DEBUG_MODE = false;
-	public static boolean UNLOCK_MODE = false;
+	public static boolean UNLOCK_MODE = true;
 	public static final boolean LOGGING = false;
 	
 	
@@ -110,5 +110,7 @@ public class Constants {
 	public static final Color GLASS_COLOR = new Color(.18f,.18f,.18f,.7f);
 	public static final int PAINTER_MODE = 0;
 	public static final Color[] painterColor = {null,new Color(.6f, .1f, .1f, 1),new Color(.1f, .1f, .6f, 1),new Color(.1f, .6f, .1f, 1)};
+	public static final int SHADOW_DISTANCE = 6;
+	public static final Color SHADOW_COLOR = new Color(.1f,.1f,.1f,0.25f);
 	public static int GLASS_STYLE = 2;
 }
