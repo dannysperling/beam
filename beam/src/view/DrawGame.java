@@ -75,11 +75,14 @@ public class DrawGame {
 	public static Color translateColor(GameEngine.Color c) {
 		switch (c) {
 		case RED:
-			return new Color(.808f, .098f, .149f, 1);
+			return new Color(240 / 255f, 150 /255f, 0 / 255f, 1);
+			//return new Color(.808f, .098f, .149f, 1);
 		case BLUE:
-			return new Color(.098f, .396f, .808f, 1);
+			return new Color(13 / 255f, 176 / 255f, 230 / 255f, 1);
+			//return new Color(.098f, .396f, .808f, 1);
 		case GREEN:
-			return new Color(.067f, .510f, .067f, 1);
+			return new Color(147 / 255f, 29 / 255f, 186 / 255f, 1);
+			//return new Color(.067f, .510f, .067f, 1);
 		case ORANGE:
 			return new Color(255 / 255.0f, 150 / 255.0f, 20 / 255.0f, 1);
 		case PURPLE:
