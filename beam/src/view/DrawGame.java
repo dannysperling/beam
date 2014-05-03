@@ -72,44 +72,6 @@ public class DrawGame {
 
 	private Sprite painterSprite;
 
-	public static Color translateColor(GameEngine.Color c) {
-		switch (c) {
-		case RED:
-			return new Color(.808f, .098f, .149f, 1);
-		case BLUE:
-			return new Color(.098f, .396f, .808f, 1);
-		case GREEN:
-			return new Color(.067f, .510f, .067f, 1);
-		case ORANGE:
-			return new Color(255 / 255.0f, 150 / 255.0f, 20 / 255.0f, 1);
-		case PURPLE:
-			return new Color(.6f, 0, .6f, 1);
-		default:
-			return new Color(0, 0, 0, 0);
-		}
-	}
-	
-	/*
-	 * 
-	 * public static Color translateColor(GameEngine.Color c) {
- 	switch (c) {
- 	case ORANGE:
- 	return colorFromRGB(237, 142, 41);
- 	case TEAL:
- 	return colorFromRGB(37, 161, 144);
- 	case PURPLE:
- 	return colorFromRGB(100, 61, 153);
- 	case RED:
- 	return colorFromRGB(171, 55, 73);
- 	case GREEN:
- 	return colorFromRGB(156, 219, 107);
- 	default:
- 	return new Color(0, 0, 0, 0);
- 	}
- }
-	 * 
-	 */
-
 	public DrawGame(GameProgress gp) {
 		batch = new SpriteBatch();
 
@@ -231,7 +193,7 @@ public class DrawGame {
 			if (t.hasGoal()) {
 				int goalX = bx + (t.getXCoord() * tilesize);
 				int goalY = by + (t.getYCoord() * tilesize);
-				shapes.setColor(translateColor(t.getGoalColor()));
+				shapes.setColor(Constants.translateColor(t.getGoalColor()));
 				shapes.rect(goalX + (0.05f * tilesize), goalY
 						+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
 				shapes.setColor(Constants.BOARD_COLOR);
@@ -445,17 +407,17 @@ public class DrawGame {
 				pieceSprite.setSize(tilesize, tilesize);
 			}
 
-			pieceSprite.setColor(translateColor(p.getColor()));
+			pieceSprite.setColor(Constants.translateColor(p.getColor()));
 			if (p.equals(GameEngine.movingPiece)) {
-				float rshift = (paintColor.r - translateColor(p.getColor()).r)
+				float rshift = (paintColor.r - Constants.translateColor(p.getColor()).r)
 						* paintAnimateTime;
-				float gshift = (paintColor.g - translateColor(p.getColor()).g)
+				float gshift = (paintColor.g - Constants.translateColor(p.getColor()).g)
 						* paintAnimateTime;
-				float bshift = (paintColor.b - translateColor(p.getColor()).b)
+				float bshift = (paintColor.b - Constants.translateColor(p.getColor()).b)
 						* paintAnimateTime;
-				pieceSprite.setColor(new Color(translateColor(p.getColor()).r
-						+ rshift, translateColor(p.getColor()).g + gshift,
-						translateColor(p.getColor()).b + bshift, 1));
+				pieceSprite.setColor(new Color(Constants.translateColor(p.getColor()).r
+						+ rshift, Constants.translateColor(p.getColor()).g + gshift,
+						Constants.translateColor(p.getColor()).b + bshift, 1));
 			}
 			
 			pieceSprite.draw(batch);
@@ -481,7 +443,7 @@ public class DrawGame {
 				} else {
 					laserWidth = (isBlack?0.15f:beamThickness);
 				}
-				shapes.setColor((isBlack?Color.BLACK:translateColor(l.getColor())));
+				shapes.setColor((isBlack?Color.BLACK:Constants.translateColor(l.getColor())));
 				if (!l.equals(movedAlongLaser)) {
 					if (l.getXStart() == l.getXFinish()) {
 						shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
@@ -506,7 +468,7 @@ public class DrawGame {
 				if(l.isHorizontal() == isHorizontal){
 					if (l != null) {
 						laserWidth = formAnimateTime * (isBlack?0.15f:beamThickness);
-						shapes.setColor(isBlack?Color.BLACK:translateColor(l.getColor()));
+						shapes.setColor(isBlack?Color.BLACK:Constants.translateColor(l.getColor()));
 						if (l.getXStart() == l.getXFinish()) {
 							shapes.rect(bx
 									+ (l.getXStart() + 0.5f - (laserWidth / 2))
@@ -527,7 +489,7 @@ public class DrawGame {
 		}
 		if (movedAlongLaser != null && aState != AnimationState.DESTRUCTION && movedAlongLaser.isHorizontal() == isHorizontal) {
 			laserWidth = (isBlack?0.15f:beamThickness) * (1 - paintAnimateTime);
-			shapes.setColor(isBlack?Color.BLACK:translateColor(movedAlongLaser.getColor()));
+			shapes.setColor(isBlack?Color.BLACK:Constants.translateColor(movedAlongLaser.getColor()));
 			float moveAnimX = (path.get(1).getXCoord() - GameEngine.movingPiece
 					.getXCoord()) * tilesize * moveAnimateTime;
 			float moveAnimY = (path.get(1).getYCoord() - GameEngine.movingPiece
@@ -600,7 +562,7 @@ public class DrawGame {
 			for (Piece dp : destroyedPieces) {
 				bangSprite.setPosition(bx + (dp.getXCoord() * tilesize), by
 						+ (dp.getYCoord() * tilesize));
-				bangSprite.setColor(translateColor(dp.getColor()));
+				bangSprite.setColor(Constants.translateColor(dp.getColor()));
 				bangSprite.draw(batch);
 			}
 		}
@@ -863,7 +825,7 @@ public class DrawGame {
 										* (Constants.BOT_BAR_SIZE + (Constants.BEAM_GOAL_HEIGHT * (i + .125f))),
 								Constants.BEAM_GOAL_WIDTH * width, height
 										* 0.75f * Constants.BEAM_GOAL_HEIGHT);
-						shapes.setColor(translateColor(c));
+						shapes.setColor(Constants.translateColor(c));
 						float progress = (float) (curLaserCount.get(c))
 								/ beamObjective.get(c);
 
@@ -1185,7 +1147,7 @@ public class DrawGame {
 			if (t.hasGoal()) {
 				int goalX = bx + (t.getXCoord() * tilesize);
 				int goalY = by + (t.getYCoord() * tilesize);
-				shapes.setColor(translateColor(t.getGoalColor()));
+				shapes.setColor(Constants.translateColor(t.getGoalColor()));
 				shapes.rect(goalX + (0.05f * tilesize), goalY
 						+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
 				shapes.setColor(Constants.BOARD_COLOR);
@@ -1225,7 +1187,7 @@ public class DrawGame {
 		List<Tile> path = GameEngine.movePath;
 		Color paintColor = new Color(0, 0, 0, 0);
 		if (path.size() > 1) {
-			paintColor = translateColor(b.getTileAtBoardPosition(
+			paintColor = Constants.translateColor(b.getTileAtBoardPosition(
 					path.get(1).getXCoord(), path.get(1).getYCoord())
 					.getPainterColor());
 		}
@@ -1238,17 +1200,17 @@ public class DrawGame {
 		batch.begin();
 		pieceSprite.setSize(tilesize, tilesize);
 		for (Piece p : pieces) {
-			pieceSprite.setColor(translateColor(p.getColor()));
+			pieceSprite.setColor(Constants.translateColor(p.getColor()));
 			if (p.equals(GameEngine.movingPiece)) {
-				float rshift = (paintColor.r - translateColor(p.getColor()).r)
+				float rshift = (paintColor.r - Constants.translateColor(p.getColor()).r)
 						* paintAnimateTime;
-				float gshift = (paintColor.g - translateColor(p.getColor()).g)
+				float gshift = (paintColor.g - Constants.translateColor(p.getColor()).g)
 						* paintAnimateTime;
-				float bshift = (paintColor.b - translateColor(p.getColor()).b)
+				float bshift = (paintColor.b - Constants.translateColor(p.getColor()).b)
 						* paintAnimateTime;
-				pieceSprite.setColor(new Color(translateColor(p.getColor()).r
-						+ rshift, translateColor(p.getColor()).g + gshift,
-						translateColor(p.getColor()).b + bshift, 1));
+				pieceSprite.setColor(new Color(Constants.translateColor(p.getColor()).r
+						+ rshift, Constants.translateColor(p.getColor()).g + gshift,
+						Constants.translateColor(p.getColor()).b + bshift, 1));
 			}
 			pieceSprite.setPosition(bx + (p.getXCoord() * tilesize),
 					by + (p.getYCoord() * tilesize));
@@ -1276,7 +1238,7 @@ public class DrawGame {
 			} else {
 				laserWidth = beamThickness;
 			}
-			shapes.setColor(translateColor(l.getColor()));
+			shapes.setColor(Constants.translateColor(l.getColor()));
 			if (!l.equals(movedAlongLaser)) {
 				if (l.getXStart() == l.getXFinish()) {
 					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
@@ -1299,7 +1261,7 @@ public class DrawGame {
 			for (Laser l : allFormedLasers)
 				if (l != null) {
 					laserWidth = formAnimateTime * beamThickness;
-					shapes.setColor(translateColor(l.getColor()));
+					shapes.setColor(Constants.translateColor(l.getColor()));
 					if (l.getXStart() == l.getXFinish()) {
 						shapes.rect(bx
 								+ (l.getXStart() + 0.5f - (laserWidth / 2))
@@ -1594,7 +1556,7 @@ public class DrawGame {
 		TextBounds tb = null;
 		Color paintColor = new Color(0, 0, 0, 0);
 		if (path.size() > 1) {
-			paintColor = translateColor(b.getTileAtBoardPosition(
+			paintColor = Constants.translateColor(b.getTileAtBoardPosition(
 					path.get(1).getXCoord(), path.get(1).getYCoord())
 					.getPainterColor());
 		}
@@ -1633,7 +1595,7 @@ public class DrawGame {
 				breakAnimateTime = 1;
 				if (!paintColor.equals(new Color(0, 0, 0, 0))
 						&& !paintColor
-								.equals(translateColor(GameEngine.movingPiece
+								.equals(Constants.translateColor(GameEngine.movingPiece
 										.getColor()))) {
 					paintAnimateTime = 1;
 				}

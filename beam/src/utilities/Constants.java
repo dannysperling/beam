@@ -2,6 +2,8 @@ package utilities;
 
 import com.badlogic.gdx.graphics.Color;
 
+import controller.GameEngine;
+
 
 
 public class Constants {
@@ -100,6 +102,24 @@ public class Constants {
 			colorFromRGB(0,0,0),
 			colorFromRGB(0,0,0),
 		 	};
+	
+	public static Color translateColor(GameEngine.Color c) {
+		switch (c) {
+		case RED:
+			return new Color(.808f, .098f, .149f, 1);
+		case BLUE:
+			return new Color(.098f, .396f, .808f, 1);
+		case GREEN:
+			return new Color(.067f, .510f, .067f, 1);
+		case ORANGE:
+			return new Color(255 / 255.0f, 150 / 255.0f, 20 / 255.0f, 1);
+		case PURPLE:
+			return new Color(.6f, 0, .6f, 1);
+		default:
+			return new Color(0, 0, 0, 0);
+		}
+	}
+	
 	public final static Color BOARD_COLOR = new Color(.95f, .95f, .9f, 1f);
 	public final static Color LINE_COLOR = new Color(.1f, .1f, .1f, 1);
 	public static final float START_COLOR_MUL = 1.1f;
