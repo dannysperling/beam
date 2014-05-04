@@ -61,7 +61,7 @@ public class Constants {
 	 * GOAL PROGRESS CONSTANTS
 	 */
 	public static final float BEAM_GOAL_HEIGHT = 0.08f;
-	public static final float BEAM_GOAL_WIDTH = 0.73f;
+	public static final float BEAM_GOAL_WIDTH = 0.8f;
 	public static final float TEXT_GOAL_HEIGHT = 0.12f;
 	
 	
@@ -105,15 +105,32 @@ public class Constants {
 	
 	public static Color translateColor(GameEngine.Color c) {
 		switch (c) {
-		case RED:
+		case ORANGE:
 			return new Color(240 / 255f, 150 /255f, 0 / 255f, 1);
 		case BLUE:
 			return new Color(13 / 255f, 176 / 255f, 230 / 255f, 1);
-		case GREEN:
-			return new Color(147 / 255f, 29 / 255f, 186 / 255f, 1);
-		case ORANGE:
-			return new Color(255 / 255.0f, 150 / 255.0f, 20 / 255.0f, 1);
 		case PURPLE:
+			return new Color(147 / 255f, 29 / 255f, 186 / 255f, 1);
+		case GREEN:
+			return new Color(255 / 255.0f, 150 / 255.0f, 20 / 255.0f, 1);
+		case BLACK:
+			return new Color(.6f, 0, .6f, 1);
+		default:
+			return new Color(0, 0, 0, 0);
+		}
+	}
+	
+	public static Color translateColorDark(GameEngine.Color c) {
+		switch (c) {
+		case ORANGE:
+			return new Color(163 / 255f, 100 /255f, 0 / 255f, 1);
+		case BLUE:
+			return new Color(9 / 255f, 119 / 255f, 153 / 255f, 1);
+		case PURPLE:
+			return new Color(84 / 255f, 17 / 255f, 107 / 255f, 1);
+		case GREEN:
+			return new Color(255 / 255.0f, 150 / 255.0f, 20 / 255.0f, 1);
+		case BLACK:
 			return new Color(.6f, 0, .6f, 1);
 		default:
 			return new Color(0, 0, 0, 0);

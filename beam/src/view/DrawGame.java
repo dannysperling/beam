@@ -221,7 +221,7 @@ public class DrawGame {
 			shapes.begin(ShapeType.Filled);
 			int paintX = bx + (t.getXCoord() * tilesize);
 			int paintY = by + (t.getYCoord() * tilesize);
-			shapes.setColor(Constants.painterColor[t.getPainterColor().toIndex()]);
+			shapes.setColor(Constants.translateColorDark(t.getPainterColor()));
 			shapes.rect(paintX + (0.05f * tilesize), paintY
 					+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
 			shapes.end();
@@ -1270,20 +1270,7 @@ public class DrawGame {
 			if (t.hasPainter()) {
 				int paintX = bx + (t.getXCoord() * tilesize);
 				int paintY = by + (t.getYCoord() * tilesize);
-				switch (t.getPainterColor()) {
-				case RED:
-					shapes.setColor(new Color(.3f, 0, 0, 1));
-					break;
-				case BLUE:
-					shapes.setColor(new Color(0, 0, .3f, 1));
-					break;
-				case GREEN:
-					shapes.setColor(new Color(0, .3f, 0, 1));
-					break;
-				default:
-					shapes.setColor(new Color(0, 0, 0, 0));
-					break;
-				}
+				shapes.setColor(Constants.translateColorDark(t.getPainterColor()));
 				shapes.rect(paintX + (0.05f * tilesize), paintY
 						+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
 			}
