@@ -97,18 +97,13 @@ public class Constants {
 		return new Color(r/255.0f, g/255.0f, b/255.0f,1);
 	}
 	public static final Color[] WORLD_COLORS = 
-		{	colorFromRGB(85, 5, 130),
-			colorFromRGB(40,10,100),
-			colorFromRGB(75,125,204),
-			colorFromRGB(100,185,197),
-			colorFromRGB(25,160,27),
-			colorFromRGB(20,100,11),
-			colorFromRGB(230,130,10),
-			colorFromRGB(230,100,32),
-			colorFromRGB(200,50,10),
-			colorFromRGB(150,30,150),
-			colorFromRGB(0,0,0),
-			colorFromRGB(0,0,0),
+		{	colorFromRGB(59,64,139),colorFromRGB(79, 44, 99),
+			colorFromRGB(91,145,182),colorFromRGB(103,31,68),colorFromRGB(66,123,62),
+			colorFromRGB(50,138,144),
+			colorFromRGB(141,42,42),
+			colorFromRGB(169,94,54),
+			colorFromRGB(150,51,26),
+			colorFromRGB(51,51,6),
 			colorFromRGB(0,0,0),
 			colorFromRGB(0,0,0),
 		 	};
@@ -174,7 +169,7 @@ public class Constants {
 	public static final Color GLASS_COLOR = new Color(.18f,.18f,.18f,.7f);
 	public static final int PAINTER_MODE = 0;
 	public static final Color[] painterColor = {null,new Color(.6f, .1f, .1f, 1),new Color(.1f, .1f, .6f, 1),new Color(.1f, .6f, .1f, 1)};
-	public static final int SHADOW_DISTANCE = 6;
+	public static final int SHADOW_DISTANCE = 8;
 	public static final Color SHADOW_COLOR = new Color(.1f,.1f,.1f,0.25f);
 	public static int GLASS_STYLE = 2;
 }
