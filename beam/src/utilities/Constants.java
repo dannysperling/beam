@@ -13,7 +13,7 @@ public class Constants {
 	 * the final game version.
 	 */
 	public static final boolean DEBUG_MODE = false;
-	public static boolean UNLOCK_MODE = false;
+	public static boolean UNLOCK_MODE = true;
 	public static final boolean LOGGING = false;
 	
 	
@@ -128,6 +128,23 @@ public class Constants {
 			return new Color(9 / 255f, 119 / 255f, 153 / 255f, 1);
 		case PURPLE:
 			return new Color(84 / 255f, 17 / 255f, 107 / 255f, 1);
+		case GREEN:
+			return new Color(255 / 255.0f, 150 / 255.0f, 20 / 255.0f, 1);
+		case BLACK:
+			return new Color(.6f, 0, .6f, 1);
+		default:
+			return new Color(0, 0, 0, 0);
+		}
+	}
+	
+	public static Color translateColorLight(GameEngine.Color c) {
+		switch (c) {
+		case ORANGE:
+			return new Color(255 / 255f, 195 /255f, 99 / 255f, 1);
+		case BLUE:
+			return new Color(122 / 255f, 224 / 255f, 255 / 255f, 1);
+		case PURPLE:
+			return new Color(205 / 255f, 96 / 255f, 242 / 255f, 1);
 		case GREEN:
 			return new Color(255 / 255.0f, 150 / 255.0f, 20 / 255.0f, 1);
 		case BLACK:

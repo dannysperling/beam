@@ -201,13 +201,23 @@ public class DrawGame {
 			if (t.hasGoal()) {
 				int goalX = bx + (t.getXCoord() * tilesize);
 				int goalY = by + (t.getYCoord() * tilesize);
+				if(b.isGoalMet(t)){
+					shapes.setColor(Constants.translateColorLight(t.getGoalColor()));
+					shapes.rect(goalX+(lw - 1), goalY+1, tilesize-lw, tilesize-lw);
+				}
 				shapes.setColor(Constants.translateColor(t.getGoalColor()));
 				shapes.rect(goalX + (0.05f * tilesize), goalY
 						+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
 				shapes.setColor(Constants.BOARD_COLOR);
+				if(b.isGoalMet(t)){
+					shapes.setColor(Constants.translateColorLight(t.getGoalColor()));
+				}
 				shapes.rect(goalX + (0.12f * tilesize), goalY
 						+ (0.12f * tilesize), 0.76f * tilesize,
 						0.76f * tilesize);
+				if(b.isGoalMet(t)){
+
+				}
 			}
 		} shapes.end();
 		for (Tile t : tiles) {
@@ -307,17 +317,38 @@ public class DrawGame {
 	 * Draws the path indicating user input
 	 */
 	private void drawPaths(int bx, int by, int tilesize, List<Tile> path,
-			AnimationState aState, GameState state, float moveAnimateTime) {
+			AnimationState aState, GameState state, float moveAnimateTime, Board b, float paintAnimateTime, boolean isBlack) {
 		if (aState != AnimationState.DESTRUCTION) {
 			shapes.begin(ShapeType.Filled);
-			shapes.setColor(new Color(.808f, .674f, 0, 1f));
+			float shiftingDegree = (isBlack?(0.025f * tilesize):0);
+			if(isBlack){
+				shapes.setColor(Color.BLACK);
+			} else {
+				if(path.size() > 0){
+					if(state == GameState.MOVING && aState == AnimationState.PAINTING){
+						Piece p = b.getPieceOnTile(path.get(0));
+						Color paintColor = Constants.translateColorLight(path.get(1).getPainterColor());
+						float rshift = (paintColor.r - Constants.translateColorLight(p.getColor()).r)
+								* paintAnimateTime;
+						float gshift = (paintColor.g - Constants.translateColorLight(p.getColor()).g)
+								* paintAnimateTime;
+						float bshift = (paintColor.b - Constants.translateColorLight(p.getColor()).b)
+								* paintAnimateTime;
+						shapes.setColor(new Color(Constants.translateColorLight(p.getColor()).r
+								+ rshift, Constants.translateColorLight(p.getColor()).g + gshift,
+								Constants.translateColorLight(p.getColor()).b + bshift, 1));
+					} else {
+						shapes.setColor(Constants.translateColorLight(b.getPieceOnTile(path.get(0)).getColor()));
+					}
+				} 
+			}
 			for (int i = 0; i < path.size(); i++) {
 				int pointX = path.get(i).getXCoord();
 				int pointY = path.get(i).getYCoord();
 				if (state != GameState.MOVING || i > 0) {
-					shapes.rect(bx + ((pointX + .4f) * tilesize), by
-							+ ((pointY + .4f) * tilesize), .2f * tilesize,
-							.2f * tilesize);
+					shapes.rect(bx + ((pointX + .4f) * tilesize) - shiftingDegree, by
+							+ ((pointY + .4f) * tilesize) - shiftingDegree, .2f * tilesize + (2 * shiftingDegree),
+							.2f * tilesize + (2 * shiftingDegree));
 				}
 				if (i != path.size() - 1) {
 					float shiftX = 0;
@@ -333,15 +364,15 @@ public class DrawGame {
 					if (pointX == nextX) {
 						float originY = Math.min(pointY + shiftY, nextY);
 						float endY = Math.max(pointY + shiftY, nextY);
-						shapes.rect(bx + ((pointX + .4f) * tilesize), by
-								+ ((originY + .4f) * tilesize), .2f * tilesize,
-								(endY - originY) * tilesize);
+						shapes.rect(bx + ((pointX + .4f) * tilesize) - shiftingDegree, by
+								+ ((originY + .4f) * tilesize) - shiftingDegree, .2f * tilesize + (2 * shiftingDegree),
+								(endY - originY) * tilesize + (2 * shiftingDegree));
 					} else {
 						float originX = Math.min(pointX + shiftX, nextX);
 						float endX = Math.max(pointX + shiftX, nextX);
-						shapes.rect(bx + ((originX + .4f) * tilesize), by
-								+ ((pointY + .4f) * tilesize), (endX - originX)
-								* tilesize, .2f * tilesize);
+						shapes.rect(bx + ((originX + .4f) * tilesize) - shiftingDegree, by
+								+ ((pointY + .4f) * tilesize) - shiftingDegree, (endX - originX)
+								* tilesize + (shiftingDegree * 2), .2f * tilesize + (2 * shiftingDegree));
 					}
 				}
 			}
@@ -352,30 +383,32 @@ public class DrawGame {
 				int prevY = path.get(path.size() - 2).getYCoord();
 				int baseX = bx + (finalX * tilesize);
 				int baseY = by + (finalY * tilesize);
+				float tipShift = (float) Math.sqrt(2 * shiftingDegree * shiftingDegree);
+				float pointShift = (((((0.25f * tilesize) + shiftingDegree + tipShift)/(0.25f)) * (0.2f)) - (0.2f * tilesize));
 				if (finalX > prevX) {
-					shapes.triangle(baseX + (.5f * tilesize), baseY
-							+ (0.3f * tilesize), baseX + (.5f * tilesize),
-							baseY + (0.7f * tilesize), baseX
-							+ (0.75f * tilesize), baseY
+					shapes.triangle(baseX + (.5f * tilesize) - (shiftingDegree), baseY
+							+ (0.3f * tilesize) - (pointShift), baseX + (.5f * tilesize) - (shiftingDegree),
+							baseY + (0.7f * tilesize) + (pointShift), baseX
+							+ (0.75f * tilesize) + (tipShift), baseY
 							+ (0.5f * tilesize));
 				} else if (finalX < prevX) {
-					shapes.triangle(baseX + (.5f * tilesize), baseY
-							+ (0.3f * tilesize), baseX + (.5f * tilesize),
-							baseY + (0.7f * tilesize), baseX
-							+ (0.25f * tilesize), baseY
+					shapes.triangle(baseX + (.5f * tilesize) + shiftingDegree, baseY
+							+ (0.3f * tilesize) - pointShift, baseX + (.5f * tilesize) + shiftingDegree,
+							baseY + (0.7f * tilesize) + pointShift, baseX
+							+ (0.25f * tilesize) - tipShift, baseY
 							+ (0.5f * tilesize));
 				} else if (finalY > prevY) {
-					shapes.triangle(baseX + (.3f * tilesize), baseY
-							+ (0.5f * tilesize), baseX + (.7f * tilesize),
-							baseY + (0.5f * tilesize), baseX
+					shapes.triangle(baseX + (.3f * tilesize) - pointShift, baseY
+							+ (0.5f * tilesize) - shiftingDegree, baseX + (.7f * tilesize) + pointShift,
+							baseY + (0.5f * tilesize) - shiftingDegree, baseX
 							+ (0.5f * tilesize), baseY
-							+ (0.75f * tilesize));
+							+ (0.75f * tilesize) + tipShift);
 				} else if (finalY < prevY) {
-					shapes.triangle(baseX + (.3f * tilesize), baseY
-							+ (0.5f * tilesize), baseX + (.7f * tilesize),
-							baseY + (0.5f * tilesize), baseX
+					shapes.triangle(baseX + (.3f * tilesize) - pointShift, baseY
+							+ (0.5f * tilesize) + shiftingDegree, baseX + (.7f * tilesize) + pointShift,
+							baseY + (0.5f * tilesize) + shiftingDegree, baseX
 							+ (0.5f * tilesize), baseY
-							+ (0.25f * tilesize));
+							+ (0.25f * tilesize) - tipShift);
 				}
 			}
 			shapes.end();
@@ -397,7 +430,7 @@ public class DrawGame {
 		for (Piece p : pieces) {
 
 			curSprite = pieceSprite;
-			
+
 			if(p.equals(GameEngine.movingPiece) && moveAnimateTime != 0 && moveAnimateTime < 1.1 && GameEngine.getLaserMovedAlong() != null){
 				curSprite = nPieceSprite;
 			}
@@ -504,7 +537,7 @@ public class DrawGame {
 					}
 				}
 			}
-			
+
 		}
 		for(Laser l : GameEngine.getFormedLaser()){
 			shapes.setColor(Constants.translateColor(l.getColor()));
@@ -1722,7 +1755,11 @@ public class DrawGame {
 
 		// Draw Paths
 		drawPaths((int) (bx + transitionPart), by, tilesize, path, aState,
-				state, moveAnimateTime);
+				state, moveAnimateTime, b, paintAnimateTime, true);
+
+		// Draw Paths
+		drawPaths((int) (bx + transitionPart), by, tilesize, path, aState,
+				state, moveAnimateTime, b, paintAnimateTime, false);
 
 		// Draw the pieces
 		drawPieces((int) (bx + transitionPart), by, tilesize, path, paintColor,
