@@ -188,13 +188,7 @@ public class GameProgress {
 				
 				//At least the average
 				if (averageRequired){
-					
-					//And have completed every level
-					for (int ordinalInWorld = 1; ordinalInWorld <= numConsideredLevels; ordinalInWorld++){
-						if (getLevelMoves(world - 1, ordinalInWorld) == 0){
-							return false;
-						}	
-					}
+					//No longer need to complete every level
 					return true;
 				}
 			} 

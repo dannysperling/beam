@@ -31,9 +31,7 @@ public class DrawMenu {
 	private DrawGame dg;
 	private List<List<Board>> allBoards;
 	private Texture lockTexture;
-	private Texture unlockTexture;
 	private Sprite lockSprite;
-	private Sprite unlockSprite;
 	private Texture starTexture;
 	private Sprite starSprite;
 	private FrameBuffer bgBuffer;
@@ -65,11 +63,6 @@ public class DrawMenu {
 		batch = new SpriteBatch();
 		this.dg = dg;
 		this.allBoards = allBoards;
-		
-		unlockTexture = AssetInitializer.getTexture(AssetInitializer.unlock);
-		unlockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		TextureRegion unlockregion = new TextureRegion(unlockTexture, 0, 0, 256, 128);
-		unlockSprite = new Sprite(unlockregion);
 		
 		lockTexture = AssetInitializer.getTexture(AssetInitializer.lock);
 		lockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
@@ -266,7 +259,12 @@ public class DrawMenu {
 	}
 
 	private void drawWorldOverlay(int world, int itemBotY) {
-		if (menu.isWorldUnlocked(world)) return;
+		
+		//There is not overlay if the world is unlocked
+		if (menu.isWorldUnlocked(world)){
+			return;
+		}
+		
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		ShapeRenderer shape = dg.shapes;
@@ -275,37 +273,70 @@ public class DrawMenu {
 		shape.setColor(Constants.LOCKED_WORLD_OVERLAY);
 		shape.rect(0, itemBotY, Gdx.graphics.getWidth(),  menu.getWorldHeight());
 		shape.end();
-		//If not next just draw lock
-		if (!menu.isWorldUnlocked(world-1)){
-			batch.begin();
-			lockSprite.setColor(Constants.LOCK_COLOR);
-			float spriteSize = menu.getLevelItemWidth();
-			lockSprite.setSize(spriteSize, spriteSize);
-			lockSprite.setX(Gdx.graphics.getWidth()/2-spriteSize/2);
-			lockSprite.setY(itemBotY+(menu.getWorldHeight()*menu.boardHeightPercent)/2);
-			lockSprite.draw(batch);
-			batch.end();
-		} else if (menu.getNumStarsEarned(world-1) < menu.getNumStarsNeeded(world-1)){
+		
+		//Several set values
+		float vertOverlaySpace = (menu.getWorldHeight()*menu.boardHeightPercent);
+		float lockYPos;
+		
+		if (menu.isWorldUnlocked(world-1)) {
 			//Draw text telling user how many stars they need
-			String text = menu.getNumStarsEarned(world-1)+" of "+menu.getNumStarsNeeded(world-1);
+			String textEarned = "" + menu.getNumStarsEarned(world-1);
+			String textSlash = "/";
+			String textNeeded = "" + menu.getNumStarsNeeded(world-1);
 			batch.begin();
 			numberFont.setColor(Constants.BOARD_COLOR);
+			
 			//Find the bounds based on the size of the drawn text
-			TextBounds tb = numberFont.getBounds(text);
-			numberFont.draw(batch, text, Gdx.graphics.getWidth()/2-tb.width/2, 
-					itemBotY+(menu.getWorldHeight()*menu.boardHeightPercent)/2);
+			float earnedWidth = numberFont.getBounds(textEarned).width;
+			float slashWidth = numberFont.getBounds(textSlash).width;
+			float neededWidth = numberFont.getBounds(textNeeded).width;
+		
+			float stringHeight = numberFont.getBounds(textEarned).height;
+			
+			//Add one star as well
+			float spriteSize = stringHeight * 1.60f;
+			int spaceSize = (int)(slashWidth * 0.25);
+			float lineLength = earnedWidth + slashWidth + neededWidth + spriteSize * 2/3 + 2.5f*spaceSize;
+			
+			//Draw iteratively
+			float startX = Gdx.graphics.getWidth()/2-lineLength/2;
+			float yPos = itemBotY+vertOverlaySpace/2;
+			
+			//Each text piece
+			numberFont.draw(batch, textEarned, startX, yPos);
+			startX += earnedWidth + spaceSize;
+			numberFont.draw(batch, textSlash, startX, yPos);
+			startX += slashWidth + spaceSize;
+			numberFont.draw(batch, textNeeded, startX, yPos);
+			startX += neededWidth + spaceSize / 2;
+			
+			//And the star
+			float sizeFix = 0.46f; //Fixing Reese's less-than-size-of-edge star
+			starSprite.setSize(spriteSize, spriteSize);
+			starSprite.setY(yPos - stringHeight/2 - spriteSize * sizeFix);
+			starSprite.setX(startX);
+			starSprite.draw(batch);
+			
 			batch.end();
+			
+			//Set the lock position to be above the numbers
+			lockYPos = itemBotY + vertOverlaySpace * 7 / 10;
 		} else {
-			// They just need to finish the levels, draw unlockedlock
-			batch.begin();
-			unlockSprite.setColor(Constants.LOCK_COLOR);
-			float spriteSize = menu.getLevelItemWidth();
-			unlockSprite.setSize(spriteSize*2, spriteSize);
-			unlockSprite.setX(Gdx.graphics.getWidth()/2-spriteSize);
-			unlockSprite.setY(itemBotY+(menu.getWorldHeight()*menu.boardHeightPercent)/2);
-			unlockSprite.draw(batch);
-			batch.end();
+			//Set the lock position to the center of the vertical overlay
+			lockYPos = itemBotY + vertOverlaySpace * 5 / 10;
 		}
+		
+		//Always draw the lock
+		batch.begin();
+		lockSprite.setColor(Constants.LOCK_COLOR);
+				
+		float spriteSize = vertOverlaySpace * 4 / 5;
+		lockSprite.setSize(spriteSize, spriteSize);
+		lockSprite.setX(Gdx.graphics.getWidth()/2-spriteSize/2);
+		lockSprite.setY(lockYPos);
+		lockSprite.draw(batch);
+		
+		batch.end();
 		
 		Gdx.gl.glDisable(GL10.GL_BLEND);
 		
