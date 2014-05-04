@@ -64,6 +64,16 @@ public class Constants {
 	public static final float BEAM_GOAL_WIDTH = 0.8f;
 	public static final float TEXT_GOAL_HEIGHT = 0.12f;
 	
+	/**
+	 * UNLOCK CONSTANTS
+	 */
+	/**
+	 * Number of stars, per level, needed to unlock either the next world or the
+	 * bonus level for a given world
+	 */
+	public static final int WORLD_UNLOCK_STARS = 2;
+	public static final int BONUS_UNLOCK_STARS = 3;
+	
 	
 	/**
 	 * SCREEN SCROLLING CONSTANTS

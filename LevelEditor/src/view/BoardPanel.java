@@ -34,15 +34,15 @@ public class BoardPanel extends JPanel{
 
 	public static Color translateColor(GameEngine.Color c) {
 		switch (c) {
-		case RED:
+		case ORANGE:
 			return new Color(1, .133f, .133f, 1);
 		case BLUE:
 			return new Color(.133f, .337f, 1, 1);
-		case GREEN:
-			return new Color(.133f, 1, .177f, 1);
-		case ORANGE:
-			return new Color(255,150,20);
 		case PURPLE:
+			return new Color(.133f, 1, .177f, 1);
+		case GREEN:
+			return new Color(255,150,20);
+		case BLACK:
 			return Color.magenta.darker();
 		default:
 			return new Color(0, 0, 0, 0);	
@@ -122,13 +122,13 @@ public class BoardPanel extends JPanel{
 				int paintX = bx + (t.getXCoord() * tilesize);
 				int paintY = by + (t.getYCoord() * tilesize);
 				switch (t.getPainterColor()) {
-				case RED:
+				case ORANGE:
 					g.setColor(new Color(.3f, 0, 0, 1));
 					break;
 				case BLUE:
 					g.setColor(new Color(0, 0, .3f, 1));
 					break;
-				case GREEN:
+				case PURPLE:
 					g.setColor(new Color(0, .3f, 0, 1));
 					break;
 				default:

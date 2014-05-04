@@ -40,13 +40,6 @@ public class GameProgress {
 	 * a given world and level ordinal to the level's unique id
 	 */
 	private LevelOrderer levelOrderer;
-	
-	/**
-	 * Number of stars, per level, needed to unlock either the next world or the
-	 * bonus level for a given world
-	 */
-	private final int WORLD_UNLOCK_STARS = 2;
-	private final int BONUS_UNLOCK_STARS = 3;
 
 	/**
 	 * Constructs the game progress model object. Keeps a reference to the
@@ -183,7 +176,7 @@ public class GameProgress {
 				int previousWorldProgress = getBaseWorldStars(world - 1);
 				
 				int numConsideredLevels = levelOrderer.getWorldSize(world - 1) - 1;
-				int required = numConsideredLevels * WORLD_UNLOCK_STARS;
+				int required = numConsideredLevels * Constants.WORLD_UNLOCK_STARS;
 				boolean averageRequired = (previousWorldProgress >= required);
 				
 				//At least the average
@@ -203,7 +196,7 @@ public class GameProgress {
 	 */
 	public int numStarsNeeded(int world){
 		int numConsideredLevels = levelOrderer.getWorldSize(world) - 1;
-		return numConsideredLevels * WORLD_UNLOCK_STARS;
+		return numConsideredLevels * Constants.WORLD_UNLOCK_STARS;
 	}
 	
 	/**
@@ -225,7 +218,7 @@ public class GameProgress {
 			//Check the number of stars achieved for that world
 			int currentWorldProgress = getBaseWorldStars(world);
 			int numConsideredLevels = levelOrderer.getWorldSize(world) - 1;
-			return (currentWorldProgress >= numConsideredLevels * BONUS_UNLOCK_STARS);
+			return (currentWorldProgress >= numConsideredLevels * Constants.BONUS_UNLOCK_STARS);
 		} else {
 			return false;
 		}
