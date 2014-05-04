@@ -653,10 +653,14 @@ public class GameEngine implements ApplicationListener {
 					initializeLasers(nextBoard);
 					break;
 				case INFO:
-					state = GameState.INFO;
+					if (state == GameState.IDLE){
+						state = GameState.INFO;
+					}
 					break;
 				case TUTORIAL:
-					state = GameState.TUTORIAL;
+					if (state == GameState.IDLE){
+						state = GameState.TUTORIAL;
+					}
 					break;
 				default:
 					break;
