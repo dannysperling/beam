@@ -18,6 +18,7 @@ public class AssetInitializer {
 	public static final String info = "data/info.png";
 	public static final String lock = "data/lock.png";
 	public static final String piece = "data/piece.png";
+	public static final String npiece = "data/piece_copy.png";
 	public static final String painter = "data/painter.png";
 	public static final String unlock = "data/unlock.png";
 	public static final String two_star = "data/2star.png";
@@ -32,6 +33,10 @@ public class AssetInitializer {
 		param.minFilter = TextureFilter.Linear;
 		param.magFilter = TextureFilter.Linear;
 		
+		TextureParameter nearestParam = new TextureParameter();
+		nearestParam.minFilter = TextureFilter.Nearest;
+		nearestParam.magFilter = TextureFilter.Nearest;
+		
 		//Textures
 		assetManager.load(one_star, Texture.class, param);
 		assetManager.load(three_star, Texture.class, param);
@@ -40,6 +45,7 @@ public class AssetInitializer {
 		assetManager.load(info, Texture.class, param);
 		assetManager.load(lock, Texture.class, param);
 		assetManager.load(piece, Texture.class, param);
+		assetManager.load(npiece, Texture.class, nearestParam);
 		assetManager.load(painter, Texture.class, param);
 		assetManager.load(unlock, Texture.class, param);
 		assetManager.load(two_star, Texture.class, param);

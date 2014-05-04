@@ -40,6 +40,8 @@ public class DrawGame {
 	private SpriteBatch batch;
 	private Texture pieceTexture;
 	private Sprite pieceSprite;
+	private Texture nPieceTexture;
+	private Sprite nPieceSprite;
 	private Texture bangTexture;
 	private Sprite bangSprite;
 	private Texture threeStarTexture;
@@ -76,8 +78,11 @@ public class DrawGame {
 		batch = new SpriteBatch();
 
 		pieceTexture = AssetInitializer.getTexture(AssetInitializer.piece);
+
+		nPieceTexture = AssetInitializer.getTexture(AssetInitializer.npiece);
+
 		//pieceTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		
+
 		painterTexture = AssetInitializer.getTexture(AssetInitializer.painter);
 		//painterTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
@@ -98,11 +103,13 @@ public class DrawGame {
 
 		oneStarTexture = AssetInitializer.getTexture(AssetInitializer.one_star);
 		//oneStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		
+
 		twoStarTexture = AssetInitializer.getTexture(AssetInitializer.two_star);
 
 
 		TextureRegion pieceregion = new TextureRegion(pieceTexture, 0, 0, 256,
+				256);
+		TextureRegion npieceregion = new TextureRegion(nPieceTexture, 0, 0, 256,
 				256);
 		TextureRegion painterregion = new TextureRegion(painterTexture, 0, 0, 256,
 				256);
@@ -122,6 +129,7 @@ public class DrawGame {
 				128);
 
 		pieceSprite = new Sprite(pieceregion);
+		nPieceSprite = new Sprite(npieceregion);
 		painterSprite = new Sprite(painterregion);
 		bangSprite = new Sprite(bangregion);
 		threeStarSprite = new Sprite(threestarregion);
@@ -175,7 +183,7 @@ public class DrawGame {
 		for (int i = 0; i <= b.getNumVerticalTiles(); i++) {
 			shapes.line(bx, by + (i * tilesize),
 					bx + (b.getNumHorizontalTiles() * tilesize), by
-							+ (i * tilesize));
+					+ (i * tilesize));
 		}
 		shapes.end();
 	}
@@ -210,13 +218,13 @@ public class DrawGame {
 	private void drawPainter(Tile t, int tilesize, int bx, int by, int mode) {
 		if (!t.hasPainter()) return;
 		if (mode == 0){
-		shapes.begin(ShapeType.Filled);
+			shapes.begin(ShapeType.Filled);
 			int paintX = bx + (t.getXCoord() * tilesize);
 			int paintY = by + (t.getYCoord() * tilesize);
 			shapes.setColor(Constants.painterColor[t.getPainterColor().toIndex()]);
 			shapes.rect(paintX + (0.05f * tilesize), paintY
 					+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
-		shapes.end();
+			shapes.end();
 		} else {
 			batch.begin();
 			painterSprite.setColor(Constants.painterColor[t.getPainterColor().toIndex()]);
@@ -348,26 +356,26 @@ public class DrawGame {
 					shapes.triangle(baseX + (.5f * tilesize), baseY
 							+ (0.3f * tilesize), baseX + (.5f * tilesize),
 							baseY + (0.7f * tilesize), baseX
-									+ (0.75f * tilesize), baseY
-									+ (0.5f * tilesize));
+							+ (0.75f * tilesize), baseY
+							+ (0.5f * tilesize));
 				} else if (finalX < prevX) {
 					shapes.triangle(baseX + (.5f * tilesize), baseY
 							+ (0.3f * tilesize), baseX + (.5f * tilesize),
 							baseY + (0.7f * tilesize), baseX
-									+ (0.25f * tilesize), baseY
-									+ (0.5f * tilesize));
+							+ (0.25f * tilesize), baseY
+							+ (0.5f * tilesize));
 				} else if (finalY > prevY) {
 					shapes.triangle(baseX + (.3f * tilesize), baseY
 							+ (0.5f * tilesize), baseX + (.7f * tilesize),
 							baseY + (0.5f * tilesize), baseX
-									+ (0.5f * tilesize), baseY
-									+ (0.75f * tilesize));
+							+ (0.5f * tilesize), baseY
+							+ (0.75f * tilesize));
 				} else if (finalY < prevY) {
 					shapes.triangle(baseX + (.3f * tilesize), baseY
 							+ (0.5f * tilesize), baseX + (.7f * tilesize),
 							baseY + (0.5f * tilesize), baseX
-									+ (0.5f * tilesize), baseY
-									+ (0.25f * tilesize));
+							+ (0.5f * tilesize), baseY
+							+ (0.25f * tilesize));
 				}
 			}
 			shapes.end();
@@ -382,11 +390,19 @@ public class DrawGame {
 			Color paintColor, List<Piece> pieces, float paintAnimateTime,
 			float moveAnimateTime, boolean drawBlack) {
 
+		Sprite curSprite = pieceSprite;
+
 		batch.begin();
-		pieceSprite.setSize(tilesize, tilesize);
+		curSprite.setSize(tilesize, tilesize);
 		for (Piece p : pieces) {
 
-			pieceSprite.setPosition(bx + (p.getXCoord() * tilesize),
+			curSprite = pieceSprite;
+			
+			if(p.equals(GameEngine.movingPiece) && moveAnimateTime != 0 && moveAnimateTime < 1.1 && GameEngine.getLaserMovedAlong() != null){
+				curSprite = nPieceSprite;
+			}
+
+			curSprite.setPosition(bx + (p.getXCoord() * tilesize),
 					by + (p.getYCoord() * tilesize));
 			if (path.size() > 1
 					&& p.getXCoord() == GameEngine.movingPiece.getXCoord()
@@ -395,19 +411,19 @@ public class DrawGame {
 						.getXCoord()) * tilesize * moveAnimateTime;
 				float animateY = (path.get(1).getYCoord() - GameEngine.movingPiece
 						.getYCoord()) * tilesize * moveAnimateTime;
-				pieceSprite.translate(animateX, animateY);
-			}
-			
-			if(drawBlack) {
-				pieceSprite.translate(-(0.0375f * tilesize), -(0.0375f * tilesize));
-				pieceSprite.setSize(tilesize + (0.075f * tilesize), tilesize + (0.075f * tilesize));
-				pieceSprite.setColor(Color.BLACK);
-				pieceSprite.draw(batch);
-				pieceSprite.translate((0.0375f * tilesize), (0.0375f * tilesize));
-				pieceSprite.setSize(tilesize, tilesize);
+				curSprite.translate(animateX, animateY);
 			}
 
-			pieceSprite.setColor(Constants.translateColor(p.getColor()));
+			if(drawBlack) {
+				curSprite.translate(-(0.0375f * tilesize), -(0.0375f * tilesize));
+				curSprite.setSize(tilesize + (0.075f * tilesize), tilesize + (0.075f * tilesize));
+				curSprite.setColor(Color.BLACK);
+				curSprite.draw(batch);
+				curSprite.translate((0.0375f * tilesize), (0.0375f * tilesize));
+				curSprite.setSize(tilesize, tilesize);
+			}
+
+			curSprite.setColor(Constants.translateColor(p.getColor()));
 			if (p.equals(GameEngine.movingPiece)) {
 				float rshift = (paintColor.r - Constants.translateColor(p.getColor()).r)
 						* paintAnimateTime;
@@ -415,15 +431,107 @@ public class DrawGame {
 						* paintAnimateTime;
 				float bshift = (paintColor.b - Constants.translateColor(p.getColor()).b)
 						* paintAnimateTime;
-				pieceSprite.setColor(new Color(Constants.translateColor(p.getColor()).r
+				curSprite.setColor(new Color(Constants.translateColor(p.getColor()).r
 						+ rshift, Constants.translateColor(p.getColor()).g + gshift,
 						Constants.translateColor(p.getColor()).b + bshift, 1));
 			}
-			
-			pieceSprite.draw(batch);
+
+			curSprite.draw(batch);
 		}
 		batch.end();
 
+	}
+
+	private void drawSeamPatches(int bx, int by, int tilesize, Set<Laser> lasers, Laser disbandedLaser, float breakAnimateTime, Laser movedAlongLaser, float formAnimateTime, float paintAnimateTime, AnimationState astate){
+		shapes.begin(ShapeType.Filled);
+		for(Laser l: lasers){
+			if(!(l.equals(movedAlongLaser) && (astate == AnimationState.MOVING || astate == AnimationState.PAINTING || astate == AnimationState.FORMING))){
+				shapes.setColor(Constants.translateColor(l.getColor()));
+				float laserWidth = beamThickness;
+				if (disbandedLaser != null && l.equals(disbandedLaser)) {
+					laserWidth = (1 - breakAnimateTime) * beamThickness;
+				}
+
+				if(l.getXStart() == l.getXFinish()){
+					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
+							* tilesize, by
+							+ (l.getYStart() + 0.5f - (laserWidth / 2))
+							* tilesize, laserWidth * tilesize,
+							0.75f * tilesize);
+					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
+							* tilesize, by
+							+ (l.getYFinish() - 0.25f - (laserWidth / 2))
+							* tilesize, laserWidth * tilesize,
+							0.75f * tilesize);
+				} else {
+					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
+							* tilesize, by
+							+ (l.getYStart() + 0.5f - (laserWidth / 2))
+							* tilesize, 0.75f * tilesize, laserWidth * tilesize);
+					shapes.rect(bx + (l.getXFinish() - 0.25f - (laserWidth / 2))
+							* tilesize, by
+							+ (l.getYStart() + 0.5f - (laserWidth / 2))
+							* tilesize, 0.75f * tilesize, laserWidth * tilesize);
+				}
+			} else {
+				shapes.setColor(Constants.translateColor(l.getColor()));
+				float laserWidth = (astate==AnimationState.PAINTING||astate==AnimationState.FORMING?(1-paintAnimateTime) * beamThickness:beamThickness);
+				if(l.isHorizontal()){
+					if(l.getXStart() == GameEngine.movingPiece.getXCoord() && l.getYStart() == GameEngine.movingPiece.getYCoord()){
+						shapes.rect(bx + (l.getXFinish() - 0.25f - (laserWidth / 2))
+								* tilesize, by
+								+ (l.getYStart() + 0.5f - (laserWidth / 2))
+								* tilesize, 0.75f * tilesize, laserWidth * tilesize);
+					} else {
+						shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
+								* tilesize, by
+								+ (l.getYStart() + 0.5f - (laserWidth / 2))
+								* tilesize, 0.75f * tilesize, laserWidth * tilesize);
+					}
+				} else {
+					if(l.getXStart() == GameEngine.movingPiece.getXCoord() && l.getYStart() == GameEngine.movingPiece.getYCoord()){
+						shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
+								* tilesize, by
+								+ (l.getYFinish() - 0.25f - (laserWidth / 2))
+								* tilesize, laserWidth * tilesize,
+								0.75f * tilesize);
+					} else {
+						shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
+								* tilesize, by
+								+ (l.getYStart() + 0.5f - (laserWidth / 2))
+								* tilesize, laserWidth * tilesize,
+								0.75f * tilesize);
+					}
+				}
+			}
+			
+		}
+		for(Laser l : GameEngine.getFormedLaser()){
+			shapes.setColor(Constants.translateColor(l.getColor()));
+			float laserWidth = formAnimateTime * beamThickness;
+			if(l.getXStart() == l.getXFinish()){
+				shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
+						* tilesize, by
+						+ (l.getYStart() + 0.5f - (laserWidth / 2))
+						* tilesize, laserWidth * tilesize,
+						0.75f * tilesize);
+				shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
+						* tilesize, by
+						+ (l.getYFinish() - 0.25f - (laserWidth / 2))
+						* tilesize, laserWidth * tilesize,
+						0.75f * tilesize);
+			} else {
+				shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
+						* tilesize, by
+						+ (l.getYStart() + 0.5f - (laserWidth / 2))
+						* tilesize, 0.75f * tilesize, laserWidth * tilesize);
+				shapes.rect(bx + (l.getXFinish() - 0.25f - (laserWidth / 2))
+						* tilesize, by
+						+ (l.getYStart() + 0.5f - (laserWidth / 2))
+						* tilesize, 0.75f * tilesize, laserWidth * tilesize);
+			}
+		}
+		shapes.end();
 	}
 
 	/**
@@ -498,53 +606,53 @@ public class DrawGame {
 				if (movedAlongLaser.getXStart() == GameEngine.movingPiece
 						.getXCoord()
 						&& movedAlongLaser.getYStart() == GameEngine.movingPiece
-								.getYCoord()) {
+						.getYCoord()) {
 					shapes.rect(
 							bx
-									+ (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2))
-									* tilesize,
+							+ (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2))
+							* tilesize,
 							(by + (movedAlongLaser.getYStart() + 0.5f - (laserWidth / 2))
 									* tilesize)
 									+ moveAnimY,
-							laserWidth * tilesize,
-							((movedAlongLaser.getYFinish() - movedAlongLaser
-									.getYStart()) * tilesize) - moveAnimY);
+									laserWidth * tilesize,
+									((movedAlongLaser.getYFinish() - movedAlongLaser
+											.getYStart()) * tilesize) - moveAnimY);
 				} else {
 					shapes.rect(
 							bx
-									+ (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2))
-									* tilesize,
+							+ (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2))
+							* tilesize,
 							(by + (movedAlongLaser.getYStart() + 0.5f - (laserWidth / 2))
 									* tilesize),
-							laserWidth * tilesize,
-							((movedAlongLaser.getYFinish() - movedAlongLaser
-									.getYStart()) * tilesize) + moveAnimY);
+									laserWidth * tilesize,
+									((movedAlongLaser.getYFinish() - movedAlongLaser
+											.getYStart()) * tilesize) + moveAnimY);
 				}
 			} else {
 				if (movedAlongLaser.getXStart() == GameEngine.movingPiece
 						.getXCoord()
 						&& movedAlongLaser.getYStart() == GameEngine.movingPiece
-								.getYCoord()) {
+						.getYCoord()) {
 					shapes.rect(
 							(bx + (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2))
 									* tilesize)
 									+ moveAnimX,
-							by
+									by
 									+ (movedAlongLaser.getYStart() + 0.5f - (laserWidth / 2))
 									* tilesize,
-							((movedAlongLaser.getXFinish() - movedAlongLaser
-									.getXStart()) * tilesize) - moveAnimX,
-							laserWidth * tilesize);
+									((movedAlongLaser.getXFinish() - movedAlongLaser
+											.getXStart()) * tilesize) - moveAnimX,
+											laserWidth * tilesize);
 				} else {
 					shapes.rect(
 							(bx + (movedAlongLaser.getXStart() + 0.5f - (laserWidth / 2))
 									* tilesize),
-							by
+									by
 									+ (movedAlongLaser.getYStart() + 0.5f - (laserWidth / 2))
 									* tilesize,
-							((movedAlongLaser.getXFinish() - movedAlongLaser
-									.getXStart()) * tilesize) + moveAnimX,
-							laserWidth * tilesize);
+									((movedAlongLaser.getXFinish() - movedAlongLaser
+											.getXStart()) * tilesize) + moveAnimX,
+											laserWidth * tilesize);
 				}
 			}
 		}
@@ -639,7 +747,7 @@ public class DrawGame {
 			lockSprite.setX(Menu.B_NEXT_LEVEL_LEFT_X * width
 					+ (Menu.B_NEXT_LEVEL_WIDTH * width - spriteSize) / 2);
 			lockSprite
-					.setY((height * Constants.NON_GAME_BUTTON_HEIGHT - spriteSize) / 2);
+			.setY((height * Constants.NON_GAME_BUTTON_HEIGHT - spriteSize) / 2);
 			lockSprite.draw(batch);
 
 			batch.end();
@@ -730,7 +838,7 @@ public class DrawGame {
 		threeStarSprite.setPosition((width * 0.7f)
 				+ ((boxesWidth - tb.width) * .15f),
 				(1 - (Constants.TOP_BAR_SIZE * 0.825f)) * height
-						+ ((boxesHeight - starSize) / 2.0f));
+				+ ((boxesHeight - starSize) / 2.0f));
 		threeStarSprite.draw(batch);
 		batch.end();
 
@@ -750,17 +858,17 @@ public class DrawGame {
 			tb = introFont.getBounds(ftg);
 			introFont.setColor(Constants.BOARD_COLOR);
 			introFont
-					.draw(batch,
-							ftg,
-							((width - tb.width) / 2.0f) + transitionPart,
-							(height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))));
+			.draw(batch,
+					ftg,
+					((width - tb.width) / 2.0f) + transitionPart,
+					(height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))));
 			tb = introFont.getBounds(remains);
 			introFont
-					.draw(batch,
-							remains,
-							((width - tb.width) / 2.0f) + transitionPart,
-							(height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT)))
-									- (tb.height * 1.5f));
+			.draw(batch,
+					remains,
+					((width - tb.width) / 2.0f) + transitionPart,
+					(height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT)))
+					- (tb.height * 1.5f));
 			batch.end();
 		} else {
 			int totalBeamGoals = 0;
@@ -777,17 +885,17 @@ public class DrawGame {
 				tb = introFont.getBounds(bab);
 				introFont.setColor(Constants.BOARD_COLOR);
 				introFont
-						.draw(batch,
-								bab,
-								((width - tb.width) / 2.0f) + transitionPart,
-								(height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))));
+				.draw(batch,
+						bab,
+						((width - tb.width) / 2.0f) + transitionPart,
+						(height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))));
 				tb = introFont.getBounds(remains);
 				introFont
-						.draw(batch,
-								remains,
-								((width - tb.width) / 2.0f) + transitionPart,
-								(height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT)))
-										- (tb.height * 1.5f));
+				.draw(batch,
+						remains,
+						((width - tb.width) / 2.0f) + transitionPart,
+						(height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT)))
+						- (tb.height * 1.5f));
 				batch.end();
 			} else {
 				// This is a beamgoal level!
@@ -813,27 +921,27 @@ public class DrawGame {
 						shapes.setColor(Color.BLACK);
 						shapes.rect(
 								(((width - (Constants.BEAM_GOAL_WIDTH * width)) / 2) - 2)
-										+ transitionPart,
+								+ transitionPart,
 								(height * (Constants.BOT_BAR_SIZE + (Constants.BEAM_GOAL_HEIGHT * (i + .125f)))) - 2,
 								(Constants.BEAM_GOAL_WIDTH * width) + 4,
 								(height * 0.75f * Constants.BEAM_GOAL_HEIGHT) + 4);
 						shapes.setColor(Constants.BOARD_COLOR);
 						shapes.rect(
 								((width - (Constants.BEAM_GOAL_WIDTH * width)) / 2)
-										+ transitionPart,
+								+ transitionPart,
 								height
-										* (Constants.BOT_BAR_SIZE + (Constants.BEAM_GOAL_HEIGHT * (i + .125f))),
+								* (Constants.BOT_BAR_SIZE + (Constants.BEAM_GOAL_HEIGHT * (i + .125f))),
 								Constants.BEAM_GOAL_WIDTH * width, height
-										* 0.75f * Constants.BEAM_GOAL_HEIGHT);
+								* 0.75f * Constants.BEAM_GOAL_HEIGHT);
 						shapes.setColor(Constants.translateColor(c));
 						float progress = (float) (curLaserCount.get(c))
 								/ beamObjective.get(c);
 
 						shapes.rect(
 								((width - (Constants.BEAM_GOAL_WIDTH * width)) / 2)
-										+ transitionPart,
+								+ transitionPart,
 								height
-										* (Constants.BOT_BAR_SIZE + (Constants.BEAM_GOAL_HEIGHT * (i + .125f))),
+								* (Constants.BOT_BAR_SIZE + (Constants.BEAM_GOAL_HEIGHT * (i + .125f))),
 								(Constants.BEAM_GOAL_WIDTH * width) * progress,
 								height * 0.75f * Constants.BEAM_GOAL_HEIGHT);
 						shapes.end();
@@ -844,12 +952,12 @@ public class DrawGame {
 						beamGoalFont.setColor(Color.BLACK);
 						batch.begin();
 						beamGoalFont
-								.draw(batch,
-										text,
-										((width - tb.width) / 2)
-												+ transitionPart,
-										((Constants.BOT_BAR_SIZE + ((i + 1) * Constants.BEAM_GOAL_HEIGHT)) * height)
-												- (((height * Constants.BEAM_GOAL_HEIGHT) - tb.height) / 2));
+						.draw(batch,
+								text,
+								((width - tb.width) / 2)
+								+ transitionPart,
+								((Constants.BOT_BAR_SIZE + ((i + 1) * Constants.BEAM_GOAL_HEIGHT)) * height)
+								- (((height * Constants.BEAM_GOAL_HEIGHT) - tb.height) / 2));
 						batch.end();
 						i++;
 					}
@@ -1021,7 +1129,7 @@ public class DrawGame {
 		if (numStars == 3) {
 			levelEndMessage = "Perfect!";
 		}
-		
+
 		if(GameEngine.nextWorldUnlocked){
 			//levelEndMessage += "\n\nNext world unlocked!";
 		}
@@ -1134,7 +1242,7 @@ public class DrawGame {
 		for (int i = 0; i <= b.getNumVerticalTiles(); i++) {
 			shapes.line(bx, by + (i * tilesize),
 					bx + (b.getNumHorizontalTiles() * tilesize), by
-							+ (i * tilesize));
+					+ (i * tilesize));
 		}
 		shapes.end();
 
@@ -1408,7 +1516,7 @@ public class DrawGame {
 				curFont.setColor(Color.BLACK);
 				curFont.drawMultiLine(batch, nextPart,
 						(((width * 0.9f) - tb.width) / 2.0f)
-								+ (width * (0.05f)), curHeight, tb.width,
+						+ (width * (0.05f)), curHeight, tb.width,
 						HAlignment.CENTER);
 				batch.end();
 				curHeight -= tb.height;
@@ -1422,7 +1530,7 @@ public class DrawGame {
 				curHeight -= toDraw.getHeight();
 				toDraw.setPosition(
 						(((width * 0.9f) - toDraw.getWidth()) / 2.0f)
-								+ (width * 0.05f), curHeight);
+						+ (width * 0.05f), curHeight);
 				batch.begin();
 				toDraw.draw(batch);
 				batch.end();
@@ -1454,7 +1562,7 @@ public class DrawGame {
 		return (textHeight + halfImageHeight + spacingHeight >= height);
 	}
 
-	
+
 	private void drawInfo(TextBounds tb, int width, int height, int currentWorld, int currentOrdinalInWorld, Board b, int bestMoves){
 		float upshift = 0;
 		if (GameEngine.timeSpentOnInfo < Constants.TUTORIAL_IN_TIME) {
@@ -1476,14 +1584,14 @@ public class DrawGame {
 		shapes.rect(0, upshift, width, height);
 		shapes.end();
 		Gdx.gl.glDisable(GL10.GL_BLEND);
-		
+
 		String header = currentWorld + "-" + currentOrdinalInWorld;
 		tb = levelNameFont.getBounds(header);
 		batch.begin();
 		levelNameFont.setColor(Color.BLACK);
 		levelNameFont.draw(batch, header, (width - tb.width) / 2.0f, (height * 0.8f) + upshift);
 		batch.end();
-		
+
 		String twoStars = b.par + " Moves";
 		String threeStars = b.perfect + " Moves";
 		starGoalFont.setColor(Color.BLACK);
@@ -1497,7 +1605,7 @@ public class DrawGame {
 		starGoalFont.draw(batch, twoStars, (width - twoStarWidth) / 2.0f + (3.0f * tb.height) , curHeight + upshift);
 		batch.end();
 		curHeight -= 2 * tb.height;
-		
+
 		tb = starGoalFont.getBounds(threeStars);
 		threeStarSprite.setSize(tb.height * 2.0f, tb.height * 2.0f);
 		float threeStarWidth = tb.width + (3 * tb.height);
@@ -1506,15 +1614,15 @@ public class DrawGame {
 		threeStarSprite.draw(batch);
 		starGoalFont.draw(batch, threeStars, (width - threeStarWidth) / 2.0f + (3.0f * tb.height) , curHeight + upshift);
 		batch.end();
-		
-		
+
+
 		if(bestMoves != 0){
-		curHeight -= 3 * tb.height;
-		String yourBest = "Your Best:\n\n" + bestMoves + " Move" + (bestMoves==1?"":"s");
-		tb = starGoalFont.getMultiLineBounds(yourBest);
-		batch.begin();
-		starGoalFont.drawMultiLine(batch, yourBest, (width - tb.width) / 2.0f, curHeight + upshift, tb.width, HAlignment.CENTER);
-		batch.end();
+			curHeight -= 3 * tb.height;
+			String yourBest = "Your Best:\n\n" + bestMoves + " Move" + (bestMoves==1?"":"s");
+			tb = starGoalFont.getMultiLineBounds(yourBest);
+			batch.begin();
+			starGoalFont.drawMultiLine(batch, yourBest, (width - tb.width) / 2.0f, curHeight + upshift, tb.width, HAlignment.CENTER);
+			batch.end();
 		}
 	}
 	/**
@@ -1595,8 +1703,8 @@ public class DrawGame {
 				breakAnimateTime = 1;
 				if (!paintColor.equals(new Color(0, 0, 0, 0))
 						&& !paintColor
-								.equals(Constants.translateColor(GameEngine.movingPiece
-										.getColor()))) {
+						.equals(Constants.translateColor(GameEngine.movingPiece
+								.getColor()))) {
 					paintAnimateTime = 1;
 				}
 				formAnimateTime = ((float) (GameEngine
@@ -1606,18 +1714,18 @@ public class DrawGame {
 		}
 
 		// Draw Board Background
-		shapes.begin(ShapeType.Filled);
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA,
 				GL10.GL_ONE_MINUS_SRC_ALPHA);
+		shapes.begin(ShapeType.Filled);
 		shapes.setColor(Constants.SHADOW_COLOR);
 		shapes.rect(bx + transitionPart+Constants.SHADOW_DISTANCE, by-Constants.SHADOW_DISTANCE, b.getNumHorizontalTiles()
 				* tilesize, b.getNumVerticalTiles() * tilesize);
 		shapes.setColor(Constants.BOARD_COLOR);
 		shapes.rect(bx + transitionPart, by, b.getNumHorizontalTiles()
 				* tilesize, b.getNumVerticalTiles() * tilesize);
-		Gdx.gl.glDisable(GL10.GL_BLEND);
 		shapes.end();
+		Gdx.gl.glDisable(GL10.GL_BLEND);
 
 		// Draw the basic grid
 		drawGrid((int) (bx + transitionPart), by, tilesize, b);
@@ -1632,12 +1740,12 @@ public class DrawGame {
 		// Draw the pieces
 		drawPieces((int) (bx + transitionPart), by, tilesize, path, paintColor,
 				pieces, paintAnimateTime, moveAnimateTime, true);
-		
+
 		// Draw Laser Outlines
 		drawBeams((int) (bx + transitionPart), by, tilesize, lasers,
 				disbandedLaser, movedAlongLaser, aState, path, moveAnimateTime,
 				paintAnimateTime, formAnimateTime, breakAnimateTime, true, true);
-		
+
 		// Draw Lasers
 		drawBeams((int) (bx + transitionPart), by, tilesize, lasers,
 				disbandedLaser, movedAlongLaser, aState, path, moveAnimateTime,
@@ -1646,16 +1754,18 @@ public class DrawGame {
 		drawBeams((int) (bx + transitionPart), by, tilesize, lasers,
 				disbandedLaser, movedAlongLaser, aState, path, moveAnimateTime,
 				paintAnimateTime, formAnimateTime, breakAnimateTime, true, false);
-		
+
 		// Draw Lasers
 		drawBeams((int) (bx + transitionPart), by, tilesize, lasers,
 				disbandedLaser, movedAlongLaser, aState, path, moveAnimateTime,
 				paintAnimateTime, formAnimateTime, breakAnimateTime, false, false);
-		
+
 		// Draw the pieces
 		drawPieces((int) (bx + transitionPart), by, tilesize, path, paintColor,
 				pieces, paintAnimateTime, moveAnimateTime, false);
-		
+
+		drawSeamPatches((int) (bx + transitionPart), by, tilesize, lasers, disbandedLaser, breakAnimateTime, movedAlongLaser, formAnimateTime, paintAnimateTime, aState);
+
 		// Draw the bangs!
 		if (aState == AnimationState.DESTRUCTION) {
 			drawBangs(bx, by, tilesize);
@@ -1714,7 +1824,7 @@ public class DrawGame {
 						gameOverText,
 						bx,
 						by
-								+ ((tilesize * b.getNumVerticalTiles() + tb.height) / 2.0f),
+						+ ((tilesize * b.getNumVerticalTiles() + tb.height) / 2.0f),
 						tilesize * b.getNumHorizontalTiles(), HAlignment.CENTER);
 				batch.end();
 				Gdx.gl.glDisable(GL10.GL_BLEND);
@@ -1738,13 +1848,13 @@ public class DrawGame {
 						gameOverText,
 						bx,
 						by
-								+ ((tilesize * b.getNumVerticalTiles() + tb.height) / 2.0f),
+						+ ((tilesize * b.getNumVerticalTiles() + tb.height) / 2.0f),
 						tilesize * b.getNumHorizontalTiles(), HAlignment.CENTER);
 				batch.end();
 				Gdx.gl.glDisable(GL10.GL_BLEND);
 			}
 		}		
-		
+
 		if(GameEngine.getTutorial() != null){
 			batch.begin(); 
 			infoSprite.setColor(Constants.BOARD_COLOR);
@@ -1764,16 +1874,16 @@ public class DrawGame {
 			infoSprite.draw(batch);
 			batch.end();
 		}
-		
+
 		if(state == GameState.TUTORIAL){
 			drawTutorial(GameEngine.getTutorial(), tb, width, height);
 		}
-		
+
 		if(state == GameState.INFO){
 			drawInfo(tb, width, height, currentWorld, currentOrdinalInWorld, b, gp.getLevelMoves(currentWorld, currentOrdinalInWorld));
 		}
 
-		
+
 		//Draw outro
 		if(state == GameState.WON || (state == GameState.LEVEL_TRANSITION && !partial && b.isWon())){
 			drawOutro((int) (bx + transitionPart), by, width, height, b, tb);
