@@ -144,19 +144,19 @@ public class GameEngine implements ApplicationListener {
 	 * Enumeration of all colors
 	 */
 	public enum Color {
-		RED, BLUE, GREEN, ORANGE, PURPLE, NONE;
+		ORANGE, BLUE, PURPLE, GREEN, BLACK, NONE;
 		public static Color lookup(int i) {
 			switch (i) {
 			case 1:
-				return Color.RED;
+				return Color.ORANGE;
 			case 2:
 				return Color.BLUE;
 			case 3:
-				return Color.GREEN;
-			case 4:
-				return Color.ORANGE;
-			case 5:
 				return Color.PURPLE;
+			case 4:
+				return Color.GREEN;
+			case 5:
+				return Color.BLACK;
 			default:
 				return Color.NONE;
 			}
@@ -653,10 +653,14 @@ public class GameEngine implements ApplicationListener {
 					initializeLasers(nextBoard);
 					break;
 				case INFO:
-					state = GameState.INFO;
+					if (state == GameState.IDLE){
+						state = GameState.INFO;
+					}
 					break;
 				case TUTORIAL:
-					state = GameState.TUTORIAL;
+					if (state == GameState.IDLE){
+						state = GameState.TUTORIAL;
+					}
 					break;
 				default:
 					break;

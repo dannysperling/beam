@@ -2,6 +2,8 @@ package utilities;
 
 import com.badlogic.gdx.graphics.Color;
 
+import controller.GameEngine;
+
 
 
 public class Constants {
@@ -59,8 +61,18 @@ public class Constants {
 	 * GOAL PROGRESS CONSTANTS
 	 */
 	public static final float BEAM_GOAL_HEIGHT = 0.08f;
-	public static final float BEAM_GOAL_WIDTH = 0.73f;
+	public static final float BEAM_GOAL_WIDTH = 0.8f;
 	public static final float TEXT_GOAL_HEIGHT = 0.12f;
+	
+	/**
+	 * UNLOCK CONSTANTS
+	 */
+	/**
+	 * Number of stars, per level, needed to unlock either the next world or the
+	 * bonus level for a given world
+	 */
+	public static final int WORLD_UNLOCK_STARS = 2;
+	public static final int BONUS_UNLOCK_STARS = 3;
 	
 	
 	/**
@@ -100,6 +112,58 @@ public class Constants {
 			colorFromRGB(0,0,0),
 			colorFromRGB(0,0,0),
 		 	};
+	
+	public static Color translateColor(GameEngine.Color c) {
+		switch (c) {
+		case ORANGE:
+			return new Color(240 / 255f, 150 /255f, 0 / 255f, 1);
+		case BLUE:
+			return new Color(13 / 255f, 176 / 255f, 230 / 255f, 1);
+		case PURPLE:
+			return new Color(147 / 255f, 29 / 255f, 186 / 255f, 1);
+		case GREEN:
+			return new Color(255 / 255.0f, 150 / 255.0f, 20 / 255.0f, 1);
+		case BLACK:
+			return new Color(.6f, 0, .6f, 1);
+		default:
+			return new Color(0, 0, 0, 0);
+		}
+	}
+	
+	public static Color translateColorDark(GameEngine.Color c) {
+		switch (c) {
+		case ORANGE:
+			return new Color(163 / 255f, 100 /255f, 0 / 255f, 1);
+		case BLUE:
+			return new Color(9 / 255f, 119 / 255f, 153 / 255f, 1);
+		case PURPLE:
+			return new Color(84 / 255f, 17 / 255f, 107 / 255f, 1);
+		case GREEN:
+			return new Color(255 / 255.0f, 150 / 255.0f, 20 / 255.0f, 1);
+		case BLACK:
+			return new Color(.6f, 0, .6f, 1);
+		default:
+			return new Color(0, 0, 0, 0);
+		}
+	}
+	
+	public static Color translateColorLight(GameEngine.Color c) {
+		switch (c) {
+		case ORANGE:
+			return new Color(255 / 255f, 195 /255f, 99 / 255f, 1);
+		case BLUE:
+			return new Color(122 / 255f, 224 / 255f, 255 / 255f, 1);
+		case PURPLE:
+			return new Color(205 / 255f, 96 / 255f, 242 / 255f, 1);
+		case GREEN:
+			return new Color(255 / 255.0f, 150 / 255.0f, 20 / 255.0f, 1);
+		case BLACK:
+			return new Color(.6f, 0, .6f, 1);
+		default:
+			return new Color(0, 0, 0, 0);
+		}
+	}
+	
 	public final static Color BOARD_COLOR = new Color(.95f, .95f, .9f, 1f);
 	public final static Color LINE_COLOR = new Color(.1f, .1f, .1f, 1);
 	public static final float START_COLOR_MUL = 1.1f;
