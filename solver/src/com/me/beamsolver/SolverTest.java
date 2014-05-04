@@ -1,5 +1,7 @@
 package com.me.beamsolver;
 
+import java.util.Map;
+
 import model.Piece;
 import controller.GameEngine.Color;
 
@@ -62,5 +64,15 @@ public class SolverTest {
 
 		pieces6[4][0] = new Piece(4, 0, Color.GREEN);
 		return new Arrangement(pieces6);
+	}
+	
+	private void checkSolution(Map<String, Integer> table) {
+		System.out.println("0 : " + table.get("G5G1BB2BGR2RR1G5G"));
+		System.out.println("1 : " + table.get("G7BBG1BGR2RR1G5G"));
+		System.out.println("2 : " + table.get("G1B5B1G1BGR2RR1G5G"));
+		System.out.println("3 : " + table.get("G1B5BG2BGR2RR1G5G"));
+		System.out.println("4 : " + table.get("G1B1R3BG2BGR2R2G5G"));
+		System.out.println("5 : " + table.get("G1B1R3BG2BGR2RG1G"));
+		System.out.println("6 : " + table.get("G1B1R1R1BG2BGR3G1G"));
 	}
 }

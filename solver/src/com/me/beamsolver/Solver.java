@@ -1,7 +1,6 @@
 package com.me.beamsolver;
 
 import java.awt.Point;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -105,7 +104,7 @@ public class Solver {
 		return getMovesToReach(solution);
 	}
 
-	public Piece[][] getSolution() {
+	public Arrangement getSolution() {
 		if (!solved) {
 			solve();
 		}
@@ -119,12 +118,12 @@ public class Solver {
 		if (solution == null) {
 			return;
 		}
-		List<Piece[][]> solutionTrace = new ArrayList<Piece[][]>();
+		List<Arrangement> solutionTrace = new ArrayList<Arrangement>();
 		solutionTrace.add(solution);
-		Piece[][] pieces = solution;
+		Arrangement pieces = solution;
 		for (int moves = getMovesNeeded() - 1; moves > 0; moves--) {
-			Set<Piece[][]> possibleMoves = getAllMoves(pieces);
-			for (Piece[][] move : possibleMoves) {
+			Set<Arrangement> possibleMoves = getAllMoves(pieces);
+			for (Arrangement move : possibleMoves) {
 				Integer temp = getMovesToReach(move);
 				if (temp == null) {
 					continue;
@@ -139,7 +138,7 @@ public class Solver {
 		solutionTrace.add(originalArrangement);
 		for (int i = solutionTrace.size() - 1; i >= 0; i--) {
 			System.out.println("Move: " + (solutionTrace.size() - 1 - i));
-			System.out.println(solutionTrace.get(i)));
+			System.out.println(solutionTrace.get(i));
 		}
 	}
 
@@ -150,7 +149,7 @@ public class Solver {
 		while (searchQueue.size() > 0 && !this.solved) {
 			QueueEntry qe = searchQueue.poll();
 			monitor(qe.moves);
-			expand(qe.pieces, qe.moves);
+			expand(qe.arrangement, qe.moves);
 		}
 	}
 
@@ -162,10 +161,10 @@ public class Solver {
 		}
 
 		// printBoard(pieces);
-		Set<Piece[][]> possibleMoves = getAllMoves(arrangement);
+		Set<Arrangement> possibleMoves = getAllMoves(arrangement);
 		int moves = getMovesToReach(arrangement);
-		for (Piece[][] p : possibleMoves) {
-			addToQueue(p, moves + 1);
+		for (Arrangement a : possibleMoves) {
+			addToQueue(a, moves + 1);
 		}
 	}
 
@@ -195,8 +194,8 @@ public class Solver {
 
 	private void addToQueue(Arrangement arrangement, int moves) {
 		if (getMovesToReach(arrangement) == null) {
-			searchQueue.add(new QueueEntry(arrangement, moves + heuristic(pieces)));
-			setMovesToReach(arrangment, moves);
+			searchQueue.add(new QueueEntry(arrangement, moves + heuristic(arrangement)));
+			setMovesToReach(arrangement, moves);
 		} else {
 			this.cutoffs++;
 		}
@@ -214,7 +213,7 @@ public class Solver {
 		}
 
 		for (Color c : board.getBeamObjectiveSet()) {
-			int laserCount = board.getLaserCount(pieces, c);
+			int laserCount = board.getLaserCount(arrangement.getPieces(), c);
 			int objective = board.getBeamObjectiveCount(c);
 			int absDiff = Math.abs(laserCount - objective);
 			heuristic += (int) Math.ceil(absDiff / 2.0);
@@ -225,7 +224,7 @@ public class Solver {
 
 	private void initializeBlockedPieces() {
 		Set<Color> blockingColors = getBlockingColors(board.getPieces());
-		Piece[][] fantasyPieces = getFantasyPieces();
+		Arrangement fantasyPieces = getFantasyPieces();
 		this.blockingPieces = new ArrayList<Piece>();
 		
 		int numH = board.getNumHorizontalTiles();
@@ -284,7 +283,7 @@ public class Solver {
 		return objectiveColors;
 	}
 
-	private Piece[][] getFantasyPieces() {
+	private Arrangement getFantasyPieces() {
 		int numH = board.getNumHorizontalTiles();
 		int numV = board.getNumVerticalTiles();
 		Piece[][] pieces = new Piece[numH][numV];
@@ -296,7 +295,7 @@ public class Solver {
 				}
 			}
 		}
-		return pieces;
+		return new Arrangement(pieces);
 	}
 
 	// returns 1 if the piece is the color (which it shouldn't be)
@@ -306,6 +305,7 @@ public class Solver {
 				: 0;
 	}
 
+	@SuppressWarnings("unused")
 	private int countPiecesOfColor(Arrangement arrangement, Color color) {
 		int count = 0;
 		for (int i = 0; i < arrangement.getXSize(); i++) {
@@ -376,12 +376,12 @@ public class Solver {
 					this.searchesCompleted = new HashSet<Piece>();
 
 					// Temporarily remove p from the pieces.
-					arrangement[p.getXCoord()][p.getYCoord()] = null;
+					arrangement.mask(p.getXCoord(), p.getYCoord());
 
 					newStates.addAll(getMoves(arrangement, p, false));
 
 					// Add p back to the pieces so there are no side effects.
-					arrangement[p.getXCoord()][p.getYCoord()] = p;
+					arrangement.unmask(p.getXCoord(), p.getYCoord());
 				}
 			}
 		}
@@ -425,7 +425,7 @@ public class Solver {
 		safePut(arrangement, moves);
 	}
 
-	private boolean isPlaceSafe(Piece[][] pieces, Piece p) {
+	private boolean isPlaceSafe(Arrangement arrangement, Piece p) {
 		if (!(p.getXCoord() >= 0 && p.getXCoord() < this.board
 				.getNumHorizontalTiles())) {
 			return false;
@@ -434,10 +434,10 @@ public class Solver {
 				.getNumVerticalTiles())) {
 			return false;
 		}
-		if (!this.board.isTilePassable(p.getXCoord(), p.getYCoord(), pieces)) {
+		if (!this.board.isTilePassable(p.getXCoord(), p.getYCoord(), arrangement.getPieces())) {
 			return false;
 		}
-		if (isPieceDestroyed(pieces, p)) {
+		if (isPieceDestroyed(arrangement, p)) {
 			return false;
 		}
 		Tile t = board.getTileAtBoardPosition(p.getXCoord(), p.getYCoord());
@@ -445,10 +445,10 @@ public class Solver {
 			// The piece is moving onto a painter of a different color
 			Piece recoloredPiece = new Piece(p.getXCoord(), p.getYCoord(),
 					t.getPainterColor());
-			return !doesPieceDestroy(pieces, recoloredPiece)
-					&& !isPieceDestroyed(pieces, recoloredPiece);
+			return !doesPieceDestroy(arrangement, recoloredPiece)
+					&& !isPieceDestroyed(arrangement, recoloredPiece);
 		}
-		return !doesPieceDestroy(pieces, p);
+		return !doesPieceDestroy(arrangement, p);
 	}
 
 	// Call with the current piece array and the piece to move,
@@ -462,7 +462,7 @@ public class Solver {
 
 		List<Point> moves = new ArrayList<Point>();
 		moves.addAll(getContiguousPoints(arrangement, p, recursing));
-		Set<Piece[][]> moveStates = new HashSet<Piece[][]>();
+		Set<Arrangement> moveStates = new HashSet<Arrangement>();
 
 		for (int i = 0; i < moves.size(); i++) {
 			Point move = moves.get(i);
@@ -471,7 +471,7 @@ public class Solver {
 			if (t.hasPainter() && t.getPainterColor() != p.getColor()) {
 				Piece coloredPiece = new Piece(move.x, move.y,
 						t.getPainterColor());
-				Set<Piece[][]> temp = getMoves(pieces, coloredPiece, true);
+				Set<Arrangement> temp = getMoves(arrangement, coloredPiece, true);
 				if (temp != null) {
 					moveStates.addAll(temp);
 				}
@@ -483,24 +483,24 @@ public class Solver {
 		}
 
 		// moves shouldn't contain any
-		fillMoveStates(moveStates, moves, pieces, p.getColor());
+		fillMoveStates(moveStates, moves, arrangement, p.getColor());
 		return moveStates;
 	}
 
-	private void fillMoveStates(Set<Piece[][]> moveStates, List<Point> moves,
-			Piece[][] pieces, Color color) {
+	private void fillMoveStates(Set<Arrangement> moveStates, List<Point> moves,
+			Arrangement arrangement, Color color) {
 		for (Point movePoint : moves) {
 			Piece[][] copy = new Piece[board.getNumHorizontalTiles()][board
 					.getNumVerticalTiles()];
 			for (int i = 0; i < copy.length; i++) {
 				for (int j = 0; j < copy[0].length; j++) {
-					copy[i][j] = pieces[i][j];
+					copy[i][j] = arrangement.getPiece(i, j);
 				}
 			}
 			int x = movePoint.x;
 			int y = movePoint.y;
 			copy[x][y] = new Piece(x, y, color);
-			moveStates.add(copy);
+			moveStates.add(new Arrangement(copy));
 		}
 	}
 
@@ -524,7 +524,7 @@ public class Solver {
 
 			Point up_point = new Point(tempPoint.x, tempPoint.y + 1);
 			Piece up = new Piece(up_point, p.getColor());
-			if (isPlaceSafe(pieces, up) && !contiguousPoints.contains(up_point)) {
+			if (isPlaceSafe(arrangement, up) && !contiguousPoints.contains(up_point)) {
 				searchQueue.add(up_point);
 				if (!up_point.equals(originalPoint)) {
 					contiguousPoints.add(up_point);
@@ -533,7 +533,7 @@ public class Solver {
 
 			Point down_point = new Point(tempPoint.x, tempPoint.y - 1);
 			Piece down = new Piece(down_point, p.getColor());
-			if (isPlaceSafe(pieces, down)
+			if (isPlaceSafe(arrangement, down)
 					&& !contiguousPoints.contains(down_point)) {
 				searchQueue.add(down_point);
 				if (!down_point.equals(originalPoint)) {
@@ -543,7 +543,7 @@ public class Solver {
 
 			Point left_point = new Point(tempPoint.x - 1, tempPoint.y);
 			Piece left = new Piece(left_point, p.getColor());
-			if (isPlaceSafe(pieces, left)
+			if (isPlaceSafe(arrangement, left)
 					&& !contiguousPoints.contains(left_point)) {
 				searchQueue.add(left_point);
 				if (!left_point.equals(originalPoint)) {
@@ -553,7 +553,7 @@ public class Solver {
 
 			Point right_point = new Point(tempPoint.x + 1, tempPoint.y);
 			Piece right = new Piece(right_point, p.getColor());
-			if (isPlaceSafe(pieces, right)
+			if (isPlaceSafe(arrangement, right)
 					&& !contiguousPoints.contains(right_point)) {
 				searchQueue.add(right_point);
 				if (!right_point.equals(originalPoint)) {
@@ -564,7 +564,7 @@ public class Solver {
 		return contiguousPoints;
 	}
 
-	private boolean doesPieceDestroy(Piece[][] pieces, Piece p) {
+	private boolean doesPieceDestroy(Arrangement arrangement, Piece p) {
 		boolean destroyPossible = false;
 
 		final int PX = p.getXCoord();
@@ -572,7 +572,7 @@ public class Solver {
 
 		// Slide left
 		for (int xPos = PX - 1; xPos >= 0; xPos--) {
-			Piece possible = pieces[xPos][PY];
+			Piece possible = arrangement.getPiece(xPos, PY);
 			if (possible != null) {
 				if (possible.getColor() == p.getColor()) {
 					if (destroyPossible) {
@@ -587,8 +587,8 @@ public class Solver {
 		destroyPossible = false;
 
 		// Slide right
-		for (int xPos = PX + 1; xPos < pieces.length; xPos++) {
-			Piece possible = pieces[xPos][PY];
+		for (int xPos = PX + 1; xPos < arrangement.getXSize(); xPos++) {
+			Piece possible = arrangement.getPiece(xPos, PY);
 			if (possible != null) {
 				if (possible.getColor() == p.getColor()) {
 					if (destroyPossible) {
@@ -604,7 +604,7 @@ public class Solver {
 
 		// Slide down
 		for (int yPos = PY - 1; yPos >= 0; yPos--) {
-			Piece possible = pieces[PX][yPos];
+			Piece possible = arrangement.getPiece(PX, yPos);
 			if (possible != null) {
 				if (possible.getColor() == p.getColor()) {
 					if (destroyPossible) {
@@ -619,8 +619,8 @@ public class Solver {
 		destroyPossible = false;
 
 		// Slide up
-		for (int yPos = PY + 1; yPos < pieces[0].length; yPos++) {
-			Piece possible = pieces[PX][yPos];
+		for (int yPos = PY + 1; yPos < arrangement.getYSize(); yPos++) {
+			Piece possible = arrangement.getPiece(PX, yPos);
 			if (possible != null) {
 				if (possible.getColor() == p.getColor()) {
 					if (destroyPossible) {
@@ -635,7 +635,7 @@ public class Solver {
 		return false;
 	}
 
-	private boolean isPieceDestroyed(Piece[][] pieces, Piece p) {
+	private boolean isPieceDestroyed(Arrangement arrangement, Piece p) {
 
 		// Check if p is destroyed. First, horizontally
 		Color leftColor = Color.NONE;
@@ -645,7 +645,7 @@ public class Solver {
 		// Slide to left
 		for (; leftColor == Color.NONE && xPos >= 0; xPos--) {
 
-			Piece atLeft = pieces[xPos][yPos];
+			Piece atLeft = arrangement.getPiece(xPos, yPos);
 
 			if (atLeft != null) {
 				leftColor = atLeft.getColor();
@@ -658,9 +658,9 @@ public class Solver {
 			xPos = p.getXCoord() + 1;
 
 			// Slide to the right
-			for (; rightColor == Color.NONE && xPos < pieces.length; xPos++) {
+			for (; rightColor == Color.NONE && xPos < arrangement.getXSize(); xPos++) {
 
-				Piece atRight = pieces[xPos][yPos];
+				Piece atRight = arrangement.getPiece(xPos, yPos);
 
 				if (atRight != null) {
 					rightColor = atRight.getColor();
@@ -680,7 +680,7 @@ public class Solver {
 		// Step up
 		for (; topColor == Color.NONE && yPos >= 0; yPos--) {
 
-			Piece atTop = pieces[xPos][yPos];
+			Piece atTop = arrangement.getPiece(xPos, yPos);
 
 			if (atTop != null) {
 				topColor = atTop.getColor();
@@ -693,9 +693,9 @@ public class Solver {
 			yPos = p.getYCoord() + 1;
 
 			// Step down
-			for (; botColor == Color.NONE && yPos < pieces[0].length; yPos++) {
+			for (; botColor == Color.NONE && yPos < arrangement.getYSize(); yPos++) {
 
-				Piece atBot = pieces[xPos][yPos];
+				Piece atBot = arrangement.getPiece(xPos, yPos);
 
 				if (atBot != null) {
 					botColor = atBot.getColor();

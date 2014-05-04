@@ -2,6 +2,8 @@ package utilities;
 
 import com.badlogic.gdx.graphics.Color;
 
+import controller.GameEngine;
+
 
 
 public class Constants {
@@ -100,6 +102,24 @@ public class Constants {
 			colorFromRGB(0,0,0),
 			colorFromRGB(0,0,0),
 		 	};
+	
+	public static Color translateColor(GameEngine.Color c) {
+		switch (c) {
+		case RED:
+			return new Color(240 / 255f, 150 /255f, 0 / 255f, 1);
+		case BLUE:
+			return new Color(13 / 255f, 176 / 255f, 230 / 255f, 1);
+		case GREEN:
+			return new Color(147 / 255f, 29 / 255f, 186 / 255f, 1);
+		case ORANGE:
+			return new Color(255 / 255.0f, 150 / 255.0f, 20 / 255.0f, 1);
+		case PURPLE:
+			return new Color(.6f, 0, .6f, 1);
+		default:
+			return new Color(0, 0, 0, 0);
+		}
+	}
+	
 	public final static Color BOARD_COLOR = new Color(.95f, .95f, .9f, 1f);
 	public final static Color LINE_COLOR = new Color(.1f, .1f, .1f, 1);
 	public static final float START_COLOR_MUL = 1.1f;
@@ -110,5 +130,7 @@ public class Constants {
 	public static final Color GLASS_COLOR = new Color(.18f,.18f,.18f,.7f);
 	public static final int PAINTER_MODE = 0;
 	public static final Color[] painterColor = {null,new Color(.6f, .1f, .1f, 1),new Color(.1f, .1f, .6f, 1),new Color(.1f, .6f, .1f, 1)};
+	public static final int SHADOW_DISTANCE = 6;
+	public static final Color SHADOW_COLOR = new Color(.1f,.1f,.1f,0.25f);
 	public static int GLASS_STYLE = 2;
 }
