@@ -27,27 +27,26 @@ public class DrawMenu {
 
 	private Menu menu;
 	private BitmapFont numberFont;
+	private BitmapFont worldUnlockFont;
 	private SpriteBatch batch;
 	private DrawGame dg;
 	private List<List<Board>> allBoards;
 	private Texture lockTexture;
-	private Texture unlockTexture;
 	private Sprite lockSprite;
-	private Sprite unlockSprite;
 	private Texture starTexture;
 	private Sprite starSprite;
 	private FrameBuffer bgBuffer;
 	private FrameBuffer shiftBoardBuffer;
 	public boolean shiftBoardNew = true;
-	
+
 	private Sprite boardSprite;
 	private Sprite bgSprite;
-	
+
 	private int fullHeight = 0;
 	private int fullWidth = 0;
-	
-	
-	
+
+
+
 
 	/**
 	 * Constructs a drawMenu, with a reference to the menu, the drawgame,
@@ -65,17 +64,12 @@ public class DrawMenu {
 		batch = new SpriteBatch();
 		this.dg = dg;
 		this.allBoards = allBoards;
-		
-		unlockTexture = AssetInitializer.getTexture(AssetInitializer.unlock);
-		unlockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		TextureRegion unlockregion = new TextureRegion(unlockTexture, 0, 0, 256, 128);
-		unlockSprite = new Sprite(unlockregion);
-		
+
 		lockTexture = AssetInitializer.getTexture(AssetInitializer.lock);
 		lockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		TextureRegion lockregion = new TextureRegion(lockTexture, 0, 0, 128, 128);
 		lockSprite = new Sprite(lockregion);
-		
+
 		starTexture = AssetInitializer.getTexture(AssetInitializer.one_star);
 		starTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		TextureRegion starRegion = new TextureRegion(starTexture, 0, 0, 128, 128);
@@ -112,7 +106,7 @@ public class DrawMenu {
 
 		//Start at the top of the screen
 		int world = menu.getWorldAtPosition(height);
-		
+
 		//Handle in-between world states
 		if (world > 1000)
 			world -= 1000;
@@ -124,7 +118,7 @@ public class DrawMenu {
 		Board shiftBoard = null;
 		int shiftBotY = 0;
 		int shiftLeftX = 0;
-		
+
 		boolean shiftIsLastLevel = false;
 		boolean shiftNextLevelLocked = false;
 
@@ -167,11 +161,11 @@ public class DrawMenu {
 							b = allBoards.get(world - 1).get(ordinalInWorld - 1);
 						}
 						//Draw the current level
-						
+
 						int stars = menu.getLevelStars(world, ordinalInWorld);
 
 						if(!shiftThisOne){
-							drawLevelBoard(true, world, ordinalInWorld, b, itemBotY, itemLeftX, stars);
+							drawLevelBoard(world, ordinalInWorld, b, itemBotY, itemLeftX, stars);
 						} else {
 							shiftBoard = b;
 							shiftBotY = itemBotY;
@@ -266,7 +260,12 @@ public class DrawMenu {
 	}
 
 	private void drawWorldOverlay(int world, int itemBotY) {
-		if (menu.isWorldUnlocked(world)) return;
+
+		//There is not overlay if the world is unlocked
+		if (menu.isWorldUnlocked(world)){
+			return;
+		}
+
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		ShapeRenderer shape = dg.shapes;
@@ -275,40 +274,38 @@ public class DrawMenu {
 		shape.setColor(Constants.LOCKED_WORLD_OVERLAY);
 		shape.rect(0, itemBotY, Gdx.graphics.getWidth(),  menu.getWorldHeight());
 		shape.end();
-		//If not next just draw lock
-		if (!menu.isWorldUnlocked(world-1)){
-			batch.begin();
-			lockSprite.setColor(Constants.LOCK_COLOR);
-			float spriteSize = menu.getLevelItemWidth();
-			lockSprite.setSize(spriteSize, spriteSize);
-			lockSprite.setX(Gdx.graphics.getWidth()/2-spriteSize/2);
-			lockSprite.setY(itemBotY+(menu.getWorldHeight()*menu.boardHeightPercent)/2);
-			lockSprite.draw(batch);
-			batch.end();
-		} else if (menu.getNumStarsEarned(world-1) < menu.getNumStarsNeeded(world-1)){
+
+		//Several set values
+		float vertOverlaySpace = (menu.getWorldHeight()*menu.boardHeightPercent);
+		float lockYPos;
+
+		if (menu.isWorldUnlocked(world-1)) {
 			//Draw text telling user how many stars they need
-			String text = menu.getNumStarsEarned(world-1)+" of "+menu.getNumStarsNeeded(world-1);
-			batch.begin();
-			numberFont.setColor(Constants.BOARD_COLOR);
-			//Find the bounds based on the size of the drawn text
-			TextBounds tb = numberFont.getBounds(text);
-			numberFont.draw(batch, text, Gdx.graphics.getWidth()/2-tb.width/2, 
-					itemBotY+(menu.getWorldHeight()*menu.boardHeightPercent)/2);
-			batch.end();
+			int starsEarned = menu.getNumStarsEarned(world-1);
+			int starsNeeded = menu.getNumStarsNeeded(world-1);
+			drawFractionalCompleted(numberFont, Gdx.graphics.getWidth()/2, itemBotY+vertOverlaySpace*3/4, starsEarned, starsNeeded);
+
+			//Set the lock position to be above the numbers
+			lockYPos = itemBotY + vertOverlaySpace * 7 / 10;
 		} else {
-			// They just need to finish the levels, draw unlockedlock
-			batch.begin();
-			unlockSprite.setColor(Constants.LOCK_COLOR);
-			float spriteSize = menu.getLevelItemWidth();
-			unlockSprite.setSize(spriteSize*2, spriteSize);
-			unlockSprite.setX(Gdx.graphics.getWidth()/2-spriteSize);
-			unlockSprite.setY(itemBotY+(menu.getWorldHeight()*menu.boardHeightPercent)/2);
-			unlockSprite.draw(batch);
-			batch.end();
+			//Set the lock position to the center of the vertical overlay
+			lockYPos = itemBotY + vertOverlaySpace * 5 / 10;
 		}
-		
+
+		//Always draw the lock
+		batch.begin();
+		lockSprite.setColor(Constants.LOCK_COLOR);
+
+		float spriteSize = vertOverlaySpace * 4 / 5;
+		lockSprite.setSize(spriteSize, spriteSize);
+		lockSprite.setX(Gdx.graphics.getWidth()/2-spriteSize/2);
+		lockSprite.setY(lockYPos);
+		lockSprite.draw(batch);
+
+		batch.end();
+
 		Gdx.gl.glDisable(GL10.GL_BLEND);
-		
+
 	}
 
 	/**
@@ -336,7 +333,7 @@ public class DrawMenu {
 		Color endColor = Menu.colorOfWorld(world).mul(Constants.END_COLOR_MUL);
 		//Color startColor = setSaturation(Menu.colorOfWorld(world),0.25f);
 		//Color endColor = setSaturation(Menu.colorOfWorld(world),0.95f);
-		
+
 		//Draw main background:
 		shape.rect(leftStartingPoint, itemBotY, maxWidth, worldHeight, startColor, endColor, endColor, startColor);
 
@@ -368,7 +365,7 @@ public class DrawMenu {
 		}
 		shape.end();
 	}
-	
+
 	/**
 	 * Draws the number above the board inside the menu item. At present, the number
 	 * is red if locked, green if completed, and blue otherwise.
@@ -412,7 +409,7 @@ public class DrawMenu {
 	 * @param itemLeftX
 	 * 				The x coordinate of the left side of the menu item
 	 */
-	private void drawLevelBoard(boolean worldUnlocked, int world, int ordinalInWorld, Board b, int itemBotY, int itemLeftX, int stars){
+	private void drawLevelBoard(int world, int ordinalInWorld, Board b, int itemBotY, int itemLeftX, int stars){
 		// Get board dimensions
 		int levelItemWidth = menu.getLevelItemWidth();
 		int worldHeight = menu.getWorldHeight();
@@ -421,33 +418,87 @@ public class DrawMenu {
 		int by = (int)(menu.starHeightPercent * worldHeight + itemBotY);
 		int tilesize = (int)(menu.boardHeightPercent * worldHeight / b.getNumVerticalTiles());
 		int bx = (levelItemWidth - tilesize * b.getNumHorizontalTiles()) / 2 + itemLeftX;
-		boolean locked = !worldUnlocked || (menu.isBonus(world, ordinalInWorld) && !menu.isBonusLevelUnlocked(world));
-		
+		boolean locked = (menu.isBonus(world, ordinalInWorld) && !menu.isBonusLevelUnlocked(world));
+
 		//Draw the board in the appropriate location
 		dg.drawBoard(b, bx, by, tilesize, locked);
-		
+
 		//If locked, draw the lock
-		drawLock(itemLeftX, by, locked);
-		
+		drawBonusLock(itemLeftX, by, locked,  menu.getNumStarsEarned(world), (menu.sizeOfWorld(world) - 1) * Constants.BONUS_UNLOCK_STARS);
+
 		//If stars, draw them
 		drawStars(itemLeftX, itemBotY, stars);
 	}
 
-	private void drawLock(int x, int y, boolean locked) {
-		if (!locked) return;
+	private void drawBonusLock(int x, int y, boolean locked, int collectedStars, int starsRequired) {
+		if (!locked){
+			return;
+		}
+
+		//Draw the lock itself
 		batch.begin();
+		int centerX = x + menu.getLevelItemWidth()/2;
 		lockSprite.setColor(Constants.LOCK_COLOR);
-		float spriteSize = menu.getLevelItemWidth()*0.6f;
+		float spriteSize = menu.getLevelItemWidth()*0.4f;
 		lockSprite.setSize(spriteSize, spriteSize);
-		lockSprite.setX(x+(menu.getLevelItemWidth()-spriteSize)/2);
-		lockSprite.setY(y+(menu.getWorldHeight()*menu.boardHeightPercent)/2 - (spriteSize)/2);
+		lockSprite.setX(centerX - spriteSize/2);
+		lockSprite.setY(y+(menu.getWorldHeight()*menu.boardHeightPercent)/2 - (spriteSize)/4);
 		lockSprite.draw(batch);
 		batch.end();
-	}
-	
-	private void drawStars(int x, int y, int stars){
-		if (stars == 0) return;
 		
+		//Draw text beneath it
+		float topY = menu.starHeightPercent * menu.getWorldHeight() + y;
+		drawFractionalCompleted(worldUnlockFont, centerX, topY, collectedStars, starsRequired);
+
+	}
+
+	private void drawFractionalCompleted(BitmapFont font, float centerX, float topY, int numerator, int denominator){
+		
+		//Draw text below it
+		String textEarned = "" + numerator;
+		String textSlash = "/";
+		String textNeeded = "" + denominator;
+		font.setColor(Constants.BOARD_COLOR);
+
+		//Find the bounds based on the size of the drawn text
+		float earnedWidth = font.getBounds(textEarned).width;
+		float slashWidth = font.getBounds(textSlash).width;
+		float neededWidth = font.getBounds(textNeeded).width;
+
+		float stringHeight = font.getBounds(textEarned).height;
+
+		//Add one star as well
+		float spriteSize = stringHeight * 1.60f;
+		int spaceSize = (int)(slashWidth * 0.25);
+		float lineLength = earnedWidth + slashWidth + neededWidth + spriteSize * 2/3 + 2.5f*spaceSize;
+
+		//Draw iteratively
+		float startX = centerX-lineLength/2;
+		float yPos = topY - stringHeight;
+
+		//Each text piece
+		batch.begin();
+		font.draw(batch, textEarned, startX, yPos);
+		startX += earnedWidth + spaceSize;
+		font.draw(batch, textSlash, startX, yPos);
+		startX += slashWidth + spaceSize;
+		font.draw(batch, textNeeded, startX, yPos);
+		startX += neededWidth + spaceSize / 2;
+
+		//And the star
+		float sizeFix = 0.46f; //Fixing Reese's less-than-size-of-edge star
+		starSprite.setSize(spriteSize, spriteSize);
+		starSprite.setY(yPos - stringHeight/2 - spriteSize * sizeFix);
+		starSprite.setX(startX);
+		starSprite.draw(batch);
+		batch.end();
+	}
+
+	private void drawStars(int x, int y, int stars){
+		if (stars == 0){
+			return;
+		}
+
 		batch.begin();
 		int itemWidth = menu.getLevelItemWidth();
 		int worldHeight = menu.getWorldHeight();
@@ -455,32 +506,32 @@ public class DrawMenu {
 		float spriteSize = worldHeight * menu.starHeightPercent * starPercent;
 		starSprite.setSize(spriteSize, spriteSize);
 		starSprite.setY(y + (1 - starPercent)/2 * menu.starHeightPercent * worldHeight);
-		
+
 		//Draw different sets of stars differently
 		switch(stars){
-			case 1:
-				//One star in middle
-				starSprite.setX(x + (itemWidth - spriteSize)/2);
-				starSprite.draw(batch);
-				break;
-			case 2:
-				//Two stars centered in middle
-				starSprite.setX(x + itemWidth/2 - spriteSize);
-				starSprite.draw(batch);
-				starSprite.setX(x + itemWidth/2);
-				starSprite.draw(batch);
-				break;
-			case 3:
-				//Three stars!
-				starSprite.setX(x + (itemWidth - 3*spriteSize)/2);
-				starSprite.draw(batch);
-				starSprite.setX(x + (itemWidth - spriteSize)/2);
-				starSprite.draw(batch);
-				starSprite.setX(x + (itemWidth + spriteSize)/2);
-				starSprite.draw(batch);
-				break;
-			default: //How we get here man?
-				break;
+		case 1:
+			//One star in middle
+			starSprite.setX(x + (itemWidth - spriteSize)/2);
+			starSprite.draw(batch);
+			break;
+		case 2:
+			//Two stars centered in middle
+			starSprite.setX(x + itemWidth/2 - spriteSize);
+			starSprite.draw(batch);
+			starSprite.setX(x + itemWidth/2);
+			starSprite.draw(batch);
+			break;
+		case 3:
+			//Three stars!
+			starSprite.setX(x + (itemWidth - 3*spriteSize)/2);
+			starSprite.draw(batch);
+			starSprite.setX(x + (itemWidth - spriteSize)/2);
+			starSprite.draw(batch);
+			starSprite.setX(x + (itemWidth + spriteSize)/2);
+			starSprite.draw(batch);
+			break;
+		default: //How we get here man?
+			break;
 		}
 		batch.end();
 	}
@@ -494,6 +545,7 @@ public class DrawMenu {
 		if(shiftBoardBuffer != null)
 			shiftBoardBuffer.dispose();
 		numberFont.dispose();
+		worldUnlockFont.dispose();
 		batch.dispose();
 	}
 
@@ -504,6 +556,7 @@ public class DrawMenu {
 	public void initFonts() {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("data/fonts/swanse.ttf"));
 		numberFont = generator.generateFont((int) (menu.getWorldHeight() * (1 - menu.boardHeightPercent - menu.starHeightPercent) * 3 / 4));
+		worldUnlockFont = generator.generateFont((int) (menu.getWorldHeight() * (1 - menu.boardHeightPercent - menu.starHeightPercent) / 2));
 		generator.dispose();
 	}
 }

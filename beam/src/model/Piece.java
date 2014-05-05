@@ -68,9 +68,9 @@ public class Piece {
 	 */
 	@Override
 	public String toString() {
-		if(color == GameEngine.Color.RED) {
+		if(color == GameEngine.Color.ORANGE) {
 			return "R";
-		} else if(color == GameEngine.Color.GREEN) {
+		} else if(color == GameEngine.Color.PURPLE) {
 			return "G";
 		} else if(color == GameEngine.Color.BLUE) {
 			return "B";

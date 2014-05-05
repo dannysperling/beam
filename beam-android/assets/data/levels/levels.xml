@@ -455,7 +455,7 @@ goal_1,e,1
 <level id=53 par=4 perfect=3>
 <attribution name="easier glass" author="John"/>
 e,goal_1,goal_2
-1,glass,goal_1
+3,glass,goal_3
 2,1,e
 </level>
 
