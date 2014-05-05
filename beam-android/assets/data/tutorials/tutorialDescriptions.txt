@@ -1,6 +1,6 @@
 TUTORIAL FOR LEVEL UNIQUE ID: 37.
 Basic Movement
-IMAGE: 6 frames, 128 side, movetutorial.png
+IMAGE: 6 frames, 512 side, movetutorial.png
 Drag your finger to create a path for the piece to follow.
 END TUTORIAL
 
@@ -11,7 +11,7 @@ END TUTORIAL
 
 TUTORIAL FOR LEVEL UNIQUE ID: 53.
 Pieces can't move through grey tiles!
-IMAGE: 1 frames, 128 side, glasstutorial_1.png
+IMAGE: 10 frames, 512 side, glasstutorial.png
 END TUTORIAL
 
 TUTORIAL FOR LEVEL UNIQUE ID: 49.
