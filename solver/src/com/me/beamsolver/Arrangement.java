@@ -66,6 +66,9 @@ public class Arrangement {
 		}
 		for (int i = 0; i < pieces.length; i++) {
 			for (int j = 0; j < pieces[0].length; j++) {
+				if (pieces[i][j] == null) {
+					return a2.getPiece(i, j) == null;
+				}
 				if (!pieces[i][j].equals(a2.getPiece(i, j))) {
 					return false;
 				}
