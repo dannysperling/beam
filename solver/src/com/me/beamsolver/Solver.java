@@ -55,6 +55,7 @@ public class Solver {
 	private static final int moveInterval = 10000;
 	private Set<Piece> searchesCompleted; // for painters
 	private List<Piece> blockingPieces;
+	private boolean showMonitor;
 
 	public static void main(String[] args) {
 
@@ -67,17 +68,18 @@ public class Solver {
 				false);
 		
 		int world = 9;
-		int ordinalInWorld = 7;
+		int ordinalInWorld = 4;
 		Board toSolve = levelLoader.getLevel(world, ordinalInWorld);
-		Solver solver = new Solver(toSolve);
+		Solver solver = new Solver(toSolve, true);
 		System.out.println("Solving level " + world + "-" + ordinalInWorld);
 		solver.solve();
 		System.out.println("Moves: " + solver.getMovesNeeded());
 		solver.printSolutionTrace();
 	}
 
-	public Solver(Board board) {
+	public Solver(Board board, boolean showMonitor) {
 		table = new HashMap<String, Integer>();
+		this.showMonitor = showMonitor;
 		this.board = board;
 		horizontalSymmetry = isHSym();
 		verticalSymmetry = isVSym();
@@ -89,8 +91,10 @@ public class Solver {
 		this.positionsInQueue = 0;
 		this.positionsExpandedThisDepth = 1;
 		initializeBlockedPieces();
-		for (Piece p : blockingPieces) {
-			System.out.println(p.getXCoord() + ", " + p.getYCoord() + ", " + p.getColor());
+		if (this.showMonitor) {
+			for (Piece p : blockingPieces) {
+				System.out.println(p.getXCoord() + ", " + p.getYCoord() + ", " + p.getColor());
+			}
 		}
 	}
 
@@ -148,7 +152,9 @@ public class Solver {
 		this.startTime = System.currentTimeMillis();
 		while (searchQueue.size() > 0 && !this.solved) {
 			QueueEntry qe = searchQueue.poll();
-			monitor(qe.moves);
+			if (this.showMonitor) {
+				monitor(qe.moves);
+			}
 			expand(qe.arrangement, qe.moves);
 		}
 	}
