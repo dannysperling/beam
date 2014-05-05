@@ -57,11 +57,11 @@ e,goal_3,e
 
 <level id=9 par=4 perfect=2>
 <attribution name="" author=""/>
-2,e
-1,1
-glass,e
-1,e
-goal_2,painter_2
+glass,2,e,glass
+glass,1,1,glass
+glass,glass,e,glass
+glass,1,e,glass
+glass,goal_2,painter_2,glass
 </level>
 
 <level id=10 par=9 perfect=7>
