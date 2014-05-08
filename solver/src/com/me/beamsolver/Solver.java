@@ -211,7 +211,7 @@ public class Solver {
 		int heuristic = board.getNumGoalsUnfilled(arrangement.getPieces());
 
 		for (Piece blockingPiece : blockingPieces) {
-			heuristic += encourageNotPiece(arrangement, blockingPiece);
+			//heuristic += encourageNotPiece(arrangement, blockingPiece);
 		}
 
 		if (heuristic > 0) {
