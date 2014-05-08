@@ -1,7 +1,5 @@
 package com.me.beamsolver;
 
-import java.sql.PseudoColumnUsage;
-
 import controller.GameEngine;
 import controller.GameEngine.Color;
 import model.Board;
@@ -9,6 +7,7 @@ import model.Piece;
 
 public class Arrangement {
 	private Color[][] colors;
+	private static Piece[][] pieces;
 
 	public Arrangement(Piece[][] ps) {
 		this.colors = new Color[ps.length][ps[0].length];
@@ -20,6 +19,9 @@ public class Arrangement {
 				}
 			}
 		}
+		if (pieces == null) {
+			pieces = new Piece[ps.length][ps[0].length];
+		}
 	}
 	
 	private Arrangement(Arrangement copy, int maskedX, int maskedY) {
@@ -30,6 +32,9 @@ public class Arrangement {
 					this.colors[i][j] = copy.colors[i][j];
 				}
 			}
+		}
+		if (pieces == null) {
+			pieces = new Piece[copy.getXSize()][copy.getYSize()];
 		}
 	}
 	
@@ -55,12 +60,13 @@ public class Arrangement {
 		return new Arrangement(this, x, y);
 	}
 	
-	public Piece[][] getPieces() {
-		Piece[][] pieces = new Piece[colors.length][colors[0].length];
+	Piece[][] getPieces() {
 		for (int i = 0; i < colors.length; i++) {
 			for (int j = 0; j < colors[0].length; j++) {
 				if (colors[i][j] != null) {
 					pieces[i][j] = new Piece(i, j, colors[i][j]);
+				} else {
+					pieces[i][j] = null;
 				}
 			}
 		}
