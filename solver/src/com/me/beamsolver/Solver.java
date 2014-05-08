@@ -67,8 +67,8 @@ public class Solver {
 				"../beam-android/assets/data/levels/levels.xml", levelOrderer,
 				false);
 		
-		int world = 9;
-		int ordinalInWorld = 4;
+		int world = 11;
+		int ordinalInWorld = 14;
 		Board toSolve = levelLoader.getLevel(world, ordinalInWorld);
 		Solver solver = new Solver(toSolve, true);
 		System.out.println("Solving level " + world + "-" + ordinalInWorld);
@@ -382,12 +382,9 @@ public class Solver {
 					this.searchesCompleted = new HashSet<Piece>();
 
 					// Temporarily remove p from the pieces.
-					arrangement.mask(p.getXCoord(), p.getYCoord());
+					Arrangement temp = arrangement.mask(p.getXCoord(), p.getYCoord());
 
-					newStates.addAll(getMoves(arrangement, p, false));
-
-					// Add p back to the pieces so there are no side effects.
-					arrangement.unmask(p.getXCoord(), p.getYCoord());
+					newStates.addAll(getMoves(temp, p, false));
 				}
 			}
 		}

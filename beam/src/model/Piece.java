@@ -23,6 +23,9 @@ public class Piece {
 	public Piece(int xCoord, int yCoord, GameEngine.Color color){
 		this.xCoord = xCoord;
 		this.yCoord = yCoord;
+		if (color == null) {
+			System.err.println("error from passing null as color to Piece constructor.");
+		}
 		this.color = color;
 	}
 	
@@ -62,24 +65,4 @@ public class Piece {
 	
 	public GameEngine.Color getColor(){return color;}
 	public void setColor(GameEngine.Color color){this.color = color;}
-	
-	/**
-	 * Standard to string method, for convenient printing in the solver
-	 */
-	@Override
-	public String toString() {
-		if(color == GameEngine.Color.ORANGE) {
-			return "O";
-		} else if(color == GameEngine.Color.PURPLE) {
-			return "P";
-		} else if(color == GameEngine.Color.BLUE) {
-			return "B";
-		} else if(color == GameEngine.Color.GREEN){
-			return "G";
-		} else if(color == GameEngine.Color.BLACK){
-			return "L";
-		} else {
-			return "-";
-		}
-	}
 }
