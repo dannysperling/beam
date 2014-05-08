@@ -819,11 +819,10 @@ e,glass,2,painter_3,glass,2
 1,glass,e,3,e,e
 </level>
 
-<level id=110 par=0 perfect=0>
+<level id=110 par=7 perfect=5>
 <attribution name="Simple BAB" author="Mike"/>
 <beamGoal color=1 count=0/>
 <beamGoal color=2 count=0/>
-<beamGoal color=3 count=0/>
 1,e,e,e,1
 e,2,e,2,e
 e,e,1,e,e
@@ -837,13 +836,13 @@ e,2,e,2,e
 3,e,e,e,3
 3,glass,2,glass,e
 3,glass,2,glass,e
-glass,1,glass,1,glass
+glass,1,glass,1,e
 3,glass,2,glass,e
 3,glass,2,glass,e
 3,e,e,e,3
 </level>
 
-<level id=112 par=0 perfect=0>
+<level id=112 par=8 perfect=6>
 <attribution name="GoalZ" author="Mike"/>
 e,3,e,e,3,e
 1,glass,e,e,glass,1
@@ -853,17 +852,17 @@ e,glass,goal_2,glass,glass,e
 e,3,e,e,3,e
 </level>
 
-<level id=113 par=0 perfect=0>
+<level id=113 par=9 perfect=8>
 <attribution name="Form Them All" author="Mike"/>
 <beamGoal color=1 count=4/>
 <beamGoal color=2 count=4/>
 <beamGoal color=3 count=4/>
-<beamGoal color=5 count=4/>
+<beamGoal color=4 count=4/>
 1,1,1,e,2
-e,3,e,5,2
-5,e,e,e,2
-5,2,e,1,e
-5,e,3,3,3
+e,3,e,4,2
+4,e,e,e,2
+4,2,e,1,e
+4,e,3,3,3
 </level>
 
 <level id=114 par=0 perfect=0>
