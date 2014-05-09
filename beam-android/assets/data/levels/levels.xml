@@ -391,7 +391,7 @@ glass,1,2,3
 1,glass,glass
 e,2,1
 e,glass,glass
-goal_1,e,e
+goal_1,e,glass
 </level>
 
 <level id=46 par=100 perfect=34>
@@ -640,9 +640,7 @@ e,3,3,1,e
 <attribution name="3" author="Mike"/>
 e,2,2,1,1
 glass,glass,glass,glass,glass
-goal_2,painter_3,e,e,e
-1,painter_3,e,painter_3,e
-e,e,e,painter_3,painter_2
+1:goal_2,e,e,e,painter_2
 glass,glass,glass,glass,glass
 2,2,e,1,1
 </level>
@@ -654,125 +652,6 @@ glass,glass,glass,glass,glass
 2,e,2,glass,e
 e,3,glass,3,goal_1
 2,e,e,goal_1,goal_1
-</level>
-
-<level id=94 par=10 perfect=5>
-<attribution name="2" author="Mike"/>
-goal_2,e,3,goal_1
-e,3,e,3
-e,painter_3,glass,glass
-e,3,e,3
-glass,glass,3,painter_3
-1,e,e,2
-</level>
-
-<level id=95 par=15 perfect=14>
-<attribution name="Split" author="Mike"/>
-painter_4,1,1,e
-painter_2,glass,e,e
-2,2,glass,e
-e,glass,e,e
-3,3,1,e
-goal_4,glass,1:goal_4,goal_4
-</level>
-
-<level id=96 par=11 perfect=10>
-<attribution name="walls" author="Mike"/>
-e,3:painter_3,1:goal_3,glass
-painter_3,glass,glass,painter_2
-glass,e,e,e
-3:goal_2,e,e,glass
-3:goal_2,glass,glass,goal_3
-glass,painter_3,1,e
-</level>
-
-<level id=97 par=16 perfect=15>
-<attribution name="Trapped" author="Mike"/>
-glass,2,glass,2,glass
-2:goal_3,glass,1,glass,painter_3
-e,e,glass,e,e
-e,e,e,e,e
-e,e,glass,e,e
-2:goal_3,glass,1:painter_1,glass,painter_3
-glass,painter_2,1,painter_2,glass
-</level>
-
-<level id=98 par=5 perfect=4>
-<attribution name="Get Bak 3" author="Mike"/>
-3,e,3,glass,painter_3
-1,glass,1,glass,e
-painter_1,e,painter_1,painter_2,e
-e,e,e,glass,e
-1:goal_3,painter_2,e,e,e
-</level>
-
-<level id=99 par=7 perfect=6>
-<attribution name="Buttonssss" author="Mike"/>
-<beamGoal color=1 count=6/>
-2:painter_2,painter_1,glass,painter_1,2:painter_2
-glass,glass,glass,glass,glass
-glass,glass,glass,painter_1,e
-2:painter_2,painter_1,glass,glass,2:painter_2
-glass,e,glass,painter_1,glass
-2:painter_2,painter_1,glass,e,2:painter_2
-</level>
-
-<level id=100 par=0 perfect=0>
-<attribution name="Beams" author="Mike"/>
-<beamGoal color=1 count=10/>
-<beamGoal color=2 count=10/>
-1,e,1,2,painter_2
-e,1,e,e,2
-1,e,e,e,1
-2,2,e,1,glass
-painter_1,2,1,glass,glass
-</level>
-
-<level id=101 par=7 perfect=6>
-<attribution name="TABA3" author="Mike"/>
-e,e,e,e,e
-e,glass,e,glass,e
-e,glass,painter_1,glass,e
-e,2:goal_1,glass,2:goal_1,e
-glass,glass,2,glass,glass
-painter_2,1:painter_1,1,1:painter_1,painter_2
-</level>
-
-<level id=102 par=0 perfect=0>
-<attribution name="Blew" author="Mike"/>
-glass,e,2,3,glass
-1,1,2,3,e
-2,2,e,2,2
-3,3,2,1,1
-glass,e,2,e,glass
-</level>
-
-<level id=103 par=0 perfect=0>
-<attribution name="Green" author="Mike"/>
-1,glass,2,2,2
-1,painter_1,e,painter_3,glass
-1,e,painter_3,e,1
-glass,painter_3,e,painter_1,1
-2,2,2,glass,1
-</level>
-
-<level id=104 par=7 perfect=5>
-<attribution name="Green" author="Mike"/>
-2,e,e,2,goal_3
-e,2,2,e,1
-e,2,e,1,e
-2,e,1,1,e
-3,1,e,e,1
-</level>
-
-<level id=105 par=8 perfect=7>
-<attribution name="TABA4" author="Mike"/>
-goal_1,1,goal_1,1,glass,painter_3
-glass,painter_1,glass,painter_1,e,goal_1
-e,e,glass,e,e,painter_1
-1,e,e,e,glass,1
-glass,e,glass,glass,goal_1,1
-goal_3,1,glass,1,glass,goal_1
 </level>
 
 <level id=106 par=6 perfect=4>
