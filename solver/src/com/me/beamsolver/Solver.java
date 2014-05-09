@@ -68,7 +68,7 @@ public class Solver {
 				false);
 		
 		int world = 9;
-		int ordinalInWorld = 4;
+		int ordinalInWorld = 7;
 		Board toSolve = levelLoader.getLevel(world, ordinalInWorld);
 		Solver solver = new Solver(toSolve, true);
 		System.out.println("Solving level " + world + "-" + ordinalInWorld);
@@ -211,7 +211,7 @@ public class Solver {
 		int heuristic = board.getNumGoalsUnfilled(arrangement.getPieces());
 
 		for (Piece blockingPiece : blockingPieces) {
-			//heuristic += encourageNotPiece(arrangement, blockingPiece);
+			heuristic += encourageNotPiece(arrangement, blockingPiece);
 		}
 
 		if (heuristic > 0) {
