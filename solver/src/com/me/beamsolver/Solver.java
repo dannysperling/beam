@@ -68,7 +68,7 @@ public class Solver {
 				false);
 		
 		int world = 9;
-		int ordinalInWorld = 7;
+		int ordinalInWorld = 4;
 		Board toSolve = levelLoader.getLevel(world, ordinalInWorld);
 		Solver solver = new Solver(toSolve, true);
 		System.out.println("Solving level " + world + "-" + ordinalInWorld);
@@ -211,7 +211,7 @@ public class Solver {
 		int heuristic = board.getNumGoalsUnfilled(arrangement.getPieces());
 
 		for (Piece blockingPiece : blockingPieces) {
-			heuristic += encourageNotPiece(arrangement, blockingPiece);
+			//heuristic += encourageNotPiece(arrangement, blockingPiece);
 		}
 
 		if (heuristic > 0) {
@@ -306,7 +306,9 @@ public class Solver {
 
 	// returns 1 if the piece is the color (which it shouldn't be)
 	private int encourageNotPiece(Arrangement arrangement, Piece p) {
-		return (arrangement.getColorAt(p.getXCoord(), p.getYCoord()) == p.getColor()) ? 1 : 0;
+		return (arrangement.getPiece(p.getXCoord(), p.getYCoord()) != null && 
+				arrangement.getPiece(p.getXCoord(), p.getYCoord()).getColor() == p.getColor()) ? 1
+				: 0;
 	}
 
 	@SuppressWarnings("unused")
@@ -314,7 +316,7 @@ public class Solver {
 		int count = 0;
 		for (int i = 0; i < arrangement.getXSize(); i++) {
 			for (int j = 0; j < arrangement.getYSize(); j++) {
-				if (arrangement.getColorAt(i, j) == color) {
+				if (arrangement.getPiece(i, j) != null && arrangement.getPiece(i, j).getColor() == color) {
 					count++;
 				}
 			}
@@ -349,20 +351,20 @@ public class Solver {
 	}
 
 	private Arrangement reflectHorizontally(Arrangement arrangement) {
-		Color[][] ret = new Color[arrangement.getXSize()][arrangement.getYSize()];
+		Piece[][] ret = new Piece[arrangement.getXSize()][arrangement.getYSize()];
 		for (int x = 0; x < arrangement.getXSize(); x++) {
 			for (int y = 0; y < arrangement.getYSize(); y++) {
-				ret[x][y] = arrangement.getColorAt(arrangement.getXSize() - x - 1, y);
+				ret[x][y] = arrangement.getPiece(arrangement.getXSize() - x - 1, y);
 			}
 		}
 		return new Arrangement(ret);
 	}
 
 	private Arrangement reflectVertically(Arrangement arrangement) {		
-		Color[][] ret = new Color[arrangement.getXSize()][arrangement.getYSize()];
+		Piece[][] ret = new Piece[arrangement.getXSize()][arrangement.getYSize()];
 		for (int x = 0; x < arrangement.getXSize(); x++) {
 			for (int y = 0; y < arrangement.getYSize(); y++) {
-				ret[x][y] = arrangement.getColorAt(x, arrangement.getYSize() - y - 1);
+				ret[x][y] = arrangement.getPiece(x, arrangement.getYSize() - y - 1);
 			}
 		}
 		return new Arrangement(ret);
@@ -372,17 +374,20 @@ public class Solver {
 		Set<Arrangement> newStates = new HashSet<Arrangement>();
 		for (int i = 0; i < arrangement.getXSize(); i++) {
 			for (int j = 0; j < arrangement.getYSize(); j++) {
-				if (arrangement.getColorAt(i, j) != null) {
-					Piece p = arrangement.getPieceAt(i, j);
+				if (arrangement.getPiece(i, j) != null) {
+					Piece p = arrangement.getPiece(i, j);
 
 					// To avoid exponential explosion on painter levels,
 					// we'll store what pieces have been searched on:
 					this.searchesCompleted = new HashSet<Piece>();
 
 					// Temporarily remove p from the pieces.
-					Arrangement temp = arrangement.mask(i, j);
+					arrangement.mask(p.getXCoord(), p.getYCoord());
 
-					newStates.addAll(getMoves(temp, p, false));
+					newStates.addAll(getMoves(arrangement, p, false));
+
+					// Add p back to the pieces so there are no side effects.
+					arrangement.unmask(p.getXCoord(), p.getYCoord());
 				}
 			}
 		}
@@ -491,16 +496,16 @@ public class Solver {
 	private void fillMoveStates(Set<Arrangement> moveStates, List<Point> moves,
 			Arrangement arrangement, Color color) {
 		for (Point movePoint : moves) {
-			Color[][] copy = new Color[board.getNumHorizontalTiles()][board
+			Piece[][] copy = new Piece[board.getNumHorizontalTiles()][board
 					.getNumVerticalTiles()];
 			for (int i = 0; i < copy.length; i++) {
 				for (int j = 0; j < copy[0].length; j++) {
-					copy[i][j] = arrangement.getColorAt(i, j);
+					copy[i][j] = arrangement.getPiece(i, j);
 				}
 			}
 			int x = movePoint.x;
 			int y = movePoint.y;
-			copy[x][y] = color;
+			copy[x][y] = new Piece(x, y, color);
 			moveStates.add(new Arrangement(copy));
 		}
 	}
@@ -573,9 +578,9 @@ public class Solver {
 
 		// Slide left
 		for (int xPos = PX - 1; xPos >= 0; xPos--) {
-			Color possible = arrangement.getColorAt(xPos, PY);
+			Piece possible = arrangement.getPiece(xPos, PY);
 			if (possible != null) {
-				if (possible == p.getColor()) {
+				if (possible.getColor() == p.getColor()) {
 					if (destroyPossible) {
 						return true;
 					}
@@ -589,9 +594,9 @@ public class Solver {
 
 		// Slide right
 		for (int xPos = PX + 1; xPos < arrangement.getXSize(); xPos++) {
-			Color possible = arrangement.getColorAt(xPos, PY);
+			Piece possible = arrangement.getPiece(xPos, PY);
 			if (possible != null) {
-				if (possible == p.getColor()) {
+				if (possible.getColor() == p.getColor()) {
 					if (destroyPossible) {
 						return true;
 					}
@@ -605,9 +610,9 @@ public class Solver {
 
 		// Slide down
 		for (int yPos = PY - 1; yPos >= 0; yPos--) {
-			Color possible = arrangement.getColorAt(PX, yPos);
+			Piece possible = arrangement.getPiece(PX, yPos);
 			if (possible != null) {
-				if (possible == p.getColor()) {
+				if (possible.getColor() == p.getColor()) {
 					if (destroyPossible) {
 						return true;
 					}
@@ -621,9 +626,9 @@ public class Solver {
 
 		// Slide up
 		for (int yPos = PY + 1; yPos < arrangement.getYSize(); yPos++) {
-			Color possible = arrangement.getColorAt(PX, yPos);
+			Piece possible = arrangement.getPiece(PX, yPos);
 			if (possible != null) {
-				if (possible == p.getColor()) {
+				if (possible.getColor() == p.getColor()) {
 					if (destroyPossible) {
 						return true;
 					}
@@ -646,10 +651,10 @@ public class Solver {
 		// Slide to left
 		for (; leftColor == Color.NONE && xPos >= 0; xPos--) {
 
-			Color atLeft = arrangement.getColorAt(xPos, yPos);
+			Piece atLeft = arrangement.getPiece(xPos, yPos);
 
 			if (atLeft != null) {
-				leftColor = atLeft;
+				leftColor = atLeft.getColor();
 			}
 		}
 
@@ -661,10 +666,10 @@ public class Solver {
 			// Slide to the right
 			for (; rightColor == Color.NONE && xPos < arrangement.getXSize(); xPos++) {
 
-				Color atRight = arrangement.getColorAt(xPos, yPos);
+				Piece atRight = arrangement.getPiece(xPos, yPos);
 
 				if (atRight != null) {
-					rightColor = atRight;
+					rightColor = atRight.getColor();
 				}
 			}
 			// Criss cross
@@ -681,10 +686,10 @@ public class Solver {
 		// Step up
 		for (; topColor == Color.NONE && yPos >= 0; yPos--) {
 
-			Color atTop = arrangement.getColorAt(xPos, yPos);
+			Piece atTop = arrangement.getPiece(xPos, yPos);
 
 			if (atTop != null) {
-				topColor = atTop;
+				topColor = atTop.getColor();
 			}
 		}
 
@@ -696,10 +701,10 @@ public class Solver {
 			// Step down
 			for (; botColor == Color.NONE && yPos < arrangement.getYSize(); yPos++) {
 
-				Color atBot = arrangement.getColorAt(xPos, yPos);
+				Piece atBot = arrangement.getPiece(xPos, yPos);
 
 				if (atBot != null) {
-					botColor = atBot;
+					botColor = atBot.getColor();
 				}
 			}
 			// Criss cross
