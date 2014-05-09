@@ -1,6 +1,5 @@
 package com.me.beamsolver;
 
-import controller.GameEngine;
 import controller.GameEngine.Color;
 import model.Board;
 import model.Piece;
@@ -21,6 +20,18 @@ public class Arrangement {
 		}
 		if (pieces == null) {
 			pieces = new Piece[ps.length][ps[0].length];
+		}
+	}
+	
+	public Arrangement(Color[][] colors) {
+		this.colors = new Color[colors.length][colors[0].length];
+		for (int i = 0; i < colors.length; i++) {
+			for (int j = 0; j < colors[0].length; j++) {
+				this.colors[i][j] = colors[i][j];
+			}
+		}
+		if (pieces == null) {
+			pieces = new Piece[colors.length][colors[0].length];
 		}
 	}
 	
@@ -46,7 +57,14 @@ public class Arrangement {
 		return colors[0].length;
 	}
 	
-	public Piece getPiece(int x, int y) {
+	public Color getColorAt(int x, int y) {
+		if (colors[x][y] == null) {
+			return null;
+		}
+		return colors[x][y];
+	}
+	
+	public Piece getPieceAt(int x, int y) {
 		if (colors[x][y] == null) {
 			return null;
 		}
@@ -88,9 +106,9 @@ public class Arrangement {
 		for (int i = 0; i < colors.length; i++) {
 			for (int j = 0; j < colors[0].length; j++) {
 				if (colors[i][j] == null) {
-					return a2.getPiece(i, j) == null;
+					return a2.getColorAt(i, j) == null;
 				}
-				if (colors[i][j] != a2.getPiece(i, j).getColor()) {
+				if (colors[i][j] != a2.getColorAt(i, j)) {
 					return false;
 				}
 			}
