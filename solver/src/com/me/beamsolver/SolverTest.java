@@ -106,7 +106,7 @@ public class SolverTest {
 		Solver solver = new Solver(toSolve, false);
 		solver.solve();
 		if (solver.getMovesNeeded() != toSolve.perfect) {
-			System.err.println("Level " + world + "-" + ordinalInWorld + " failed!");
+			System.out.println("Level " + world + "-" + ordinalInWorld + " failed!");
 		} else {
 			System.out.println("Level " + world + "-" + ordinalInWorld + " passed.");
 		}

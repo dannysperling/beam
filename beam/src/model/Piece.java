@@ -69,13 +69,17 @@ public class Piece {
 	@Override
 	public String toString() {
 		if(color == GameEngine.Color.ORANGE) {
-			return "R";
+			return "O";
 		} else if(color == GameEngine.Color.PURPLE) {
-			return "G";
+			return "P";
 		} else if(color == GameEngine.Color.BLUE) {
 			return "B";
+		} else if(color == GameEngine.Color.GREEN){
+			return "G";
+		} else if(color == GameEngine.Color.BLACK){
+			return "L";
 		} else {
-			return "_";
+			return "-";
 		}
 	}
 }

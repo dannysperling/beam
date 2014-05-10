@@ -68,7 +68,7 @@ public class Solver {
 				false);
 		
 		int world = 9;
-		int ordinalInWorld = 4;
+		int ordinalInWorld = 7;
 		Board toSolve = levelLoader.getLevel(world, ordinalInWorld);
 		Solver solver = new Solver(toSolve, true);
 		System.out.println("Solving level " + world + "-" + ordinalInWorld);

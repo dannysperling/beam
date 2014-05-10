@@ -117,9 +117,9 @@ public class Constants {
 		case PURPLE:
 			return new Color(147 / 255f, 29 / 255f, 186 / 255f, 1);
 		case GREEN:
-			return new Color(255 / 255.0f, 150 / 255.0f, 20 / 255.0f, 1);
+			return new Color(10 / 255.0f, 220 / 255.0f, 10 / 255.0f, 1);
 		case BLACK:
-			return new Color(.6f, 0, .6f, 1);
+			return new Color(0, 0, 0, 1);
 		default:
 			return new Color(0, 0, 0, 0);
 		}

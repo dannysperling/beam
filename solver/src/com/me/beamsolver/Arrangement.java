@@ -79,18 +79,18 @@ public class Arrangement {
 	
 	@Override
 	public String toString() {
-		String temp = "";
+		StringBuffer temp = new StringBuffer();
 		for (int i = pieces[0].length - 1; i >= 0; i--) {
 			for (int j = 0; j < pieces.length; j++) {
 				if (pieces[j][i] == null) {
-					temp += "_";
+					temp.append("_");
 				} else {
-					temp += pieces[j][i].toString();
+					temp.append(pieces[j][i].toString());
 				}
 			}
-			temp += "\n";
+			temp.append("\n");
 		}
-		return temp;
+		return temp.toString();
 	}
 	
 	@Override
