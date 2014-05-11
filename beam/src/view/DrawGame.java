@@ -1836,12 +1836,12 @@ public class DrawGame {
 						GL10.GL_ONE_MINUS_SRC_ALPHA);
 				shapes.begin(ShapeType.Filled);
 				float alpha = 0.9f;
-				shapes.setColor(new Color(.666f, 0, 0, alpha));
+				shapes.setColor(new Color(0, 0, 0, alpha));
 				shapes.rect(bx, by, tilesize * b.getNumHorizontalTiles(),
 						tilesize * b.getNumVerticalTiles());
 				shapes.end();
 				batch.begin();
-				curFont.setColor(new Color(0, 0, 0, 1));
+				curFont.setColor(Constants.BOARD_COLOR);
 				tb = curFont.getMultiLineBounds(gameOverText);
 				curFont.drawMultiLine(
 						batch,
@@ -1860,12 +1860,12 @@ public class DrawGame {
 				shapes.begin(ShapeType.Filled);
 				float alpha = 0.9f * ((float) (GameEngine.getTimeDead()) / GameEngine
 						.getTimeBeforeDeathBeam());
-				shapes.setColor(new Color(.666f, 0, 0, alpha));
+				shapes.setColor(new Color(0, 0, 0, alpha));
 				shapes.rect(bx, by, tilesize * b.getNumHorizontalTiles(),
 						tilesize * b.getNumVerticalTiles());
 				shapes.end();
 				batch.begin();
-				curFont.setColor(new Color(0, 0, 0, alpha * 1.111f));
+				curFont.setColor(new Color(.95f, .95f, .9f, alpha * 1.111f));
 				tb = curFont.getMultiLineBounds(gameOverText);
 				curFont.drawMultiLine(
 						batch,

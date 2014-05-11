@@ -398,6 +398,7 @@ public class GameEngine implements ApplicationListener {
 					case LEVEL_TO_MENU_TRANSITION:
 						if(timeSpentLeavingLevel >= Constants.TIME_FOR_MENU_TRANSITION){
 							state = GameState.IDLE;
+							dm.updateBoardSprite(b);
 						} else {
 							timeSpentLeavingLevel++;
 						}
@@ -926,6 +927,8 @@ public class GameEngine implements ApplicationListener {
 
 		// Load the world
 		b = levelLoader.getLevel(world, ordinalInWorld);
+		dm.updateBoardSprite(b);
+
 		if (b == null) {
 			debug("No further levels exist.");
 			System.exit(1);
