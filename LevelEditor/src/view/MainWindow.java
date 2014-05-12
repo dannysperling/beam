@@ -2,6 +2,7 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -37,6 +38,9 @@ import main.EditorModel;
 import model.Board;
 import model.Piece;
 import model.Tile;
+
+import com.me.beamsolver.Solver;
+
 import controller.GameEngine;
 import extras.QualityAnalysis;
 
@@ -67,6 +71,7 @@ public class MainWindow extends JFrame implements MouseListener {
 	JButton buttonMinusCol = new JButton("Remove Column");
 	JButton buttonClipLoad = new JButton("Load text");
 	JButton buttonClipExp = new JButton("Export text");
+	JButton buttonSolve = new JButton("Solve");
 	// /
 	JComboBox<GameEngine.Color> colorDropdown;
 	SpinnerModel spinPerfModel;
@@ -149,6 +154,7 @@ public class MainWindow extends JFrame implements MouseListener {
 		toolBar.add(jrbGlass);
 		toolBar.add(jrbPainter);
 		toolBar.add(jrbGoal);
+		toolBar.add(buttonSolve);
 		// //
 		radioGroup.add(jrbPiece);
 		radioGroup.add(jrbGlass);
@@ -226,7 +232,8 @@ public class MainWindow extends JFrame implements MouseListener {
 				String retVal;
 				retVal = JOptionPane.showInputDialog(
 						MainWindow.this,
-						"Enter the id or title of the level you wish to load",
+						"Enter the world-ordinal, unique id, or title of the level you wish to load.\n"+
+						"Example: \"1-1\", \"37\", or \"Moving and goals\"",
 						"Select level", JOptionPane.QUESTION_MESSAGE);
 				if (retVal == null || retVal.isEmpty()) {
 					return;
@@ -234,7 +241,12 @@ public class MainWindow extends JFrame implements MouseListener {
 				try {
 					id = Integer.parseInt(retVal);
 				} catch (NumberFormatException ex) {
-					id = m.levelIO.idlookup(retVal);
+					if (retVal.matches("\\d+\\-\\d+")){
+						String[] split = retVal.split("\\-");
+						id = m.levelIO.getLevelByWorld(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
+					} else {
+						id = m.levelIO.idlookup(retVal);
+					}
 					if (id == -1){
 						JOptionPane.showMessageDialog(MainWindow.this,
 								"Sorry, level \""+retVal.trim()+"\" could not be found",
@@ -266,6 +278,17 @@ public class MainWindow extends JFrame implements MouseListener {
 				new NewWindow(model, MainWindow.this);
 				saved = false;
 			}
+		});
+		///
+		buttonSolve.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				MainWindow.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				new SolutionWindow(MainWindow.this.model.b);
+				MainWindow.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			}
+			
 		});
 		///
 		buttonClipExp.addActionListener(new ActionListener() {

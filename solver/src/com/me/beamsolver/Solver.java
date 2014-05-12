@@ -145,6 +145,43 @@ public class Solver {
 			System.out.println(solutionTrace.get(i));
 		}
 	}
+	
+	/**
+	 * Returns a pretty-printed string of the solution sequence
+	 * @return
+	 */
+	public String getSolutionTrace() {
+		StringBuffer sb = new StringBuffer();
+		if (!solved) {
+			solve();
+		}
+		if (solution == null) {
+			return null;
+		}
+		List<Arrangement> solutionTrace = new ArrayList<Arrangement>();
+		solutionTrace.add(solution);
+		Arrangement pieces = solution;
+		for (int moves = getMovesNeeded() - 1; moves > 0; moves--) {
+			Set<Arrangement> possibleMoves = getAllMoves(pieces);
+			for (Arrangement move : possibleMoves) {
+				Integer temp = getMovesToReach(move);
+				if (temp == null) {
+					continue;
+				}
+				if (temp == moves) {
+					solutionTrace.add(move);
+					pieces = move;
+					break;
+				}
+			}
+		}
+		solutionTrace.add(originalArrangement);
+		for (int i = solutionTrace.size() - 1; i >= 0; i--) {
+			sb.append("Move: " + (solutionTrace.size() - 1 - i)+"\n");
+			sb.append(solutionTrace.get(solutionTrace.size() - 1 - i)+"\n");
+		}
+		return sb.toString();
+	}
 
 	public void solve() {
 		this.originalArrangement = new Arrangement(board.getPieces());
