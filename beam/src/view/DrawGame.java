@@ -43,8 +43,6 @@ public class DrawGame {
 	private Sprite pieceSprite;
 	private Texture nPieceTexture;
 	private Sprite nPieceSprite;
-	private Texture bangTexture;
-	private Sprite bangSprite;
 	private Texture threeStarTexture;
 	private Sprite threeStarSprite;
 	private Texture oneStarTexture;
@@ -66,19 +64,16 @@ public class DrawGame {
 	private Animation destroyAnimation;
 	private float destroyAnimateTime = 0;
 	
-	
-	BitmapFont titleFont;
-	BitmapFont titleFontNoBest;
-	BitmapFont menuButtonFont;
-	BitmapFont introFont;
-	BitmapFont levelNameFont;
-	BitmapFont movesFont;
-	BitmapFont moveWordFont;
-	BitmapFont beamGoalFont;
-	BitmapFont gameButtonFont;
-	BitmapFont nonGameMButtonFont;
-	BitmapFont starGoalFont;
-	BitmapFont nonGameNLButtonFont;
+	private BitmapFont introFont;
+	private BitmapFont levelNameFont;
+	private BitmapFont movesFont;
+	private BitmapFont moveWordFont;
+	private BitmapFont beamGoalFont;
+	private BitmapFont gameButtonFont;
+	private BitmapFont nonGameMButtonFont;
+	private BitmapFont starGoalFont;
+	private BitmapFont nonGameNLButtonFont;
+
 	private Texture painterTexture;
 
 	private Sprite painterSprite;
@@ -90,36 +85,22 @@ public class DrawGame {
 
 		nPieceTexture = AssetInitializer.getTexture(AssetInitializer.npiece);
 
-		//pieceTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-
 		painterTexture = AssetInitializer.getTexture(AssetInitializer.painter);
-		//painterTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-
-		bangTexture = AssetInitializer.getTexture(AssetInitializer.bangbang);
-		//bangTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		lockTexture = AssetInitializer.getTexture(AssetInitializer.lock);
-		//lockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		infoTexture = AssetInitializer.getTexture(AssetInitializer.info);
-		//infoTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		tutorialTexture = AssetInitializer.getTexture(AssetInitializer.tutorial);
-		//tutorialTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		threeStarTexture = AssetInitializer.getTexture(AssetInitializer.three_star);
-		//threeStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		oneStarTexture = AssetInitializer.getTexture(AssetInitializer.one_star);
-		//oneStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		twoStarTexture = AssetInitializer.getTexture(AssetInitializer.two_star);
 		
 		innerBurnTexture = AssetInitializer.getTexture(AssetInitializer.innerburn);
 		outerBurnTexture = AssetInitializer.getTexture(AssetInitializer.outerburn);
- 
-
-
 
 		TextureRegion pieceregion = new TextureRegion(pieceTexture, 0, 0, 256,
 				256);
@@ -130,8 +111,6 @@ public class DrawGame {
 		TextureRegion npieceregion = new TextureRegion(nPieceTexture, 0, 0, 256,
 				256);
 		TextureRegion painterregion = new TextureRegion(painterTexture, 0, 0, 256,
-				256);
-		TextureRegion bangregion = new TextureRegion(bangTexture, 0, 0, 256,
 				256);
 		TextureRegion inforegion = new TextureRegion(infoTexture, 0, 0, 256,
 				256);
@@ -157,7 +136,6 @@ public class DrawGame {
 		pieceSprite = new Sprite(pieceregion);
 		nPieceSprite = new Sprite(npieceregion);
 		painterSprite = new Sprite(painterregion);
-		bangSprite = new Sprite(bangregion);
 		threeStarSprite = new Sprite(threestarregion);
 		oneStarSprite = new Sprite(onestarregion);
 		lockSprite = new Sprite(lockregion);
@@ -173,26 +151,26 @@ public class DrawGame {
 	public void initFonts() {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
 				Gdx.files.internal("data/fonts/swanse.ttf"));
-		titleFont = generator.generateFont(Gdx.graphics.getHeight() / 28);
-		titleFontNoBest = generator.generateFont(Gdx.graphics.getHeight() / 25);
-		menuButtonFont = generator.generateFont(Gdx.graphics.getHeight() / 45);
-		introFont = generator.generateFont(Gdx.graphics.getHeight() / 20);
-		levelNameFont = generator.generateFont((int) (Gdx.graphics.getHeight()
+		
+		int h = Gdx.graphics.getHeight();
+
+		introFont = generator.generateFont(h / 20);
+		levelNameFont = generator.generateFont((int) (h
 				* Constants.TOP_BAR_SIZE * 0.8f));
-		starGoalFont = generator.generateFont((int) (Gdx.graphics.getHeight()
-				* Constants.TOP_BAR_SIZE * 0.5f));
-		moveWordFont = generator.generateFont((int) (Gdx.graphics.getHeight()
-				* Constants.TOP_BAR_SIZE * 0.2f));
-		movesFont = generator.generateFont((int) (Gdx.graphics.getHeight()
-				* Constants.TOP_BAR_SIZE * 0.45f));
-		beamGoalFont = generator.generateFont((int) (Gdx.graphics.getHeight()
+		starGoalFont = generator
+				.generateFont((int) (h * Constants.TOP_BAR_SIZE * 0.5f));
+		moveWordFont = generator
+				.generateFont((int) (h * Constants.TOP_BAR_SIZE * 0.2f));
+		movesFont = generator
+				.generateFont((int) (h * Constants.TOP_BAR_SIZE * 0.45f));
+		beamGoalFont = generator.generateFont((int) (h
 				* Constants.BEAM_GOAL_HEIGHT * 0.5f));
-		gameButtonFont = generator.generateFont((int) (Gdx.graphics.getHeight()
+		gameButtonFont = generator.generateFont((int) (h
 				* Constants.GAME_BUTTON_HEIGHT * 0.7f));
-		nonGameMButtonFont = generator.generateFont((int) (Gdx.graphics
-				.getHeight() * Constants.NON_GAME_BUTTON_HEIGHT * 0.7f));
-		nonGameNLButtonFont = generator.generateFont((int) (Gdx.graphics
-				.getHeight() * Constants.NON_GAME_BUTTON_HEIGHT * 0.5f));
+		nonGameMButtonFont = generator.generateFont((int) (h
+				* Constants.NON_GAME_BUTTON_HEIGHT * 0.7f));
+		nonGameNLButtonFont = generator.generateFont((int) (h
+				* Constants.NON_GAME_BUTTON_HEIGHT * 0.5f));
 
 		generator.dispose();
 	}
@@ -1534,6 +1512,7 @@ public class DrawGame {
 			}
 		}
 		float allowedImageSpace = height - textHeight;
+		imageHeight = Math.min(imageHeight, 0.9f * width);
 		float imageFactor = Math.min(1.0f, allowedImageSpace / imageHeight);
 		float totalHeight = textHeight
 				+ (imageHeight * imageFactor)
@@ -1582,8 +1561,8 @@ public class DrawGame {
 				int frame = (int) ((GameEngine.timeSpentOnTutorial / Constants.TUTORIAL_TICKS_PER_FRAME) % tutorial
 						.getImageElementAt(i).size());
 				Sprite toDraw = tutorial.getImageElementAt(i).get(frame);
-				toDraw.setSize(toDraw.getWidth() * imageFactor,
-						toDraw.getHeight() * imageFactor);
+				toDraw.setSize(imageHeight * imageFactor,
+						imageHeight * imageFactor);
 				curHeight -= toDraw.getHeight();
 				toDraw.setPosition(
 						(((width * 0.9f) - toDraw.getWidth()) / 2.0f)
@@ -1981,13 +1960,12 @@ public class DrawGame {
 	 * Disposes any batches, textures, and fonts being used
 	 */
 	public void dispose() {
+		//TODO: make sure everything that needs to be here is here.
+		
 		batch.dispose();
 		pieceTexture.dispose();
-		titleFont.dispose();
-		titleFontNoBest.dispose();
 		nonGameMButtonFont.dispose();
 		nonGameNLButtonFont.dispose();
-		menuButtonFont.dispose();
 	}
 
 }
