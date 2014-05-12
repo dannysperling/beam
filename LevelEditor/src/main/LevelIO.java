@@ -69,7 +69,7 @@ public class LevelIO {
 		}
 		Pattern pat = Pattern.compile("<attribution name=\\\"(.*)\\\" author=\\\"(.*)\\\"/>");
 		Matcher mat = pat.matcher(spec);
-		if (mat.find()){
+		if (model!= null && mat.find()){
 			model.workingTitle = mat.group(1);
 			model.workingAuthor = mat.group(2);
 		}

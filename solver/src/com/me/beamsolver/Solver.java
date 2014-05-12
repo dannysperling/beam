@@ -67,8 +67,8 @@ public class Solver {
 				"../beam-android/assets/data/levels/levels.xml", levelOrderer,
 				false);
 		
-		int world = 9;
-		int ordinalInWorld = 7;
+		int world = 12;
+		int ordinalInWorld = 3;
 		Board toSolve = levelLoader.getLevel(world, ordinalInWorld);
 		Solver solver = new Solver(toSolve, true);
 		System.out.println("Solving level " + world + "-" + ordinalInWorld);

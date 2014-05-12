@@ -808,3 +808,45 @@ e,glass,e,e,glass,e
 3,glass,3,3,glass,3
 2,glass,goal_2,goal_2,glass,2
 </level>
+
+
+
+<level id=120 par=15 perfect=9>
+<attribution name="Cantor" author="Reese"/>
+<beamGoal color=1 count=0/>
+<beamGoal color=2 count=0/>
+<beamGoal color=3 count=0/>
+<beamGoal color=4 count=0/>
+<beamGoal color=5 count=0/>
+1:goal_2,e,e,2
+e,1:goal_2,2,e
+e,2,1:goal_1,e
+2,e,e,1:goal_1
+</level>
+
+
+
+
+
+
+
+
+
+
+
+<level id=121 par=14 perfect=10>
+<attribution name="This one broke the solver" author="Reese"/>
+<beamGoal color=1 count=4/>
+<beamGoal color=2 count=4/>
+1,1,painter_1,painter_2
+1:goal_2,1,2,2
+glass,glass,2,glass
+e,e,e,2
+</level>
+
+<level id=122 par=13 perfect=9>
+<attribution name="Ode to Conway" author="Reese"/>
+e,1:goal_2,1
+2:goal_1,2:goal_2,1:goal_2
+goal_1,2:goal_1,e
+</level>

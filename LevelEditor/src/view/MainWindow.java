@@ -37,8 +37,8 @@ import main.EditorModel;
 import model.Board;
 import model.Piece;
 import model.Tile;
-
 import controller.GameEngine;
+import extras.QualityAnalysis;
 
 public class MainWindow extends JFrame implements MouseListener {
 	/**
@@ -523,7 +523,7 @@ public class MainWindow extends JFrame implements MouseListener {
 			sm.setValue(model.b.getBeamObjectiveCount(c));
 		}
 		labelCurLevel.setText(model.fileName() + " - " + model.idString()
-				+ (saved ? "" : "*"));
+				+ (saved ? "" : "*")+"\t\t SLQF: "+QualityAnalysis.getSLQF(model.b));
 		this.repaint();
 	}
 
