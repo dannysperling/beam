@@ -758,7 +758,6 @@ public class GameEngine implements ApplicationListener {
 			else {
 				// Get the board where it should be now
 				if (currentAnimationState != AnimationState.DESTRUCTION && state != GameState.DESTROYED){
-					System.out.println("damn.");
 					goBackToTheFuture();
 				}
 

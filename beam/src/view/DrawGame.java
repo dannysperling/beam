@@ -1534,6 +1534,7 @@ public class DrawGame {
 			}
 		}
 		float allowedImageSpace = height - textHeight;
+		imageHeight = Math.min(imageHeight, 0.9f * width);
 		float imageFactor = Math.min(1.0f, allowedImageSpace / imageHeight);
 		float totalHeight = textHeight
 				+ (imageHeight * imageFactor)
@@ -1582,8 +1583,8 @@ public class DrawGame {
 				int frame = (int) ((GameEngine.timeSpentOnTutorial / Constants.TUTORIAL_TICKS_PER_FRAME) % tutorial
 						.getImageElementAt(i).size());
 				Sprite toDraw = tutorial.getImageElementAt(i).get(frame);
-				toDraw.setSize(toDraw.getWidth() * imageFactor,
-						toDraw.getHeight() * imageFactor);
+				toDraw.setSize(imageHeight * imageFactor,
+						imageHeight * imageFactor);
 				curHeight -= toDraw.getHeight();
 				toDraw.setPosition(
 						(((width * 0.9f) - toDraw.getWidth()) / 2.0f)
