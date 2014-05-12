@@ -85,33 +85,22 @@ public class DrawGame {
 
 		nPieceTexture = AssetInitializer.getTexture(AssetInitializer.npiece);
 
-		//pieceTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-
 		painterTexture = AssetInitializer.getTexture(AssetInitializer.painter);
-		//painterTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		lockTexture = AssetInitializer.getTexture(AssetInitializer.lock);
-		//lockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		infoTexture = AssetInitializer.getTexture(AssetInitializer.info);
-		//infoTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		tutorialTexture = AssetInitializer.getTexture(AssetInitializer.tutorial);
-		//tutorialTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		threeStarTexture = AssetInitializer.getTexture(AssetInitializer.three_star);
-		//threeStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		oneStarTexture = AssetInitializer.getTexture(AssetInitializer.one_star);
-		//oneStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		twoStarTexture = AssetInitializer.getTexture(AssetInitializer.two_star);
 		
 		innerBurnTexture = AssetInitializer.getTexture(AssetInitializer.innerburn);
 		outerBurnTexture = AssetInitializer.getTexture(AssetInitializer.outerburn);
- 
-
-
 
 		TextureRegion pieceregion = new TextureRegion(pieceTexture, 0, 0, 256,
 				256);
