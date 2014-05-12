@@ -45,7 +45,7 @@ public class MainWindow extends JFrame implements MouseListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	boolean saved = false;
+	boolean saved = true;
 	JPanel mainPanel = new JPanel();
 	JPanel toolBar = new JPanel();
 	JPanel sideBar = new JPanel();
@@ -84,7 +84,7 @@ public class MainWindow extends JFrame implements MouseListener {
 	EditorModel model;
 
 	public MainWindow(final EditorModel m) {
-		saved = false;
+		saved = true;
 		model = m;
 		// /
 		boardPanel = new BoardPanel();
@@ -173,6 +173,8 @@ public class MainWindow extends JFrame implements MouseListener {
 			snm.addChangeListener(new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent arg0) {
+					if (model.b.getBeamObjectiveCount(c) == (int)snm.getValue())
+						return;
 					model.b.addBeamObjective(c, (int) snm.getValue());
 					saved = false;
 				}
@@ -196,7 +198,7 @@ public class MainWindow extends JFrame implements MouseListener {
 		boardPanel.setBackground(new Color(255, 255, 240));
 		boardPanel.setForeground(Color.BLACK);
 		boardPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE, 3));
-		mainPanel.setBackground(new Color(75, 100, 150));
+		mainPanel.setBackground(/*new Color(75, 100, 150)*/new Color(10,72,13));
 		boardHolder.setBackground(mainPanel.getBackground());
 		mainPanel.add(new JLabel(""), BorderLayout.WEST);
 		toolBar.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
@@ -251,6 +253,8 @@ public class MainWindow extends JFrame implements MouseListener {
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
+				spinParModel.setValue(model.b.par);
+				spinPerfModel.setValue(model.b.perfect);
 				saved = true;
 				update();
 			}

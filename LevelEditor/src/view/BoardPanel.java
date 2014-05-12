@@ -35,15 +35,15 @@ public class BoardPanel extends JPanel{
 	public static Color translateColor(GameEngine.Color c) {
 		switch (c) {
 		case ORANGE:
-			return new Color(1, .133f, .133f, 1);
+			return new Color(1, .533f, .133f, 1);
 		case BLUE:
-			return new Color(.133f, .337f, 1, 1);
+			return new Color(.333f, .437f, 1, 1);
 		case PURPLE:
-			return new Color(.133f, 1, .177f, 1);
-		case GREEN:
-			return new Color(255,150,20);
-		case BLACK:
 			return Color.magenta.darker();
+		case GREEN:
+			return new Color(10,150,10);
+		case BLACK:
+			return Color.black;
 		default:
 			return new Color(0, 0, 0, 0);	
 		}
@@ -86,10 +86,11 @@ public class BoardPanel extends JPanel{
 		// Draw the tiles
 		for (Tile t : tiles) {
 			if (t.hasGlass()) {
-				g.setColor(this.getForeground());
+				g.setColor(Color.DARK_GRAY);
 				int glassX = bx + (t.getXCoord() * tilesize);
 				int glassY = by + (t.getYCoord() * tilesize);
-				g.drawLine(glassX,(int)( glassY + (0.25f * tilesize)),(int)( glassX
+				g.fillRect(glassX, glassY, tilesize, tilesize);
+				/*g.drawLine(glassX,(int)( glassY + (0.25f * tilesize)),(int)( glassX
 						+ (0.25f * tilesize)), glassY);
 				g.drawLine(glassX, (int)(glassY + (0.5f * tilesize)), (int)(glassX
 						+ (0.5f * tilesize)), glassY);
@@ -102,7 +103,7 @@ public class BoardPanel extends JPanel{
 				g.drawLine((int)(glassX + (0.5f * tilesize)), glassY + tilesize,
 						glassX + tilesize, (int)(glassY + (0.5f * tilesize)));
 				g.drawLine((int)(glassX + (0.75f * tilesize)), glassY + tilesize,
-						glassX + tilesize, (int)(glassY + (0.75f * tilesize)));
+						glassX + tilesize, (int)(glassY + (0.75f * tilesize)));*/
 			}
 		}
 		for (Tile t : tiles) {
