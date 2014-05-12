@@ -14,6 +14,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 
 import controller.GameEngine.GameState;
+import controller.GameEngine.TitleOption;
 
 public class InputHandler {
 
@@ -22,7 +23,7 @@ public class InputHandler {
 	 * accordingly.
 	 */
 	private GameEngine.ButtonPress buttonDown = GameEngine.ButtonPress.NONE;
-	
+
 	/**
 	 * Private helper methods to get the current relevant (x,y) touch position
 	 * of the user.
@@ -68,7 +69,7 @@ public class InputHandler {
 			}
 			return GameState.TUTORIAL;
 		}
-		
+
 		/* Can remove info once it's gotten to the bottom */
 		if(state == GameState.INFO && Gdx.input.isTouched()){
 			if (GameEngine.timeToStopInfo == Integer.MAX_VALUE && GameEngine.timeSpentOnInfo >= Constants.TUTORIAL_IN_TIME){
@@ -76,7 +77,7 @@ public class InputHandler {
 			}
 			return GameState.INFO;
 		}
-		
+
 		/* Handles input if the player is already touching a piece. */
 		if (state == GameEngine.GameState.DECIDING) {
 			//Either still touching - set path
@@ -88,11 +89,11 @@ public class InputHandler {
 				return onRelease();
 			}
 		}
-		
+
 		//If no input, return the same state
 		return state;
 	}
-	
+
 	/**
 	 * Handles the user's first press down onto the board. If the user touches a piece,
 	 * select it and enter deciding state.
@@ -156,7 +157,7 @@ public class InputHandler {
 		Tile destination = b.getTileAtClickPosition(getX(), getY());
 		// Ensure the user is still pressing on a valid tile.
 		if (destination != null) {
-			
+
 			//Get where they were and where they're going
 			Tile source = GameEngine.movePath.get(GameEngine.movePath.size() - 1);
 
@@ -184,7 +185,7 @@ public class InputHandler {
 				if (isValidMove(b, source, destination)) {
 					GameEngine.movePath.add(destination);
 				} else if (intervening != null) {
-					
+
 					//If intervening was already on the path, chop back to that point
 					i = GameEngine.movePath.indexOf(intervening);
 					if (i != -1) {
@@ -230,7 +231,7 @@ public class InputHandler {
 	 * returns null.
 	 */
 	private Tile findValidDiagonal(Board b, Tile source, Tile destination) {
-		
+
 		//Check to ensure the destination is empty and the move from the source to
 		//the destination is in fact diagonal
 		if (!(isEmptyTile(b, destination) && isMoveDiagonal(source, destination))) {
@@ -243,7 +244,7 @@ public class InputHandler {
 		if (isEmptyTile(b, verticalIntervening)) {
 			return verticalIntervening;
 		}
-		
+
 		//Then check horizontal path
 		Tile horizontalIntervening = b.getTileAtBoardPosition(
 				destination.getXCoord(), source.getYCoord());
@@ -270,23 +271,23 @@ public class InputHandler {
 				|| (Math.abs(t2.getYCoord() - t1.getYCoord()) == 1 && t1
 				.getXCoord() == t2.getXCoord());
 	}
-	
-	
-	
-	
-	
+
+
+
+
+
 	/*******************************************************************************/
 
-	
-	
-	
+
+
+
 
 	/**
 	 * Code in this section handles button presses during the game or win menu
 	 */
 	private boolean backClicked = false;
 	private boolean backDown = false;
-	
+
 	/**
 	 * Handle pressing the back button. Consider a press-release to be a valid
 	 * back button press, even if the user moved their finger off of the back
@@ -328,9 +329,9 @@ public class InputHandler {
 			backClicked = false;
 			return GameEngine.ButtonPress.MENU;
 		}
-		
+
 		GameEngine.ButtonPress returnedButton;
-		
+
 		// If screen just being touched, possibly starting a button push
 		if (Gdx.input.isTouched()) {
 			// Get inputs
@@ -338,20 +339,20 @@ public class InputHandler {
 			int yPress = getY();
 
 			// Look for new button press
-			if (buttonDown == GameEngine.ButtonPress.NONE && lastX == -1) {
+			if (lastX == -1) {
 				buttonDown = Menu.containingButtonOfPixelLevelScreen(xPress, yPress, botYCoord);
-				
+
 				//Explicitly handle skip wins if they've won
 				if (state == GameState.WON && buttonDown == GameEngine.ButtonPress.NONE){
 					buttonDown = GameEngine.ButtonPress.SKIPWIN;
 				}
 			}
-			
+
 			//Indicate the user is clicking on the screen, so can't slide onto a different
 			//button during a single press
 			lastX = xPress;
 			lastY = yPress;
-			
+
 			//While pushing down, nothing pressed yet.
 			returnedButton = GameEngine.ButtonPress.NONE;
 		}
@@ -359,14 +360,14 @@ public class InputHandler {
 		else {
 			// Look for removed input
 			if (buttonDown != GameEngine.ButtonPress.NONE && lastX != -1) {
-				
+
 				returnedButton = Menu.containingButtonOfPixelLevelScreen(lastX, lastY, botYCoord);
-				
+
 				//Explicitly handle skip wins if they've won
 				if (state == GameState.WON && returnedButton == GameEngine.ButtonPress.NONE){
 					returnedButton = GameEngine.ButtonPress.SKIPWIN;
 				}
-				
+
 				//Check to make sure they were still pressing the same button as originally
 				if (returnedButton != buttonDown) {
 					returnedButton = GameEngine.ButtonPress.NONE;
@@ -382,16 +383,65 @@ public class InputHandler {
 		return returnedButton;
 	}
 	
-	
-	
-	
-	
-	
+	private GameEngine.TitleOption optionPressed = TitleOption.NONE;
+
+	/**
+	 * Check to see which title option was pressed, if any
+	 */
+	public GameEngine.TitleOption checkForTitleOptionPress(boolean settingsShowing){
+		//Short circuit if back had been pressed
+		if (backClicked){
+			backClicked = false;
+			return GameEngine.TitleOption.EXIT;
+		}
+
+		GameEngine.TitleOption returnedOption;
+
+		// If screen just being touched, possibly starting a button push
+		if (Gdx.input.isTouched()) {
+			// Get inputs
+			int xPress = getX();
+			int yPress = getY();
+
+			// Look for new button press
+			if (lastX == -1) {
+				optionPressed = Menu.containingButtonOfPixelTitleScreen(xPress, yPress);
+			}
+			//Indicate the user is clicking on the screen, so can't slide onto a different
+			//button during a single press
+			lastX = xPress;
+			lastY = yPress;
+
+			//While pushing down, nothing pressed yet.
+			returnedOption = GameEngine.TitleOption.NONE;
+		}
+		// Screen not touched - could be removing touch
+		else {
+			// Look for removed input
+			if (optionPressed != GameEngine.TitleOption.NONE && lastX != -1) {
+
+				returnedOption = Menu.containingButtonOfPixelTitleScreen(lastX, lastY);
+				
+				//Check to make sure they were still pressing the same button as originally
+				if (returnedOption != optionPressed) {
+					returnedOption = GameEngine.TitleOption.NONE;
+				}
+			} else {
+				returnedOption = GameEngine.TitleOption.NONE;
+			}
+			// Reset lastX and LastY
+			lastX = -1;
+			lastY = -1;
+			optionPressed = GameEngine.TitleOption.NONE;
+		}
+		return returnedOption;
+	}	
+
 	/*******************************************************************************/
 
-	
-	
-	
+
+
+
 
 	/**
 	 * Remainder below here is to handle input into the menu. Various fields to see
@@ -402,7 +452,7 @@ public class InputHandler {
 	private int lastTouchX = -1;
 	private int lastTouchY = -1;
 	private int worldTouched = -1;
-	
+
 	/**
 	 * Determines if what the user did counts as a click.
 	 * MAX_DIFF_CLICK indicates how far the user can have
@@ -440,7 +490,7 @@ public class InputHandler {
 	 */
 	private int timeHeld = 0;
 	private final int TIME_FOR_LOGGING_RESET = 240;
-	
+
 	/**
 	 * Allows a click on a level to be stored, so both the world
 	 * and ordinal can be selected afterward.
@@ -463,6 +513,7 @@ public class InputHandler {
 
 		//Check if back was pressed - exit the game
 		if (backClicked){
+			backClicked = false;
 			return -2;
 		}
 
@@ -496,12 +547,12 @@ public class InputHandler {
 			else {
 				//Only allow one direction of motion
 				if (!movingVertically && !movingHorizontally){
-					
+
 					//If we've moved far enough vertically, start movement that way
 					if (Math.abs(firstTouchY - y) > Constants.VERT_MOVE_BOUNDS){
 						movingVertically = true;
 						momentumY = (y - lastTouchY);
-						
+
 						//Scroll up down, while saying we are still holding the screen
 						menu.scrollUpDown(y - firstTouchY, true);
 						menu.scrollLeftRight(worldTouched, 0, true);
@@ -510,7 +561,7 @@ public class InputHandler {
 					else if (menu.worldInBounds(worldTouched) && Math.abs(firstTouchX - x) > Constants.HORIZ_MOVE_BOUNDS){
 						movingHorizontally = true;
 						momentumX = (lastTouchX - x);
-						
+
 						//Scroll the world, while saying we are still holding the screen
 						menu.scrollLeftRight(worldTouched, firstTouchX - x, true);
 					} else {
@@ -520,13 +571,13 @@ public class InputHandler {
 				//Otherwise, already moving vertically or horizontally. Continue
 				else if (movingVertically){
 					momentumY = (y - lastTouchY);
-					
+
 					//Scroll up down, while saying we are still holding the screen
 					menu.scrollUpDown((int)momentumY, true);
 					menu.scrollLeftRight(worldTouched, 0, true);
 				} else {
 					momentumX = (lastTouchX - x);
-					
+
 					//Scroll the world, while saying we are still holding the screen
 					menu.scrollLeftRight(worldTouched, (int)momentumX, true);
 				}
@@ -535,7 +586,7 @@ public class InputHandler {
 			//Update where we are now
 			lastTouchY = y;
 			lastTouchX = x;
-			
+
 			//Check if we've moved too far to be considered a click
 			int yMoveDistSq = (firstTouchY - lastTouchY)*(firstTouchY - lastTouchY);
 			int xMoveDistSq = (firstTouchX - lastTouchX)*(firstTouchX - lastTouchX);
@@ -543,7 +594,7 @@ public class InputHandler {
 			if (xMoveDistSq + yMoveDistSq > maxDistSq){
 				movedTooFar = true;
 			}
-				
+
 		} 
 		//Not pressing the screen anymore - may have clicked a place
 		//May still have momentum
@@ -551,11 +602,11 @@ public class InputHandler {
 			//Check if clicked a place
 			movingVertically = false;
 			movingHorizontally = false;
-			
+
 			//Just released the screen
 			if (firstTouchY != -1){
 				firstTouchY = -1;
-				
+
 				//Didn't move too far - clicked wherever we last were
 				if (!movedTooFar && menu.worldInBounds(worldTouched)){
 					int selected = menu.getLevelAtPositionInWorld(worldTouched, lastTouchX);
@@ -564,7 +615,7 @@ public class InputHandler {
 					lastTouchX = -1;
 					lastTouchY = -1;
 					movedTooFar = false;
-					
+
 					//If we did select a level, indicate such
 					if (selected != -1){
 						mostRecentlySelectedOrdinalInWorld = selected;
@@ -582,7 +633,7 @@ public class InputHandler {
 					movedTooFar = false;
 				}
 			}
-			
+
 			//Handle remaining vertical momentum
 			if (momentumY != 0){
 				//Scroll and decrease momentum
@@ -597,7 +648,7 @@ public class InputHandler {
 				//Even without momentum, call screen scrolling, so it can potentially bounce back
 				menu.scrollUpDown(0, false);
 			}
-			
+
 			//Handle remaing world momentum
 			if (momentumX != 0){
 				//Scroll and decrease momentum

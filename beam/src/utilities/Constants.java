@@ -13,7 +13,7 @@ public class Constants {
 	 * the final game version.
 	 */
 	public static final boolean DEBUG_MODE = false;
-	public static boolean UNLOCK_MODE = true;
+	public static boolean UNLOCK_MODE = false;
 	public static final boolean LOGGING = false;
 	
 	
@@ -21,6 +21,8 @@ public class Constants {
 	 * LOADING CONSTANTS
 	 */
 	public static final int LOAD_FADE_TIME = 60;
+	public static final int LOAD_SCREEN_TIME = 240;
+	public static final int LOAD_TEXT_FADE_TIME = 30;
 	
 	
 	/**

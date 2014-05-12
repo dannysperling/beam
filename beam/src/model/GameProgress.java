@@ -223,6 +223,19 @@ public class GameProgress {
 			return false;
 		}
 	}
+	
+	/**
+	 * Gets the ordinal of the highest unlocked world
+	 */
+	public int getHighestUnlockedWorld(){
+		
+		for (int world = 2; world <= levelOrderer.getNumWorlds(); world++){
+			if (!isWorldUnlocked(world)){
+				return world - 1;
+			}
+		}
+		return levelOrderer.getNumWorlds();
+	}
 
 	/**
 	 * Returns the number of moves done on this level, or 0 if not completed

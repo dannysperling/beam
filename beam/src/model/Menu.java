@@ -1,20 +1,18 @@
 package model;
 
-import java.util.Collections;
 import java.util.List;
 
 import utilities.Constants;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 
 import controller.GameEngine;
 
 public class Menu {
 
 	/**
-	 * First, menu contains static variables and a method for use buttons on the level screen
+	 * Menu contains static variables and a method for use buttons on the level screen
 	 */
 
 	//Button positions
@@ -93,6 +91,57 @@ public class Menu {
 
 		// Not in one of the buttons
 		return GameEngine.ButtonPress.NONE;
+	}
+	
+	
+	
+	
+	/*******************************************************************************/
+
+	
+	
+	/**
+	 * Static constants for positions on the title and settings screens
+	 */
+	//Button positions
+	public static final float TITLE_SCREEN_BUTTON_HEIGHT = 0.04f;
+	
+	//Settings
+	public static final float B_SETTINGS_WIDTH = 0.3f;
+	public static final float B_SETTINGS_BOT_Y = 0.13f;
+	
+	//Play
+	public static final float B_PLAY_BOT_Y = 0.20f;
+	
+	//Loading
+	public static final float B_LOADING_BOT_Y = 0.17f;
+	
+	/**
+	 * Determines which button, if any, the (x, y) coordinate falls within, assuming
+	 * the game is currently showing a standard level
+	 * 
+	 * @param x
+	 * 				x coordinate of the press
+	 * @param y
+	 * 				y coordinate of the press
+	 * @return
+	 * 				Which title option was clicked. Options are PLAY, SETTINGS
+	 */
+	public static GameEngine.TitleOption containingButtonOfPixelTitleScreen(int x, int y){
+
+		//Get width and height of screen
+		int height = Gdx.graphics.getHeight();
+		int width = Gdx.graphics.getWidth();
+		
+		// Bottom button presses
+		if (y > B_SETTINGS_BOT_Y * height && y < (B_SETTINGS_BOT_Y + TITLE_SCREEN_BUTTON_HEIGHT) * height){
+			//Menu
+			if (x > (0.5 - B_SETTINGS_WIDTH / 2) * width && x < (0.5 + B_SETTINGS_WIDTH / 2) * width){
+				return GameEngine.TitleOption.SETTINGS;
+			}
+		}
+		// Not in the settings button - they clicked play!
+		return GameEngine.TitleOption.PLAY;
 	}
 	
 	
