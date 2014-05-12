@@ -1,5 +1,6 @@
 package view;
 
+import java.util.Collections;
 import java.util.List;
 
 import utilities.AssetInitializer;
@@ -22,6 +23,9 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.utils.ScreenUtils;
+
+import controller.GameEngine;
 
 public class DrawMenu {
 
@@ -37,14 +41,17 @@ public class DrawMenu {
 	private Sprite starSprite;
 	private FrameBuffer bgBuffer;
 	private FrameBuffer shiftBoardBuffer;
+	private FrameBuffer menuBoardBuffer;
 	public boolean shiftBoardNew = true;
 
 	private Sprite boardSprite;
 	private Sprite bgSprite;
+	private Sprite curBoardSprite;
 
 	private int fullHeight = 0;
 	private int fullWidth = 0;
 
+	private Sprite[][] boardSprites;
 
 
 
@@ -64,6 +71,8 @@ public class DrawMenu {
 		batch = new SpriteBatch();
 		this.dg = dg;
 		this.allBoards = allBoards;
+		boardSprites = new Sprite[menu.numWorlds + 1][Collections.max(menu.worldSizes) + 1];
+
 
 		lockTexture = AssetInitializer.getTexture(AssetInitializer.lock);
 		lockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
@@ -74,6 +83,27 @@ public class DrawMenu {
 		starTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		TextureRegion starRegion = new TextureRegion(starTexture, 0, 0, 128, 128);
 		starSprite = new Sprite(starRegion);
+		
+		
+		//Initialize board sprites
+		for(int i = 1; i <= menu.numWorlds; i++){
+			for(int j = 1; j <= menu.worldSizes.get(i - 1); j++){
+				Board b = allBoards.get(i - 1).get(j - 1);
+				int tileSize = (int)(menu.boardHeightPercent * menu.getWorldHeight() / b.getNumVerticalTiles());
+				boolean locked = (menu.isBonus(i, j) && !menu.isBonusLevelUnlocked(i));
+				int bWidth = tileSize * b.getNumHorizontalTiles();
+				int bHeight = tileSize * b.getNumVerticalTiles();
+				if(menuBoardBuffer != null){
+					menuBoardBuffer.dispose();
+				}
+				menuBoardBuffer = new FrameBuffer(Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+				menuBoardBuffer.begin();
+				dg.drawBoard(b, 0, 0, tileSize, locked);
+				TextureRegion boardTex = ScreenUtils.getFrameBufferTexture(0, 0, bWidth, bHeight);
+				menuBoardBuffer.end();
+				boardSprites[i][j] = new Sprite(boardTex);
+			}
+		}
 	}
 
 	/**
@@ -100,7 +130,8 @@ public class DrawMenu {
 		int height = Gdx.graphics.getHeight();
 		int width = Gdx.graphics.getWidth();
 
-
+		boolean noSprite = false;
+		
 		int worldHeight = menu.getWorldHeight();
 		int levelItemWidth = menu.getLevelItemWidth();
 
@@ -123,7 +154,7 @@ public class DrawMenu {
 		boolean shiftNextLevelLocked = false;
 
 		//Loop down until the current world wouldn't show at all - 
-		//the top of the world is below the bottom of the scren
+		//the top of the world is below the bottom of the screen
 		while(itemTopY > 0){
 
 			//Ensure world in bounds
@@ -154,9 +185,11 @@ public class DrawMenu {
 
 						boolean shiftThisOne = false;
 						//Check if we're drawing the current board 
+						noSprite = false;
 						if (ordinalInWorld == curOrdinalInWorld && world == curWorld){
 							b = curBoard;
 							shiftThisOne = shifting;
+							noSprite = true;
 						} else { 
 							b = allBoards.get(world - 1).get(ordinalInWorld - 1);
 						}
@@ -165,7 +198,11 @@ public class DrawMenu {
 						int stars = menu.getLevelStars(world, ordinalInWorld);
 
 						if(!shiftThisOne){
-							drawLevelBoard(world, ordinalInWorld, b, itemBotY, itemLeftX, stars);
+							if(boardSprites[world][ordinalInWorld] == null){
+								GameEngine.debug("This should never happen!");
+							} else {
+								drawLevelBoard(boardSprites, world, ordinalInWorld, b, itemBotY, itemLeftX, stars, noSprite);
+							}
 						} else {
 							shiftBoard = b;
 							shiftBotY = itemBotY;
@@ -256,7 +293,6 @@ public class DrawMenu {
 				shiftBoardBuffer.dispose();
 			shiftBoardNew = true;
 		}
-
 	}
 
 	private void drawWorldOverlay(int world, int itemBotY) {
@@ -306,6 +342,21 @@ public class DrawMenu {
 
 		Gdx.gl.glDisable(GL10.GL_BLEND);
 
+	}
+	
+	public void updateBoardSprite(Board b){
+		int tileSize = (int)(menu.boardHeightPercent * menu.getWorldHeight() / b.getNumVerticalTiles());
+		int bWidth = tileSize * b.getNumHorizontalTiles();
+		int bHeight = tileSize * b.getNumVerticalTiles();
+		if(menuBoardBuffer != null){
+			menuBoardBuffer.dispose();
+		}
+		menuBoardBuffer = new FrameBuffer(Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+		menuBoardBuffer.begin();
+		dg.drawBoard(b, 0, 0, tileSize, false);
+		TextureRegion boardTex = ScreenUtils.getFrameBufferTexture(0, 0, bWidth, bHeight);
+		menuBoardBuffer.end();
+		curBoardSprite = new Sprite(boardTex);
 	}
 
 	/**
@@ -409,7 +460,7 @@ public class DrawMenu {
 	 * @param itemLeftX
 	 * 				The x coordinate of the left side of the menu item
 	 */
-	private void drawLevelBoard(int world, int ordinalInWorld, Board b, int itemBotY, int itemLeftX, int stars){
+	private void drawLevelBoard(Sprite[][] boardSprites, int world, int ordinalInWorld, Board b, int itemBotY, int itemLeftX, int stars, boolean noSprite){
 		// Get board dimensions
 		int levelItemWidth = menu.getLevelItemWidth();
 		int worldHeight = menu.getWorldHeight();
@@ -419,10 +470,14 @@ public class DrawMenu {
 		int tilesize = (int)(menu.boardHeightPercent * worldHeight / b.getNumVerticalTiles());
 		int bx = (levelItemWidth - tilesize * b.getNumHorizontalTiles()) / 2 + itemLeftX;
 		boolean locked = (menu.isBonus(world, ordinalInWorld) && !menu.isBonusLevelUnlocked(world));
-
-		//Draw the board in the appropriate location
-		dg.drawBoard(b, bx, by, tilesize, locked);
-
+		Sprite curSprite = (noSprite?curBoardSprite:boardSprites[world][ordinalInWorld]);
+		//Draw the board in the appropriate location		
+		curSprite.setPosition(bx, by);
+		curSprite.setSize(tilesize * b.getNumHorizontalTiles(), tilesize * b.getNumVerticalTiles());
+		batch.begin();
+		curSprite.draw(batch);
+		batch.end();
+		
 		//If locked, draw the lock
 		drawBonusLock(itemLeftX, by, locked,  menu.getNumStarsEarned(world), (menu.sizeOfWorld(world) - 1) * Constants.BONUS_UNLOCK_STARS);
 

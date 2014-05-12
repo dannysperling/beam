@@ -1,11 +1,13 @@
 package model;
 
+import java.util.Collections;
 import java.util.List;
 
 import utilities.Constants;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 
 import controller.GameEngine;
 
@@ -117,8 +119,9 @@ public class Menu {
 	/**
 	 * Store values regarding the worlds for convenience
 	 */
-	private int numWorlds;
-	private List<Integer> worldSizes;
+	public int numWorlds;
+	public List<Integer> worldSizes;
+	
 	
 	/**
 	 * Keeps a reference to the game progress to be able to get whether
@@ -133,7 +136,7 @@ public class Menu {
 	 * interworldSpace = (1-k)/(n-1) then exactly n full worlds fit on screen.
 	 */
 	public final float worldItemPercent = 1/(3.0f)*0.90f;
-	public final float boardHeightPercent = 0.55f;
+	public final float boardHeightPercent = 0.52f;
 	public final float starHeightPercent = 0.22f;
 	public final float interWorldSpacePercent = 0.05f;
 	

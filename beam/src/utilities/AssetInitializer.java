@@ -22,6 +22,8 @@ public class AssetInitializer {
 	public static final String painter = "data/painter.png";
 	public static final String unlock = "data/unlock.png";
 	public static final String two_star = "data/2star.png";
+	public static final String innerburn = "data/destruction/innerburn.png";
+	public static final String outerburn = "data/destruction/outerburn.png";
 
 	
 	public static void initialize(){
@@ -49,7 +51,14 @@ public class AssetInitializer {
 		assetManager.load(painter, Texture.class, param);
 		assetManager.load(unlock, Texture.class, param);
 		assetManager.load(two_star, Texture.class, param);
+		assetManager.load(innerburn, Texture.class, param);
+		assetManager.load(outerburn, Texture.class, param);
 
+		
+		for(int i = 0; i < Constants.TIME_BEFORE_DEATH_MESSAGE; i++){
+			assetManager.load("data/destruction/destruction"+ i +".png", Texture.class, param);
+		}
+		
 	}
 	
 	public static boolean isFinished(){

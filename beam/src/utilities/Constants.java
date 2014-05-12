@@ -33,7 +33,7 @@ public class Constants {
 	public static final int TIME_TO_PAINT_PIECE = 20;
 	
 	public static final int TIME_FOR_INTRO = 150;
-	public static final int TIME_BEFORE_DEATH_MESSAGE = 120;
+	public static final int TIME_BEFORE_DEATH_MESSAGE = 60;
 	public static final int WON_ANIMATION_UNIT = 20;
 	
 	public static final int TIME_FOR_LEVEL_TRANSITION = 30;
@@ -163,7 +163,7 @@ public class Constants {
 	public final static Color LINE_COLOR = new Color(.1f, .1f, .1f, 1);
 	public static final float START_COLOR_MUL = 1.1f;
 	public static final float END_COLOR_MUL = .75f;
-	public static final Color LOCK_COLOR = new Color(.75f,.7f,0,1);
+	public static final Color LOCK_COLOR = colorFromRGB(202,202,192);// = gilded grey
 	public static final Color LOCKED_WORLD_OVERLAY = new Color (0,0,0,0.85f);
 	public static final Color LOCKED_LEVEL_NUMBER_COLOR = new Color(.95f, .95f, .9f, .25f);
 	public static final Color GLASS_COLOR = new Color(.18f,.18f,.18f,.7f);

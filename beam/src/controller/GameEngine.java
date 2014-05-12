@@ -95,6 +95,7 @@ public class GameEngine implements ApplicationListener {
 	 */
 	private Color originalColor = Color.NONE;
 	private static List<Piece> piecesDestroyed = new ArrayList<Piece>();
+	private static List<Piece> residualPiecesDestroyed = new ArrayList<Piece>();
 	private static Laser laserRemoved = null;
 	private static Laser laserMovedAlong = null;
 	private static List<Laser> lasersCreated = new ArrayList<Laser>();
@@ -398,6 +399,7 @@ public class GameEngine implements ApplicationListener {
 					case LEVEL_TO_MENU_TRANSITION:
 						if(timeSpentLeavingLevel >= Constants.TIME_FOR_MENU_TRANSITION){
 							state = GameState.IDLE;
+							dm.updateBoardSprite(b);
 						} else {
 							timeSpentLeavingLevel++;
 						}
@@ -755,8 +757,9 @@ public class GameEngine implements ApplicationListener {
 			// Done animating - move on
 			else {
 				// Get the board where it should be now
-				if (currentAnimationState != AnimationState.DESTRUCTION)
+				if (currentAnimationState != AnimationState.DESTRUCTION && state != GameState.DESTROYED){
 					goBackToTheFuture();
+				}
 
 				// Reset the animation data
 				prepAnimationBeginning();
@@ -899,6 +902,10 @@ public class GameEngine implements ApplicationListener {
 			}
 		}
 		piecesDestroyed = newDestroyed;
+		residualPiecesDestroyed.clear();
+		for(Piece p : piecesDestroyed){
+			residualPiecesDestroyed.add(p);
+		}
 
 		// And set the lasers to where they should be now
 		initializeLasers(b);
@@ -926,6 +933,8 @@ public class GameEngine implements ApplicationListener {
 
 		// Load the world
 		b = levelLoader.getLevel(world, ordinalInWorld);
+		dm.updateBoardSprite(b);
+
 		if (b == null) {
 			debug("No further levels exist.");
 			System.exit(1);
@@ -1521,6 +1530,10 @@ public class GameEngine implements ApplicationListener {
 
 	public static List<Piece> getDestroyedPieces() {
 		return piecesDestroyed;
+	}
+	
+	public static List<Piece> getResidualDestroyedPieces() {
+		return residualPiecesDestroyed;
 	}
 	
 	public static Tutorial getTutorial(){

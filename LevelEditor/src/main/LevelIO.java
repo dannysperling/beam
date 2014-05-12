@@ -49,6 +49,38 @@ public class LevelIO {
 		file = fn;
 		model = editorModel;
 	}
+	
+	public int getLevelByWorld(int world, int ordinal){
+		String wrldfn = new String(file);
+		wrldfn = wrldfn.substring(0,wrldfn.lastIndexOf(File.separator)+1) + "levelOrder.txt";
+		try {
+			FileReader fr = new FileReader(wrldfn);
+			BufferedReader br = new BufferedReader(fr);
+			String ln = "";
+			int wid = 0;
+			int wcount = 0;
+			while (wid <= world && (ln = br.readLine()) != null){
+				if (ln.contains("WORLDSTART")){
+					wid++;
+					wcount = 0;
+					continue;
+				}
+				if (wid == world){
+					if (++wcount == ordinal){
+						//System.out.println("level "+wid+"-"+wcount+": \""+ln+"\"");
+						int line = Integer.parseInt(ln.split("\\s")[0]);
+						return line;
+					}
+				}
+			}
+		} catch (FileNotFoundException e) {
+			return -1;
+		} catch (IOException e) {
+			return -1;
+		}
+		
+		return -1;
+	}
 
 	/**
 	 * Load the level from file with the given id
@@ -69,7 +101,7 @@ public class LevelIO {
 		}
 		Pattern pat = Pattern.compile("<attribution name=\\\"(.*)\\\" author=\\\"(.*)\\\"/>");
 		Matcher mat = pat.matcher(spec);
-		if (mat.find()){
+		if (model!= null && mat.find()){
 			model.workingTitle = mat.group(1);
 			model.workingAuthor = mat.group(2);
 		}

@@ -2,6 +2,7 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -38,14 +39,17 @@ import model.Board;
 import model.Piece;
 import model.Tile;
 
+import com.me.beamsolver.Solver;
+
 import controller.GameEngine;
+import extras.QualityAnalysis;
 
 public class MainWindow extends JFrame implements MouseListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	boolean saved = false;
+	boolean saved = true;
 	JPanel mainPanel = new JPanel();
 	JPanel toolBar = new JPanel();
 	JPanel sideBar = new JPanel();
@@ -67,6 +71,7 @@ public class MainWindow extends JFrame implements MouseListener {
 	JButton buttonMinusCol = new JButton("Remove Column");
 	JButton buttonClipLoad = new JButton("Load text");
 	JButton buttonClipExp = new JButton("Export text");
+	JButton buttonSolve = new JButton("Solve");
 	// /
 	JComboBox<GameEngine.Color> colorDropdown;
 	SpinnerModel spinPerfModel;
@@ -84,7 +89,7 @@ public class MainWindow extends JFrame implements MouseListener {
 	EditorModel model;
 
 	public MainWindow(final EditorModel m) {
-		saved = false;
+		saved = true;
 		model = m;
 		// /
 		boardPanel = new BoardPanel();
@@ -149,6 +154,7 @@ public class MainWindow extends JFrame implements MouseListener {
 		toolBar.add(jrbGlass);
 		toolBar.add(jrbPainter);
 		toolBar.add(jrbGoal);
+		toolBar.add(buttonSolve);
 		// //
 		radioGroup.add(jrbPiece);
 		radioGroup.add(jrbGlass);
@@ -173,6 +179,8 @@ public class MainWindow extends JFrame implements MouseListener {
 			snm.addChangeListener(new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent arg0) {
+					if (model.b.getBeamObjectiveCount(c) == (int)snm.getValue())
+						return;
 					model.b.addBeamObjective(c, (int) snm.getValue());
 					saved = false;
 				}
@@ -196,7 +204,7 @@ public class MainWindow extends JFrame implements MouseListener {
 		boardPanel.setBackground(new Color(255, 255, 240));
 		boardPanel.setForeground(Color.BLACK);
 		boardPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE, 3));
-		mainPanel.setBackground(new Color(75, 100, 150));
+		mainPanel.setBackground(/*new Color(75, 100, 150)*/new Color(10,72,13));
 		boardHolder.setBackground(mainPanel.getBackground());
 		mainPanel.add(new JLabel(""), BorderLayout.WEST);
 		toolBar.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
@@ -224,7 +232,8 @@ public class MainWindow extends JFrame implements MouseListener {
 				String retVal;
 				retVal = JOptionPane.showInputDialog(
 						MainWindow.this,
-						"Enter the id or title of the level you wish to load",
+						"Enter the world-ordinal, unique id, or title of the level you wish to load.\n"+
+						"Example: \"1-1\", \"37\", or \"Moving and goals\"",
 						"Select level", JOptionPane.QUESTION_MESSAGE);
 				if (retVal == null || retVal.isEmpty()) {
 					return;
@@ -232,7 +241,12 @@ public class MainWindow extends JFrame implements MouseListener {
 				try {
 					id = Integer.parseInt(retVal);
 				} catch (NumberFormatException ex) {
-					id = m.levelIO.idlookup(retVal);
+					if (retVal.matches("\\d+\\-\\d+")){
+						String[] split = retVal.split("\\-");
+						id = m.levelIO.getLevelByWorld(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
+					} else {
+						id = m.levelIO.idlookup(retVal);
+					}
 					if (id == -1){
 						JOptionPane.showMessageDialog(MainWindow.this,
 								"Sorry, level \""+retVal.trim()+"\" could not be found",
@@ -251,6 +265,8 @@ public class MainWindow extends JFrame implements MouseListener {
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
+				spinParModel.setValue(model.b.par);
+				spinPerfModel.setValue(model.b.perfect);
 				saved = true;
 				update();
 			}
@@ -262,6 +278,17 @@ public class MainWindow extends JFrame implements MouseListener {
 				new NewWindow(model, MainWindow.this);
 				saved = false;
 			}
+		});
+		///
+		buttonSolve.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				MainWindow.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				new SolutionWindow(MainWindow.this.model.b);
+				MainWindow.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			}
+			
 		});
 		///
 		buttonClipExp.addActionListener(new ActionListener() {
@@ -523,7 +550,7 @@ public class MainWindow extends JFrame implements MouseListener {
 			sm.setValue(model.b.getBeamObjectiveCount(c));
 		}
 		labelCurLevel.setText(model.fileName() + " - " + model.idString()
-				+ (saved ? "" : "*"));
+				+ (saved ? "" : "*")+"\t\t SLQF: "+QualityAnalysis.getSLQF(model.b));
 		this.repaint();
 	}
 
