@@ -58,18 +58,16 @@ public class DrawGame {
 	private Sprite tutorialSprite;
 	public ShapeRenderer shapes;
 
-	BitmapFont titleFont;
-	BitmapFont titleFontNoBest;
-	BitmapFont menuButtonFont;
-	BitmapFont introFont;
-	BitmapFont levelNameFont;
-	BitmapFont movesFont;
-	BitmapFont moveWordFont;
-	BitmapFont beamGoalFont;
-	BitmapFont gameButtonFont;
-	BitmapFont nonGameMButtonFont;
-	BitmapFont starGoalFont;
-	BitmapFont nonGameNLButtonFont;
+	private BitmapFont introFont;
+	private BitmapFont levelNameFont;
+	private BitmapFont movesFont;
+	private BitmapFont moveWordFont;
+	private BitmapFont beamGoalFont;
+	private BitmapFont gameButtonFont;
+	private BitmapFont nonGameMButtonFont;
+	private BitmapFont starGoalFont;
+	private BitmapFont nonGameNLButtonFont;
+	
 	private Texture painterTexture;
 
 	private Sprite painterSprite;
@@ -145,26 +143,26 @@ public class DrawGame {
 	public void initFonts() {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
 				Gdx.files.internal("data/fonts/swanse.ttf"));
-		titleFont = generator.generateFont(Gdx.graphics.getHeight() / 28);
-		titleFontNoBest = generator.generateFont(Gdx.graphics.getHeight() / 25);
-		menuButtonFont = generator.generateFont(Gdx.graphics.getHeight() / 45);
-		introFont = generator.generateFont(Gdx.graphics.getHeight() / 20);
-		levelNameFont = generator.generateFont((int) (Gdx.graphics.getHeight()
+		
+		int h = Gdx.graphics.getHeight();
+
+		introFont = generator.generateFont(h / 20);
+		levelNameFont = generator.generateFont((int) (h
 				* Constants.TOP_BAR_SIZE * 0.8f));
-		starGoalFont = generator.generateFont((int) (Gdx.graphics.getHeight()
-				* Constants.TOP_BAR_SIZE * 0.5f));
-		moveWordFont = generator.generateFont((int) (Gdx.graphics.getHeight()
-				* Constants.TOP_BAR_SIZE * 0.2f));
-		movesFont = generator.generateFont((int) (Gdx.graphics.getHeight()
-				* Constants.TOP_BAR_SIZE * 0.45f));
-		beamGoalFont = generator.generateFont((int) (Gdx.graphics.getHeight()
+		starGoalFont = generator
+				.generateFont((int) (h * Constants.TOP_BAR_SIZE * 0.5f));
+		moveWordFont = generator
+				.generateFont((int) (h * Constants.TOP_BAR_SIZE * 0.2f));
+		movesFont = generator
+				.generateFont((int) (h * Constants.TOP_BAR_SIZE * 0.45f));
+		beamGoalFont = generator.generateFont((int) (h
 				* Constants.BEAM_GOAL_HEIGHT * 0.5f));
-		gameButtonFont = generator.generateFont((int) (Gdx.graphics.getHeight()
+		gameButtonFont = generator.generateFont((int) (h
 				* Constants.GAME_BUTTON_HEIGHT * 0.7f));
-		nonGameMButtonFont = generator.generateFont((int) (Gdx.graphics
-				.getHeight() * Constants.NON_GAME_BUTTON_HEIGHT * 0.7f));
-		nonGameNLButtonFont = generator.generateFont((int) (Gdx.graphics
-				.getHeight() * Constants.NON_GAME_BUTTON_HEIGHT * 0.5f));
+		nonGameMButtonFont = generator.generateFont((int) (h
+				* Constants.NON_GAME_BUTTON_HEIGHT * 0.7f));
+		nonGameNLButtonFont = generator.generateFont((int) (h
+				* Constants.NON_GAME_BUTTON_HEIGHT * 0.5f));
 
 		generator.dispose();
 	}
@@ -1920,13 +1918,12 @@ public class DrawGame {
 	 * Disposes any batches, textures, and fonts being used
 	 */
 	public void dispose() {
+		//TODO: make sure everything that needs to be here is here.
+		
 		batch.dispose();
 		pieceTexture.dispose();
-		titleFont.dispose();
-		titleFontNoBest.dispose();
 		nonGameMButtonFont.dispose();
 		nonGameNLButtonFont.dispose();
-		menuButtonFont.dispose();
 	}
 
 }
