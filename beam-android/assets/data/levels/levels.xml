@@ -789,19 +789,19 @@ e,glass,glass,glass
 1,e,e,1:goal_2
 </level>
 
-<level id=118 par=14 perfect=13>
+<level id=118 par=12 perfect=9>
 <attribution name="DoubleRed" author="Mike"/>
-e,3,e,e,3,e
-goal_1,glass,e,e,glass,goal_1
-glass,1,e,e,1,glass
-glass,1,e,e,1,glass
-goal_1,glass,e,e,glass,goal_1
-e,2,e,e,2,e
+e,e,e,e,e
+3:goal_1,glass,e,glass,3:goal_1
+glass,1,e,1,glass
+glass,1,e,1,glass
+2:goal_1,glass,e,glass,2:goal_1
+e,e,e,e,e
 </level>
 
-<level id=119 par=0 perfect=15>
+<level id=119 par=17 perfect=12>
 <attribution name="WorkIt" author="Mike"/>
-1,1,e,e,1,1
+1,glass,e,e,glass,1
 glass,glass,3,3,glass,glass
 e,1,e,e,1,e
 e,glass,e,e,glass,e
