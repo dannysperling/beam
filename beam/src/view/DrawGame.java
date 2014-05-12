@@ -65,8 +65,11 @@ public class DrawGame {
 
 	private Animation destroyAnimation;
 	private float destroyAnimateTime = 0;
-	
-	
+
+	private Animation paintAnimation;
+	private float paintTimer = 0;
+
+
 	BitmapFont titleFont;
 	BitmapFont titleFontNoBest;
 	BitmapFont menuButtonFont;
@@ -114,10 +117,10 @@ public class DrawGame {
 		//oneStarTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		twoStarTexture = AssetInitializer.getTexture(AssetInitializer.two_star);
-		
+
 		innerBurnTexture = AssetInitializer.getTexture(AssetInitializer.innerburn);
 		outerBurnTexture = AssetInitializer.getTexture(AssetInitializer.outerburn);
- 
+
 
 
 
@@ -154,6 +157,14 @@ public class DrawGame {
 			destroyAnimation = new Animation(1.0f / 60.0f,destroyFrames);
 		}
 		
+		TextureRegion[] paintFrames = new TextureRegion[60];
+		Texture[] paintTextures = new Texture[60];
+		for(int i = 0; i < Constants.TIME_BEFORE_DEATH_MESSAGE; i++){
+			paintTextures[i] = AssetInitializer.getTexture("data/painter/paint_000" + (i < 10?"0":"") + i + ".png");
+			paintFrames[i] = new TextureRegion(paintTextures[i]);
+			paintAnimation = new Animation(1.0f / 180.0f,paintFrames);
+		}
+
 		pieceSprite = new Sprite(pieceregion);
 		nPieceSprite = new Sprite(npieceregion);
 		painterSprite = new Sprite(painterregion);
@@ -220,7 +231,7 @@ public class DrawGame {
 	 * Draws anything that appears in a tile which never moves. This includes
 	 * glass, painters, and goals Scrolls with animation
 	 */
-	private void drawTiles(int bx, int by, int tilesize, List<Tile> tiles, Board b, int lw) {
+	private void drawTiles(int bx, int by, int tilesize, List<Tile> tiles, Board b, int lw, AnimationState aState) {
 		for (Tile t : tiles) {
 			drawGlass(t, tilesize, bx, by, b, lw);
 		}
@@ -249,27 +260,34 @@ public class DrawGame {
 			}
 		} shapes.end();
 		for (Tile t : tiles) {
-			drawPainter(t,tilesize,bx,by, Constants.PAINTER_MODE);
+			drawPainter(t,tilesize,bx,by, Constants.PAINTER_MODE, aState);
 		}
 	}
 
-	private void drawPainter(Tile t, int tilesize, int bx, int by, int mode) {
-		if (!t.hasPainter()) return;
-		if (mode == 0){
-			shapes.begin(ShapeType.Filled);
-			int paintX = bx + (t.getXCoord() * tilesize);
-			int paintY = by + (t.getYCoord() * tilesize);
-			shapes.setColor(Constants.translateColorDark(t.getPainterColor()));
-			shapes.rect(paintX + (0.05f * tilesize), paintY
-					+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
-			shapes.end();
+	private void drawPainter(Tile t, int tilesize, int bx, int by, int mode, AnimationState aState) {
+		if (!t.hasPainter()) {
+			return;
+		}
+		if(aState == AnimationState.PAINTING && GameEngine.movePath.get(1).getXCoord() == t.getXCoord() && GameEngine.movePath.get(1).getYCoord() == t.getYCoord()){
+			paintTimer += Gdx.graphics.getDeltaTime();
+			TextureRegion pTex = paintAnimation.getKeyFrame(paintTimer, false);
+			Sprite aPaintSprite = new Sprite(pTex);
+			aPaintSprite.setColor(Constants.translateColor(t.getPainterColor()));
+			aPaintSprite.setSize(tilesize, tilesize);
+			aPaintSprite.setPosition(bx + (t.getXCoord() * tilesize), by + (t.getYCoord() * tilesize));		
+			batch.begin();
+			aPaintSprite.draw(batch);
+			batch.end();
 		} else {
 			batch.begin();
-			painterSprite.setColor(Constants.painterColor[t.getPainterColor().toIndex()]);
+			painterSprite.setColor(Constants.translateColor(t.getPainterColor()));
 			painterSprite.setSize(tilesize, tilesize);
 			painterSprite.setPosition(bx + (t.getXCoord() * tilesize), by + (t.getYCoord() * tilesize));
 			painterSprite.draw(batch);
 			batch.end();
+			if(aState != AnimationState.PAINTING){
+				paintTimer = 0;
+			}
 		}
 	}
 
@@ -456,7 +474,7 @@ public class DrawGame {
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 
-		
+
 		batch.begin();
 		curSprite.setSize(tilesize, tilesize);
 		for (Piece p : pieces) {
@@ -1335,17 +1353,16 @@ public class DrawGame {
 			}
 		}
 		shapes.end();
-		shapes.begin(ShapeType.Filled);
 		for (Tile t : tiles) {
 			if (t.hasPainter()) {
-				int paintX = bx + (t.getXCoord() * tilesize);
-				int paintY = by + (t.getYCoord() * tilesize);
-				shapes.setColor(Constants.translateColorDark(t.getPainterColor()));
-				shapes.rect(paintX + (0.05f * tilesize), paintY
-						+ (0.05f * tilesize), 0.9f * tilesize, 0.9f * tilesize);
+				batch.begin();
+				painterSprite.setColor(Constants.translateColor(t.getPainterColor()));
+				painterSprite.setSize(tilesize, tilesize);
+				painterSprite.setPosition(bx + (t.getXCoord() * tilesize), by + (t.getYCoord() * tilesize));
+				painterSprite.draw(batch);
+				batch.end();
 			}
 		}
-		shapes.end();
 		float moveAnimateTime = 0;
 
 		// Draw the pieces
@@ -1789,7 +1806,7 @@ public class DrawGame {
 		drawGrid((int) (bx + transitionPart), by, tilesize, b);
 
 		// Draw the tiles
-		drawTiles((int) (bx + transitionPart), by, tilesize, tiles, b, 2);
+		drawTiles((int) (bx + transitionPart), by, tilesize, tiles, b, 2, aState);
 
 		// Draw Paths
 		drawPaths((int) (bx + transitionPart), by, tilesize, path, aState,
@@ -1804,7 +1821,7 @@ public class DrawGame {
 				pieces, paintAnimateTime, moveAnimateTime, true, 1);
 
 		if (aState == AnimationState.DESTRUCTION || state == GameState.DESTROYED) {
-			
+
 			for(Piece p : GameEngine.getResidualDestroyedPieces()){
 				outerBurnSprite.setPosition((int) (bx + transitionPart + (p.getXCoord() * tilesize)) , by + (p.getYCoord() * tilesize));
 				outerBurnSprite.setSize(tilesize, tilesize);
@@ -1820,7 +1837,7 @@ public class DrawGame {
 				Gdx.gl.glDisable(GL10.GL_BLEND);
 			}
 		}
-		
+
 		// Draw Laser Outlines
 		drawBeams((int) (bx + transitionPart), by, tilesize, lasers,
 				disbandedLaser, movedAlongLaser, aState, path, moveAnimateTime,
@@ -1852,7 +1869,7 @@ public class DrawGame {
 					GameEngine.getResidualDestroyedPieces(), paintAnimateTime, 
 					moveAnimateTime, true, Math.max(0, 1 - (destroyAnimateTime / (Constants.TIME_BEFORE_DEATH_MESSAGE / 60.0f))));
 			drawDestruction(bx, by, tilesize);
-			
+
 		} else {
 			destroyAnimateTime = 0;
 		}

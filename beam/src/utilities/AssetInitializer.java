@@ -59,6 +59,13 @@ public class AssetInitializer {
 			assetManager.load("data/destruction/destruction"+ i +".png", Texture.class, param);
 		}
 		
+		String paintString = "data/painter/paint_000";
+		for(int i = 0; i < Constants.TIME_BEFORE_DEATH_MESSAGE; i++){
+			paintString = paintString + (i < 10?"0":"");
+			assetManager.load(paintString + i +".png", Texture.class, param);
+			paintString = "data/painter/paint_000";
+		}
+		
 	}
 	
 	public static boolean isFinished(){
