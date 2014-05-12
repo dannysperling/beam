@@ -2,14 +2,15 @@ package controller;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import utilities.AssetInitializer;
 import utilities.Constants;
 import view.DrawGame;
 import view.DrawLoading;
 import view.DrawMenu;
-
 import model.Board;
 import model.GameProgress;
 import model.Laser;
@@ -63,6 +64,7 @@ public class GameEngine implements ApplicationListener {
 	public static Piece movingPiece = null;
 	public static List<Tile> movePath = new ArrayList<Tile>();
 	private static List<Collection<Short>> boardStack = new ArrayList<Collection<Short>>();
+	
 
 	/**
 	 * All the animation constants and counters
@@ -84,6 +86,7 @@ public class GameEngine implements ApplicationListener {
 	
 	public static boolean nextWorldUnlocked = false;
 
+
 	/**
 	 * Keep track of our current animation, and where it's going
 	 */
@@ -101,6 +104,7 @@ public class GameEngine implements ApplicationListener {
 	private static List<Laser> lasersCreated = new ArrayList<Laser>();
 	private boolean wasPieceDestroyed = false;
 	private Collection<Short> futureBoard;
+	public static Set<Laser> futureLasers = new HashSet<Laser>();
 
 	/**
 	 * Enumeration of each of the states the game can be in
@@ -733,10 +737,16 @@ public class GameEngine implements ApplicationListener {
 
 		// Record where we got to
 		futureBoard = b.encodePieces();
+		initializeLasers(b);
+		futureLasers.clear();
+		for(Laser l: b.lasers){
+			futureLasers.add(l);
+		}
 
 		// Put the piece back
 		b.move(movingPiece, movePath.get(0));
 		movingPiece.setColor(originalColor);
+		initializeLasers(b);
 	}
 
 	/**
@@ -1286,8 +1296,7 @@ public class GameEngine implements ApplicationListener {
 
 		if (!lasersCreated.isEmpty() && !addLasers) {
 			animationStack.add(AnimationState.FORMING);
-		}
-
+		}		
 		return destroyed;
 	}
 

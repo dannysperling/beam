@@ -43,8 +43,6 @@ public class DrawGame {
 	private Sprite pieceSprite;
 	private Texture nPieceTexture;
 	private Sprite nPieceSprite;
-	private Texture bangTexture;
-	private Sprite bangSprite;
 	private Texture threeStarTexture;
 	private Sprite threeStarSprite;
 	private Texture oneStarTexture;
@@ -69,19 +67,16 @@ public class DrawGame {
 	private Animation paintAnimation;
 	private float paintTimer = 0;
 
+	private BitmapFont introFont;
+	private BitmapFont levelNameFont;
+	private BitmapFont movesFont;
+	private BitmapFont moveWordFont;
+	private BitmapFont beamGoalFont;
+	private BitmapFont gameButtonFont;
+	private BitmapFont nonGameMButtonFont;
+	private BitmapFont starGoalFont;
+	private BitmapFont nonGameNLButtonFont;
 
-	BitmapFont titleFont;
-	BitmapFont titleFontNoBest;
-	BitmapFont menuButtonFont;
-	BitmapFont introFont;
-	BitmapFont levelNameFont;
-	BitmapFont movesFont;
-	BitmapFont moveWordFont;
-	BitmapFont beamGoalFont;
-	BitmapFont gameButtonFont;
-	BitmapFont nonGameMButtonFont;
-	BitmapFont starGoalFont;
-	BitmapFont nonGameNLButtonFont;
 	private Texture painterTexture;
 
 	private Sprite painterSprite;
@@ -97,9 +92,6 @@ public class DrawGame {
 
 		painterTexture = AssetInitializer.getTexture(AssetInitializer.painter);
 		//painterTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-
-		bangTexture = AssetInitializer.getTexture(AssetInitializer.bangbang);
-		//bangTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
 		lockTexture = AssetInitializer.getTexture(AssetInitializer.lock);
 		//lockTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
@@ -134,8 +126,6 @@ public class DrawGame {
 				256);
 		TextureRegion painterregion = new TextureRegion(painterTexture, 0, 0, 256,
 				256);
-		TextureRegion bangregion = new TextureRegion(bangTexture, 0, 0, 256,
-				256);
 		TextureRegion inforegion = new TextureRegion(infoTexture, 0, 0, 256,
 				256);
 		TextureRegion tutregion = new TextureRegion(tutorialTexture, 0, 0, 256,
@@ -168,7 +158,6 @@ public class DrawGame {
 		pieceSprite = new Sprite(pieceregion);
 		nPieceSprite = new Sprite(npieceregion);
 		painterSprite = new Sprite(painterregion);
-		bangSprite = new Sprite(bangregion);
 		threeStarSprite = new Sprite(threestarregion);
 		oneStarSprite = new Sprite(onestarregion);
 		lockSprite = new Sprite(lockregion);
@@ -184,26 +173,26 @@ public class DrawGame {
 	public void initFonts() {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
 				Gdx.files.internal("data/fonts/swanse.ttf"));
-		titleFont = generator.generateFont(Gdx.graphics.getHeight() / 28);
-		titleFontNoBest = generator.generateFont(Gdx.graphics.getHeight() / 25);
-		menuButtonFont = generator.generateFont(Gdx.graphics.getHeight() / 45);
-		introFont = generator.generateFont(Gdx.graphics.getHeight() / 20);
-		levelNameFont = generator.generateFont((int) (Gdx.graphics.getHeight()
+		
+		int h = Gdx.graphics.getHeight();
+
+		introFont = generator.generateFont(h / 20);
+		levelNameFont = generator.generateFont((int) (h
 				* Constants.TOP_BAR_SIZE * 0.8f));
-		starGoalFont = generator.generateFont((int) (Gdx.graphics.getHeight()
-				* Constants.TOP_BAR_SIZE * 0.5f));
-		moveWordFont = generator.generateFont((int) (Gdx.graphics.getHeight()
-				* Constants.TOP_BAR_SIZE * 0.2f));
-		movesFont = generator.generateFont((int) (Gdx.graphics.getHeight()
-				* Constants.TOP_BAR_SIZE * 0.45f));
-		beamGoalFont = generator.generateFont((int) (Gdx.graphics.getHeight()
+		starGoalFont = generator
+				.generateFont((int) (h * Constants.TOP_BAR_SIZE * 0.5f));
+		moveWordFont = generator
+				.generateFont((int) (h * Constants.TOP_BAR_SIZE * 0.2f));
+		movesFont = generator
+				.generateFont((int) (h * Constants.TOP_BAR_SIZE * 0.45f));
+		beamGoalFont = generator.generateFont((int) (h
 				* Constants.BEAM_GOAL_HEIGHT * 0.5f));
-		gameButtonFont = generator.generateFont((int) (Gdx.graphics.getHeight()
+		gameButtonFont = generator.generateFont((int) (h
 				* Constants.GAME_BUTTON_HEIGHT * 0.7f));
-		nonGameMButtonFont = generator.generateFont((int) (Gdx.graphics
-				.getHeight() * Constants.NON_GAME_BUTTON_HEIGHT * 0.7f));
-		nonGameNLButtonFont = generator.generateFont((int) (Gdx.graphics
-				.getHeight() * Constants.NON_GAME_BUTTON_HEIGHT * 0.5f));
+		nonGameMButtonFont = generator.generateFont((int) (h
+				* Constants.NON_GAME_BUTTON_HEIGHT * 0.7f));
+		nonGameNLButtonFont = generator.generateFont((int) (h
+				* Constants.NON_GAME_BUTTON_HEIGHT * 0.5f));
 
 		generator.dispose();
 	}
@@ -991,14 +980,19 @@ public class DrawGame {
 						GameEngine.Color.class);
 				EnumMap<GameEngine.Color, Integer> curLaserCount = new EnumMap<GameEngine.Color, Integer>(
 						GameEngine.Color.class);
+				EnumMap<GameEngine.Color, Integer> futureLaserCount = new EnumMap<GameEngine.Color, Integer>(
+						GameEngine.Color.class);
 
 				int objCount = 0;
 				int existCount = 0;
+				int futureExistCount = 0;
 				for (GameEngine.Color c : b.getBeamObjectiveSet()) {
 					objCount = b.getBeamObjectiveCount(c);
 					beamObjective.put(c, objCount);
 					existCount = b.getLaserCount(c);
+					futureExistCount = getLaserCount(GameEngine.futureLasers, c);
 					curLaserCount.put(c, existCount);
+					futureLaserCount.put(c, futureExistCount);
 				}
 
 				int i = 0;
@@ -1024,6 +1018,12 @@ public class DrawGame {
 						shapes.setColor(Constants.translateColor(c));
 						float progress = (float) (curLaserCount.get(c))
 								/ beamObjective.get(c);
+						float futureProgress = (float) (futureLaserCount.get(c))
+								/ beamObjective.get(c);
+						float shiftFactor = moveAnimateTime * (futureProgress - progress);
+						progress += shiftFactor;
+						
+						progress = Math.min(progress, 1);
 
 						shapes.rect(
 								((width - (Constants.BEAM_GOAL_WIDTH * width)) / 2)
@@ -1055,6 +1055,16 @@ public class DrawGame {
 		}
 	}
 
+	private int getLaserCount(Set<Laser> lasers, GameEngine.Color c){
+		int result = 0;
+		for(Laser l : lasers){
+			if(l.getColor() == c){
+				result++;
+			}
+		}
+		return result;
+	}
+	
 	/**
 	 * Draws the level introduction that appears at level start
 	 */
@@ -1630,7 +1640,7 @@ public class DrawGame {
 				textHeight += tb.height;
 			} else if (tutorial.getElementTypeAt(i) == ElementType.ANIMATED_IMAGE) {
 				halfImageHeight += tutorial.getImageElementAt(i).get(0)
-						.getHeight() / 2.0f;
+						.getHeight();
 			}
 		}
 
@@ -1711,7 +1721,7 @@ public class DrawGame {
 			GameEngine.AnimationState aState, int currentWorld,
 			int currentOrdinalInWorld, Color bg, float transitionPart,
 			boolean partial, boolean isLast, boolean isNextLocked, GameProgress gp) {
-
+		
 		// Define drawing variables including sizes and positions as well as
 		// objects to be drawn 
 		int bx = b.getBotLeftX();
@@ -1999,13 +2009,12 @@ public class DrawGame {
 	 * Disposes any batches, textures, and fonts being used
 	 */
 	public void dispose() {
+		//TODO: make sure everything that needs to be here is here.
+		
 		batch.dispose();
 		pieceTexture.dispose();
-		titleFont.dispose();
-		titleFontNoBest.dispose();
 		nonGameMButtonFont.dispose();
 		nonGameNLButtonFont.dispose();
-		menuButtonFont.dispose();
 	}
 
 }
