@@ -7,8 +7,8 @@ import java.util.List;
 import utilities.AssetInitializer;
 import utilities.Constants;
 import view.DrawGame;
-import view.DrawLoading;
 import view.DrawMenu;
+import view.DrawTitlescreen;
 
 import model.Board;
 import model.GameProgress;
@@ -45,7 +45,7 @@ public class GameEngine implements ApplicationListener {
 	private TutorialLoader tutorialLoader;
 	private Menu menu;
 	private DrawMenu dm;
-	private DrawLoading dl;
+	private DrawTitlescreen dt;
 
 	/**
 	 * Keep a reference to which level we're on
@@ -106,7 +106,8 @@ public class GameEngine implements ApplicationListener {
 	 * Enumeration of each of the states the game can be in
 	 */
 	public enum GameState {
-		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO, TUTORIAL, INFO, LEVEL_TRANSITION, MENU_TO_LEVEL_TRANSITION, LEVEL_TO_MENU_TRANSITION
+		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO, TUTORIAL, INFO, 
+		LEVEL_TRANSITION, MENU_TO_LEVEL_TRANSITION, LEVEL_TO_MENU_TRANSITION
 	}
 
 	/**
@@ -139,6 +140,13 @@ public class GameEngine implements ApplicationListener {
 	 */
 	public enum ButtonPress {
 		UNDO, RESET, MENU, INFO, TUTORIAL, NEXT_LEVEL, SKIPWIN, NONE
+	}
+	
+	/**
+	 * Enumeration of the various possibilities within the title screen
+	 */
+	public enum TitleOption {
+		PLAY, SETTINGS, SOUND_FX, MUSIC, CREDITS, EXIT, NONE
 	}
 
 	/**
@@ -179,6 +187,8 @@ public class GameEngine implements ApplicationListener {
 	 */
 	private GameState state = GameState.IDLE;
 	private boolean mainMenuShowing = true;
+	private boolean titleScreenShowing = true;
+	private boolean settingsShowing = false;
 
 	/**
 	 * These variables allow our restoration protocol to work
@@ -222,7 +232,8 @@ public class GameEngine implements ApplicationListener {
 		tempFile = Gdx.files.local(tempData);
 		
 		//Set up the loading drawer
-		dl = new DrawLoading();
+		dt = new DrawTitlescreen();
+		dt.initLoadFonts();
 
 		// Set up logging, if applicable
 		if (Constants.LOGGING)
@@ -271,7 +282,10 @@ public class GameEngine implements ApplicationListener {
 		return allBoards;
 	}
 	
+	//Loading constants
+	private boolean gameRunning = false;
 	private boolean finishedLoading = false;
+	private boolean drawingInitialized = false;
 	private int timeLoading = 0;
 	
 	/**
@@ -297,31 +311,45 @@ public class GameEngine implements ApplicationListener {
 	public void render() {
 		
 		//Start by loading
-		if (!finishedLoading){
-			
-			//Check if we're finished
-			if (AssetInitializer.isFinished() && timeLoading == Constants.LOAD_FADE_TIME){
-				initializeDrawing();
-				finishedLoading = true;
-			}
-			
-			dl.draw(timeLoading / (float) Constants.LOAD_FADE_TIME);
-			timeLoading = Math.min(timeLoading+1, Constants.LOAD_FADE_TIME);
-			//Always return from here if not loaded previously
+		if (!gameRunning){
+			doInitialLoading();
+			dt.draw(true, timeLoading, Menu.colorOfWorld(progress.getHighestUnlockedWorld()));
 			return;
-		} 
-		//Fade out the loading
-		else if (timeLoading > 0){
-			timeLoading--;
-			dl.draw(timeLoading / (float) Constants.LOAD_FADE_TIME);
-			return;
-		}
-
-			
+		}	
 		//Otherwise, game loop!
 			
 		// Check for back pressed first
 		inputHandler.checkBackPressed();
+		
+		// First handle the settings and title screens
+		if (settingsShowing){
+			
+			//TODO: Handle settings here
+			
+			return;
+		} else if (titleScreenShowing){
+			TitleOption userChoice = inputHandler.checkForTitleOptionPress(settingsShowing);
+			switch (userChoice)
+			{
+				case EXIT:
+					if (Constants.LOGGING) {
+						logEnd();
+					}
+					System.exit(0);
+					break;
+				case PLAY:
+					titleScreenShowing = false;
+					break;
+				case SETTINGS:
+					System.out.println("Unimplemented (yet)");
+					break;
+				default:
+					break;
+			
+			}
+			dt.draw(false, -1, Menu.colorOfWorld(progress.getHighestUnlockedWorld()));
+			return;
+		}
 
 		// Handle the menu separately
 		boolean wasMenuShowing = mainMenuShowing;
@@ -471,7 +499,34 @@ public class GameEngine implements ApplicationListener {
 					currentOrdinalInWorld,
 					menu.colorOfLevel(currentWorld, currentOrdinalInWorld), 0,
 					false, isLast, isNextLocked, progress);
-			}
+		}
+	}
+	
+	/**
+	 * Performs initial loading until the screen has been completely loaded
+	 */
+	private void doInitialLoading(){
+		//Load the art assets
+		if (!finishedLoading){
+			//Check if we're finished
+			if (AssetInitializer.isFinished()){
+				finishedLoading = true;
+			};
+			timeLoading++;
+		} 
+		//Fade out the loading
+		else if (timeLoading < Constants.LOAD_SCREEN_TIME + Constants.LOAD_FADE_TIME){
+			timeLoading++;
+		} 
+		// Load all the drawing requirements
+		else if (!drawingInitialized){
+			initializeDrawing();
+			drawingInitialized = true;
+		}
+		//Otherwise we're done - let's start running!
+		else {
+			gameRunning = true;
+		}
 	}
 
 	/**
@@ -493,13 +548,9 @@ public class GameEngine implements ApplicationListener {
 			Logger.startNewSession();
 		}
 
-		// Exit to leave
+		// Leaving the main menu
 		if (selected == -2) {
-			if (Constants.LOGGING) {
-				logEnd();
-			}
-			// TODO: Do things to check if the player wants to leave.
-			System.exit(0);
+			titleScreenShowing = true;
 		}
 
 		// Picked a level
@@ -758,7 +809,6 @@ public class GameEngine implements ApplicationListener {
 			else {
 				// Get the board where it should be now
 				if (currentAnimationState != AnimationState.DESTRUCTION && state != GameState.DESTROYED){
-					System.out.println("damn.");
 					goBackToTheFuture();
 				}
 
@@ -1430,13 +1480,13 @@ public class GameEngine implements ApplicationListener {
 	 */
 	@Override
 	public void resume() {
+		// Check if there's data for to read before doing anything
+		if (!tempFile.exists())
+			return;
+		
 		// Reinitialize the fonts
 		dg.initFonts();
 		dm.initFonts();
-
-		// Check if there's data for to read
-		if (!tempFile.exists())
-			return;
 
 		String fromTemp = tempFile.readString();
 		debug("Read " + fromTemp);
