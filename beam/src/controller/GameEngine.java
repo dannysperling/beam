@@ -110,7 +110,7 @@ public class GameEngine implements ApplicationListener {
 	 * Enumeration of each of the states the game can be in
 	 */
 	public enum GameState {
-		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO, TUTORIAL, INFO, 
+		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO, TUTORIAL, INFO,
 		LEVEL_TRANSITION, MENU_TO_LEVEL_TRANSITION, LEVEL_TO_MENU_TRANSITION
 	}
 
@@ -192,6 +192,8 @@ public class GameEngine implements ApplicationListener {
 	private GameState state = GameState.IDLE;
 	private boolean mainMenuShowing = true;
 	private boolean titleScreenShowing = true;
+	private boolean transitioningToMenu = false;
+	private int transitionTicks = 0;
 	private boolean settingsShowing = false;
 
 	/**
@@ -237,7 +239,7 @@ public class GameEngine implements ApplicationListener {
 		
 		//Set up the loading drawer
 		dt = new DrawTitlescreen();
-		dt.initLoadFonts();
+		dt.initFonts();
 
 		// Set up logging, if applicable
 		if (Constants.LOGGING)
@@ -317,7 +319,7 @@ public class GameEngine implements ApplicationListener {
 		//Start by loading
 		if (!gameRunning){
 			doInitialLoading();
-			dt.draw(true, timeLoading, Menu.colorOfWorld(progress.getHighestUnlockedWorld()));
+			dt.draw(true, timeLoading, Menu.colorOfWorld(progress.getHighestUnlockedWorld()), false, 0);
 			return;
 		}	
 		//Otherwise, game loop!
@@ -332,26 +334,38 @@ public class GameEngine implements ApplicationListener {
 			
 			return;
 		} else if (titleScreenShowing){
-			TitleOption userChoice = inputHandler.checkForTitleOptionPress(settingsShowing);
-			switch (userChoice)
-			{
-				case EXIT:
-					if (Constants.LOGGING) {
-						logEnd();
-					}
-					System.exit(0);
-					break;
-				case PLAY:
+			boolean wasTransitioning = transitioningToMenu;
+			if (!transitioningToMenu){
+				TitleOption userChoice = inputHandler.checkForTitleOptionPress(settingsShowing);
+				switch (userChoice)
+				{
+					case EXIT:
+						if (Constants.LOGGING) {
+							logEnd();
+						}
+						System.exit(0);
+						break;
+					case PLAY:
+						transitioningToMenu = true;
+						transitionTicks = 0;
+						dt.initMenuSprite(dm, b, currentWorld, currentOrdinalInWorld);
+						break;
+					case SETTINGS:
+						System.out.println("Unimplemented as of yet");
+						break;
+					default:
+						break;
+				
+				}
+			} else {
+				transitionTicks++;
+				if (transitionTicks >= Constants.TRANS_TO_MENU_TIME){
 					titleScreenShowing = false;
-					break;
-				case SETTINGS:
-					System.out.println("Unimplemented (yet)");
-					break;
-				default:
-					break;
-			
+					transitioningToMenu = false;
+					dt.offLoadingScreen();
+				}
 			}
-			dt.draw(false, -1, Menu.colorOfWorld(progress.getHighestUnlockedWorld()));
+			dt.draw(false, -1, Menu.colorOfWorld(progress.getHighestUnlockedWorld()), wasTransitioning, transitionTicks);
 			return;
 		}
 
@@ -1496,6 +1510,7 @@ public class GameEngine implements ApplicationListener {
 		// Reinitialize the fonts
 		dg.initFonts();
 		dm.initFonts();
+		dt.initFonts();
 
 		String fromTemp = tempFile.readString();
 		debug("Read " + fromTemp);

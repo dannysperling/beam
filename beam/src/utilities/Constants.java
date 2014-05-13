@@ -23,6 +23,7 @@ public class Constants {
 	public static final int LOAD_FADE_TIME = 60;
 	public static final int LOAD_SCREEN_TIME = 240;
 	public static final int LOAD_TEXT_FADE_TIME = 30;
+	public static final int TRANS_TO_MENU_TIME = 30;
 	
 	
 	/**

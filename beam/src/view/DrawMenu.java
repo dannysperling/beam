@@ -411,8 +411,8 @@ public class DrawMenu {
 		shape.setColor(Color.WHITE);
 		int thickness = 2;
 		for (int i = 0; i < thickness; i++){
-			shape.line(0, itemBotY-i+thickness, Gdx.graphics.getWidth(), itemBotY-i+thickness);
-			shape.line(0, itemBotY+worldHeight+i-thickness+1, Gdx.graphics.getWidth(), itemBotY+worldHeight+i-thickness+1);
+			shape.line(0, itemBotY-i+thickness-1, Gdx.graphics.getWidth(), itemBotY-i+thickness-1);
+			shape.line(0, itemBotY+worldHeight+i-thickness, Gdx.graphics.getWidth(), itemBotY+worldHeight+i-thickness);
 		}
 		shape.end();
 	}
