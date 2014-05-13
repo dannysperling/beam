@@ -491,8 +491,8 @@ public class GameEngine implements ApplicationListener {
 				dm.draw(b, currentWorld, currentOrdinalInWorld, false, 0);
 			}
 		} else if (state == GameState.LEVEL_TRANSITION) {
-			float transPart = ((float) (timeSpentOnTransition))
-					/ Constants.TIME_FOR_LEVEL_TRANSITION;
+			float transitionMoment = Math.max(0, timeSpentOnTransition - Constants.TRANSITION_DELAY);
+			float transPart = transitionMoment / (Constants.TIME_FOR_LEVEL_TRANSITION - Constants.TRANSITION_DELAY);
 			float totalTransPart = transPart * -1 * Gdx.graphics.getWidth();
 			com.badlogic.gdx.graphics.Color a = menu.colorOfLevel(currentWorld, currentOrdinalInWorld);
 			com.badlogic.gdx.graphics.Color cb = menu.colorOfLevel(nextLvWorld, nextOrdinal);
@@ -1599,6 +1599,10 @@ public class GameEngine implements ApplicationListener {
 		return timeWon;
 	}
 
+	public static int getTransitionTime(){
+		return timeSpentOnTransition;
+	}
+	
 	public static int getWonAnimationUnit() {
 		return Constants.WON_ANIMATION_UNIT;
 	}

@@ -126,7 +126,7 @@ public class Board {
 		int totalBeams = 0;
 
 		if(beamObjectives.isEmpty()){
-			goalSpace = Constants.TEXT_GOAL_HEIGHT;
+			goalSpace = 0;
 		} else {
 			for(Color c : beamObjectives.keySet()){
 				totalBeams += beamObjectives.get(c);
@@ -154,7 +154,10 @@ public class Board {
 				tileSize = maxWidth;
 				botLeftX = (int) (Gdx.graphics.getWidth() * Constants.SIDE_EMPTY_SIZE);
 				botLeftY = (int) (Gdx.graphics.getHeight()
-						* (Constants.BOT_BAR_SIZE + goalSpace) + (screenHeight - (tileSize * height)) / 2);
+						* (Constants.BOT_BAR_SIZE + goalSpace) + (screenHeight - (tileSize * height) + Constants.GAME_BUTTON_HEIGHT) / 2);
+				if((Gdx.graphics.getHeight() * (1 - Constants.TOP_BAR_SIZE)) - (botLeftY + (tileSize * height)) > (Gdx.graphics.getHeight() * Constants.GAME_BUTTON_HEIGHT)){
+					botLeftY += (Gdx.graphics.getHeight() * Constants.GAME_BUTTON_HEIGHT) / 2.0f;
+				}
 			} else {
 				tileSize = maxHeight;
 				botLeftX = (int) (Gdx.graphics.getWidth()

@@ -39,8 +39,11 @@ public class Constants {
 	public static final int TIME_BEFORE_DEATH_MESSAGE = 60;
 	public static final int WON_ANIMATION_UNIT = 20;
 	
-	public static final int TIME_FOR_LEVEL_TRANSITION = 30;
+	public static final int TIME_FOR_LEVEL_TRANSITION = 50;
+	public static final int TRANSITION_DELAY = 20; 
 	public static final int TIME_FOR_MENU_TRANSITION = 25;
+	
+	public static final int WON_DELAY = 15; 
 	
 	
 	/**
@@ -55,10 +58,11 @@ public class Constants {
 	 * SCREEN SIZE CONSTANTS
 	 */
 	public static final float TOP_BAR_SIZE = 0.15f;
-	public static final float BOT_BAR_SIZE = 0.09f;
+	public static final float BOT_BAR_SIZE = 0.03f;//0.09f;
 	public static final float SIDE_EMPTY_SIZE = 0.02f;
 	public static final float GAME_BUTTON_HEIGHT = 0.08f;
 	public static final float NON_GAME_BUTTON_HEIGHT = 0.08f;
+	public static final float POPUP_WIDTH_BOUNDARY = 0.05f;
 	
 	/**
 	 * GOAL PROGRESS CONSTANTS
