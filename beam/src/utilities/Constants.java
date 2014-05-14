@@ -14,7 +14,7 @@ public class Constants {
 	 */
 	public static final boolean DEBUG_MODE = false;
 	public static boolean UNLOCK_MODE = false;
-	public static final boolean LOGGING = false;
+	public static final boolean LOGGING = true;
 	
 	
 	/**
@@ -57,9 +57,9 @@ public class Constants {
 	/**
 	 * SCREEN SIZE CONSTANTS
 	 */
-	public static final float TOP_BAR_SIZE = 0.15f;
+	public static final float TOP_BAR_SIZE = 0.12f;
 	public static final float BOT_BAR_SIZE = 0.03f;//0.09f;
-	public static final float SIDE_EMPTY_SIZE = 0.02f;
+	public static final float SIDE_EMPTY_SIZE = 0.03f;
 	public static final float GAME_BUTTON_HEIGHT = 0.08f;
 	public static final float NON_GAME_BUTTON_HEIGHT = 0.08f;
 	public static final float POPUP_WIDTH_BOUNDARY = 0.05f;

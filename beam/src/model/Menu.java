@@ -53,30 +53,8 @@ public class Menu {
 		int height = Gdx.graphics.getHeight();
 		int width = Gdx.graphics.getWidth();
 
-		// Bottom button presses
-		if (y < Constants.GAME_BUTTON_HEIGHT * height ){
-			//Menu
-			if (x > B_MENU_LEFT_X * width && x < (B_MENU_LEFT_X + B_MENU_WIDTH) * width){
-				return GameEngine.ButtonPress.MENU;
-			}
-			//Info
-			else if (GameEngine.getTutorial() == null){
-				if(x > B_INFO_LEFT_X * width && x < (B_INFO_LEFT_X + B_INFO_WIDTH) * width){
-					return GameEngine.ButtonPress.INFO;
-				}
-			} 
-			//Tutorial
-			else if (GameEngine.getTutorial() != null){
-				if(x > ((width - (2 * Menu.B_INFO_WIDTH * width)) / 2.0f) && x < ((width - (2 * Menu.B_INFO_WIDTH * width)) / 2.0f) + (B_INFO_WIDTH * width)){
-					return GameEngine.ButtonPress.INFO;
-				} else if ( x > width/2.0f && x < ((width / 2.0f) + B_INFO_WIDTH * width)){
-					return GameEngine.ButtonPress.TUTORIAL;
-				}
-			}
-		}
-
 		// Above board button presses
-		else if (y > botYCoord && y < botYCoord + Constants.GAME_BUTTON_HEIGHT * height){
+		if (y > botYCoord && y < botYCoord + Constants.GAME_BUTTON_HEIGHT * height){
 			//Undo
 			if (x > B_UNDO_LEFT_X * width && x < (B_UNDO_LEFT_X + B_UNDO_WIDTH) * width){
 				return GameEngine.ButtonPress.UNDO;
@@ -84,9 +62,30 @@ public class Menu {
 			//Reset
 			else if (x > B_RESET_LEFT_X * width && x < (B_RESET_LEFT_X + B_RESET_WIDTH) * width){
 				return GameEngine.ButtonPress.RESET;
+			} else {
+				//Info
+				if (GameEngine.getTutorial() == null){
+					if(x > B_INFO_LEFT_X * width && x < (B_INFO_LEFT_X + B_INFO_WIDTH) * width){
+						return GameEngine.ButtonPress.INFO;
+					}
+				} 
+				//Tutorial
+				else if (GameEngine.getTutorial() != null){
+					if(x > ((width - (2 * Menu.B_INFO_WIDTH * width)) / 2.0f) && x < ((width - (2 * Menu.B_INFO_WIDTH * width)) / 2.0f) + (B_INFO_WIDTH * width)){
+						return GameEngine.ButtonPress.INFO;
+					} else if ( x > width/2.0f && x < ((width / 2.0f) + B_INFO_WIDTH * width)){
+						return GameEngine.ButtonPress.TUTORIAL;
+					}
+				}
 			}
 		}
-
+		else if (y > (height - (height * Constants.TOP_BAR_SIZE))){
+			if (x > B_MENU_LEFT_X * width && x < (B_MENU_LEFT_X + B_MENU_WIDTH) * width){
+				return GameEngine.ButtonPress.MENU;
+			}
+		}
+		
+		
 		// Not in one of the buttons
 		return GameEngine.ButtonPress.NONE;
 	}

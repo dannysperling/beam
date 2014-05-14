@@ -59,6 +59,10 @@ public class DrawGame {
 	private Sprite outerBurnSprite;
 	private Texture innerBurnTexture;
 	private Sprite innerBurnSprite;
+	private Texture arrowTexture;
+	private Sprite arrowSprite;
+	private Texture vertStarTexture;
+	private Sprite vertStarSprite;
 	public ShapeRenderer shapes;
 
 	private Animation destroyAnimation;
@@ -86,6 +90,8 @@ public class DrawGame {
 
 		pieceTexture = AssetInitializer.getTexture(AssetInitializer.piece);
 
+		arrowTexture = AssetInitializer.getTexture(AssetInitializer.arrow);
+		
 		nPieceTexture = AssetInitializer.getTexture(AssetInitializer.npiece);
 
 		painterTexture = AssetInitializer.getTexture(AssetInitializer.painter);
@@ -101,6 +107,7 @@ public class DrawGame {
 		oneStarTexture = AssetInitializer.getTexture(AssetInitializer.one_star);
 
 		twoStarTexture = AssetInitializer.getTexture(AssetInitializer.two_star);
+		vertStarTexture = AssetInitializer.getTexture(AssetInitializer.vert_star);
 
 		innerBurnTexture = AssetInitializer.getTexture(AssetInitializer.innerburn);
 		outerBurnTexture = AssetInitializer.getTexture(AssetInitializer.outerburn);
@@ -128,6 +135,9 @@ public class DrawGame {
 		TextureRegion lockregion = new TextureRegion(lockTexture, 0, 0, 128,
 				128);
 
+		TextureRegion arrowregion = new TextureRegion(arrowTexture);
+		TextureRegion vertregion = new TextureRegion(vertStarTexture);
+		
 		TextureRegion[] destroyFrames = new TextureRegion[Constants.TIME_BEFORE_DEATH_MESSAGE];
 		Texture[] curTextures = new Texture[Constants.TIME_BEFORE_DEATH_MESSAGE];
 		for(int i = 0; i < Constants.TIME_BEFORE_DEATH_MESSAGE; i++){
@@ -155,6 +165,8 @@ public class DrawGame {
 		twoStarSprite = new Sprite(twostarregion);
 		innerBurnSprite = new Sprite(inburnregion);
 		outerBurnSprite = new Sprite(outburnregion);
+		arrowSprite = new Sprite(arrowregion);		
+		vertStarSprite = new Sprite(vertregion);		
 
 		shapes = new ShapeRenderer();
 	}
@@ -857,55 +869,50 @@ public class DrawGame {
 	 */
 	private void drawHeader(int width, int height, TextBounds tb,
 			int currentWorld, int currentOrdinalInWorld, Board b) {
-		float boxesWidth = width * 0.25f;
-		float boxesHeight = height * Constants.TOP_BAR_SIZE * 0.65f;
-		Color boxesColor = new Color(0.3f, 0.3f, 0.3f, 1);
+		
+		float barHeight = height * Constants.TOP_BAR_SIZE;
+		Gdx.gl.glEnable(GL10.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		shapes.begin(ShapeType.Filled);
-		shapes.setColor(Color.BLACK);
-		shapes.rect(width * 0.40f, (1 - (Constants.TOP_BAR_SIZE * 0.825f))
-				* height, boxesWidth, boxesHeight);
-		shapes.rect(width * 0.70f, (1 - (Constants.TOP_BAR_SIZE * 0.825f))
-				* height, boxesWidth, boxesHeight);
-		shapes.setColor(boxesColor);
-		shapes.rect((width * 0.40f) + 2,
-				((1 - (Constants.TOP_BAR_SIZE * 0.825f)) * height) + 2,
-				boxesWidth - 4, boxesHeight - 4);
-		shapes.rect((width * 0.70f) + 2,
-				((1 - (Constants.TOP_BAR_SIZE * 0.825f)) * height) + 2,
-				boxesWidth - 4, boxesHeight - 4);
+		shapes.setColor(new Color(0,0,0,0.8f));
+		shapes.rect(0, height - barHeight, width, barHeight);
 		shapes.end();
+		Gdx.gl.glDisable(GL10.GL_BLEND);
 
 		int moves = GameEngine.getMoveCount();
-		String movesString = moves + "";
+		String movesString = moves + "\n\nMoves";
+		String menuString = "Menu";
+		String refString = "00";
 		batch.begin();
-		levelNameFont.setColor(Constants.BOARD_COLOR);
-		String levelName = currentWorld + "-" + currentOrdinalInWorld;
-		String moveWord = "Moves";
-		levelNameFont.draw(batch, levelName, width * 0.05f,
-				(1 - (Constants.TOP_BAR_SIZE * 0.2f)) * height);
-		moveWordFont.setColor(Constants.BOARD_COLOR);
-		tb = moveWordFont.getBounds(moveWord);
-		moveWordFont.draw(batch, moveWord, (width * 0.4f)
-				+ ((boxesWidth - tb.width) / 2.0f),
-				(1 - (Constants.TOP_BAR_SIZE * 0.25f)) * height);
-		tb = movesFont.getBounds(movesString);
-		movesFont.setColor(Constants.BOARD_COLOR);
-		movesFont.draw(batch, movesString, (width * 0.4f)
-				+ ((boxesWidth - tb.width) / 2.0f),
-				(1 - (Constants.TOP_BAR_SIZE * 0.45f)) * height);
+		nonGameNLButtonFont.setColor(Constants.BOARD_COLOR);
+		tb = nonGameNLButtonFont.getBounds(menuString);
+		float arrowHeight = tb.height;
+		float arrowWidth = arrowHeight / 2.0f;
+		arrowSprite.setPosition(arrowWidth * 2, (height - barHeight) + ((barHeight - (arrowHeight * 1.1f)) / 2.0f));
+		arrowSprite.setSize(arrowWidth * 1.05f, arrowHeight * 1.1f);
+		arrowSprite.draw(batch);
+		nonGameNLButtonFont.draw(batch, menuString, arrowWidth * 3, (height - barHeight) + ((barHeight - arrowHeight) / 2.0f) + arrowHeight);
+		
+		float movesXBase = arrowWidth * 3 + tb.width;
 
-		String perfectString = b.perfect + "";
-		tb = movesFont.getBounds(perfectString);
-		float starSize = 0.7f * (boxesWidth - tb.width);
-		threeStarSprite.setSize(starSize, starSize);
-		movesFont.draw(batch, perfectString, (width * 0.7f)
-				+ (boxesWidth - (tb.width + (0.05f * boxesWidth))),
-				(1 - (Constants.TOP_BAR_SIZE * 0.35f)) * height);
-		threeStarSprite.setPosition((width * 0.7f)
-				+ ((boxesWidth - tb.width) * .15f),
-				(1 - (Constants.TOP_BAR_SIZE * 0.825f)) * height
-				+ ((boxesHeight - starSize) / 2.0f));
+		tb = nonGameNLButtonFont.getBounds(refString);
+		float numWidth = tb.width;
+		float starsHeight = 0.7f * barHeight;
+		vertStarSprite.setSize(starsHeight, starsHeight);
+		vertStarSprite.setPosition(width - (2 * arrowWidth) - numWidth - (starsHeight / 2.0f), (height - barHeight) + ((barHeight - starsHeight)/2.0f));
+		vertStarSprite.draw(batch);
+		threeStarSprite.setSize(starsHeight, starsHeight);
+		threeStarSprite.setPosition(width - (2 * arrowWidth) - (2 * numWidth) - (starsHeight * 1.5f), (height - barHeight) + ((barHeight - starsHeight)/2.0f));
 		threeStarSprite.draw(batch);
+		String perfectString = b.perfect + "";
+		String parString = b.par + "";
+		tb = nonGameNLButtonFont.getBounds(parString);
+		nonGameNLButtonFont.draw(batch, parString, width - (2 * arrowWidth) - numWidth + ((numWidth - tb.width) / 2.0f) , (height - barHeight) + ((barHeight - tb.height)/2.0f) + tb.height);
+		tb = nonGameNLButtonFont.getBounds(perfectString);
+		nonGameNLButtonFont.draw(batch, perfectString, width - (2 * arrowWidth) - 2 * numWidth - (starsHeight / 2.0f) + ((numWidth - tb.width) / 2.0f), (height - barHeight) + ((barHeight - tb.height)/2.0f) + tb.height);
+		tb = nonGameNLButtonFont.getMultiLineBounds(movesString);
+		float movesX = movesXBase + (((width - (2 * arrowWidth) - (2 * numWidth) - (starsHeight * 1.5f) - movesXBase) - tb.width)/2.0f);
+		nonGameNLButtonFont.drawMultiLine(batch, movesString, movesX, (height - barHeight) + ((barHeight - tb.height) / 2.0f) + tb.height, tb.width, HAlignment.CENTER);
 		batch.end();
 
 	}
@@ -1156,7 +1163,7 @@ public class DrawGame {
 	 * Draws the sequence that appears after completing a level
 	 */
 	private void drawOutro(int width, int height, Board b,
-			TextBounds tb, GameState state, boolean isLast) {
+			TextBounds tb, GameState state, boolean isLast, Color bg) {
 
 		
 		
@@ -1248,14 +1255,8 @@ public class DrawGame {
 		
 		String nextString = isLast ? "Next World" : "Next Level";
 
-		/*
-		Gdx.gl.glEnable(GL10.GL_BLEND);
-		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-		shapes.begin(ShapeType.Filled);
-		shapes.setColor(new Color(1, 1, 1, boxAlpha));
-		shapes.rect(bx, by, boardWidth, boardHeight);
-		shapes.end();
-		Gdx.gl.glDisable(GL10.GL_BLEND);*/
+		
+
 
 		float star1X = bx + (0.1f * boardWidth)
 				+ ((starWidth - star1size) / 2.0f);
@@ -1282,6 +1283,14 @@ public class DrawGame {
 		 */
 		float textY = star1Y - (starWidth / 4.0f);
 
+		Gdx.gl.glEnable(GL10.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		shapes.begin(ShapeType.Filled);
+		shapes.setColor(new Color(bg.r, bg.g, bg.b, textAlpha * 0.9f));
+		shapes.rect(bx + Constants.POPUP_WIDTH_BOUNDARY, by + (1 * Constants.POPUP_WIDTH_BOUNDARY * height), boardWidth - (Constants.POPUP_WIDTH_BOUNDARY * 2.0f), (textY - (starWidth / 2.0f) - (by + (2 * Constants.POPUP_WIDTH_BOUNDARY * height))));
+		shapes.end();
+		Gdx.gl.glDisable(GL10.GL_BLEND);
+		
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		batch.begin();
@@ -1327,6 +1336,10 @@ public class DrawGame {
 		tb = introFont.getBounds("Reset");
 		introFont.setColor(new Color(Constants.BOARD_COLOR.r, Constants.BOARD_COLOR.g, Constants.BOARD_COLOR.b, textAlpha));
 		introFont.draw(batch, "Reset", width - bx - buttonSpace - tb.width, height - by - bx);
+
+		tb = introFont.getBounds(nextString);
+		introFont.setColor(new Color(Constants.BOARD_COLOR.r, Constants.BOARD_COLOR.g, Constants.BOARD_COLOR.b, textAlpha));
+		introFont.draw(batch, nextString, (width - tb.width) / 2.0f, by + Constants.POPUP_WIDTH_BOUNDARY + tb.height + (((textY - (starWidth / 2.0f) - (by + Constants.POPUP_WIDTH_BOUNDARY)) -tb.height)/2.0f));
 
 		
 		tb = introFont.getMultiLineBounds(levelEndMessage);
@@ -1998,14 +2011,14 @@ public class DrawGame {
 			}
 		}		
 
-		/*if(GameEngine.getTutorial() != null){
+		if(GameEngine.getTutorial() != null){
 			batch.begin(); 
 			infoSprite.setColor(Constants.BOARD_COLOR);
 			tutorialSprite.setColor(Constants.BOARD_COLOR);
 			infoSprite.setSize(Menu.B_INFO_WIDTH * width * 0.9f, Menu.B_INFO_WIDTH * width * 0.9f);
 			tutorialSprite.setSize(Menu.B_INFO_WIDTH * width * 0.9f, Menu.B_INFO_WIDTH * width * 0.9f);
-			infoSprite.setPosition((width - (2 * Menu.B_INFO_WIDTH * width)) / 2.0f, (Constants.GAME_BUTTON_HEIGHT * height - (Menu.B_INFO_WIDTH * width* 0.9f)) / 2.0f);
-			tutorialSprite.setPosition(width / 2.0f, (Constants.GAME_BUTTON_HEIGHT * height - (Menu.B_INFO_WIDTH * width* 0.9f)) / 2.0f);
+			infoSprite.setPosition((width - (2 * Menu.B_INFO_WIDTH * width)) / 2.0f + transitionPart, by + (tilesize * b.getNumVerticalTiles())+ (Menu.B_INFO_WIDTH * width * 0.25f));
+			tutorialSprite.setPosition(width / 2.0f + transitionPart, by + (tilesize * b.getNumVerticalTiles())+ (Menu.B_INFO_WIDTH * width * 0.25f));
 			infoSprite.draw(batch);
 			tutorialSprite.draw(batch);
 			batch.end();
@@ -2013,10 +2026,10 @@ public class DrawGame {
 			batch.begin();
 			infoSprite.setColor(Constants.BOARD_COLOR);
 			infoSprite.setSize(Menu.B_INFO_WIDTH * width * 0.9f, Menu.B_INFO_WIDTH * width * 0.9f);
-			infoSprite.setPosition((width - (Menu.B_INFO_WIDTH * width)) / 2.0f, (Constants.GAME_BUTTON_HEIGHT * height - (Menu.B_INFO_WIDTH * width* 0.9f)) / 2.0f);
+			infoSprite.setPosition((width - (Menu.B_INFO_WIDTH * width)) / 2.0f + transitionPart, by + (tilesize * b.getNumVerticalTiles()) + (Menu.B_INFO_WIDTH * width * 0.25f));
 			infoSprite.draw(batch);
 			batch.end();
-		}*/
+		}
 
 		if(state == GameState.TUTORIAL){
 			drawTutorial(GameEngine.getTutorial(), tb, width, height);
@@ -2029,7 +2042,7 @@ public class DrawGame {
 
 		//Draw outro
 		if(state == GameState.WON || (state == GameState.LEVEL_TRANSITION && !partial && b.isWon())){
-			drawOutro(width, height, b, tb, state, isLast);
+			drawOutro(width, height, b, tb, state, isLast, bg);
 
 		}
 		
@@ -2044,10 +2057,12 @@ public class DrawGame {
 		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA,
 				GL10.GL_ONE_MINUS_SRC_ALPHA);
 		shapes.begin(ShapeType.Filled);
-		shapes.setColor(new Color(0,0,0,0.85f * alpha));
+		//shapes.setColor(new Color(0,0,0,0.85f * alpha));
+		//shapes.rect(0, 0, width, height);
+		shapes.setColor(new Color(0.1f, 0.1f, 0.1f, 0.97f * alpha));
 		shapes.rect(0, 0, width, height);
-		shapes.setColor(new Color(0.3f, 0.3f, 0.3f, alpha));
-		shapes.rect(spc, 2 * spc, width - (2 * spc), height - (4 * spc));
+		
+		//shapes.rect(spc, 2 * spc, width - (2 * spc), height - (4 * spc));
 		shapes.end();
 		Gdx.gl.glDisable(GL10.GL_BLEND);
 

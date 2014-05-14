@@ -155,9 +155,9 @@ public class Board {
 				botLeftX = (int) (Gdx.graphics.getWidth() * Constants.SIDE_EMPTY_SIZE);
 				botLeftY = (int) (Gdx.graphics.getHeight()
 						* (Constants.BOT_BAR_SIZE + goalSpace) + (screenHeight - (tileSize * height) + Constants.GAME_BUTTON_HEIGHT) / 2);
-				if((Gdx.graphics.getHeight() * (1 - Constants.TOP_BAR_SIZE)) - (botLeftY + (tileSize * height)) > (Gdx.graphics.getHeight() * Constants.GAME_BUTTON_HEIGHT)){
+			/*	if((Gdx.graphics.getHeight() * (1 - Constants.TOP_BAR_SIZE)) - (botLeftY + (tileSize * height)) > (Gdx.graphics.getHeight() * Constants.GAME_BUTTON_HEIGHT)){
 					botLeftY += (Gdx.graphics.getHeight() * Constants.GAME_BUTTON_HEIGHT) / 2.0f;
-				}
+				}*/
 			} else {
 				tileSize = maxHeight;
 				botLeftX = (int) (Gdx.graphics.getWidth()
