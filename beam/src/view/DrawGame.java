@@ -376,6 +376,8 @@ public class DrawGame {
 						shapes.setColor(new Color(Constants.translateColorLight(p.getColor()).r
 								+ rshift, Constants.translateColorLight(p.getColor()).g + gshift,
 								Constants.translateColorLight(p.getColor()).b + bshift, 1));
+					} else if (state == GameState.MOVING && aState == AnimationState.FORMING && path.get(1).getPainterColor() != GameEngine.Color.NONE){ 
+						shapes.setColor(Constants.translateColorLight(path.get(1).getPainterColor()));
 					} else {
 						shapes.setColor(Constants.translateColorLight(b.getPieceOnTile(path.get(0)).getColor()));
 					}
