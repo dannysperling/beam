@@ -106,6 +106,8 @@ public class GameEngine implements ApplicationListener {
 	private Collection<Short> futureBoard;
 	public static Set<Laser> futureLasers = new HashSet<Laser>();
 
+	public boolean worldTransitioning = false;
+	
 	/**
 	 * Enumeration of each of the states the game can be in
 	 */
@@ -444,8 +446,29 @@ public class GameEngine implements ApplicationListener {
 						break;
 					case LEVEL_TO_MENU_TRANSITION:
 						if(timeSpentLeavingLevel >= Constants.TIME_FOR_MENU_TRANSITION){
-							state = GameState.IDLE;
-							dm.updateBoardSprite(b);
+							if(!worldTransitioning){
+								state = GameState.IDLE;
+								dm.updateBoardSprite(b);
+							} else {
+								// Log the change
+								if (Constants.LOGGING) {
+									if (currentWorld != -1) {
+										logEnd();
+									}
+									Logger.enteredLevel(currentWorld + 1,
+											1);
+								}
+								//Change current and load the new level
+								currentWorld += 1;
+								currentOrdinalInWorld = 1;
+								inputHandler.setMostRecentlySelectedOrdinalInWorld(1);
+								inputHandler.setMostRecentlySelectedWorld(currentWorld);
+								dm.shiftBoardNew = true;
+								loadLevel(currentWorld, currentOrdinalInWorld);
+								state = GameState.MENU_TO_LEVEL_TRANSITION;	
+								timeSpentLeavingMenu = 0;
+								worldTransitioning = false;
+							}
 						} else {
 							timeSpentLeavingLevel++;
 						}
@@ -701,6 +724,7 @@ public class GameEngine implements ApplicationListener {
 					dm.shiftBoardNew = true;
 					mainMenuShowing = true;
 					menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
+					timeSpentLeavingLevel = 0;
 					break;
 				case NEXT_LEVEL:
 					//Make sure the next level is unlocked
@@ -714,9 +738,18 @@ public class GameEngine implements ApplicationListener {
 					}
 					if (!menu.isLevelUnlocked(nextWorld, nextLevelOrdinal))
 						break;
-					
 					// Guess we're sick of this level already...
-					state = GameState.LEVEL_TRANSITION;
+					if(nextWorld == currentWorld){
+						state = GameState.LEVEL_TRANSITION;
+					} else {
+						state = GameState.LEVEL_TO_MENU_TRANSITION;
+						worldTransitioning = true;
+						dm.shiftBoardNew = true;
+						mainMenuShowing = true;
+						menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
+						timeSpentLeavingLevel = 0;
+						break;
+					}
 					timeSpentOnTransition = 0;
 					nextOrdinal = nextLevelOrdinal;
 					nextLvWorld = nextWorld;

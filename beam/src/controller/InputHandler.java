@@ -673,4 +673,10 @@ public class InputHandler {
 	 */
 	public int getMostRecentlySelectedWorld(){return mostRecentlySelectedWorld;}
 	public int getMostRecentlySelectedOrdinalInWorld(){return mostRecentlySelectedOrdinalInWorld;}
+	
+	
+	public void setMostRecentlySelectedWorld(int recent){ mostRecentlySelectedWorld = recent;}
+	public void setMostRecentlySelectedOrdinalInWorld(int recent){mostRecentlySelectedOrdinalInWorld = recent;}
+	
+	
 }
