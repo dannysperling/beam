@@ -106,6 +106,7 @@ public class DrawTitlescreen {
 		// Get an accurate font color
 		Color fontColor = Color.WHITE.cpy();
 		fontColor.a = percentDark;
+		
 		moeSprite.setColor(fontColor);
 		
 		float widthRatio = ((float)(width)) / moeSprite.getWidth();
@@ -158,7 +159,7 @@ public class DrawTitlescreen {
 		TextBounds tb = symbolFont.getBounds(beam);
 		float yPos = height - tb.height / 2;
 		float xPos = width / 2 - tb.width / 2;
-		symbolFont.draw(batch, beam, xPos, yPos);
+		symbolFont.draw(batch, beam, (int)xPos, (int)yPos);
 
 		if (loading) {
 			// Loading
@@ -168,7 +169,7 @@ public class DrawTitlescreen {
 			yPos = (Menu.B_LOADING_BOT_Y + Menu.TITLE_SCREEN_BUTTON_HEIGHT)
 					* height;
 			xPos = width / 2 - tb.width / 2;
-			moeFont.draw(batch, load, xPos, yPos);
+			moeFont.draw(batch, load, (int)xPos, (int)yPos);
 		}
 
 		else if (framesIn < Constants.LOAD_TEXT_FADE_TIME) {
@@ -182,7 +183,7 @@ public class DrawTitlescreen {
 			yPos = (Menu.B_LOADING_BOT_Y + Menu.TITLE_SCREEN_BUTTON_HEIGHT)
 					* height;
 			xPos = width / 2 - tb.width / 2;
-			moeFont.draw(batch, load, xPos, yPos);
+			moeFont.draw(batch, load, (int)xPos, (int)yPos);
 		} else {
 			float fadeAmount = (framesIn - Constants.LOAD_TEXT_FADE_TIME)
 					/ (float) Constants.LOAD_TEXT_FADE_TIME;
@@ -194,14 +195,14 @@ public class DrawTitlescreen {
 			yPos = (Menu.B_PLAY_BOT_Y + Menu.TITLE_SCREEN_BUTTON_HEIGHT)
 					* height;
 			xPos = width / 2 - tb.width / 2;
-			moeFont.draw(batch, play, xPos, yPos);
+			moeFont.draw(batch, play, (int)xPos, (int)yPos);
 
 			String settings = "Settings";
 			tb = moeFont.getBounds(settings);
 			yPos = (Menu.B_SETTINGS_BOT_Y + Menu.TITLE_SCREEN_BUTTON_HEIGHT)
 					* height;
 			xPos = width / 2 - tb.width / 2;
-			moeFont.draw(batch, settings, xPos, yPos);
+			moeFont.draw(batch, settings, (int)xPos, (int)yPos);
 		}
 
 		batch.end();
@@ -237,7 +238,7 @@ public class DrawTitlescreen {
 
 	public void initFonts() {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
-				Gdx.files.internal("data/fonts/swanse.ttf"));
+				Gdx.files.internal(Constants.FONT_PATH));
 		int firstFontSize = (Gdx.graphics.getHeight() / 6)
 				- (Gdx.graphics.getHeight() / 6) % 2;
 		symbolFont = generator.generateFont(firstFontSize);

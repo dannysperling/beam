@@ -444,8 +444,8 @@ public class DrawMenu {
 
 		//Find the bounds based on the size of the drawn text
 		TextBounds tb = numberFont.getBounds(stringNumber);
-		numberFont.draw(batch, stringNumber, itemLeftX + (levelItemWidth - tb.width)/2, 
-				itemTopY - ((worldHeight * (1-menu.boardHeightPercent-menu.starHeightPercent) - tb.height) / 2));
+		numberFont.draw(batch, stringNumber, (int)(itemLeftX + (levelItemWidth - tb.width)/2), 
+				(int)(itemTopY - ((worldHeight * (1-menu.boardHeightPercent-menu.starHeightPercent) - tb.height) / 2)));
 		batch.end();
 	}
 
@@ -533,11 +533,11 @@ public class DrawMenu {
 
 		//Each text piece
 		batch.begin();
-		font.draw(batch, textEarned, startX, yPos);
+		font.draw(batch, textEarned, (int)startX, (int)yPos);
 		startX += earnedWidth + spaceSize;
-		font.draw(batch, textSlash, startX, yPos);
+		font.draw(batch, textSlash, (int)startX, (int)yPos);
 		startX += slashWidth + spaceSize;
-		font.draw(batch, textNeeded, startX, yPos);
+		font.draw(batch, textNeeded, (int)startX, (int)yPos);
 		startX += neededWidth + spaceSize / 2;
 
 		//And the star
@@ -609,7 +609,7 @@ public class DrawMenu {
 	 * Otherwise, the fonts get out of sync
 	 */
 	public void initFonts() {
-		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("data/fonts/swanse.ttf"));
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(Constants.FONT_PATH));
 		numberFont = generator.generateFont((int) (menu.getWorldHeight() * (1 - menu.boardHeightPercent - menu.starHeightPercent) * 3 / 4));
 		worldUnlockFont = generator.generateFont((int) (menu.getWorldHeight() * (1 - menu.boardHeightPercent - menu.starHeightPercent) / 2));
 		generator.dispose();

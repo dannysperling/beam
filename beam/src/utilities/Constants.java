@@ -81,6 +81,11 @@ public class Constants {
 	public static final int WORLD_UNLOCK_STARS = 2;
 	public static final int BONUS_UNLOCK_STARS = 3;
 	
+	/**
+	 * FONT CONSTANTS
+	 */
+	public static final String FONT_PATH = "data/fonts/swanse.ttf";
+	
 	
 	/**
 	 * SCREEN SCROLLING CONSTANTS
