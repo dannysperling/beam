@@ -43,7 +43,6 @@ public class AssetInitializer {
 		//Textures
 		assetManager.load(one_star, Texture.class, param);
 		assetManager.load(three_star, Texture.class, param);
-		assetManager.load(bangbang, Texture.class, param);
 		assetManager.load(tutorial, Texture.class, param);
 		assetManager.load(info, Texture.class, param);
 		assetManager.load(lock, Texture.class, param);
