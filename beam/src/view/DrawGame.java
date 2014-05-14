@@ -141,13 +141,19 @@ public class DrawGame {
 		TextureRegion arrowregion = new TextureRegion(arrowTexture);
 		TextureRegion vertregion = new TextureRegion(vertStarTexture);
 		
+		Texture destroyTex = AssetInitializer.getTexture(AssetInitializer.destruction);
+        TextureRegion[][] split = TextureRegion.split(destroyTex, destroyTex.getWidth()/Constants.DESTROY_COLS, destroyTex.getHeight()/Constants.DESTROY_ROWS);              // #10
 		TextureRegion[] destroyFrames = new TextureRegion[Constants.TIME_BEFORE_DEATH_MESSAGE];
-		Texture[] curTextures = new Texture[Constants.TIME_BEFORE_DEATH_MESSAGE];
-		for(int i = 0; i < Constants.TIME_BEFORE_DEATH_MESSAGE; i++){
-			curTextures[i] = AssetInitializer.getTexture("data/destruction/destruction" + i + ".png");
-			destroyFrames[i] = new TextureRegion(curTextures[i]);
-			destroyAnimation = new Animation(1.0f / 60.0f,destroyFrames);
-		}
+		int index = 0;
+		for (int i = 0; i < Constants.DESTROY_ROWS; i++) {
+            for (int j = 0; j < Constants.DESTROY_COLS; j++) {
+                destroyFrames[index] = split[i][j];
+                index++;
+            }
+        }
+		
+		destroyAnimation = new Animation(1.0f / 60.0f,destroyFrames);
+		
 		
 		TextureRegion[] paintFrames = new TextureRegion[60];
 		Texture[] paintTextures = new Texture[60];
@@ -501,21 +507,21 @@ public class DrawGame {
 							* tilesize, by
 							+ (l.getYStart() + 0.5f - (laserWidth / 2))
 							* tilesize, laserWidth * tilesize,
-							0.75f * tilesize);
+							0.55f * tilesize);
 					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
 							* tilesize, by
 							+ (l.getYFinish() - 0.25f - (laserWidth / 2))
 							* tilesize, laserWidth * tilesize,
-							0.75f * tilesize);
+							0.55f * tilesize);
 				} else {
 					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
 							* tilesize, by
 							+ (l.getYStart() + 0.5f - (laserWidth / 2))
-							* tilesize, 0.75f * tilesize, laserWidth * tilesize);
+							* tilesize, 0.55f * tilesize, laserWidth * tilesize);
 					shapes.rect(bx + (l.getXFinish() - 0.25f - (laserWidth / 2))
 							* tilesize, by
 							+ (l.getYStart() + 0.5f - (laserWidth / 2))
-							* tilesize, 0.75f * tilesize, laserWidth * tilesize);
+							* tilesize, 0.55f * tilesize, laserWidth * tilesize);
 				}
 			} else {
 				shapes.setColor(Constants.translateColor(l.getColor()));
@@ -525,12 +531,12 @@ public class DrawGame {
 						shapes.rect(bx + (l.getXFinish() - 0.25f - (laserWidth / 2))
 								* tilesize, by
 								+ (l.getYStart() + 0.5f - (laserWidth / 2))
-								* tilesize, 0.75f * tilesize, laserWidth * tilesize);
+								* tilesize, 0.55f * tilesize, laserWidth * tilesize);
 					} else {
 						shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
 								* tilesize, by
 								+ (l.getYStart() + 0.5f - (laserWidth / 2))
-								* tilesize, 0.75f * tilesize, laserWidth * tilesize);
+								* tilesize, 0.55f * tilesize, laserWidth * tilesize);
 					}
 				} else {
 					if(l.getXStart() == GameEngine.movingPiece.getXCoord() && l.getYStart() == GameEngine.movingPiece.getYCoord()){
@@ -538,13 +544,13 @@ public class DrawGame {
 								* tilesize, by
 								+ (l.getYFinish() - 0.25f - (laserWidth / 2))
 								* tilesize, laserWidth * tilesize,
-								0.75f * tilesize);
+								0.55f * tilesize);
 					} else {
 						shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
 								* tilesize, by
 								+ (l.getYStart() + 0.5f - (laserWidth / 2))
 								* tilesize, laserWidth * tilesize,
-								0.75f * tilesize);
+								0.55f * tilesize);
 					}
 				}
 			}
@@ -558,21 +564,21 @@ public class DrawGame {
 						* tilesize, by
 						+ (l.getYStart() + 0.5f - (laserWidth / 2))
 						* tilesize, laserWidth * tilesize,
-						0.75f * tilesize);
+						0.55f * tilesize);
 				shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
 						* tilesize, by
-						+ (l.getYFinish() - 0.25f - (laserWidth / 2))
+						+ (l.getYFinish() - 0.05f - (laserWidth / 2))
 						* tilesize, laserWidth * tilesize,
-						0.75f * tilesize);
+						0.55f * tilesize);
 			} else {
 				shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
 						* tilesize, by
 						+ (l.getYStart() + 0.5f - (laserWidth / 2))
-						* tilesize, 0.75f * tilesize, laserWidth * tilesize);
-				shapes.rect(bx + (l.getXFinish() - 0.25f - (laserWidth / 2))
+						* tilesize, 0.55f * tilesize, laserWidth * tilesize);
+				shapes.rect(bx + (l.getXFinish() - 0.05f - (laserWidth / 2))
 						* tilesize, by
 						+ (l.getYStart() + 0.5f - (laserWidth / 2))
-						* tilesize, 0.75f * tilesize, laserWidth * tilesize);
+						* tilesize, 0.55f * tilesize, laserWidth * tilesize);
 			}
 		}
 		shapes.end();
