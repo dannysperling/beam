@@ -340,11 +340,11 @@ public class InputHandler {
 
 			// Look for new button press
 			if (lastX == -1) {
-				buttonDown = Menu.containingButtonOfPixelLevelScreen(xPress, yPress, botYCoord);
-
-				//Explicitly handle skip wins if they've won
-				if (state == GameState.WON && buttonDown == GameEngine.ButtonPress.NONE){
-					buttonDown = GameEngine.ButtonPress.SKIPWIN;
+				
+				if (state != GameState.WON){
+					buttonDown = Menu.containingButtonOfPixelLevelScreen(xPress, yPress, botYCoord);
+				} else {
+					buttonDown = Menu.containingButtonOfPixelWonScreen(xPress, yPress);
 				}
 			}
 
@@ -361,11 +361,10 @@ public class InputHandler {
 			// Look for removed input
 			if (buttonDown != GameEngine.ButtonPress.NONE && lastX != -1) {
 
-				returnedButton = Menu.containingButtonOfPixelLevelScreen(lastX, lastY, botYCoord);
-
-				//Explicitly handle skip wins if they've won
-				if (state == GameState.WON && returnedButton == GameEngine.ButtonPress.NONE){
-					returnedButton = GameEngine.ButtonPress.SKIPWIN;
+				if (state != GameState.WON){
+					returnedButton = Menu.containingButtonOfPixelLevelScreen(lastX, lastY, botYCoord);
+				} else {
+					returnedButton = Menu.containingButtonOfPixelWonScreen(lastX, lastY);
 				}
 
 				//Check to make sure they were still pressing the same button as originally
