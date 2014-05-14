@@ -103,22 +103,29 @@ public class Constants {
 	
 	/**
 	 * COLOR CONSTANTS
-	 * TODO: remove extra colorFromRGB and make the game not crash if they're there
 	 */
 	public static Color colorFromRGB(int r, int g, int b) {
 		return new Color(r/255.0f, g/255.0f, b/255.0f,1);
 	}
-	public static final Color[] WORLD_COLORS = 
-		{	colorFromRGB(59,64,139),colorFromRGB(79, 44, 99),
-			colorFromRGB(91,145,182),colorFromRGB(103,31,68),colorFromRGB(66,123,62),
-			colorFromRGB(50,138,144),
-			colorFromRGB(141,42,42),
-			colorFromRGB(169,94,54),
-			colorFromRGB(150,51,26),
-			colorFromRGB(51,51,6),
-			colorFromRGB(0,0,0),
-			colorFromRGB(0,0,0),
-		 	};
+	public static Color getWorldColorCopy(int worldIndex) {
+		// out of bounds? do black
+		if (worldIndex < 0 || worldIndex >= WORLD_COLORS.length) {
+			return Color.BLACK.cpy();
+		}
+		return WORLD_COLORS[worldIndex].cpy();
+	}
+	private static final Color[] WORLD_COLORS = {
+		colorFromRGB(59,64,139),
+	    colorFromRGB(79, 44, 99),
+		colorFromRGB(91,145,182),
+		colorFromRGB(103,31,68),
+		colorFromRGB(66,123,62),
+		colorFromRGB(50,138,144),
+		colorFromRGB(141,42,42),
+		colorFromRGB(169,94,54),
+		colorFromRGB(150,51,26),
+		colorFromRGB(51,51,6),
+	};
 	
 	public static Color translateColor(GameEngine.Color c) {
 		switch (c) {
