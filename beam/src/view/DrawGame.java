@@ -765,8 +765,8 @@ public class DrawGame {
 		tb = nonGameMButtonFont.getBounds("Menu");
 
 		float textHeight = (height * Constants.NON_GAME_BUTTON_HEIGHT + tb.height) / 2;
-		nonGameMButtonFont.draw(batch, "Menu", Menu.B_MENU_LEFT_X * width
-				+ (Menu.B_MENU_WIDTH * width - tb.width) / 2, textHeight);
+		nonGameMButtonFont.draw(batch, "Menu", (int)(Menu.B_MENU_LEFT_X * width
+				+ (Menu.B_MENU_WIDTH * width - tb.width) / 2), (int)textHeight);
 		batch.end();
 
 		String nextString = isLast ? "Next World" : "Next Level";
@@ -789,9 +789,9 @@ public class DrawGame {
 
 		batch.begin();
 		textHeight = (height * Constants.NON_GAME_BUTTON_HEIGHT + tb.height) / 2;
-		nonGameNLButtonFont.draw(batch, nextString, Menu.B_NEXT_LEVEL_LEFT_X
-				* width + (Menu.B_NEXT_LEVEL_WIDTH * width - tb.width) / 2,
-				textHeight);
+		nonGameNLButtonFont.draw(batch, nextString, (int)(Menu.B_NEXT_LEVEL_LEFT_X
+				* width + (Menu.B_NEXT_LEVEL_WIDTH * width - tb.width) / 2),
+				(int)textHeight);
 		batch.end();
 
 		// Draw a lock if next is locked!
@@ -850,14 +850,14 @@ public class DrawGame {
 		float xPos = Menu.B_UNDO_LEFT_X * screenWidth
 				+ (Menu.B_UNDO_WIDTH * screenWidth - tb.width) / 2;
 		xPos += shiftX;
-		gameButtonFont.draw(batch, undo, xPos, height);
+		gameButtonFont.draw(batch, undo, (int)xPos, (int)height);
 
 		String reset = "Reset";
 		tb = gameButtonFont.getBounds(reset);
 		xPos = Menu.B_RESET_LEFT_X * screenWidth
 				+ (Menu.B_RESET_WIDTH * screenWidth - tb.width) / 2;
-		gameButtonFont.draw(batch, reset, shiftX
-				+ (Menu.B_RESET_LEFT_X * screenWidth), height);
+		gameButtonFont.draw(batch, reset, (int)(shiftX
+				+ (Menu.B_RESET_LEFT_X * screenWidth)), (int)(height));
 		batch.end();
 	}
 
@@ -888,7 +888,7 @@ public class DrawGame {
 		arrowSprite.setPosition(arrowWidth * 2, (height - barHeight) + ((barHeight - (arrowHeight * 1.1f)) / 2.0f));
 		arrowSprite.setSize(arrowWidth * 1.05f, arrowHeight * 1.1f);
 		arrowSprite.draw(batch);
-		nonGameNLButtonFont.draw(batch, menuString, arrowWidth * 3, (height - barHeight) + ((barHeight - arrowHeight) / 2.0f) + arrowHeight);
+		nonGameNLButtonFont.draw(batch, menuString, (int)(arrowWidth * 3), (int)((height - barHeight) + ((barHeight - arrowHeight) / 2.0f) + arrowHeight));
 		
 		float movesXBase = arrowWidth * 3 + tb.width;
 
@@ -904,12 +904,12 @@ public class DrawGame {
 		String perfectString = b.perfect + "";
 		String parString = b.par + "";
 		tb = nonGameNLButtonFont.getBounds(parString);
-		nonGameNLButtonFont.draw(batch, parString, width - (2 * arrowWidth) - numWidth + ((numWidth - tb.width) / 2.0f) , (height - barHeight) + ((barHeight - tb.height)/2.0f) + tb.height);
+		nonGameNLButtonFont.draw(batch, parString, (int)(width - (2 * arrowWidth) - numWidth + ((numWidth - tb.width) / 2.0f)) , (int)((height - barHeight) + ((barHeight - tb.height)/2.0f) + tb.height));
 		tb = nonGameNLButtonFont.getBounds(perfectString);
-		nonGameNLButtonFont.draw(batch, perfectString, width - (2 * arrowWidth) - 2 * numWidth - (starsHeight / 2.0f) + ((numWidth - tb.width) / 2.0f), (height - barHeight) + ((barHeight - tb.height)/2.0f) + tb.height);
+		nonGameNLButtonFont.draw(batch, perfectString, (int)(width - (2 * arrowWidth) - 2 * numWidth - (starsHeight / 2.0f) + ((numWidth - tb.width) / 2.0f)), (int)((height - barHeight) + ((barHeight - tb.height)/2.0f) + tb.height));
 		tb = nonGameNLButtonFont.getMultiLineBounds(movesString);
 		float movesX = movesXBase + (((width - (2 * arrowWidth) - (2 * numWidth) - (starsHeight * 1.5f) - movesXBase) - tb.width)/2.0f);
-		nonGameNLButtonFont.drawMultiLine(batch, movesString, movesX, (height - barHeight) + ((barHeight - tb.height) / 2.0f) + tb.height, tb.width, HAlignment.CENTER);
+		nonGameNLButtonFont.drawMultiLine(batch, movesString, (int)movesX, (int)((height - barHeight) + ((barHeight - tb.height) / 2.0f) + tb.height), (int)tb.width, HAlignment.CENTER);
 		batch.end();
 
 	}
@@ -930,15 +930,15 @@ public class DrawGame {
 			introFont
 			.draw(batch,
 					ftg,
-					((width - tb.width) / 2.0f) + transitionPart,
-					(height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))));
+					(int)(((width - tb.width) / 2.0f) + transitionPart),
+					(int)((height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT)))));
 			tb = introFont.getBounds(remains);
 			introFont
 			.draw(batch,
 					remains,
-					((width - tb.width) / 2.0f) + transitionPart,
-					(height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT)))
-					- (tb.height * 1.5f));
+					(int)(((width - tb.width) / 2.0f) + transitionPart),
+					(int)((height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT)))
+					- (tb.height * 1.5f)));
 			batch.end();*/
 		} else {
 			int totalBeamGoals = 0;
@@ -957,15 +957,15 @@ public class DrawGame {
 				introFont
 				.draw(batch,
 						bab,
-						((width - tb.width) / 2.0f) + transitionPart,
-						(height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT))));
+						(int)(((width - tb.width) / 2.0f) + transitionPart),
+						(int)((height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT)))));
 				tb = introFont.getBounds(remains);
 				introFont
 				.draw(batch,
 						remains,
-						((width - tb.width) / 2.0f) + transitionPart,
-						(height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT)))
-						- (tb.height * 1.5f));
+						(int)(((width - tb.width) / 2.0f) + transitionPart),
+						(int)((height * (Constants.BOT_BAR_SIZE + (0.8f * Constants.TEXT_GOAL_HEIGHT)))
+						- (tb.height * 1.5f)));
 				batch.end();
 			} else {
 				// This is a beamgoal level!
@@ -1035,10 +1035,10 @@ public class DrawGame {
 						beamGoalFont
 						.draw(batch,
 								text,
-								((width - tb.width) / 2)
-								+ transitionPart,
-								((Constants.BOT_BAR_SIZE + ((i + 1) * Constants.BEAM_GOAL_HEIGHT)) * height)
-								- (((height * Constants.BEAM_GOAL_HEIGHT) - tb.height) / 2));
+								(int)(((width - tb.width) / 2)
+								+ transitionPart),
+								(int)(((Constants.BOT_BAR_SIZE + ((i + 1) * Constants.BEAM_GOAL_HEIGHT)) * height)
+								- (((height * Constants.BEAM_GOAL_HEIGHT) - tb.height) / 2)));
 						batch.end();
 						i++;
 					}
@@ -1091,9 +1091,9 @@ public class DrawGame {
 			batch.begin();
 			introFont.setColor(new Color(0, 0, 0, alpha * 1.111f));
 			tb = introFont.getBounds(message);
-			introFont.draw(batch, message, bx
-					+ ((boardWidth - tb.width) / 2.0f), by
-					+ ((boardHeight + tb.height) / 2.0f));
+			introFont.draw(batch, message, (int)(bx
+					+ ((boardWidth - tb.width) / 2.0f)), (int)(by
+					+ ((boardHeight + tb.height) / 2.0f)));
 			batch.end();
 			Gdx.gl.glDisable(GL10.GL_BLEND);
 		} else {
@@ -1109,9 +1109,9 @@ public class DrawGame {
 				batch.begin();
 				introFont.setColor(new Color(0, 0, 0, alpha * 1.111f));
 				tb = introFont.getBounds(message);
-				introFont.draw(batch, message, bx
-						+ ((boardWidth - tb.width) / 2.0f), by
-						+ ((boardHeight + tb.height) / 2.0f));
+				introFont.draw(batch, message, (int)(bx
+						+ ((boardWidth - tb.width) / 2.0f)), (int)(by
+						+ ((boardHeight + tb.height) / 2.0f)));
 				batch.end();
 				Gdx.gl.glDisable(GL10.GL_BLEND);
 
@@ -1130,8 +1130,8 @@ public class DrawGame {
 				batch.begin();
 				introFont.setColor(new Color(0, 0, 0, alpha * 1.111f));
 				tb = introFont.getBounds(message);
-				introFont.draw(batch, message, bx
-						+ ((boardWidth - tb.width) / 2.0f), baseheight);
+				introFont.draw(batch, message, (int)(bx
+						+ ((boardWidth - tb.width) / 2.0f)), (int)baseheight);
 				batch.end();
 				Gdx.gl.glDisable(GL10.GL_BLEND);
 				int i = 1;
@@ -1145,9 +1145,9 @@ public class DrawGame {
 					batch.begin();
 					introFont.setColor(new Color(0, 0, 0, alpha * 1.111f));
 					tb = introFont.getBounds(bmessage);
-					introFont.draw(batch, bmessage, bx
-							+ ((boardWidth - tb.width) / 2.0f), baseheight
-							- ((1.5f) * i * individualHeight));
+					introFont.draw(batch, bmessage, (int)(bx
+							+ ((boardWidth - tb.width) / 2.0f)), (int)(baseheight
+							- ((1.5f) * i * individualHeight)));
 					batch.end();
 					Gdx.gl.glDisable(GL10.GL_BLEND);
 					i++;
@@ -1324,25 +1324,25 @@ public class DrawGame {
 
 		tb = introFont.getBounds("Undo");
 		introFont.setColor(new Color(Constants.BOARD_COLOR.r, Constants.BOARD_COLOR.g, Constants.BOARD_COLOR.b, textAlpha));
-		introFont.draw(batch, "Undo", bx + buttonSpace, height - by - bx);
+		introFont.draw(batch, "Undo", (int)(bx + buttonSpace), (int)(height - by - bx));
 		
 		tb = introFont.getBounds("Menu");
 		introFont.setColor(new Color(Constants.BOARD_COLOR.r, Constants.BOARD_COLOR.g, Constants.BOARD_COLOR.b, textAlpha));
-		introFont.draw(batch, "Menu", (width - tb.width) / 2.0f, height - by - bx);
+		introFont.draw(batch, "Menu", (int)((width - tb.width) / 2.0f), (int)(height - by - bx));
 		
 		tb = introFont.getBounds("Reset");
 		introFont.setColor(new Color(Constants.BOARD_COLOR.r, Constants.BOARD_COLOR.g, Constants.BOARD_COLOR.b, textAlpha));
-		introFont.draw(batch, "Reset", width - bx - buttonSpace - tb.width, height - by - bx);
+		introFont.draw(batch, "Reset", (int)(width - bx - buttonSpace - tb.width), (int)(height - by - bx));
 
 		tb = introFont.getBounds(nextString);
 		introFont.setColor(new Color(Constants.BOARD_COLOR.r, Constants.BOARD_COLOR.g, Constants.BOARD_COLOR.b, textAlpha));
-		introFont.draw(batch, nextString, (width - tb.width) / 2.0f, by + Constants.POPUP_WIDTH_BOUNDARY + tb.height + (((textY - (starWidth / 2.0f) - (by + Constants.POPUP_WIDTH_BOUNDARY)) -tb.height)/2.0f));
+		introFont.draw(batch, nextString, (int)((width - tb.width) / 2.0f), (int)(by + Constants.POPUP_WIDTH_BOUNDARY + tb.height + (((textY - (starWidth / 2.0f) - (by + Constants.POPUP_WIDTH_BOUNDARY)) -tb.height)/2.0f)));
 
 		
 		tb = introFont.getMultiLineBounds(levelEndMessage);
 		introFont.setColor(new Color(Constants.BOARD_COLOR.r, Constants.BOARD_COLOR.g, Constants.BOARD_COLOR.b, textAlpha));
-		introFont.drawMultiLine(batch, levelEndMessage, bx
-				+ ((boardWidth - tb.width) / 2.0f), textY + (tb.height / 2.0f), tb.width, HAlignment.CENTER);
+		introFont.drawMultiLine(batch, levelEndMessage, (int)(bx
+				+ ((boardWidth - tb.width) / 2.0f)), (int)(textY + (tb.height / 2.0f)), (int)tb.width, HAlignment.CENTER);
 
 		batch.end();
 		Gdx.gl.glDisable(GL10.GL_BLEND);
@@ -1640,8 +1640,8 @@ public class DrawGame {
 				batch.setColor(Color.BLACK);
 				curFont.setColor(Color.BLACK);
 				curFont.drawMultiLine(batch, nextPart,
-						(((width * 0.9f) - tb.width) / 2.0f)
-						+ (width * (0.05f)), curHeight, tb.width,
+						(int)((((width * 0.9f) - tb.width) / 2.0f)
+						+ (width * (0.05f))), (int)curHeight, (int)tb.width,
 						HAlignment.CENTER);
 				batch.end();
 				curHeight -= tb.height;
@@ -1714,7 +1714,7 @@ public class DrawGame {
 		tb = levelNameFont.getBounds(header);
 		batch.begin();
 		levelNameFont.setColor(Color.BLACK);
-		levelNameFont.draw(batch, header, (width - tb.width) / 2.0f, (height * 0.8f) + upshift);
+		levelNameFont.draw(batch, header, (int)((width - tb.width) / 2.0f), (int)((height * 0.8f) + upshift));
 		batch.end();
 
 		String twoStars = b.par + " Moves";
@@ -1727,7 +1727,7 @@ public class DrawGame {
 		twoStarSprite.setPosition((width - twoStarWidth) / 2.0f, curHeight - (0.5f * tb.height) + upshift - (twoStarSprite.getHeight() / 2.0f));
 		batch.begin();
 		twoStarSprite.draw(batch);
-		starGoalFont.draw(batch, twoStars, (width - twoStarWidth) / 2.0f + (3.0f * tb.height) , curHeight + upshift);
+		starGoalFont.draw(batch, twoStars, (int)((width - twoStarWidth) / 2.0f + (3.0f * tb.height)) , (int)(curHeight + upshift));
 		batch.end();
 		curHeight -= 2 * tb.height;
 
@@ -1737,7 +1737,7 @@ public class DrawGame {
 		threeStarSprite.setPosition((width - threeStarWidth) / 2.0f, curHeight - (0.5f * tb.height) + upshift - (threeStarSprite.getHeight() / 2.0f));
 		batch.begin();
 		threeStarSprite.draw(batch);
-		starGoalFont.draw(batch, threeStars, (width - threeStarWidth) / 2.0f + (3.0f * tb.height) , curHeight + upshift);
+		starGoalFont.draw(batch, threeStars, (int)((width - threeStarWidth) / 2.0f + (3.0f * tb.height)) , (int)(curHeight + upshift));
 		batch.end();
 
 
@@ -1746,7 +1746,7 @@ public class DrawGame {
 			String yourBest = "Your Best:\n\n" + bestMoves + " Move" + (bestMoves==1?"":"s");
 			tb = starGoalFont.getMultiLineBounds(yourBest);
 			batch.begin();
-			starGoalFont.drawMultiLine(batch, yourBest, (width - tb.width) / 2.0f, curHeight + upshift, tb.width, HAlignment.CENTER);
+			starGoalFont.drawMultiLine(batch, yourBest, (int)((width - tb.width) / 2.0f), (int)(curHeight + upshift), (int)tb.width, HAlignment.CENTER);
 			batch.end();
 		}
 	}
@@ -1975,10 +1975,10 @@ public class DrawGame {
 				curFont.drawMultiLine(
 						batch,
 						gameOverText,
-						bx,
-						by
-						+ ((tilesize * b.getNumVerticalTiles() + tb.height) / 2.0f),
-						tilesize * b.getNumHorizontalTiles(), HAlignment.CENTER);
+						(int)bx,
+						(int)(by
+						+ ((tilesize * b.getNumVerticalTiles() + tb.height) / 2.0f)),
+						(int)(tilesize * b.getNumHorizontalTiles()), HAlignment.CENTER);
 				batch.end();
 				Gdx.gl.glDisable(GL10.GL_BLEND);
 
@@ -1999,10 +1999,10 @@ public class DrawGame {
 				curFont.drawMultiLine(
 						batch,
 						gameOverText,
-						bx,
-						by
-						+ ((tilesize * b.getNumVerticalTiles() + tb.height) / 2.0f),
-						tilesize * b.getNumHorizontalTiles(), HAlignment.CENTER);
+						(int)bx,
+						(int)(by
+						+ ((tilesize * b.getNumVerticalTiles() + tb.height) / 2.0f)),
+						(int)(tilesize * b.getNumHorizontalTiles()), HAlignment.CENTER);
 				batch.end();
 				Gdx.gl.glDisable(GL10.GL_BLEND);
 			}

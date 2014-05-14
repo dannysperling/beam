@@ -103,7 +103,7 @@ public class DrawTitlescreen {
 		TextBounds tb = symbolFont.getBounds(symbols);
 		float yPos = height / 2 + tb.height;
 		float xPos = width / 2 - tb.width / 2;
-		symbolFont.draw(batch, symbols, xPos, yPos);
+		symbolFont.draw(batch, symbols, (int)xPos, (int)yPos);
 		yPos -= tb.height;
 
 		// Draw team name
@@ -112,7 +112,7 @@ public class DrawTitlescreen {
 		tb = moeFont.getBounds(moe);
 		yPos -= tb.height;
 		xPos = width / 2 - tb.width / 2;
-		moeFont.draw(batch, moe, xPos, yPos);
+		moeFont.draw(batch, moe, (int)xPos, (int)yPos);
 		batch.end();
 	}
 
@@ -148,7 +148,7 @@ public class DrawTitlescreen {
 		TextBounds tb = symbolFont.getBounds(beam);
 		float yPos = height - tb.height / 2;
 		float xPos = width / 2 - tb.width / 2;
-		symbolFont.draw(batch, beam, xPos, yPos);
+		symbolFont.draw(batch, beam, (int)xPos, (int)yPos);
 
 		if (loading) {
 			// Loading
@@ -158,7 +158,7 @@ public class DrawTitlescreen {
 			yPos = (Menu.B_LOADING_BOT_Y + Menu.TITLE_SCREEN_BUTTON_HEIGHT)
 					* height;
 			xPos = width / 2 - tb.width / 2;
-			moeFont.draw(batch, load, xPos, yPos);
+			moeFont.draw(batch, load, (int)xPos, (int)yPos);
 		}
 
 		else if (framesIn < Constants.LOAD_TEXT_FADE_TIME) {
@@ -172,7 +172,7 @@ public class DrawTitlescreen {
 			yPos = (Menu.B_LOADING_BOT_Y + Menu.TITLE_SCREEN_BUTTON_HEIGHT)
 					* height;
 			xPos = width / 2 - tb.width / 2;
-			moeFont.draw(batch, load, xPos, yPos);
+			moeFont.draw(batch, load, (int)xPos, (int)yPos);
 		} else {
 			float fadeAmount = (framesIn - Constants.LOAD_TEXT_FADE_TIME)
 					/ (float) Constants.LOAD_TEXT_FADE_TIME;
@@ -184,14 +184,14 @@ public class DrawTitlescreen {
 			yPos = (Menu.B_PLAY_BOT_Y + Menu.TITLE_SCREEN_BUTTON_HEIGHT)
 					* height;
 			xPos = width / 2 - tb.width / 2;
-			moeFont.draw(batch, play, xPos, yPos);
+			moeFont.draw(batch, play, (int)xPos, (int)yPos);
 
 			String settings = "Settings";
 			tb = moeFont.getBounds(settings);
 			yPos = (Menu.B_SETTINGS_BOT_Y + Menu.TITLE_SCREEN_BUTTON_HEIGHT)
 					* height;
 			xPos = width / 2 - tb.width / 2;
-			moeFont.draw(batch, settings, xPos, yPos);
+			moeFont.draw(batch, settings, (int)xPos, (int)yPos);
 		}
 
 		batch.end();
