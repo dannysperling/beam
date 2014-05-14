@@ -73,7 +73,6 @@ public class DrawGame {
 
 	private BitmapFont introFont;
 	private BitmapFont levelNameFont;
-	private BitmapFont movesFont;
 	private BitmapFont moveWordFont;
 	private BitmapFont beamGoalFont;
 	private BitmapFont gameButtonFont;
@@ -173,7 +172,7 @@ public class DrawGame {
 
 	public void initFonts() {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
-				Gdx.files.internal("data/fonts/swanse.ttf"));
+				Gdx.files.internal(Constants.FONT_PATH));
 		
 		int h = Gdx.graphics.getHeight();
 
@@ -184,8 +183,6 @@ public class DrawGame {
 				.generateFont((int) (h * Constants.TOP_BAR_SIZE * 0.5f));
 		moveWordFont = generator
 				.generateFont((int) (h * Constants.TOP_BAR_SIZE * 0.2f));
-		movesFont = generator
-				.generateFont((int) (h * Constants.TOP_BAR_SIZE * 0.45f));
 		beamGoalFont = generator.generateFont((int) (h
 				* Constants.BEAM_GOAL_HEIGHT * 0.5f));
 		gameButtonFont = generator.generateFont((int) (h
@@ -1252,7 +1249,7 @@ public class DrawGame {
 		drawPopUpBackground(boxAlpha);
 
 		textAlpha = Math.min(textAlpha, boxAlpha);
-		
+
 		String nextString = isLast ? "Next World" : "Next Level";
 
 		

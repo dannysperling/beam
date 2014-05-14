@@ -227,7 +227,7 @@ public class DrawTitlescreen {
 
 	public void initFonts() {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
-				Gdx.files.internal("data/fonts/swanse.ttf"));
+				Gdx.files.internal(Constants.FONT_PATH));
 		int firstFontSize = (Gdx.graphics.getHeight() / 6)
 				- (Gdx.graphics.getHeight() / 6) % 2;
 		symbolFont = generator.generateFont(firstFontSize);
