@@ -24,6 +24,8 @@ public class DrawTitlescreen {
 	private SpriteBatch batch;
 	private Texture iconTexture;
 	private Sprite iconSprite;
+	private Texture moeTexture;
+	private Sprite moeSprite;
 
 	private int timePastLoading = 0;
 
@@ -39,9 +41,16 @@ public class DrawTitlescreen {
 		iconTexture = new Texture(Gdx.files.internal("data/icon.png"));
 		iconTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
+		moeTexture = new Texture(Gdx.files.internal("data/moe.png"));
+		moeTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+
+		
 		TextureRegion loadingRegion = new TextureRegion(iconTexture, 0, 0,
 				1024, 1024);
 		iconSprite = new Sprite(loadingRegion);
+	
+		TextureRegion moeRegion = new TextureRegion(moeTexture);
+		moeSprite = new Sprite(moeRegion);
 	}
 
 	public void draw(boolean loading, int framesLoading, Color titleColor,
@@ -91,29 +100,30 @@ public class DrawTitlescreen {
 					/ (float) Constants.LOAD_FADE_TIME;
 		}
 
+		
 		batch.begin();
 
 		// Get an accurate font color
-		Color fontColor = Constants.BOARD_COLOR.cpy();
+		Color fontColor = Color.WHITE.cpy();
 		fontColor.a = percentDark;
-
-		// Draw symbollic logo
-		String symbols = "#@!?&";
-		symbolFont.setColor(fontColor);
-		TextBounds tb = symbolFont.getBounds(symbols);
-		float yPos = height / 2 + tb.height;
-		float xPos = width / 2 - tb.width / 2;
-		symbolFont.draw(batch, symbols, xPos, yPos);
-		yPos -= tb.height;
-
-		// Draw team name
-		String moe = "Mildly Offensive Entertainment";
-		moeFont.setColor(fontColor);
-		tb = moeFont.getBounds(moe);
-		yPos -= tb.height;
-		xPos = width / 2 - tb.width / 2;
-		moeFont.draw(batch, moe, xPos, yPos);
+		moeSprite.setColor(fontColor);
+		
+		float widthRatio = ((float)(width)) / moeSprite.getWidth();
+		if(widthRatio * moeSprite.getHeight() <= height){
+			moeSprite.setSize(width, moeSprite.getHeight() * widthRatio);
+			moeSprite.setPosition(0, (height - (moeSprite.getHeight() * widthRatio)) / 2.0f);
+		} else {
+			float heightRatio = ((float)(height)) / moeSprite.getHeight();
+			moeSprite.setSize(moeSprite.getWidth() * heightRatio, height);
+			moeSprite.setPosition((width - (moeSprite.getWidth() * heightRatio)) / 2.0f, 0);
+		}
+		
+		moeSprite.draw(batch);
+		
 		batch.end();
+		
+		
+
 	}
 
 	private void drawTitlescreen(Color titleColor, int width, int height,

@@ -110,8 +110,11 @@ public class DrawGame {
 		vertStarTexture = AssetInitializer.getTexture(AssetInitializer.vert_star);
 
 		innerBurnTexture = AssetInitializer.getTexture(AssetInitializer.innerburn);
+
 		outerBurnTexture = AssetInitializer.getTexture(AssetInitializer.outerburn);
 
+
+		
 		TextureRegion pieceregion = new TextureRegion(pieceTexture, 0, 0, 256,
 				256);
 		TextureRegion inburnregion = new TextureRegion(innerBurnTexture, 0, 0, 256,
