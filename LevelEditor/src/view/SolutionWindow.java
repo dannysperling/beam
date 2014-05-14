@@ -1,7 +1,5 @@
 package view;
 
-import java.awt.Rectangle;
-
 import javax.swing.BoxLayout;
 import javax.swing.JDialog;
 import javax.swing.JLabel;

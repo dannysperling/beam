@@ -50,8 +50,6 @@ public class DrawGame {
 	private Sprite oneStarSprite;
 	private Texture twoStarTexture;
 	private Sprite twoStarSprite;
-	private Texture lockTexture;
-	private Sprite lockSprite;
 	private Texture infoTexture;
 	private Sprite infoSprite;
 	private Texture tutorialTexture;
@@ -96,8 +94,6 @@ public class DrawGame {
 
 		painterTexture = AssetInitializer.getTexture(AssetInitializer.painter);
 
-		lockTexture = AssetInitializer.getTexture(AssetInitializer.lock);
-
 		infoTexture = AssetInitializer.getTexture(AssetInitializer.info);
 
 		tutorialTexture = AssetInitializer.getTexture(AssetInitializer.tutorial);
@@ -135,8 +131,6 @@ public class DrawGame {
 				128, 128);
 		TextureRegion twostarregion = new TextureRegion(twoStarTexture, 0, 0,
 				128, 128);
-		TextureRegion lockregion = new TextureRegion(lockTexture, 0, 0, 128,
-				128);
 
 		TextureRegion arrowregion = new TextureRegion(arrowTexture);
 		TextureRegion vertregion = new TextureRegion(vertStarTexture);
@@ -168,7 +162,6 @@ public class DrawGame {
 		painterSprite = new Sprite(painterregion);
 		threeStarSprite = new Sprite(threestarregion);
 		oneStarSprite = new Sprite(onestarregion);
-		lockSprite = new Sprite(lockregion);
 		infoSprite = new Sprite(inforegion);
 		tutorialSprite = new Sprite(tutregion);
 		twoStarSprite = new Sprite(twostarregion);

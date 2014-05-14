@@ -39,8 +39,6 @@ import model.Board;
 import model.Piece;
 import model.Tile;
 
-import com.me.beamsolver.Solver;
-
 import controller.GameEngine;
 import extras.QualityAnalysis;
 
