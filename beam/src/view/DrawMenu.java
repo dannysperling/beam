@@ -98,7 +98,7 @@ public class DrawMenu {
 				}
 				menuBoardBuffer = new FrameBuffer(Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
 				menuBoardBuffer.begin();
-				dg.drawBoard(b, 0, 0, tileSize, locked);
+				dg.drawBoard(b, 0, 0, tileSize, locked, false);
 				TextureRegion boardTex = ScreenUtils.getFrameBufferTexture(0, 0, bWidth, bHeight);
 				menuBoardBuffer.end();
 				boardSprites[i][j] = new Sprite(boardTex);
@@ -247,7 +247,7 @@ public class DrawMenu {
 
 				shiftBoardBuffer = new FrameBuffer(Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
 				shiftBoardBuffer.begin();
-				dg.drawBoard(shiftBoard, 0, 0, shiftBoard.getTileSize(), false);
+				dg.drawBoard(shiftBoard, 0, 0, shiftBoard.getTileSize(), false, true);
 				shiftBoardBuffer.end();	
 				bgSprite = new Sprite(background);
 
@@ -353,7 +353,7 @@ public class DrawMenu {
 		}
 		menuBoardBuffer = new FrameBuffer(Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
 		menuBoardBuffer.begin();
-		dg.drawBoard(b, 0, 0, tileSize, false);
+		dg.drawBoard(b, 0, 0, tileSize, false, false);
 		TextureRegion boardTex = ScreenUtils.getFrameBufferTexture(0, 0, bWidth, bHeight);
 		menuBoardBuffer.end();
 		curBoardSprite = new Sprite(boardTex);

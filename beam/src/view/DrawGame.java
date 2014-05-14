@@ -1,5 +1,6 @@
 package view;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Set;
@@ -286,70 +287,36 @@ public class DrawGame {
 
 	private void drawGlass(Tile t, int tilesize, int bx, int by, Board b, int lw) {
 		if (t.hasGlass()) {
-			if (Constants.GLASS_STYLE == 0) {
-				shapes.begin(ShapeType.Line);
-				shapes.setColor(Constants.LINE_COLOR);
-				int glassX = bx + (t.getXCoord() * tilesize);
-				int glassY = by + (t.getYCoord() * tilesize);
-				shapes.line(glassX, glassY + (0.25f * tilesize), glassX
-						+ (0.25f * tilesize), glassY);
-				shapes.line(glassX, glassY + (0.5f * tilesize), glassX
-						+ (0.5f * tilesize), glassY);
-				shapes.line(glassX, glassY + (0.75f * tilesize), glassX
-						+ (0.75f * tilesize), glassY);
-				shapes.line(glassX, glassY + tilesize, glassX + tilesize,
-						glassY);
-				shapes.line(glassX + (0.25f * tilesize), glassY + tilesize,
-						glassX + tilesize, glassY + (0.25f * tilesize));
-				shapes.line(glassX + (0.5f * tilesize), glassY + tilesize,
-						glassX + tilesize, glassY + (0.5f * tilesize));
-				shapes.line(glassX + (0.75f * tilesize), glassY + tilesize,
-						glassX + tilesize, glassY + (0.75f * tilesize));
-				shapes.end();
-			} else if (Constants.GLASS_STYLE == 1){
-				float size = 0.44f;
-				Gdx.gl.glEnable(GL10.GL_BLEND);
-				Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+
+			shapes.begin(ShapeType.Filled);
+			shapes.setColor(new Color(.25f,.25f,.25f,.75f));
+			int glassX = bx + (t.getXCoord() * tilesize);
+			int glassY = by + (t.getYCoord() * tilesize);
+			shapes.rect(glassX+(lw - 1), glassY+(lw - 1), tilesize-lw, tilesize-lw);
+			shapes.end();
+			if(t.getYCoord() > 0 && b.isGlassAt(t.getXCoord(), t.getYCoord() - 1)){
 				shapes.begin(ShapeType.Filled);
-				shapes.setColor(Constants.GLASS_COLOR);
-				int glassX = bx + (t.getXCoord() * tilesize);
-				int glassY = by + (t.getYCoord() * tilesize);
-				shapes.rect(glassX, glassY, tilesize*size, tilesize*size);
-				shapes.rect(glassX+tilesize*(1-size), glassY, tilesize*size, tilesize*size);
-				shapes.rect(glassX, glassY+tilesize*(1-size), tilesize*size, tilesize*size);
-				shapes.rect(glassX+tilesize*(1-size), glassY+tilesize*(1-size), tilesize*size, tilesize*size);
+				glassX = bx + (t.getXCoord() * tilesize);
+				glassY = by + (t.getYCoord() * tilesize) - 2;
+				shapes.rect(glassX+(lw - 1), glassY+(lw - 1), tilesize-lw, 2);
 				shapes.end();
-				Gdx.gl.glDisable(GL10.GL_BLEND);
-			}else if (Constants.GLASS_STYLE == 2){
+			}
+			if(t.getXCoord() > 0 && b.isGlassAt(t.getXCoord() - 1, t.getYCoord())){
 				shapes.begin(ShapeType.Filled);
-				shapes.setColor(new Color(.25f,.25f,.25f,.75f));
-				int glassX = bx + (t.getXCoord() * tilesize);
-				int glassY = by + (t.getYCoord() * tilesize);
-				shapes.rect(glassX+(lw - 1), glassY+1, tilesize-lw, tilesize-lw);
+				glassX = bx + (t.getXCoord() * tilesize) - 2;
+				glassY = by + (t.getYCoord() * tilesize);
+				shapes.rect(glassX+1, glassY+(lw - 1), 2, tilesize - lw);
 				shapes.end();
-				if(t.getYCoord() > 0 && b.isGlassAt(t.getXCoord(), t.getYCoord() - 1)){
-					shapes.begin(ShapeType.Filled);
-					glassX = bx + (t.getXCoord() * tilesize);
-					glassY = by + (t.getYCoord() * tilesize) - 2;
-					shapes.rect(glassX+(lw - 1), glassY+1, tilesize-lw, 2);
-					shapes.end();
-				}
-				if(t.getXCoord() > 0 && b.isGlassAt(t.getXCoord() - 1, t.getYCoord())){
-					shapes.begin(ShapeType.Filled);
-					glassX = bx + (t.getXCoord() * tilesize) - 2;
-					glassY = by + (t.getYCoord() * tilesize);
-					shapes.rect(glassX+1, glassY+1, 2, tilesize - lw);
-					shapes.end();
-				}
-				if(t.getXCoord() > 0 && b.isGlassAt(t.getXCoord() - 1, t.getYCoord()) && t.getYCoord() > 0 && b.isGlassAt(t.getXCoord(), t.getYCoord() - 1) && b.isGlassAt(t.getXCoord() - 1, t.getYCoord() - 1)){
-					shapes.begin(ShapeType.Filled);
-					glassX = bx + (t.getXCoord() * tilesize) - 2;
-					glassY = by + (t.getYCoord() * tilesize) - 2;
-					shapes.rect(glassX+1, glassY+1, 2, tilesize - 2);
-					shapes.end();
-				}
+			}
+			if(t.getXCoord() > 0 && b.isGlassAt(t.getXCoord() - 1, t.getYCoord()) && t.getYCoord() > 0 && b.isGlassAt(t.getXCoord(), t.getYCoord() - 1) && b.isGlassAt(t.getXCoord() - 1, t.getYCoord() - 1)){
+				shapes.begin(ShapeType.Filled);
+				glassX = bx + (t.getXCoord() * tilesize) - 2;
+				glassY = by + (t.getYCoord() * tilesize) - 2;
+				shapes.rect(glassX+1, glassY+1, 2, tilesize - 2);
+				shapes.end();
 			}
 		}
+
 	}
 
 	/**
@@ -762,81 +729,6 @@ public class DrawGame {
 		batch.end();
 	}
 
-	/**
-	 * Draws the control buttons on the HUD
-	 */
-	private void drawNongameButtons(int width, int height, TextBounds tb,
-			GameState s, boolean isLast, boolean isNextLocked) {
-
-		batch.begin();
-		nonGameMButtonFont.setColor(Constants.BOARD_COLOR);
-		tb = nonGameMButtonFont.getBounds("Menu");
-
-		float textHeight = (height * Constants.NON_GAME_BUTTON_HEIGHT + tb.height) / 2;
-		nonGameMButtonFont.draw(batch, "Menu", Menu.B_MENU_LEFT_X * width
-				+ (Menu.B_MENU_WIDTH * width - tb.width) / 2, textHeight);
-		batch.end();
-
-		String nextString = isLast ? "Next World" : "Next Level";
-		nonGameNLButtonFont.setColor(Constants.BOARD_COLOR);
-		tb = nonGameNLButtonFont.getBounds(nextString);
-
-		// Flash if they won and can move on
-		if (s == GameState.WON && !isNextLocked) {
-			float boxAlpha = (GameEngine.getTimeWon() % 60) / 300.0f;
-
-			Gdx.gl.glEnable(GL10.GL_BLEND);
-			Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-			shapes.begin(ShapeType.Filled);
-			shapes.setColor(new Color(1, 1, 1, boxAlpha));
-			shapes.rect(width - (1.2f * tb.width), 0, 1.2f * tb.width,
-					textHeight * 1.3f);
-			shapes.end();
-			Gdx.gl.glDisable(GL10.GL_BLEND);
-		}
-
-		batch.begin();
-		textHeight = (height * Constants.NON_GAME_BUTTON_HEIGHT + tb.height) / 2;
-		nonGameNLButtonFont.draw(batch, nextString, Menu.B_NEXT_LEVEL_LEFT_X
-				* width + (Menu.B_NEXT_LEVEL_WIDTH * width - tb.width) / 2,
-				textHeight);
-		batch.end();
-
-		// Draw a lock if next is locked!
-		if (isNextLocked) {
-
-			// Draw grayed-out background
-			Gdx.gl.glEnable(GL10.GL_BLEND);
-			Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-
-			// Figure out the color
-			Color fade = Constants.BOARD_COLOR.cpy();
-			fade.mul(.2f);
-			fade.a = 0.50f;
-
-			shapes.begin(ShapeType.Filled);
-			shapes.setColor(fade);
-			shapes.rect(Menu.B_NEXT_LEVEL_LEFT_X * width, 0,
-					Menu.B_NEXT_LEVEL_WIDTH * width,
-					Constants.NON_GAME_BUTTON_HEIGHT * height);
-			shapes.end();
-			Gdx.gl.glDisable(GL10.GL_BLEND);
-
-			// Draw the lock symbol
-			batch.begin();
-			lockSprite.setColor(Constants.LOCK_COLOR);
-			float spriteSize = tb.height * 2;
-			lockSprite.setSize(spriteSize, spriteSize);
-			lockSprite.setX(Menu.B_NEXT_LEVEL_LEFT_X * width
-					+ (Menu.B_NEXT_LEVEL_WIDTH * width - spriteSize) / 2);
-			lockSprite
-			.setY((height * Constants.NON_GAME_BUTTON_HEIGHT - spriteSize) / 2);
-			lockSprite.draw(batch);
-
-			batch.end();
-		}
-
-	}
 
 	/**
 	 * Draws the game buttons above the level
@@ -1365,7 +1257,7 @@ public class DrawGame {
 	/**
 	 * Draws the board statically at the given position and size
 	 */
-	public void drawBoard(Board b, int bx, int by, int tilesize, boolean faded) {
+	public void drawBoard(Board b, int bx, int by, int tilesize, boolean faded, boolean withBlack) {
 
 		List<Piece> pieces = b.getAllPieces();
 		List<Tile> tiles = b.getAllTiles();
@@ -1423,103 +1315,135 @@ public class DrawGame {
 		}
 		float moveAnimateTime = 0;
 
-		// Draw the pieces
-		List<Tile> path = GameEngine.movePath;
-		Color paintColor = new Color(0, 0, 0, 0);
-		if (path.size() > 1) {
-			paintColor = Constants.translateColor(b.getTileAtBoardPosition(
-					path.get(1).getXCoord(), path.get(1).getYCoord())
-					.getPainterColor());
-		}
-		Laser disbandedLaser = null;
-		Laser movedAlongLaser = null;
-		float breakAnimateTime = 0;
-		float formAnimateTime = 0;
-		float paintAnimateTime = 0;
 
-		batch.begin();
-		pieceSprite.setSize(tilesize, tilesize);
-		for (Piece p : pieces) {
-			pieceSprite.setColor(Constants.translateColor(p.getColor()));
-			if (p.equals(GameEngine.movingPiece)) {
-				float rshift = (paintColor.r - Constants.translateColor(p.getColor()).r)
-						* paintAnimateTime;
-				float gshift = (paintColor.g - Constants.translateColor(p.getColor()).g)
-						* paintAnimateTime;
-				float bshift = (paintColor.b - Constants.translateColor(p.getColor()).b)
-						* paintAnimateTime;
-				pieceSprite.setColor(new Color(Constants.translateColor(p.getColor()).r
-						+ rshift, Constants.translateColor(p.getColor()).g + gshift,
-						Constants.translateColor(p.getColor()).b + bshift, 1));
-			}
-			pieceSprite.setPosition(bx + (p.getXCoord() * tilesize),
-					by + (p.getYCoord() * tilesize));
-			if (path.size() > 1
-					&& p.getXCoord() == GameEngine.movingPiece.getXCoord()
-					&& p.getYCoord() == GameEngine.movingPiece.getYCoord()) {
-				float animateX = (path.get(1).getXCoord() - GameEngine.movingPiece
-						.getXCoord()) * tilesize * moveAnimateTime;
-				float animateY = (path.get(1).getYCoord() - GameEngine.movingPiece
-						.getYCoord()) * tilesize * moveAnimateTime;
-				pieceSprite.translate(animateX, animateY);
-			}
-			pieceSprite.draw(batch);
-		}
-		batch.end();
+		if(withBlack){
+			// Draw the pieces
+			drawPieces(bx, by, tilesize, new ArrayList<Tile>(), Constants.translateColor(GameEngine.Color.NONE),
+					pieces, 0, moveAnimateTime, true, 1);
 
-		// Draw Lasers
-		Set<Laser> lasers = b.lasers;
+			// Draw Laser Outlines
+			drawBeams(bx, by, tilesize, b.lasers,
+					null, null, GameEngine.AnimationState.NOTANIMATING,  new ArrayList<Tile>(), moveAnimateTime,
+					0, 0, 0, true, true);
 
-		shapes.begin(ShapeType.Filled);
-		float laserWidth = beamThickness;
-		for (Laser l : lasers) {
-			if (disbandedLaser != null && l.equals(disbandedLaser)) {
-				laserWidth = (1 - breakAnimateTime) * beamThickness;
-			} else {
-				laserWidth = beamThickness;
+			// Draw Lasers
+			drawBeams(bx, by, tilesize, b.lasers,
+					null, null, GameEngine.AnimationState.NOTANIMATING, new ArrayList<Tile>(), moveAnimateTime,
+					0, 0, 0, false, true);
+
+			// Draw Lasers
+			drawBeams(bx, by, tilesize, b.lasers,
+					null, null, GameEngine.AnimationState.NOTANIMATING, new ArrayList<Tile>(), moveAnimateTime,
+					0, 0, 0, true, false);
+
+			// Draw Lasers
+			drawBeams(bx, by, tilesize, b.lasers,
+					null, null, GameEngine.AnimationState.NOTANIMATING, new ArrayList<Tile>(), moveAnimateTime,
+					0, 0, 0, false, false);
+
+			// Draw the pieces
+			drawPieces(bx, by, tilesize, new ArrayList<Tile>(), Constants.translateColor(GameEngine.Color.NONE),
+					pieces, 0, moveAnimateTime, false, 0);
+		} else {
+
+			// Draw the pieces
+			List<Tile> path = GameEngine.movePath;
+			Color paintColor = new Color(0, 0, 0, 0);
+			if (path.size() > 1) {
+				paintColor = Constants.translateColor(b.getTileAtBoardPosition(
+						path.get(1).getXCoord(), path.get(1).getYCoord())
+						.getPainterColor());
 			}
-			shapes.setColor(Constants.translateColor(l.getColor()));
-			if (!l.equals(movedAlongLaser)) {
-				if (l.getXStart() == l.getXFinish()) {
-					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
-							* tilesize, by
-							+ (l.getYStart() + 0.5f - (laserWidth / 2))
-							* tilesize, laserWidth * tilesize,
-							(l.getYFinish() - l.getYStart()) * tilesize);
-				} else {
-					shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
-							* tilesize, by
-							+ (l.getYStart() + 0.5f - (laserWidth / 2))
-							* tilesize, (l.getXFinish() - l.getXStart())
-							* tilesize, laserWidth * tilesize);
+			Laser disbandedLaser = null;
+			Laser movedAlongLaser = null;
+			float breakAnimateTime = 0;
+			float formAnimateTime = 0;
+			float paintAnimateTime = 0;
+
+			batch.begin();
+			pieceSprite.setSize(tilesize, tilesize);
+			for (Piece p : pieces) {
+				pieceSprite.setColor(Constants.translateColor(p.getColor()));
+				if (p.equals(GameEngine.movingPiece)) {
+					float rshift = (paintColor.r - Constants.translateColor(p.getColor()).r)
+							* paintAnimateTime;
+					float gshift = (paintColor.g - Constants.translateColor(p.getColor()).g)
+							* paintAnimateTime;
+					float bshift = (paintColor.b - Constants.translateColor(p.getColor()).b)
+							* paintAnimateTime;
+					pieceSprite.setColor(new Color(Constants.translateColor(p.getColor()).r
+							+ rshift, Constants.translateColor(p.getColor()).g + gshift,
+							Constants.translateColor(p.getColor()).b + bshift, 1));
 				}
+				pieceSprite.setPosition(bx + (p.getXCoord() * tilesize),
+						by + (p.getYCoord() * tilesize));
+				if (path.size() > 1
+						&& p.getXCoord() == GameEngine.movingPiece.getXCoord()
+						&& p.getYCoord() == GameEngine.movingPiece.getYCoord()) {
+					float animateX = (path.get(1).getXCoord() - GameEngine.movingPiece
+							.getXCoord()) * tilesize * moveAnimateTime;
+					float animateY = (path.get(1).getYCoord() - GameEngine.movingPiece
+							.getYCoord()) * tilesize * moveAnimateTime;
+					pieceSprite.translate(animateX, animateY);
+				}
+				pieceSprite.draw(batch);
 			}
-		}
+			batch.end();
 
-		List<Laser> allFormedLasers = GameEngine.getFormedLaser();
-		if (!allFormedLasers.isEmpty()) {
-			for (Laser l : allFormedLasers)
-				if (l != null) {
-					laserWidth = formAnimateTime * beamThickness;
-					shapes.setColor(Constants.translateColor(l.getColor()));
+			// Draw Lasers
+			Set<Laser> lasers = b.lasers;
+
+			shapes.begin(ShapeType.Filled);
+			float laserWidth = beamThickness;
+			for (Laser l : lasers) {
+				if (disbandedLaser != null && l.equals(disbandedLaser)) {
+					laserWidth = (1 - breakAnimateTime) * beamThickness;
+				} else {
+					laserWidth = beamThickness;
+				}
+				shapes.setColor(Constants.translateColor(l.getColor()));
+				if (!l.equals(movedAlongLaser)) {
 					if (l.getXStart() == l.getXFinish()) {
-						shapes.rect(bx
-								+ (l.getXStart() + 0.5f - (laserWidth / 2))
+						shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
 								* tilesize, by
 								+ (l.getYStart() + 0.5f - (laserWidth / 2))
 								* tilesize, laserWidth * tilesize,
 								(l.getYFinish() - l.getYStart()) * tilesize);
 					} else {
-						shapes.rect(bx
-								+ (l.getXStart() + 0.5f - (laserWidth / 2))
+						shapes.rect(bx + (l.getXStart() + 0.5f - (laserWidth / 2))
 								* tilesize, by
 								+ (l.getYStart() + 0.5f - (laserWidth / 2))
 								* tilesize, (l.getXFinish() - l.getXStart())
 								* tilesize, laserWidth * tilesize);
 					}
 				}
+			}
+
+			List<Laser> allFormedLasers = GameEngine.getFormedLaser();
+			if (!allFormedLasers.isEmpty()) {
+				for (Laser l : allFormedLasers)
+					if (l != null) {
+						laserWidth = formAnimateTime * beamThickness;
+						shapes.setColor(Constants.translateColor(l.getColor()));
+						if (l.getXStart() == l.getXFinish()) {
+							shapes.rect(bx
+									+ (l.getXStart() + 0.5f - (laserWidth / 2))
+									* tilesize, by
+									+ (l.getYStart() + 0.5f - (laserWidth / 2))
+									* tilesize, laserWidth * tilesize,
+									(l.getYFinish() - l.getYStart()) * tilesize);
+						} else {
+							shapes.rect(bx
+									+ (l.getXStart() + 0.5f - (laserWidth / 2))
+									* tilesize, by
+									+ (l.getYStart() + 0.5f - (laserWidth / 2))
+									* tilesize, (l.getXFinish() - l.getXStart())
+									* tilesize, laserWidth * tilesize);
+						}
+					}
+			}
+			shapes.end();
 		}
-		shapes.end();
 		if (faded) {
 			Gdx.gl.glEnable(GL10.GL_BLEND);
 			Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
@@ -1534,6 +1458,7 @@ public class DrawGame {
 			Gdx.gl.glDisable(GL10.GL_BLEND);
 
 		}
+		
 
 	}
 
@@ -2057,17 +1982,14 @@ public class DrawGame {
 	private void drawPopUpBackground(float alpha){
 		float width = Gdx.graphics.getWidth();
 		float height = Gdx.graphics.getHeight();
-		float spc = width * Constants.POPUP_WIDTH_BOUNDARY;
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA,
 				GL10.GL_ONE_MINUS_SRC_ALPHA);
 		shapes.begin(ShapeType.Filled);
-		//shapes.setColor(new Color(0,0,0,0.85f * alpha));
-		//shapes.rect(0, 0, width, height);
+
 		shapes.setColor(new Color(0.1f, 0.1f, 0.1f, 0.97f * alpha));
 		shapes.rect(0, 0, width, height);
 		
-		//shapes.rect(spc, 2 * spc, width - (2 * spc), height - (4 * spc));
 		shapes.end();
 		Gdx.gl.glDisable(GL10.GL_BLEND);
 
