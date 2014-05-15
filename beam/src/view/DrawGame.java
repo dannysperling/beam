@@ -1230,7 +1230,7 @@ public class DrawGame {
 			oneStarSprite.setSize(star2size, star2size);
 			oneStarSprite.draw(batch);
 		} else {
-			oneStarSprite.setColor(new Color(0, 0, 0, textAlpha / 3.0f));
+			oneStarSprite.setColor(new Color(0, 0, 0, textAlpha / 2.0f));
 			oneStarSprite.setPosition(star2X, star2Y);
 			oneStarSprite.setSize(starWidth, starWidth);
 			oneStarSprite.draw(batch);
@@ -1243,7 +1243,7 @@ public class DrawGame {
 			oneStarSprite.setSize(star3size, star3size);
 			oneStarSprite.draw(batch);
 		} else {
-			oneStarSprite.setColor(new Color(0, 0, 0, textAlpha / 3.0f));
+			oneStarSprite.setColor(new Color(0, 0, 0, textAlpha / 2.0f));
 			oneStarSprite.setPosition(star3X, star3Y);
 			oneStarSprite.setSize(starWidth, starWidth);
 			oneStarSprite.draw(batch);

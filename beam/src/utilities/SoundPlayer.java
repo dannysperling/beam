@@ -53,7 +53,7 @@ public class SoundPlayer {
 				transition.play(.1f);
 				break;
 			case STAR_THUD:
-				starthud.play();
+				starthud.play(0.5f);
 				break;
 			default:
 				break;
