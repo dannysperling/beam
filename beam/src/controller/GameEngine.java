@@ -952,8 +952,8 @@ public class GameEngine implements ApplicationListener {
 		totalTimeForThisAnimation = AnimationState
 				.getTime(currentAnimationState);
 		
-		if (currentAnimationState == AnimationState.FORMING){
-			SoundPlayer.playSound(SoundPlayer.SoundType.BEAM_FORM);
+		if (currentAnimationState == AnimationState.PAINTING){
+			SoundPlayer.playSound(SoundPlayer.SoundType.PAINTER);
 		}
 
 		// Check to see if that will be destruction, and update accordingly
