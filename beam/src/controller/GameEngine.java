@@ -11,6 +11,7 @@ import utilities.Constants;
 import utilities.Logger;
 import utilities.SoundPlayer;
 import utilities.Logger.LogType;
+import utilities.SoundPlayer.SoundType;
 import view.DrawGame;
 import view.DrawMenu;
 import view.DrawTitlescreen;
@@ -444,6 +445,7 @@ public class GameEngine implements ApplicationListener {
 								inputHandler.setMostRecentlySelectedWorld(currentWorld);
 								dm.shiftBoardNew = true;
 								loadLevel(currentWorld, currentOrdinalInWorld);
+								SoundPlayer.playSound(SoundType.TRANSITION);
 								state = GameState.MENU_TO_LEVEL_TRANSITION;	
 								timeSpentLeavingMenu = 0;
 								worldTransitioning = false;
@@ -571,12 +573,16 @@ public class GameEngine implements ApplicationListener {
 					}
 					break;
 				case PLAY:
+					SoundPlayer.playSound(SoundType.CLICK);
 					transitioningToMenu = true;
 					transitionTicks = 0;
 					dt.initMenuSprite(dm, b, currentWorld, currentOrdinalInWorld);
 					break;
 				case SOUND_FX:
 					progress.setFX(!progress.isSoundPlaying());
+					if (progress.isSoundPlaying()){
+						SoundPlayer.playSound(SoundType.CLICK);
+					}
 					break;
 				case MUSIC:
 					boolean newMusicState = !progress.isMusicPlaying();
@@ -636,6 +642,8 @@ public class GameEngine implements ApplicationListener {
 			//Check that it's unlocked
 			boolean unlocked = menu.isLevelUnlocked(selectedWorld, selectedOrdinalInWorld);
 			if (unlocked){
+				
+				SoundPlayer.playSound(SoundType.TRANSITION);
 				//Enter the level if it's unlocked
 				//mainMenuShowing = false;
 
@@ -714,6 +722,8 @@ public class GameEngine implements ApplicationListener {
 					timeWon = Constants.WON_ANIMATION_UNIT * 10;
 					break;
 				case UNDO:
+					SoundPlayer.playSound(SoundType.CLICK);
+					
 					// Move back and reset the board
 					state = GameState.IDLE;
 					moveCounter = Math.max(moveCounter - 1, 0);
@@ -734,6 +744,7 @@ public class GameEngine implements ApplicationListener {
 					initializeLasers(b);
 					break;
 				case RESET:
+					SoundPlayer.playSound(SoundType.CLICK);
 					resetCurrentLevel();
 					state = GameState.IDLE;
 					if (Constants.LOGGING) {
@@ -741,6 +752,7 @@ public class GameEngine implements ApplicationListener {
 					}
 					break;
 				case MENU:
+					SoundPlayer.playSound(SoundType.TRANSITION);
 					// Reset the level if going to menu when destroyed
 					if (state == GameState.DESTROYED || state == GameState.WON) {
 						resetCurrentLevel();
@@ -763,7 +775,7 @@ public class GameEngine implements ApplicationListener {
 					break;
 				case BONUS:
 					goingToBonus = true;
-				case NEXT_LEVEL:
+				case NEXT_LEVEL:					
 					//Make sure the next level is unlocked
 					int nextLevelOrdinal;
 					int nextWorld;
@@ -789,6 +801,8 @@ public class GameEngine implements ApplicationListener {
 						state = GameState.LEVEL_TRANSITION;
 					} else {
 						state = GameState.LEVEL_TO_MENU_TRANSITION;
+						SoundPlayer.playSound(SoundType.TRANSITION);
+						
 						worldTransitioning = true;
 						dm.shiftBoardNew = true;
 						mainMenuShowing = true;
@@ -804,11 +818,13 @@ public class GameEngine implements ApplicationListener {
 					break;
 				case INFO:
 					if (state == GameState.IDLE){
+						SoundPlayer.playSound(SoundType.CLICK);
 						state = GameState.INFO;
 					}
 					break;
 				case TUTORIAL:
 					if (state == GameState.IDLE){
+						SoundPlayer.playSound(SoundType.CLICK);
 						state = GameState.TUTORIAL;
 					}
 					break;
@@ -935,9 +951,14 @@ public class GameEngine implements ApplicationListener {
 		currentAnimationState = animationStack.remove(0);
 		totalTimeForThisAnimation = AnimationState
 				.getTime(currentAnimationState);
+		
+		if (currentAnimationState == AnimationState.FORMING){
+			SoundPlayer.playSound(SoundPlayer.SoundType.BEAM_FORM);
+		}
 
 		// Check to see if that will be destruction, and update accordingly
 		if (currentAnimationState == AnimationState.DESTRUCTION) {
+			SoundPlayer.playSound(SoundPlayer.SoundType.DESTRUCTION);
 			deaths++;
 			goBackToTheFuture();
 		}

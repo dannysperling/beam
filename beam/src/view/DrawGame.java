@@ -15,6 +15,8 @@ import model.Tutorial;
 import model.Tutorial.ElementType;
 import utilities.AssetInitializer;
 import utilities.Constants;
+import utilities.SoundPlayer;
+import utilities.SoundPlayer.SoundType;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -82,6 +84,8 @@ public class DrawGame {
 	private Texture painterTexture;
 
 	private Sprite painterSprite;
+	
+	private boolean fadedForSound = false;
 
 	public DrawGame(GameProgress gp) {
 		batch = new SpriteBatch();
@@ -1092,8 +1096,13 @@ public class DrawGame {
 		
 		if(state == GameState.LEVEL_TRANSITION){
 			if(GameEngine.getTransitionTime() < (Constants.TRANSITION_DELAY * 0.75f)){
+				fadedForSound = false;
 				boxAlpha = 1 - (((float)(GameEngine.getTransitionTime()) / (Constants.TRANSITION_DELAY * 0.75f)));
 			} else {
+				if (!fadedForSound){
+					fadedForSound = true;
+					SoundPlayer.playSound(SoundType.TRANSITION);
+				}
 				boxAlpha = 0;
 			}
 		}
@@ -1124,7 +1133,7 @@ public class DrawGame {
 			} else {
 				textAlpha = 1.0f;
 			}
-
+			
 		}
 
 		float starWidth = boardWidth * 4.0f / 10.0f;

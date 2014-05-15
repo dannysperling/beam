@@ -38,6 +38,12 @@ public class AssetInitializer {
 	//Music
 	public static final String background_music = "data/sounds/background_music.mp3";
 	
+	//Sound
+	public static final String click_sound = "data/sounds/click.mp3";
+	public static final String destruction_sound = "data/sounds/destruction.mp3";
+	public static final String transition_sound = "data/sounds/transition.mp3";
+	public static final String starthud_sound = "data/sounds/starthud.mp3";
+	
 	public static void initialize(){
 		
 		//Request all assets
@@ -74,7 +80,10 @@ public class AssetInitializer {
 		assetManager.load(credits, Texture.class, param);
 		
 		//Sounds
-		
+		assetManager.load(click_sound, Sound.class);
+		assetManager.load(destruction_sound, Sound.class);
+		assetManager.load(transition_sound, Sound.class);
+		assetManager.load(starthud_sound, Sound.class);
 		
 		//Music
 		assetManager.load(background_music, Music.class);
