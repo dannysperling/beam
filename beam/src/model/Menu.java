@@ -805,7 +805,7 @@ public class Menu {
 		int levelIndex = ordinalInWorld - 1;
 
 		//Copy out the color of the world
-		Color ret = Constants.WORLD_COLORS[worldIndex].cpy();
+		Color ret = Constants.getWorldColorCopy(worldIndex);
 
 		//Multiply the color based on its position
 		float factor = Constants.START_COLOR_MUL - (1-Constants.END_COLOR_MUL)*((float)(levelIndex)/(float)worldSizes.get(worldIndex));
@@ -818,25 +818,12 @@ public class Menu {
 	}
 
 	/**
-	 * Get the color of a given world. Black if its less than the first,
-	 * white if its more than the second.
-	 * 
-	 * @param world
-	 * 				Which world to get the color of
-	 * @return
-	 * 				The color of that world
+	 * Get the color of a given world ordinal.
+	 * @param world Which world ordinal to get the color of
+	 * @return The color of that world
 	 */
 	public static Color colorOfWorld(int world) {
-		// Too low, do black
-		if (world < 1)
-			return Color.BLACK.cpy();
-
-		// Too high, do white
-		if (world > Constants.WORLD_COLORS.length)
-			return Color.WHITE.cpy();
-
-		//In between, pull from the world colors
 		int worldIndex = world - 1;
-		return Constants.WORLD_COLORS[worldIndex].cpy();
+		return Constants.getWorldColorCopy(worldIndex);
 	}
 }

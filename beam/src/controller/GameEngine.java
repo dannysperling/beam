@@ -87,6 +87,7 @@ public class GameEngine implements ApplicationListener {
 	public static int timeSpentOnInfo = 0;
 	
 	public static boolean nextWorldUnlocked = false;
+	public static boolean bonusUnlocked = false;
 
 
 	/**
@@ -412,6 +413,7 @@ public class GameEngine implements ApplicationListener {
 							} else {
 								state = GameState.INTRO;
 							}
+							dm.worldShift = false;
 						} else {
 							timeSpentLeavingMenu++;
 						}
@@ -430,6 +432,11 @@ public class GameEngine implements ApplicationListener {
 									Logger.enteredLevel(currentWorld + 1,
 											1);
 								}
+								dm.prevWorld = currentWorld;
+								dm.prevOrdinal = currentOrdinalInWorld;
+								dm.worldShift = true;
+								dm.prevBoard = b;
+								dm.updateTransBoardSprite(b);
 								//Change current and load the new level
 								currentWorld += 1;
 								currentOrdinalInWorld = 1;
@@ -968,12 +975,19 @@ public class GameEngine implements ApplicationListener {
 				}
 				
 				boolean wasNextWorldUnlocked = progress.isWorldUnlocked(currentWorld + 1);
+				boolean wasBonusUnlocked = progress.isBonusLevelUnlocked(currentWorld);
 				progress.setLevelScore(currentWorld, currentOrdinalInWorld,
 						moveCounter, numStars);
 				if (!wasNextWorldUnlocked && progress.isWorldUnlocked(currentWorld + 1)){
 					GameEngine.nextWorldUnlocked = true;
 				} else {
 					GameEngine.nextWorldUnlocked = false;
+				}
+				
+				if (!wasBonusUnlocked && progress.isBonusLevelUnlocked(currentWorld)){
+					GameEngine.bonusUnlocked = true;
+				} else {
+					GameEngine.bonusUnlocked = false;
 				}
 			}
 		}
