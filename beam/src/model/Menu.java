@@ -99,9 +99,9 @@ public class Menu {
 	 * @param y
 	 * 				y coordinate of the press
 	 * @return
-	 * 				Which button was clicked. Options are UNDO, MENU, RESET, NEXT_LEVEL
+	 * 				Which button was clicked. Options are UNDO, MENU, RESET, NEXT_LEVEL, BONUS
 	 */
-	public static GameEngine.ButtonPress containingButtonOfPixelWonScreen(int x, int y){
+	public static GameEngine.ButtonPress containingButtonOfPixelWonScreen(int x, int y, boolean bonusUnlocked){
 		//Get width and height of screen
 		int height = Gdx.graphics.getHeight();
 		int width = Gdx.graphics.getWidth();
@@ -125,6 +125,10 @@ public class Menu {
 					return GameEngine.ButtonPress.RESET;
 				}
 			}
+		}
+		else if (y > height *1/3 && bonusUnlocked){
+			//TODO: Here
+			return GameEngine.ButtonPress.BONUS;
 		}
 		return GameEngine.ButtonPress.NEXT_LEVEL;
 	}

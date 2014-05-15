@@ -324,7 +324,7 @@ public class InputHandler {
 	 * @return
 	 * 				Which button was pressed, if any
 	 */
-	public GameEngine.ButtonPress checkForButtonPress(GameState state, int botYCoord) {
+	public GameEngine.ButtonPress checkForButtonPress(GameState state, int botYCoord, boolean bonusUnlocked) {
 
 		//Short circuit if back had been pressed
 		if (backClicked){
@@ -346,7 +346,7 @@ public class InputHandler {
 				if (state != GameState.WON){
 					buttonDown = Menu.containingButtonOfPixelLevelScreen(xPress, yPress, botYCoord);
 				} else {
-					buttonDown = Menu.containingButtonOfPixelWonScreen(xPress, yPress);
+					buttonDown = Menu.containingButtonOfPixelWonScreen(xPress, yPress, bonusUnlocked);
 				}
 				
 				if (buttonDown == GameEngine.ButtonPress.NONE && state == GameState.DESTROYED){
@@ -370,7 +370,7 @@ public class InputHandler {
 				if (state != GameState.WON){
 					returnedButton = Menu.containingButtonOfPixelLevelScreen(lastX, lastY, botYCoord);
 				} else {
-					returnedButton = Menu.containingButtonOfPixelWonScreen(lastX, lastY);
+					returnedButton = Menu.containingButtonOfPixelWonScreen(lastX, lastY, bonusUnlocked);
 				}
 				
 				//Any other click if destroyed does a reset

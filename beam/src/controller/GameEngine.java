@@ -148,7 +148,7 @@ public class GameEngine implements ApplicationListener {
 	 * Enumeration of all button press types
 	 */
 	public enum ButtonPress {
-		UNDO, RESET, MENU, INFO, TUTORIAL, NEXT_LEVEL, SKIPWIN, NONE
+		UNDO, RESET, MENU, INFO, TUTORIAL, NEXT_LEVEL, SKIPWIN, BONUS, NONE
 	}
 	
 	/**
@@ -682,7 +682,7 @@ public class GameEngine implements ApplicationListener {
 
 			// Get the button that was pressed
 			ButtonPress button = inputHandler.checkForButtonPress(state,
-					b.getTopYCoord());
+					b.getTopYCoord(), bonusUnlocked);
 
 			//Check if it's skip win
 			if (state == GameState.WON && button != ButtonPress.NONE) {
@@ -704,6 +704,9 @@ public class GameEngine implements ApplicationListener {
 
 				//Indicate as such
 				pushedButton = true;
+				
+				//GONNA CASCADE SOME WITCHES
+				boolean goingToBonus = false;
 
 				// Determine what to do on the press
 				switch (button) {
@@ -758,16 +761,27 @@ public class GameEngine implements ApplicationListener {
 					menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
 					timeSpentLeavingLevel = 0;
 					break;
+				case BONUS:
+					goingToBonus = true;
 				case NEXT_LEVEL:
 					//Make sure the next level is unlocked
-					int nextLevelOrdinal = currentOrdinalInWorld + 1;
-					int nextWorld = currentWorld;
-					
-					//Will never go to the bonus level
-					if (nextLevelOrdinal >= levelOrderer.getWorldSize(currentWorld)){
-						nextLevelOrdinal = 1;
-						nextWorld++;
+					int nextLevelOrdinal;
+					int nextWorld;
+
+					if (!goingToBonus){
+						nextLevelOrdinal = currentOrdinalInWorld + 1;
+						nextWorld = currentWorld;
+						
+						//Will never go to the bonus level
+						if (nextLevelOrdinal >= levelOrderer.getWorldSize(currentWorld)){
+							nextLevelOrdinal = 1;
+							nextWorld++;
+						}
+					} else {
+						nextLevelOrdinal = levelOrderer.getWorldSize(currentWorld);
+						nextWorld = currentWorld;
 					}
+					
 					if (!menu.isLevelUnlocked(nextWorld, nextLevelOrdinal))
 						break;
 					// Guess we're sick of this level already...
@@ -818,20 +832,15 @@ public class GameEngine implements ApplicationListener {
 		}
 
 		// Increment level and possibly world - won't move to bonus
-		currentOrdinalInWorld++;
-		if (currentOrdinalInWorld >= levelOrderer.getWorldSize(currentWorld)) {
-			currentOrdinalInWorld = 1;
-			currentWorld++;
-		}
+		currentOrdinalInWorld = nextOrdinal;
+		currentWorld = nextLvWorld;
+		
+		loadLevel(currentWorld, currentOrdinalInWorld);
 
-		// Check that there are remaining levels
-		if (currentWorld <= levelOrderer.getNumWorlds()) {
-			loadLevel(currentWorld, currentOrdinalInWorld);
-
-			if (Constants.LOGGING) {
-				Logger.enteredLevel(currentWorld, currentOrdinalInWorld);
-			}
+		if (Constants.LOGGING) {
+			Logger.enteredLevel(currentWorld, currentOrdinalInWorld);
 		}
+		
 		// No levels remaining - go back to the main menu
 		else {
 			currentWorld--;
