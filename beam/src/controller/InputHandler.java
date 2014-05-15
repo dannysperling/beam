@@ -182,12 +182,14 @@ public class InputHandler {
 			if (!onPath){
 				//Check for regular or diagonal moves
 				Tile intervening = findValidDiagonal(b, source, destination);
+				ArrayList<Tile> interveningAll = findValidLinear(b, source, destination);
 				if (isValidMove(b, source, destination)) {
 					GameEngine.movePath.add(destination);
 				} else if (intervening != null) {
 
 					//If intervening was already on the path, chop back to that point
 					i = GameEngine.movePath.indexOf(intervening);
+					
 					if (i != -1) {
 						List<Tile> newPath = new ArrayList<Tile>();
 						for (int j = 0; j < i + 1; j++){
@@ -200,6 +202,22 @@ public class InputHandler {
 					else {
 						GameEngine.movePath.add(intervening);
 						GameEngine.movePath.add(destination);
+					}
+				} else if (interveningAll != null) {
+					for(Tile next : interveningAll) {
+						
+						//If intervening was already on the path, chop back to that point
+						i = GameEngine.movePath.indexOf(next);
+						
+						if (i != -1) {
+							List<Tile> newPath = new ArrayList<Tile>();
+							for (int j = 0; j < i + 1; j++){
+								newPath.add(GameEngine.movePath.get(j));
+							}
+							GameEngine.movePath = newPath;
+						} 
+						//Then  simply add the next tile
+						GameEngine.movePath.add(next);
 					}
 				}
 			}
@@ -260,6 +278,79 @@ public class InputHandler {
 	private boolean isMoveDiagonal(Tile t1, Tile t2) {
 		return (Math.abs(t1.getXCoord() - t2.getXCoord()) == 1)
 				&& (Math.abs(t1.getYCoord() - t2.getYCoord()) == 1);
+	}
+	
+	/**
+	 * 
+	 */
+	private boolean isMoveVerticalNonadjacent(Tile t1, Tile t2) {
+		if (t1.getXCoord() == t2.getXCoord()) {
+			return (Math.abs(t1.getYCoord() - t2.getYCoord()) > 1);
+		}
+		return false;
+	}
+	
+	private boolean isMoveHorizontalNonadjacent(Tile t1, Tile t2) {
+		if(t1.getYCoord() == t2.getYCoord()) {
+			return (Math.abs(t1.getXCoord() - t2.getXCoord()) > 1);
+		}
+		return false;
+	}
+	
+	private ArrayList<Tile> findValidLinear(Board b, Tile t1, Tile t2) {
+		ArrayList<Tile> path = new ArrayList<Tile>();
+		Tile toAdd;
+		
+		if(isMoveVerticalNonadjacent(t1, t2)) {
+			int x = t1.getXCoord();
+			int first = t1.getYCoord();
+			int second = t2.getYCoord();
+			if(first - second > 0) {
+				for(int i = first - 1; i >= second; i--) {
+					toAdd = b.getTileAtBoardPosition(x, i);
+					if(! b.isTilePassable(toAdd)) {
+						return null;
+					}
+					path.add(toAdd);
+				}
+			}
+			
+			else if(first - second < 0) {
+				for(int i = first + 1; i <= second; i++) {
+					toAdd = b.getTileAtBoardPosition(x, i);
+					if(! b.isTilePassable(toAdd)) {
+						return null;
+					}
+					path.add(toAdd);
+				}
+			}
+		}
+		else if(isMoveHorizontalNonadjacent(t1, t2)) {
+			int y = t1.getYCoord();
+			int first = t1.getXCoord();
+			int second = t2.getXCoord();
+			if(first - second > 0) {
+				for(int i = first - 1; i >= second; i--) {
+					toAdd = b.getTileAtBoardPosition(i, y);
+					if(! b.isTilePassable(toAdd)) {
+						return null;
+					}
+					path.add(toAdd);
+				}
+			}
+			
+			else if(first - second < 0) {
+				for(int i = first + 1; i <= second; i++) {
+					toAdd = b.getTileAtBoardPosition(i, y);
+					if(! b.isTilePassable(toAdd)) {
+						return null;
+					}
+					path.add(toAdd);
+				}
+			}
+		}
+		
+		return path;
 	}
 
 	/**
