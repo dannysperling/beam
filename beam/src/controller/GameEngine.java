@@ -441,6 +441,7 @@ public class GameEngine implements ApplicationListener {
 							} else {
 								state = GameState.INTRO;
 							}
+							dm.worldShift = false;
 						} else {
 							timeSpentLeavingMenu++;
 						}
@@ -459,6 +460,11 @@ public class GameEngine implements ApplicationListener {
 									Logger.enteredLevel(currentWorld + 1,
 											1);
 								}
+								dm.prevWorld = currentWorld;
+								dm.prevOrdinal = currentOrdinalInWorld;
+								dm.worldShift = true;
+								dm.prevBoard = b;
+								dm.updateTransBoardSprite(b);
 								//Change current and load the new level
 								currentWorld += 1;
 								currentOrdinalInWorld = 1;

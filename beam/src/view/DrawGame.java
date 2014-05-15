@@ -1549,28 +1549,21 @@ public class DrawGame {
 				+ (imageHeight * imageFactor)
 				+ ((tutorial.getNumElements() + 1) * Constants.TUTORIAL_V_BREAK * height);
 
-		float upshift = 0;
+		float upshift = 1;
 		if (GameEngine.timeSpentOnTutorial < Constants.TUTORIAL_IN_TIME) {
-			upshift = 1 - (float) (GameEngine.timeSpentOnTutorial)
-					/ Constants.TUTORIAL_IN_TIME;
-			upshift *= height;
-		}
+			upshift =(float) (GameEngine.timeSpentOnTutorial)
+					/ Constants.TUTORIAL_IN_TIME;		}
 		if ((GameEngine.timeToStopTutorial - GameEngine.timeSpentOnTutorial) < Constants.TUTORIAL_IN_TIME) {
-			upshift = 1
-					- (float) (GameEngine.timeToStopTutorial - GameEngine.timeSpentOnTutorial)
+			upshift =  (float) (GameEngine.timeToStopTutorial - GameEngine.timeSpentOnTutorial)
 					/ Constants.TUTORIAL_IN_TIME;
-			upshift *= height;
 		}
 
-		float curHeight = height - ((height - totalHeight) / 2.0f) + upshift;
+		float curHeight = height - ((height - totalHeight) / 2.0f) + 0;
 		curHeight -= Constants.TUTORIAL_V_BREAK * height;
 
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-		shapes.begin(ShapeType.Filled);
-		shapes.setColor(new Color(.95f, .95f, .95f, 0.95f));
-		shapes.rect(0, upshift, width, height);
-		shapes.end();
+		drawPopUpBackground(upshift);
 		Gdx.gl.glDisable(GL10.GL_BLEND);
 
 		for (int i = 0; i < tutorial.getNumElements(); i++) {
@@ -1578,14 +1571,18 @@ public class DrawGame {
 				String nextPart = correctlyWrap(tutorial.getTextElementAt(i),
 						curFont, tb, width * 0.9f);
 				tb = curFont.getMultiLineBounds(nextPart);
+				Gdx.gl.glEnable(GL10.GL_BLEND);
+				Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 				batch.begin();
-				batch.setColor(Color.BLACK);
-				curFont.setColor(Color.BLACK);
+				batch.setColor(new Color(Constants.BOARD_COLOR.r, Constants.BOARD_COLOR.g, Constants.BOARD_COLOR.b, upshift));
+				curFont.setColor(new Color(Constants.BOARD_COLOR.r, Constants.BOARD_COLOR.g, Constants.BOARD_COLOR.b, upshift));
 				curFont.drawMultiLine(batch, nextPart,
 						(int)((((width * 0.9f) - tb.width) / 2.0f)
 						+ (width * (0.05f))), (int)curHeight, (int)tb.width,
 						HAlignment.CENTER);
 				batch.end();
+				Gdx.gl.glDisable(GL10.GL_BLEND);
+
 				curHeight -= tb.height;
 				curHeight -= Constants.TUTORIAL_V_BREAK * height;
 			} else if (tutorial.getElementTypeAt(i) == ElementType.ANIMATED_IMAGE) {
@@ -1598,9 +1595,14 @@ public class DrawGame {
 				toDraw.setPosition(
 						(((width * 0.9f) - toDraw.getWidth()) / 2.0f)
 						+ (width * 0.05f), curHeight);
+				toDraw.setColor(new Color(1, 1, 1, upshift));
+				Gdx.gl.glEnable(GL10.GL_BLEND);
+				Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 				batch.begin();
 				toDraw.draw(batch);
 				batch.end();
+				Gdx.gl.glDisable(GL10.GL_BLEND);
+
 				curHeight -= Constants.TUTORIAL_V_BREAK * height;
 			}
 		}
@@ -1631,57 +1633,61 @@ public class DrawGame {
 
 
 	private void drawInfo(TextBounds tb, int width, int height, int currentWorld, int currentOrdinalInWorld, Board b, int bestMoves){
-		float upshift = 0;
+		float upshift = 1;
 		if (GameEngine.timeSpentOnInfo < Constants.TUTORIAL_IN_TIME) {
-			upshift = 1 - (float) (GameEngine.timeSpentOnInfo)
+			upshift = (float) (GameEngine.timeSpentOnInfo)
 					/ Constants.TUTORIAL_IN_TIME;
-			upshift *= height;
 		}
 		if ((GameEngine.timeToStopInfo - GameEngine.timeSpentOnInfo) < Constants.TUTORIAL_IN_TIME) {
-			upshift = 1
-					- (float) (GameEngine.timeToStopInfo - GameEngine.timeSpentOnInfo)
+			upshift = (float) (GameEngine.timeToStopInfo - GameEngine.timeSpentOnInfo)
 					/ Constants.TUTORIAL_IN_TIME;
-			upshift *= height;
 		}
 
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-		shapes.begin(ShapeType.Filled);
-		shapes.setColor(new Color(.95f, .95f, .95f, 0.95f));
-		shapes.rect(0, upshift, width, height);
-		shapes.end();
-		Gdx.gl.glDisable(GL10.GL_BLEND);
+		drawPopUpBackground(upshift);
 
 		String header = currentWorld + "-" + currentOrdinalInWorld;
 		tb = levelNameFont.getBounds(header);
+		
+		Gdx.gl.glEnable(GL10.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		batch.begin();
-		levelNameFont.setColor(Color.BLACK);
+		levelNameFont.setColor(new Color(Constants.BOARD_COLOR.r, Constants.BOARD_COLOR.g, Constants.BOARD_COLOR.b, upshift));
 		levelNameFont.draw(batch, header, (int)((width - tb.width) / 2.0f), (int)((height * 0.8f) + upshift));
 		batch.end();
 
 		String twoStars = b.par + " Moves";
 		String threeStars = b.perfect + " Moves";
-		starGoalFont.setColor(Color.BLACK);
+		starGoalFont.setColor(new Color(Constants.BOARD_COLOR.r, Constants.BOARD_COLOR.g, Constants.BOARD_COLOR.b, upshift));
 		tb = starGoalFont.getBounds(twoStars);
 		twoStarSprite.setSize(tb.height * 2.0f, tb.height * 2.0f);
 		float twoStarWidth = tb.width + (3 * tb.height);
 		float curHeight = height * 0.6f;
 		twoStarSprite.setPosition((width - twoStarWidth) / 2.0f, curHeight - (0.5f * tb.height) + upshift - (twoStarSprite.getHeight() / 2.0f));
+		twoStarSprite.setColor(new Color(1,1,1,upshift));
+		
+		Gdx.gl.glEnable(GL10.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+
 		batch.begin();
 		twoStarSprite.draw(batch);
 		starGoalFont.draw(batch, twoStars, (int)((width - twoStarWidth) / 2.0f + (3.0f * tb.height)) , (int)(curHeight + upshift));
 		batch.end();
+		
 		curHeight -= 2 * tb.height;
 
 		tb = starGoalFont.getBounds(threeStars);
 		threeStarSprite.setSize(tb.height * 2.0f, tb.height * 2.0f);
 		float threeStarWidth = tb.width + (3 * tb.height);
 		threeStarSprite.setPosition((width - threeStarWidth) / 2.0f, curHeight - (0.5f * tb.height) + upshift - (threeStarSprite.getHeight() / 2.0f));
+		threeStarSprite.setColor(new Color(1,1,1,upshift));
 		batch.begin();
 		threeStarSprite.draw(batch);
 		starGoalFont.draw(batch, threeStars, (int)((width - threeStarWidth) / 2.0f + (3.0f * tb.height)) , (int)(curHeight + upshift));
 		batch.end();
-
+		Gdx.gl.glDisable(GL10.GL_BLEND);
+		threeStarSprite.setColor(Color.WHITE);
 
 		if(bestMoves != 0){
 			curHeight -= 3 * tb.height;

@@ -47,6 +47,12 @@ public class DrawMenu {
 	private Sprite boardSprite;
 	private Sprite bgSprite;
 	private Sprite curBoardSprite;
+	private Sprite transBoardSprite;
+	
+	public int prevWorld;
+	public int prevOrdinal;
+	public boolean worldShift;
+	public Board prevBoard;
 
 	private int fullHeight = 0;
 	private int fullWidth = 0;
@@ -131,6 +137,7 @@ public class DrawMenu {
 		int width = Gdx.graphics.getWidth();
 
 		boolean noSprite = false;
+		boolean pSprite = false;
 		
 		int worldHeight = menu.getWorldHeight();
 		int levelItemWidth = menu.getLevelItemWidth();
@@ -186,11 +193,15 @@ public class DrawMenu {
 						boolean shiftThisOne = false;
 						//Check if we're drawing the current board 
 						noSprite = false;
+						pSprite = false;
 						if (ordinalInWorld == curOrdinalInWorld && world == curWorld){
 							b = curBoard;
 							shiftThisOne = shifting;
 							noSprite = true;
-						} else { 
+						} else if (worldShift && ordinalInWorld == prevOrdinal && world == prevWorld){
+							b = prevBoard;
+							pSprite = true;
+						} else {
 							b = allBoards.get(world - 1).get(ordinalInWorld - 1);
 						}
 						//Draw the current level
@@ -201,7 +212,7 @@ public class DrawMenu {
 							if(boardSprites[world][ordinalInWorld] == null){
 								GameEngine.debug("This should never happen!");
 							} else {
-								drawLevelBoard(boardSprites, world, ordinalInWorld, b, itemBotY, itemLeftX, stars, noSprite);
+								drawLevelBoard(boardSprites, world, ordinalInWorld, b, itemBotY, itemLeftX, stars, noSprite, pSprite);
 							}
 						} else {
 							shiftBoard = b;
@@ -359,6 +370,21 @@ public class DrawMenu {
 		curBoardSprite = new Sprite(boardTex);
 	}
 
+	public void updateTransBoardSprite(Board b){
+		int tileSize = (int)(menu.boardHeightPercent * menu.getWorldHeight() / b.getNumVerticalTiles());
+		int bWidth = tileSize * b.getNumHorizontalTiles();
+		int bHeight = tileSize * b.getNumVerticalTiles();
+		if(menuBoardBuffer != null){
+			menuBoardBuffer.dispose();
+		}
+		menuBoardBuffer = new FrameBuffer(Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+		menuBoardBuffer.begin();
+		dg.drawBoard(b, 0, 0, tileSize, false, false);
+		TextureRegion boardTex = ScreenUtils.getFrameBufferTexture(0, 0, bWidth, bHeight);
+		menuBoardBuffer.end();
+		transBoardSprite = new Sprite(boardTex);
+	}
+	
 	/**
 	 * Draws the colored background of a given world
 	 * 
@@ -460,7 +486,7 @@ public class DrawMenu {
 	 * @param itemLeftX
 	 * 				The x coordinate of the left side of the menu item
 	 */
-	private void drawLevelBoard(Sprite[][] boardSprites, int world, int ordinalInWorld, Board b, int itemBotY, int itemLeftX, int stars, boolean noSprite){
+	private void drawLevelBoard(Sprite[][] boardSprites, int world, int ordinalInWorld, Board b, int itemBotY, int itemLeftX, int stars, boolean noSprite, boolean pSprite){
 		// Get board dimensions
 		int levelItemWidth = menu.getLevelItemWidth();
 		int worldHeight = menu.getWorldHeight();
@@ -471,6 +497,7 @@ public class DrawMenu {
 		int bx = (levelItemWidth - tilesize * b.getNumHorizontalTiles()) / 2 + itemLeftX;
 		boolean locked = (menu.isBonus(world, ordinalInWorld) && !menu.isBonusLevelUnlocked(world));
 		Sprite curSprite = (noSprite?curBoardSprite:boardSprites[world][ordinalInWorld]);
+		curSprite = (pSprite?transBoardSprite:curSprite);
 		//Draw the board in the appropriate location		
 		curSprite.setPosition(bx, by);
 		curSprite.setSize(tilesize * b.getNumHorizontalTiles(), tilesize * b.getNumVerticalTiles());
