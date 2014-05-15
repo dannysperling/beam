@@ -1,0 +1,115 @@
+
+### WORLDSTART: Early Mechanics ###
+37 - no other beams, move + goal
+38 - multiple colors of goals
+53
+49
+1
+35
+### WORLDEND ###
+
+### WORLDSTART: Early Mechanics 2 ###
+45
+48
+47
+36
+3 
+### WORLDEND ###
+
+### WORLDSTART: Intermediate Mechanics ###
+7
+32
+5
+6 
+10
+14
+### WORLDEND ###
+
+### WORLDSTART: Beam Objectives ###
+40 - beam objective tutorial
+2 
+63
+12
+42 - hard beam goal or two colors
+### WORLDEND ###
+
+### WORLDSTART: Painters ###
+8
+33
+9
+23
+62
+21
+15
+13 - very hard but simple mechanics
+### WORLDEND ###
+
+### WORLDSTART: Limitations ###
+11
+18
+16
+27
+54
+### WORLDEND ###
+
+### WORLDSTART: Color Lock ###
+39 - color lock tutorial
+22
+20
+29
+25
+84
+24
+### WORLDEND ###
+
+### WORLDSTART: Mikes spring break levels ###
+61
+82
+83
+57
+59
+58
+### WORLDEND ###
+
+### WORLDSTART: CHALLENGE! ###
+17
+50
+28
+30
+34
+31
+19
+46
+### WORLDEND ###
+
+### WORLDSTART: Newfoundlevels ###
+88
+89
+90
+91
+92
+93
+### WORLDEND ###
+
+### WORLDSTART: Newnewfoundlevels ###
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+### WORLDEND ###
+
+### WORLDSTART: Reese's testing levels ###
+120
+121
+122
+### WORLDEND ###
