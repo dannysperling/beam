@@ -1113,16 +1113,27 @@ public class DrawGame {
 
 		float textAlpha = 0;
 
+		
+		
 		if (timeWon < (1 + numStars) * au) {
 			if (timeWon >= au && timeWon < (2 * au)) {
 				star1size = starFunc(((timeWon - au) / au) * 2.05814f);
+				if(timeWon == (2*au) - 1){
+					SoundPlayer.playSound(SoundPlayer.SoundType.STAR_THUD);
+				}
 			} else if (timeWon >= (2 * au) && timeWon < (3 * au)) {
 				star1size = 1;
 				star2size = starFunc(((timeWon - (2 * au)) / au) * 2.05814f);
+				if(timeWon == (3*au) - 1){
+					SoundPlayer.playSound(SoundPlayer.SoundType.STAR_THUD);
+				}
 			} else if (timeWon >= (3 * au) && timeWon < (4 * au)) {
 				star1size = 1;
 				star2size = 1;
 				star3size = starFunc(((timeWon - (3 * au)) / au) * 2.05814f);
+				if(timeWon == (4*au) - 1){
+					SoundPlayer.playSound(SoundPlayer.SoundType.STAR_THUD);
+				}
 			}
 		} else {
 			star1size = 1;
