@@ -15,6 +15,7 @@ public class SoundPlayer {
 	private static Sound destruction;
 	private static Sound transition;
 	private static Sound starthud;
+	private static Sound painter;
 	
 	public static void initSounds(GameProgress progress){
 		SoundPlayer.progress = progress;
@@ -24,10 +25,11 @@ public class SoundPlayer {
 		destruction = AssetInitializer.getSound(AssetInitializer.destruction_sound);
 		transition = AssetInitializer.getSound(AssetInitializer.transition_sound);
 		starthud = AssetInitializer.getSound(AssetInitializer.starthud_sound);
+		painter = AssetInitializer.getSound(AssetInitializer.painter_sound);
 	}
 	
 	public enum SoundType{
-		CLICK, DESTRUCTION, TRANSITION, BEAM_FORM, STAR_THUD
+		CLICK, DESTRUCTION, TRANSITION, STAR_THUD, PAINTER
 	}
 	
 	public static void playMusic(){
@@ -44,7 +46,8 @@ public class SoundPlayer {
 		if (progress.isSoundPlaying()){
 			switch (type){
 			case CLICK:
-				click.play(0.5f);
+				click.play(0.1f);
+				destruction.stop();
 				break;
 			case DESTRUCTION:
 				destruction.play();
@@ -53,7 +56,10 @@ public class SoundPlayer {
 				transition.play(.1f);
 				break;
 			case STAR_THUD:
-				starthud.play(0.5f);
+				starthud.play(0.25f);
+				break;
+			case PAINTER:
+				painter.play();
 				break;
 			default:
 				break;
