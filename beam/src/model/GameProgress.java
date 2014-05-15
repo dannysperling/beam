@@ -6,13 +6,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import utilities.Constants;
+import utilities.Logger;
+import utilities.Logger.LogType;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 
 import controller.LevelOrderer;
-import controller.Logger;
-import controller.Logger.LogType;
 
 public class GameProgress {
 
@@ -260,6 +260,7 @@ public class GameProgress {
 	 */
 	public void setMusic(boolean isPlaying){
 		playMusic = isPlaying? 1:0;
+		save();
 	}
 
 	/**
@@ -274,6 +275,7 @@ public class GameProgress {
 	 */
 	public void setFX(boolean isPlaying){
 		playFX = isPlaying? 1:0;
+		save();
 	}
 
 	/**

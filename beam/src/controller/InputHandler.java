@@ -63,18 +63,20 @@ public class InputHandler {
 		}
 
 		/* Can remove tutorial once it's gotten to the bottom */
-		if(state == GameState.TUTORIAL && Gdx.input.isTouched()) {
+		if(state == GameState.TUTORIAL && (Gdx.input.isTouched() || backClicked)) {
 			if (GameEngine.timeToStopTutorial == Integer.MAX_VALUE && GameEngine.timeSpentOnTutorial >= Constants.TUTORIAL_IN_TIME){
 				GameEngine.timeToStopTutorial = GameEngine.timeSpentOnTutorial + Constants.TUTORIAL_IN_TIME;
 			}
+			backClicked = false;
 			return GameState.TUTORIAL;
 		}
 
 		/* Can remove info once it's gotten to the bottom */
-		if(state == GameState.INFO && Gdx.input.isTouched()){
+		if(state == GameState.INFO && (Gdx.input.isTouched() || backClicked)){
 			if (GameEngine.timeToStopInfo == Integer.MAX_VALUE && GameEngine.timeSpentOnInfo >= Constants.TUTORIAL_IN_TIME){
 				GameEngine.timeToStopInfo = GameEngine.timeSpentOnInfo + Constants.TUTORIAL_IN_TIME;
 			}
+			backClicked = false;
 			return GameState.INFO;
 		}
 
@@ -322,7 +324,7 @@ public class InputHandler {
 	 * @return
 	 * 				Which button was pressed, if any
 	 */
-	public GameEngine.ButtonPress checkForButtonPress(GameState state, int botYCoord) {
+	public GameEngine.ButtonPress checkForButtonPress(GameState state, int botYCoord, boolean bonusUnlocked) {
 
 		//Short circuit if back had been pressed
 		if (backClicked){
@@ -344,7 +346,11 @@ public class InputHandler {
 				if (state != GameState.WON){
 					buttonDown = Menu.containingButtonOfPixelLevelScreen(xPress, yPress, botYCoord);
 				} else {
-					buttonDown = Menu.containingButtonOfPixelWonScreen(xPress, yPress);
+					buttonDown = Menu.containingButtonOfPixelWonScreen(xPress, yPress, bonusUnlocked);
+				}
+				
+				if (buttonDown == GameEngine.ButtonPress.NONE && state == GameState.DESTROYED){
+					buttonDown = GameEngine.ButtonPress.RESET;
 				}
 			}
 
@@ -364,13 +370,19 @@ public class InputHandler {
 				if (state != GameState.WON){
 					returnedButton = Menu.containingButtonOfPixelLevelScreen(lastX, lastY, botYCoord);
 				} else {
-					returnedButton = Menu.containingButtonOfPixelWonScreen(lastX, lastY);
+					returnedButton = Menu.containingButtonOfPixelWonScreen(lastX, lastY, bonusUnlocked);
+				}
+				
+				//Any other click if destroyed does a reset
+				if (returnedButton == GameEngine.ButtonPress.NONE && state == GameState.DESTROYED){
+					returnedButton = GameEngine.ButtonPress.RESET;
 				}
 
 				//Check to make sure they were still pressing the same button as originally
 				if (returnedButton != buttonDown) {
 					returnedButton = GameEngine.ButtonPress.NONE;
 				}
+
 			} else {
 				returnedButton = GameEngine.ButtonPress.NONE;
 			}
@@ -387,7 +399,7 @@ public class InputHandler {
 	/**
 	 * Check to see which title option was pressed, if any
 	 */
-	public GameEngine.TitleOption checkForTitleOptionPress(boolean settingsShowing){
+	public GameEngine.TitleOption checkForTitleOptionPress(boolean creditsShowing){
 		//Short circuit if back had been pressed
 		if (backClicked){
 			backClicked = false;
@@ -405,6 +417,10 @@ public class InputHandler {
 			// Look for new button press
 			if (lastX == -1) {
 				optionPressed = Menu.containingButtonOfPixelTitleScreen(xPress, yPress);
+			}
+			
+			if (creditsShowing){
+				optionPressed = GameEngine.TitleOption.CREDITS;
 			}
 			//Indicate the user is clicking on the screen, so can't slide onto a different
 			//button during a single press
@@ -424,6 +440,10 @@ public class InputHandler {
 				//Check to make sure they were still pressing the same button as originally
 				if (returnedOption != optionPressed) {
 					returnedOption = GameEngine.TitleOption.NONE;
+				}
+				
+				if (creditsShowing){
+					returnedOption = GameEngine.TitleOption.CREDITS;
 				}
 			} else {
 				returnedOption = GameEngine.TitleOption.NONE;

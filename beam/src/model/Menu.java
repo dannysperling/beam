@@ -99,9 +99,9 @@ public class Menu {
 	 * @param y
 	 * 				y coordinate of the press
 	 * @return
-	 * 				Which button was clicked. Options are UNDO, MENU, RESET, NEXT_LEVEL
+	 * 				Which button was clicked. Options are UNDO, MENU, RESET, NEXT_LEVEL, BONUS
 	 */
-	public static GameEngine.ButtonPress containingButtonOfPixelWonScreen(int x, int y){
+	public static GameEngine.ButtonPress containingButtonOfPixelWonScreen(int x, int y, boolean bonusUnlocked){
 		//Get width and height of screen
 		int height = Gdx.graphics.getHeight();
 		int width = Gdx.graphics.getWidth();
@@ -126,6 +126,10 @@ public class Menu {
 				}
 			}
 		}
+		else if (y > height *1/3 && bonusUnlocked){
+			//TODO: Here
+			return GameEngine.ButtonPress.BONUS;
+		}
 		return GameEngine.ButtonPress.NEXT_LEVEL;
 	}
 
@@ -137,18 +141,17 @@ public class Menu {
 	/**
 	 * Static constants for positions on the title and settings screens
 	 */
-	//Button positions
+	//Loading and Playing
 	public static final float TITLE_SCREEN_BUTTON_HEIGHT = 0.04f;
-
-	//Settings
-	public static final float B_SETTINGS_WIDTH = 0.3f;
-	public static final float B_SETTINGS_BOT_Y = 0.13f;
-
-	//Play
-	public static final float B_PLAY_BOT_Y = 0.20f;
-
-	//Loading
-	public static final float B_LOADING_BOT_Y = 0.17f;
+	public static final float B_LOAD_PLAY_BOT_Y = 0.19f;
+	
+	//Sound, music, credits
+	public static final float B_SMC_BOT_Y = 0.02f;
+	public static final float B_SMC_SIZE = 0.10f;		//Measured by width
+	
+	public static final float B_SOUND_LEFT_X = 0.32f; //0.60f;
+	public static final float B_MUSIC_LEFT_X = 0.45f; //0.73f;
+	public static final float B_CREDITS_LEFT_X = 0.58f; //0.86f;
 
 	/**
 	 * Determines which button, if any, the (x, y) coordinate falls within, assuming
@@ -168,10 +171,14 @@ public class Menu {
 		int width = Gdx.graphics.getWidth();
 
 		// Bottom button presses
-		if (y > B_SETTINGS_BOT_Y * height && y < (B_SETTINGS_BOT_Y + TITLE_SCREEN_BUTTON_HEIGHT) * height){
+		if (y > B_SMC_BOT_Y * height && y < B_SMC_BOT_Y * height + B_SMC_SIZE * width){
 			//Menu
-			if (x > (0.5 - B_SETTINGS_WIDTH / 2) * width && x < (0.5 + B_SETTINGS_WIDTH / 2) * width){
-				return GameEngine.TitleOption.SETTINGS;
+			if (x > B_SOUND_LEFT_X * width && x < (B_SOUND_LEFT_X + B_SMC_SIZE) * width){
+				return GameEngine.TitleOption.SOUND_FX;
+			} else if (x > B_MUSIC_LEFT_X * width && x < (B_MUSIC_LEFT_X + B_SMC_SIZE) * width){
+				return GameEngine.TitleOption.MUSIC;	
+			} else if (x > B_CREDITS_LEFT_X * width && x < (B_CREDITS_LEFT_X + B_SMC_SIZE) * width){
+				return GameEngine.TitleOption.CREDITS;	
 			}
 		}
 		// Not in the settings button - they clicked play!

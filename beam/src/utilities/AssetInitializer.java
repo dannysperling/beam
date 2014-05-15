@@ -2,6 +2,8 @@ package utilities;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 
@@ -27,6 +29,20 @@ public class AssetInitializer {
 	public static final String destruction = "data/destruction/destruction1.png";
 	public static final String arrow = "data/arrow.png";
 	public static final String vert_star = "data/vert_stars.png";
+	public static final String music_off = "data/music_off.png";
+	public static final String music_on = "data/music_on.png";
+	public static final String sound_off = "data/sound_off.png";
+	public static final String sound_on = "data/sound_on.png";
+	public static final String credits = "data/credits.png";
+	
+	//Music
+	public static final String background_music = "data/sounds/background_music.mp3";
+	
+	//Sound
+	public static final String click_sound = "data/sounds/click.mp3";
+	public static final String destruction_sound = "data/sounds/destruction.mp3";
+	public static final String transition_sound = "data/sounds/transition.mp3";
+	public static final String starthud_sound = "data/sounds/starthud.mp3";
 	
 	public static void initialize(){
 		
@@ -57,6 +73,20 @@ public class AssetInitializer {
 		assetManager.load(arrow, Texture.class, param);
 		assetManager.load(vert_star, Texture.class, param);
 		assetManager.load(destruction, Texture.class, param);
+		assetManager.load(music_off, Texture.class, param);
+		assetManager.load(music_on, Texture.class, param);
+		assetManager.load(sound_off, Texture.class, param);
+		assetManager.load(sound_on, Texture.class, param);
+		assetManager.load(credits, Texture.class, param);
+		
+		//Sounds
+		assetManager.load(click_sound, Sound.class);
+		assetManager.load(destruction_sound, Sound.class);
+		assetManager.load(transition_sound, Sound.class);
+		assetManager.load(starthud_sound, Sound.class);
+		
+		//Music
+		assetManager.load(background_music, Music.class);
 
 		String paintString = "data/painter/paint_000";
 		for(int i = 0; i < 60; i++){
@@ -74,5 +104,13 @@ public class AssetInitializer {
 	public static Texture getTexture(String textName){
 		
 		return assetManager.get(textName, Texture.class);
+	}
+	
+	public static Sound getSound(String soundName){
+		return assetManager.get(soundName, Sound.class);
+	}
+	
+	public static Music getMusic(String musicName){
+		return assetManager.get(musicName, Music.class);
 	}
 }

@@ -47,6 +47,12 @@ public class DrawMenu {
 	private Sprite boardSprite;
 	private Sprite bgSprite;
 	private Sprite curBoardSprite;
+	private Sprite transBoardSprite;
+	
+	public int prevWorld;
+	public int prevOrdinal;
+	public boolean worldShift;
+	public Board prevBoard;
 
 	private int fullHeight = 0;
 	private int fullWidth = 0;
@@ -121,7 +127,7 @@ public class DrawMenu {
 	 * @param curOrdinalInWorld
 	 * 					The current level ordinal within the world of the player
 	 */
-	public void draw(Board curBoard, int curWorld, int curOrdinalInWorld, boolean shifting, float shiftProg){
+	public void draw(Board curBoard, int curWorld, int curOrdinalInWorld, boolean shifting, float shiftProg, boolean toFrame){
 		//Clear colors
 		Gdx.gl.glClearColor(.1f, .1f, .1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
@@ -131,6 +137,7 @@ public class DrawMenu {
 		int width = Gdx.graphics.getWidth();
 
 		boolean noSprite = false;
+		boolean pSprite = false;
 		
 		int worldHeight = menu.getWorldHeight();
 		int levelItemWidth = menu.getLevelItemWidth();
@@ -168,7 +175,7 @@ public class DrawMenu {
 				boolean worldUnlocked = menu.isWorldUnlocked(world);
 
 				//Draw the world background
-				drawWorldBackground(world, itemBotY);
+				drawWorldBackground(world, itemBotY, toFrame);
 
 				//Loop until the left side of the level that would be drawn is off screen
 				while (itemLeftX < width - 1){
@@ -186,11 +193,15 @@ public class DrawMenu {
 						boolean shiftThisOne = false;
 						//Check if we're drawing the current board 
 						noSprite = false;
+						pSprite = false;
 						if (ordinalInWorld == curOrdinalInWorld && world == curWorld){
 							b = curBoard;
 							shiftThisOne = shifting;
 							noSprite = true;
-						} else { 
+						} else if (worldShift && ordinalInWorld == prevOrdinal && world == prevWorld){
+							b = prevBoard;
+							pSprite = true;
+						} else {
 							b = allBoards.get(world - 1).get(ordinalInWorld - 1);
 						}
 						//Draw the current level
@@ -201,7 +212,7 @@ public class DrawMenu {
 							if(boardSprites[world][ordinalInWorld] == null){
 								GameEngine.debug("This should never happen!");
 							} else {
-								drawLevelBoard(boardSprites, world, ordinalInWorld, b, itemBotY, itemLeftX, stars, noSprite);
+								drawLevelBoard(boardSprites, world, ordinalInWorld, b, itemBotY, itemLeftX, stars, noSprite, pSprite);
 							}
 						} else {
 							shiftBoard = b;
@@ -359,6 +370,21 @@ public class DrawMenu {
 		curBoardSprite = new Sprite(boardTex);
 	}
 
+	public void updateTransBoardSprite(Board b){
+		int tileSize = (int)(menu.boardHeightPercent * menu.getWorldHeight() / b.getNumVerticalTiles());
+		int bWidth = tileSize * b.getNumHorizontalTiles();
+		int bHeight = tileSize * b.getNumVerticalTiles();
+		if(menuBoardBuffer != null){
+			menuBoardBuffer.dispose();
+		}
+		menuBoardBuffer = new FrameBuffer(Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+		menuBoardBuffer.begin();
+		dg.drawBoard(b, 0, 0, tileSize, false, false);
+		TextureRegion boardTex = ScreenUtils.getFrameBufferTexture(0, 0, bWidth, bHeight);
+		menuBoardBuffer.end();
+		transBoardSprite = new Sprite(boardTex);
+	}
+	
 	/**
 	 * Draws the colored background of a given world
 	 * 
@@ -367,7 +393,7 @@ public class DrawMenu {
 	 * @param itemBotY
 	 * 				The y position of the bottom of the current rectangle
 	 */
-	private void drawWorldBackground(int world, int itemBotY){
+	private void drawWorldBackground(int world, int itemBotY, boolean toFrame){
 
 		//Get the world dimensions
 		int worldHeight = menu.getWorldHeight();
@@ -410,9 +436,11 @@ public class DrawMenu {
 		shape.begin(ShapeType.Line);
 		shape.setColor(Color.WHITE);
 		int thickness = 2;
+		
+		int offset = (toFrame) ? 1 : 0;
 		for (int i = 0; i < thickness; i++){
-			shape.line(0, itemBotY-i+thickness-1, Gdx.graphics.getWidth(), itemBotY-i+thickness-1);
-			shape.line(0, itemBotY+worldHeight+i-thickness, Gdx.graphics.getWidth(), itemBotY+worldHeight+i-thickness);
+			shape.line(0, itemBotY-i+thickness-1 + offset, Gdx.graphics.getWidth(), itemBotY-i+thickness-1 + offset);
+			shape.line(0, itemBotY+worldHeight+i-thickness + offset, Gdx.graphics.getWidth(), itemBotY+worldHeight+i-thickness + offset);
 		}
 		shape.end();
 	}
@@ -460,7 +488,7 @@ public class DrawMenu {
 	 * @param itemLeftX
 	 * 				The x coordinate of the left side of the menu item
 	 */
-	private void drawLevelBoard(Sprite[][] boardSprites, int world, int ordinalInWorld, Board b, int itemBotY, int itemLeftX, int stars, boolean noSprite){
+	private void drawLevelBoard(Sprite[][] boardSprites, int world, int ordinalInWorld, Board b, int itemBotY, int itemLeftX, int stars, boolean noSprite, boolean pSprite){
 		// Get board dimensions
 		int levelItemWidth = menu.getLevelItemWidth();
 		int worldHeight = menu.getWorldHeight();
@@ -471,6 +499,7 @@ public class DrawMenu {
 		int bx = (levelItemWidth - tilesize * b.getNumHorizontalTiles()) / 2 + itemLeftX;
 		boolean locked = (menu.isBonus(world, ordinalInWorld) && !menu.isBonusLevelUnlocked(world));
 		Sprite curSprite = (noSprite?curBoardSprite:boardSprites[world][ordinalInWorld]);
+		curSprite = (pSprite?transBoardSprite:curSprite);
 		//Draw the board in the appropriate location		
 		curSprite.setPosition(bx, by);
 		curSprite.setSize(tilesize * b.getNumHorizontalTiles(), tilesize * b.getNumVerticalTiles());
