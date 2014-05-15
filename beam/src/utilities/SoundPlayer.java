@@ -52,10 +52,10 @@ public class SoundPlayer {
 				destruction.play();
 				break;
 			case TRANSITION:
-				transition.play(.05f);
+				transition.play(.1f);
 				break;
 			case STAR_THUD:
-				starthud.play();
+				starthud.play(0.5f);
 				break;
 			case PAINTER:
 				painter.play();

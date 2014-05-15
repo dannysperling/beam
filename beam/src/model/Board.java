@@ -327,6 +327,10 @@ public class Board {
 		return arePlacesAdjacent(x1, y1, x2, y2)
 				&& isTilePassable(x2, y2, this.pieces);
 	}
+	
+	public boolean canMove(Tile t1, Tile t2) {
+		return canMove(t1.getXCoord(), t1.getYCoord(), t2.getXCoord(), t2.getYCoord());
+	}
 
 	/**
 	 * Returns true iff (x1,y1) is adjacent to (x2,y2)
@@ -341,6 +345,13 @@ public class Board {
 	 */
 	public boolean isTilePassable(int x, int y, Piece[][] pieces) {
 		return !tiles[x][y].hasGlass() && pieces[x][y] == null;
+	}
+	
+	/**
+	 * Returns true iff input tile doesn't have glass or a piece in it
+	 */
+	public boolean isTilePassable(Tile t) {
+		return isTilePassable(t.getXCoord(), t.getYCoord(), this.pieces);
 	}
 
 	/**

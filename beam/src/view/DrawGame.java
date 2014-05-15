@@ -1113,16 +1113,27 @@ public class DrawGame {
 
 		float textAlpha = 0;
 
+		
+		
 		if (timeWon < (1 + numStars) * au) {
 			if (timeWon >= au && timeWon < (2 * au)) {
 				star1size = starFunc(((timeWon - au) / au) * 2.05814f);
+				if(timeWon == (2*au) - 1){
+					SoundPlayer.playSound(SoundPlayer.SoundType.STAR_THUD);
+				}
 			} else if (timeWon >= (2 * au) && timeWon < (3 * au)) {
 				star1size = 1;
 				star2size = starFunc(((timeWon - (2 * au)) / au) * 2.05814f);
+				if(timeWon == (3*au) - 1){
+					SoundPlayer.playSound(SoundPlayer.SoundType.STAR_THUD);
+				}
 			} else if (timeWon >= (3 * au) && timeWon < (4 * au)) {
 				star1size = 1;
 				star2size = 1;
 				star3size = starFunc(((timeWon - (3 * au)) / au) * 2.05814f);
+				if(timeWon == (4*au) - 1){
+					SoundPlayer.playSound(SoundPlayer.SoundType.STAR_THUD);
+				}
 			}
 		} else {
 			star1size = 1;
@@ -1219,7 +1230,7 @@ public class DrawGame {
 			oneStarSprite.setSize(star2size, star2size);
 			oneStarSprite.draw(batch);
 		} else {
-			oneStarSprite.setColor(new Color(0, 0, 0, textAlpha / 3.0f));
+			oneStarSprite.setColor(new Color(0, 0, 0, textAlpha / 2.0f));
 			oneStarSprite.setPosition(star2X, star2Y);
 			oneStarSprite.setSize(starWidth, starWidth);
 			oneStarSprite.draw(batch);
@@ -1232,7 +1243,7 @@ public class DrawGame {
 			oneStarSprite.setSize(star3size, star3size);
 			oneStarSprite.draw(batch);
 		} else {
-			oneStarSprite.setColor(new Color(0, 0, 0, textAlpha / 3.0f));
+			oneStarSprite.setColor(new Color(0, 0, 0, textAlpha / 2.0f));
 			oneStarSprite.setPosition(star3X, star3Y);
 			oneStarSprite.setSize(starWidth, starWidth);
 			oneStarSprite.draw(batch);
