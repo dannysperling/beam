@@ -752,6 +752,7 @@ public class GameEngine implements ApplicationListener {
 					}
 					break;
 				case MENU:
+					SoundPlayer.playSound(SoundType.CLICK);
 					SoundPlayer.playSound(SoundType.TRANSITION);
 					// Reset the level if going to menu when destroyed
 					if (state == GameState.DESTROYED || state == GameState.WON) {

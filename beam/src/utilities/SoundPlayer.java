@@ -46,7 +46,8 @@ public class SoundPlayer {
 		if (progress.isSoundPlaying()){
 			switch (type){
 			case CLICK:
-				click.play(0.5f);
+				click.play(0.1f);
+				destruction.stop();
 				break;
 			case DESTRUCTION:
 				destruction.play();
@@ -55,7 +56,7 @@ public class SoundPlayer {
 				transition.play(.1f);
 				break;
 			case STAR_THUD:
-				starthud.play(0.5f);
+				starthud.play(0.25f);
 				break;
 			case PAINTER:
 				painter.play();
