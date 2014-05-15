@@ -50,7 +50,7 @@ public class SoundPlayer {
 				destruction.play();
 				break;
 			case TRANSITION:
-				transition.play(.05f);
+				transition.play(.1f);
 				break;
 			case STAR_THUD:
 				starthud.play();
