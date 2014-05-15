@@ -5,6 +5,7 @@
 49
 1
 35
+124
 ### WORLDEND ###
 
 ### WORLDSTART: Early Mechanics 2 ###
@@ -22,6 +23,7 @@
 2 
 63
 42 - hard beam goal or two colors
+123
 12
 110
 ### WORLDEND ###
