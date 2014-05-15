@@ -151,11 +151,11 @@ public class DrawGame {
 		
 		TextureRegion[] paintFrames = new TextureRegion[60];
 		Texture[] paintTextures = new Texture[60];
-		for(int i = 0; i < Constants.TIME_BEFORE_DEATH_MESSAGE; i++){
+		for(int i = 0; i < 60; i++){
 			paintTextures[i] = AssetInitializer.getTexture("data/painter/paint_000" + (i < 10?"0":"") + i + ".png");
 			paintFrames[i] = new TextureRegion(paintTextures[i]);
-			paintAnimation = new Animation(1.0f / 180.0f,paintFrames);
 		}
+		paintAnimation = new Animation(1.0f / 180.0f,paintFrames);
 
 		pieceSprite = new Sprite(pieceregion);
 		nPieceSprite = new Sprite(npieceregion);
@@ -261,6 +261,9 @@ public class DrawGame {
 		if(aState == AnimationState.PAINTING && GameEngine.movePath.get(1).getXCoord() == t.getXCoord() && GameEngine.movePath.get(1).getYCoord() == t.getYCoord()){
 			paintTimer += Gdx.graphics.getDeltaTime();
 			TextureRegion pTex = paintAnimation.getKeyFrame(paintTimer, false);
+			if(pTex == null){
+				System.out.println(paintTimer);
+			}
 			Sprite aPaintSprite = new Sprite(pTex);
 			aPaintSprite.setColor(Constants.translateColor(t.getPainterColor()));
 			aPaintSprite.setSize(tilesize, tilesize);
