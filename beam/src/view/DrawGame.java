@@ -1055,7 +1055,7 @@ public class DrawGame {
 	 * Draws the sequence that appears after completing a level
 	 */
 	private void drawOutro(int width, int height, Board b,
-			TextBounds tb, GameState state, boolean isLast, Color bg) {
+			TextBounds tb, GameState state, boolean isLast, Color bg, boolean isNextLocked) {
 
 		
 		
@@ -1140,6 +1140,10 @@ public class DrawGame {
 		if(GameEngine.nextWorldUnlocked){
 			levelEndMessage = "Next world unlocked!";
 		}
+		
+		if(GameEngine.bonusUnlocked){
+			levelEndMessage = "Bonus level unlocked!\n\nTap here to play!";
+		}
 
 		drawPopUpBackground(boxAlpha);
 
@@ -1147,7 +1151,9 @@ public class DrawGame {
 
 		String nextString = isLast ? "Next World" : "Next Level";
 
-		
+		if(isNextLocked){
+			nextString = "Get more stars to\n\nunlock next world";
+		}
 
 
 		float star1X = bx + (0.1f * boardWidth)
@@ -1179,6 +1185,10 @@ public class DrawGame {
 		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		shapes.begin(ShapeType.Filled);
 		shapes.setColor(new Color(bg.r, bg.g, bg.b, textAlpha * 0.9f));
+		if(isNextLocked){
+			shapes.setColor(new Color(Constants.LOCK_COLOR.r, Constants.LOCK_COLOR.g, Constants.LOCK_COLOR.b, textAlpha * 0.9f));
+		}
+		
 		shapes.rect(bx + Constants.POPUP_WIDTH_BOUNDARY, by + (1 * Constants.POPUP_WIDTH_BOUNDARY * height), boardWidth - (Constants.POPUP_WIDTH_BOUNDARY * 2.0f), (textY - (starWidth / 2.0f) - (by + (2 * Constants.POPUP_WIDTH_BOUNDARY * height))));
 		shapes.end();
 		Gdx.gl.glDisable(GL10.GL_BLEND);
@@ -1229,9 +1239,9 @@ public class DrawGame {
 		introFont.setColor(new Color(Constants.BOARD_COLOR.r, Constants.BOARD_COLOR.g, Constants.BOARD_COLOR.b, textAlpha));
 		introFont.draw(batch, "Reset", (int)(width - bx - buttonSpace - tb.width), (int)(height - by - bx));
 
-		tb = introFont.getBounds(nextString);
+		tb = introFont.getMultiLineBounds(nextString);
 		introFont.setColor(new Color(Constants.BOARD_COLOR.r, Constants.BOARD_COLOR.g, Constants.BOARD_COLOR.b, textAlpha));
-		introFont.draw(batch, nextString, (int)((width - tb.width) / 2.0f), (int)(by + Constants.POPUP_WIDTH_BOUNDARY + tb.height + (((textY - (starWidth / 2.0f) - (by + Constants.POPUP_WIDTH_BOUNDARY)) -tb.height)/2.0f)));
+		introFont.drawMultiLine(batch, nextString, (int)((width - tb.width) / 2.0f), (int)(by + Constants.POPUP_WIDTH_BOUNDARY + tb.height + (((textY - (starWidth / 2.0f) - (by + Constants.POPUP_WIDTH_BOUNDARY)) -tb.height)/2.0f)), (int)(tb.width), HAlignment.CENTER);
 
 		
 		tb = introFont.getMultiLineBounds(levelEndMessage);
@@ -1240,8 +1250,9 @@ public class DrawGame {
 				+ ((boardWidth - tb.width) / 2.0f)), (int)(textY + (tb.height / 2.0f)), (int)tb.width, HAlignment.CENTER);
 
 		batch.end();
+		
 		Gdx.gl.glDisable(GL10.GL_BLEND);
-
+		
 	}
 
 	private float starFunc(float x) {
@@ -1967,7 +1978,7 @@ public class DrawGame {
 
 		//Draw outro
 		if(state == GameState.WON || (state == GameState.LEVEL_TRANSITION && !partial && b.isWon())){
-			drawOutro(width, height, b, tb, state, isLast, bg);
+			drawOutro(width, height, b, tb, state, isLast, bg, isNextLocked);
 
 		}
 		
