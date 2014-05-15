@@ -8,6 +8,9 @@ import java.util.Set;
 
 import utilities.AssetInitializer;
 import utilities.Constants;
+import utilities.Logger;
+import utilities.SoundPlayer;
+import utilities.Logger.LogType;
 import view.DrawGame;
 import view.DrawMenu;
 import view.DrawTitlescreen;
@@ -23,7 +26,6 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 
-import controller.Logger.LogType;
 
 public class GameEngine implements ApplicationListener {
 
@@ -152,7 +154,7 @@ public class GameEngine implements ApplicationListener {
 	 * Enumeration of the various possibilities within the title screen
 	 */
 	public enum TitleOption {
-		PLAY, SETTINGS, SOUND_FX, MUSIC, CREDITS, EXIT, NONE
+		PLAY, SOUND_FX, MUSIC, CREDITS, EXIT, NONE
 	}
 
 	/**
@@ -196,7 +198,7 @@ public class GameEngine implements ApplicationListener {
 	private boolean titleScreenShowing = true;
 	private boolean transitioningToMenu = false;
 	private int transitionTicks = 0;
-	private boolean settingsShowing = false;
+	private boolean creditsShowing = false;
 
 	/**
 	 * These variables allow our restoration protocol to work
@@ -240,7 +242,7 @@ public class GameEngine implements ApplicationListener {
 		tempFile = Gdx.files.local(tempData);
 		
 		//Set up the loading drawer
-		dt = new DrawTitlescreen();
+		dt = new DrawTitlescreen(progress);
 		dt.initFonts();
 
 		// Set up logging, if applicable
@@ -309,6 +311,10 @@ public class GameEngine implements ApplicationListener {
 		List<List<Board>> allBoards = initializeBoards();
 		dm = new DrawMenu(menu, dg, allBoards);
 		dm.initFonts();
+		
+		//Initialize title screen icons
+		dt.initTitleScreenSymbols();
+		SoundPlayer.initSounds(progress);
 	}
 
 	/**
@@ -321,7 +327,7 @@ public class GameEngine implements ApplicationListener {
 		//Start by loading
 		if (!gameRunning){
 			doInitialLoading();
-			dt.draw(true, timeLoading, Menu.colorOfWorld(progress.getHighestUnlockedWorld()), false, 0);
+			dt.draw(true, timeLoading, Menu.colorOfWorld(progress.getHighestUnlockedWorld()), false, 0, false);
 			return;
 		}	
 		//Otherwise, game loop!
@@ -329,45 +335,11 @@ public class GameEngine implements ApplicationListener {
 		// Check for back pressed first
 		inputHandler.checkBackPressed();
 		
-		// First handle the settings and title screens
-		if (settingsShowing){
-			
-			//TODO: Handle settings here
-			
-			return;
-		} else if (titleScreenShowing){
+		// First handle the title screen
+		if (titleScreenShowing){
 			boolean wasTransitioning = transitioningToMenu;
-			if (!transitioningToMenu){
-				TitleOption userChoice = inputHandler.checkForTitleOptionPress(settingsShowing);
-				switch (userChoice)
-				{
-					case EXIT:
-						if (Constants.LOGGING) {
-							logEnd();
-						}
-						System.exit(0);
-						break;
-					case PLAY:
-						transitioningToMenu = true;
-						transitionTicks = 0;
-						dt.initMenuSprite(dm, b, currentWorld, currentOrdinalInWorld);
-						break;
-					case SETTINGS:
-						System.out.println("Unimplemented as of yet");
-						break;
-					default:
-						break;
-				
-				}
-			} else {
-				transitionTicks++;
-				if (transitionTicks >= Constants.TRANS_TO_MENU_TIME){
-					titleScreenShowing = false;
-					transitioningToMenu = false;
-					dt.offLoadingScreen();
-				}
-			}
-			dt.draw(false, -1, Menu.colorOfWorld(progress.getHighestUnlockedWorld()), wasTransitioning, transitionTicks);
+			handleTitleScreen();
+			dt.draw(false, -1, Menu.colorOfWorld(progress.getHighestUnlockedWorld()), wasTransitioning, transitionTicks, creditsShowing);
 			return;
 		}
 
@@ -504,14 +476,14 @@ public class GameEngine implements ApplicationListener {
 		// Draw the game or menu
 		if (mainMenuShowing || wasMenuShowing){
 			if(state == GameState.MENU_TO_LEVEL_TRANSITION || state == GameState.INTRO || state == GameState.TUTORIAL){
-				dm.draw(b, currentWorld, currentOrdinalInWorld, true, (float)(timeSpentLeavingMenu) / Constants.TIME_FOR_MENU_TRANSITION);
+				dm.draw(b, currentWorld, currentOrdinalInWorld, true, (float)(timeSpentLeavingMenu) / Constants.TIME_FOR_MENU_TRANSITION, false);
 				if(wasMenuShowing && !mainMenuShowing){
 					timeSpentLeavingMenu = 0;
 				}
 			} else if(state == GameState.LEVEL_TO_MENU_TRANSITION){
-				dm.draw(b, currentWorld, currentOrdinalInWorld, true, 1 - (((float)(timeSpentLeavingLevel)) / Constants.TIME_FOR_MENU_TRANSITION));
+				dm.draw(b, currentWorld, currentOrdinalInWorld, true, 1 - (((float)(timeSpentLeavingLevel)) / Constants.TIME_FOR_MENU_TRANSITION), false);
 			}else {
-				dm.draw(b, currentWorld, currentOrdinalInWorld, false, 0);
+				dm.draw(b, currentWorld, currentOrdinalInWorld, false, 0, false);
 			}
 		} else if (state == GameState.LEVEL_TRANSITION) {
 			float transitionMoment = Math.max(0, timeSpentOnTransition - Constants.TRANSITION_DELAY);
@@ -566,7 +538,60 @@ public class GameEngine implements ApplicationListener {
 		}
 		//Otherwise we're done - let's start running!
 		else {
+			if (progress.isMusicPlaying()){
+				SoundPlayer.playMusic();
+			}
 			gameRunning = true;
+		}
+	}
+	
+	/**
+	 * Does all the actions required if the title screen is showing
+	 */
+	private void handleTitleScreen(){
+		if (!transitioningToMenu){
+			TitleOption userChoice = inputHandler.checkForTitleOptionPress(creditsShowing);
+			switch (userChoice)
+			{
+				case EXIT:
+					if (creditsShowing)
+						creditsShowing = false;
+					else {
+						if (Constants.LOGGING) {
+							logEnd();
+						}
+						System.exit(0);
+					}
+					break;
+				case PLAY:
+					transitioningToMenu = true;
+					transitionTicks = 0;
+					dt.initMenuSprite(dm, b, currentWorld, currentOrdinalInWorld);
+					break;
+				case SOUND_FX:
+					progress.setFX(!progress.isSoundPlaying());
+					break;
+				case MUSIC:
+					boolean newMusicState = !progress.isMusicPlaying();
+					progress.setMusic(newMusicState);
+					if (newMusicState){
+						SoundPlayer.playMusic();
+					} else {
+						SoundPlayer.stopMusic();
+					}
+					break;
+				case CREDITS:
+					creditsShowing = !creditsShowing;
+				default:
+					break;
+			}
+		} else {
+			transitionTicks++;
+			if (transitionTicks >= Constants.TRANS_TO_MENU_TIME){
+				titleScreenShowing = false;
+				transitioningToMenu = false;
+				dt.offLoadingScreen();
+			}
 		}
 	}
 

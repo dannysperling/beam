@@ -121,7 +121,7 @@ public class DrawMenu {
 	 * @param curOrdinalInWorld
 	 * 					The current level ordinal within the world of the player
 	 */
-	public void draw(Board curBoard, int curWorld, int curOrdinalInWorld, boolean shifting, float shiftProg){
+	public void draw(Board curBoard, int curWorld, int curOrdinalInWorld, boolean shifting, float shiftProg, boolean toFrame){
 		//Clear colors
 		Gdx.gl.glClearColor(.1f, .1f, .1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
@@ -168,7 +168,7 @@ public class DrawMenu {
 				boolean worldUnlocked = menu.isWorldUnlocked(world);
 
 				//Draw the world background
-				drawWorldBackground(world, itemBotY);
+				drawWorldBackground(world, itemBotY, toFrame);
 
 				//Loop until the left side of the level that would be drawn is off screen
 				while (itemLeftX < width - 1){
@@ -367,7 +367,7 @@ public class DrawMenu {
 	 * @param itemBotY
 	 * 				The y position of the bottom of the current rectangle
 	 */
-	private void drawWorldBackground(int world, int itemBotY){
+	private void drawWorldBackground(int world, int itemBotY, boolean toFrame){
 
 		//Get the world dimensions
 		int worldHeight = menu.getWorldHeight();
@@ -410,9 +410,11 @@ public class DrawMenu {
 		shape.begin(ShapeType.Line);
 		shape.setColor(Color.WHITE);
 		int thickness = 2;
+		
+		int offset = (toFrame) ? 1 : 0;
 		for (int i = 0; i < thickness; i++){
-			shape.line(0, itemBotY-i+thickness-1, Gdx.graphics.getWidth(), itemBotY-i+thickness-1);
-			shape.line(0, itemBotY+worldHeight+i-thickness, Gdx.graphics.getWidth(), itemBotY+worldHeight+i-thickness);
+			shape.line(0, itemBotY-i+thickness-1 + offset, Gdx.graphics.getWidth(), itemBotY-i+thickness-1 + offset);
+			shape.line(0, itemBotY+worldHeight+i-thickness + offset, Gdx.graphics.getWidth(), itemBotY+worldHeight+i-thickness + offset);
 		}
 		shape.end();
 	}
