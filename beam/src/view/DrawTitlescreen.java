@@ -256,15 +256,21 @@ public class DrawTitlescreen {
 		Color fontColor = Constants.BOARD_COLOR.cpy();		
 		
 		batch.begin();
-		String[] credits = {"Developer", "", 
+		String[] credits = {
+							"Developers", "", 
 							"Mildly Offensive", "Entertainment", "", "",
 							"Music", "", 
-							"Dan-O at" ,"http://danosongs.com"};
+							"Dan-O at" ,"http://danosongs.com", "", "",
+							"Sound", "",
+							"deep-air-woosh by",
+							"Cosmic Embers, derivative",
+							"www.youtube.com/cosmicembers", "",
+							"sizzle by jaide714", ""};
 		
 		creditsFont.setColor(fontColor);
 		
-		int topPosition = (int)(height * 0.75);
-		int botPosition = (int)(height * 0.35);
+		int topPosition = (int)(height * 0.80);
+		int botPosition = (int)(height * 0.20);
 		
 		String ack = "Credits";
 		TextBounds tb = creditsFont.getBounds(ack);
@@ -332,7 +338,7 @@ public class DrawTitlescreen {
 		titleFont = generator.generateFont(firstFontSize);
 		int secondFontSize = (Gdx.graphics.getHeight() / 12);
 		optionFont = generator.generateFont(secondFontSize);
-		int creditsFontSize = (int)(Gdx.graphics.getHeight() / 24);
+		int creditsFontSize = (int)(Gdx.graphics.getHeight() / 32);
 		creditsFont = generator.generateFont(creditsFontSize);
 		generator.dispose();
 	}

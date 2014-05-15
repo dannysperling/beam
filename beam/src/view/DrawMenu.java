@@ -518,6 +518,7 @@ public class DrawMenu {
 		boolean locked = (menu.isBonus(world, ordinalInWorld) && !menu.isBonusLevelUnlocked(world));
 		Sprite curSprite = (noSprite?curBoardSprite:boardSprites[world][ordinalInWorld]);
 		curSprite = (pSprite?transBoardSprite:curSprite);
+		
 		//Draw the board in the appropriate location		
 		curSprite.setPosition(bx, by);
 		curSprite.setSize(tilesize * b.getNumHorizontalTiles(), tilesize * b.getNumVerticalTiles());
