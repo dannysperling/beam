@@ -44,6 +44,7 @@ public class AssetInitializer {
 	public static final String transition_sound = "data/sounds/transition.mp3";
 	public static final String starthud_sound = "data/sounds/starthud.mp3";
 	public static final String painter_sound = "data/sounds/painter.mp3";
+	public static final String success_sound = "data/sounds/success.mp3";
 	
 	public static void initialize(){
 		
@@ -86,6 +87,7 @@ public class AssetInitializer {
 		assetManager.load(transition_sound, Sound.class);
 		assetManager.load(starthud_sound, Sound.class);
 		assetManager.load(painter_sound, Sound.class);
+		assetManager.load(success_sound, Sound.class);
 		
 		//Music
 		assetManager.load(background_music, Music.class);

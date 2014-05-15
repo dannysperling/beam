@@ -1133,6 +1133,7 @@ public class DrawGame {
 				star3size = starFunc(((timeWon - (3 * au)) / au) * 2.05814f);
 				if(timeWon == (4*au) - 1){
 					SoundPlayer.playSound(SoundPlayer.SoundType.STAR_THUD);
+					SoundPlayer.playSound(SoundPlayer.SoundType.SUCCESS);
 				}
 			}
 		} else {
