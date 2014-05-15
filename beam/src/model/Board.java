@@ -621,19 +621,4 @@ public class Board {
 		}
 		return false;
 	}
-
-	/**
-	 * Gets whether the board is currently in a valid state.
-	 * UNIMPLEMENTED
-	 * 
-	 * @return
-	 * 			True if no piece is in a destroyed state, false otherwise
-	 */
-	public boolean validate() {
-
-		//TODO IMPLEMENT
-
-		return true;
-	}
-
 }

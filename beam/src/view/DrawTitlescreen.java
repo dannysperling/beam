@@ -3,6 +3,7 @@ package view;
 import model.Board;
 import model.GameProgress;
 import model.Menu;
+import utilities.AssetInitializer;
 import utilities.Constants;
 
 import com.badlogic.gdx.Gdx;
@@ -26,16 +27,30 @@ public class DrawTitlescreen {
 	private Sprite iconSprite;
 	private Texture moeTexture;
 	private Sprite moeSprite;
+	
+	private Texture musicOffTexture;
+	private Sprite musicOffSprite;
+	private Texture musicOnTexture;
+	private Sprite musicOnSprite;
+	private Texture soundOffTexture;
+	private Sprite soundOffSprite;
+	private Texture soundOnTexture;
+	private Sprite soundOnSprite;
+	private Texture creditsTexture;
+	private Sprite creditsSprite;
+	
+	private GameProgress progress;
 
 	private int timePastLoading = 0;
 
-	private BitmapFont symbolFont;
-	private BitmapFont moeFont;
+	private BitmapFont titleFont;
+	private BitmapFont optionFont;
+	private BitmapFont creditsFont;
 
 	private FrameBuffer menuBuffer;
 	private Sprite menuSprite;
 
-	public DrawTitlescreen() {
+	public DrawTitlescreen(GameProgress progress) {
 		batch = new SpriteBatch();
 
 		iconTexture = new Texture(Gdx.files.internal("data/icon.png"));
@@ -43,18 +58,18 @@ public class DrawTitlescreen {
 
 		moeTexture = new Texture(Gdx.files.internal("data/moe.png"));
 		moeTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-
 		
-		TextureRegion loadingRegion = new TextureRegion(iconTexture, 0, 0,
-				1024, 1024);
+		TextureRegion loadingRegion = new TextureRegion(iconTexture);
 		iconSprite = new Sprite(loadingRegion);
 	
 		TextureRegion moeRegion = new TextureRegion(moeTexture);
 		moeSprite = new Sprite(moeRegion);
+		
+		this.progress = progress;
 	}
 
 	public void draw(boolean loading, int framesLoading, Color titleColor,
-			boolean transitioning, int transFrames) {
+			boolean transitioning, int transFrames, boolean creditsShowing) {
 
 		// Get the various dimensions
 		int height = Gdx.graphics.getHeight();
@@ -75,11 +90,15 @@ public class DrawTitlescreen {
 		}
 		// Draw the title screen, without the loading animation
 		else {
-			drawTitlescreen(titleColor, width, height, false, timePastLoading,
-					transitioning, transFrames);
-
-			timePastLoading = Math.min(timePastLoading + 1,
-					Constants.LOAD_TEXT_FADE_TIME * 2);
+			if (!creditsShowing){
+				drawTitlescreen(titleColor, width, height, false, timePastLoading,
+						transitioning, transFrames);
+	
+				timePastLoading = Math.min(timePastLoading + 1,
+						Constants.LOAD_TEXT_FADE_TIME * 2);
+			} else {
+				drawCredits(titleColor, width, height);
+			}
 		}
 	}
 
@@ -92,14 +111,9 @@ public class DrawTitlescreen {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
 		float percentDark = 1;
-		if (framesLoading < Constants.LOAD_FADE_TIME
-				|| framesLoading > Constants.LOAD_SCREEN_TIME
-						- Constants.LOAD_FADE_TIME) {
-			percentDark = Math.min(framesLoading, Constants.LOAD_SCREEN_TIME
-					- framesLoading)
-					/ (float) Constants.LOAD_FADE_TIME;
+		if (framesLoading < Constants.LOAD_FADE_TIME || framesLoading > Constants.LOAD_SCREEN_TIME - Constants.LOAD_FADE_TIME) {
+			percentDark = Math.min(framesLoading, Constants.LOAD_SCREEN_TIME - framesLoading) / (float) Constants.LOAD_FADE_TIME;
 		}
-
 		
 		batch.begin();
 
@@ -155,21 +169,21 @@ public class DrawTitlescreen {
 
 		// Beam
 		String beam = "Beam";
-		symbolFont.setColor(fontColor);
-		TextBounds tb = symbolFont.getBounds(beam);
+		titleFont.setColor(fontColor);
+		TextBounds tb = titleFont.getBounds(beam);
 		float yPos = height - tb.height / 2;
 		float xPos = width / 2 - tb.width / 2;
-		symbolFont.draw(batch, beam, (int)xPos, (int)yPos);
+		titleFont.draw(batch, beam, (int)xPos, (int)yPos);
 
 		if (loading) {
 			// Loading
 			String load = "Loading...";
-			moeFont.setColor(fontColor);
-			tb = moeFont.getBounds(load);
-			yPos = (Menu.B_LOADING_BOT_Y + Menu.TITLE_SCREEN_BUTTON_HEIGHT)
+			optionFont.setColor(fontColor);
+			tb = optionFont.getBounds(load);
+			yPos = (Menu.B_LOAD_PLAY_BOT_Y + Menu.TITLE_SCREEN_BUTTON_HEIGHT)
 					* height;
 			xPos = width / 2 - tb.width / 2;
-			moeFont.draw(batch, load, (int)xPos, (int)yPos);
+			optionFont.draw(batch, load, (int)xPos, (int)yPos);
 		}
 
 		else if (framesIn < Constants.LOAD_TEXT_FADE_TIME) {
@@ -178,31 +192,45 @@ public class DrawTitlescreen {
 			fontColor.a = fadeAmount;
 
 			String load = "Loading...";
-			moeFont.setColor(fontColor);
-			tb = moeFont.getBounds(load);
-			yPos = (Menu.B_LOADING_BOT_Y + Menu.TITLE_SCREEN_BUTTON_HEIGHT)
+			optionFont.setColor(fontColor);
+			tb = optionFont.getBounds(load);
+			yPos = (Menu.B_LOAD_PLAY_BOT_Y + Menu.TITLE_SCREEN_BUTTON_HEIGHT)
 					* height;
 			xPos = width / 2 - tb.width / 2;
-			moeFont.draw(batch, load, (int)xPos, (int)yPos);
+			optionFont.draw(batch, load, (int)xPos, (int)yPos);
 		} else {
 			float fadeAmount = (framesIn - Constants.LOAD_TEXT_FADE_TIME)
 					/ (float) Constants.LOAD_TEXT_FADE_TIME;
 			fontColor.a = fadeAmount;
 
 			String play = "Play";
-			moeFont.setColor(fontColor);
-			tb = moeFont.getBounds(play);
-			yPos = (Menu.B_PLAY_BOT_Y + Menu.TITLE_SCREEN_BUTTON_HEIGHT)
+			optionFont.setColor(fontColor);
+			tb = optionFont.getBounds(play);
+			yPos = (Menu.B_LOAD_PLAY_BOT_Y + Menu.TITLE_SCREEN_BUTTON_HEIGHT)
 					* height;
 			xPos = width / 2 - tb.width / 2;
-			moeFont.draw(batch, play, (int)xPos, (int)yPos);
-
-			String settings = "Settings";
-			tb = moeFont.getBounds(settings);
-			yPos = (Menu.B_SETTINGS_BOT_Y + Menu.TITLE_SCREEN_BUTTON_HEIGHT)
-					* height;
-			xPos = width / 2 - tb.width / 2;
-			moeFont.draw(batch, settings, (int)xPos, (int)yPos);
+			optionFont.draw(batch, play, (int)xPos, (int)yPos);
+			
+			fontColor.a /= 2;
+			
+			//Draw the bottom icons
+			float botIconSize = Menu.B_SMC_SIZE * width;
+			Sprite soundSprite = progress.isSoundPlaying() ? soundOnSprite : soundOffSprite;
+			soundSprite.setSize(botIconSize, botIconSize);
+			soundSprite.setPosition(Menu.B_SOUND_LEFT_X * width, Menu.B_SMC_BOT_Y * height);
+			soundSprite.setColor(fontColor);
+			soundSprite.draw(batch);
+			
+			Sprite musicSprite = progress.isMusicPlaying() ? musicOnSprite : musicOffSprite;
+			musicSprite.setSize(botIconSize, botIconSize);
+			musicSprite.setPosition(Menu.B_MUSIC_LEFT_X * width, Menu.B_SMC_BOT_Y * height);
+			musicSprite.setColor(fontColor);
+			musicSprite.draw(batch);
+			
+			creditsSprite.setSize(botIconSize, botIconSize);
+			creditsSprite.setPosition(Menu.B_CREDITS_LEFT_X * width, Menu.B_SMC_BOT_Y * height);
+			creditsSprite.setColor(fontColor);
+			creditsSprite.draw(batch);
 		}
 
 		batch.end();
@@ -219,13 +247,74 @@ public class DrawTitlescreen {
 			Gdx.gl.glDisable(GL10.GL_BLEND);
 		}
 	}
+	
+	public void drawCredits(Color titleColor, int width, int height){
+		Gdx.gl.glClearColor(titleColor.r, titleColor.g, titleColor.b,
+				titleColor.a);
+		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+
+		Color fontColor = Constants.BOARD_COLOR.cpy();		
+		
+		batch.begin();
+		String[] credits = {"Developer", "", 
+							"Mildly Offensive", "Entertainment", "", "",
+							"Music", "", 
+							"Dan-O at" ,"http://danosongs.com"};
+		
+		creditsFont.setColor(fontColor);
+		
+		int topPosition = (int)(height * 0.75);
+		int botPosition = (int)(height * 0.35);
+		
+		String ack = "Credits";
+		TextBounds tb = creditsFont.getBounds(ack);
+		int yPos = (int)(topPosition + tb.height * 4);
+		int xPos = (int)(width / 2 - tb.width / 2);
+		creditsFont.draw(batch, ack, xPos, yPos);
+				
+		for (int i = 0; i < credits.length; i++){
+			tb = creditsFont.getBounds(credits[i]);
+			yPos = (int)(topPosition + (botPosition - topPosition)/(credits.length-1)*i);
+			xPos = (int)(width / 2 - tb.width / 2);
+			creditsFont.draw(batch, credits[i], xPos, yPos);
+		}
+		
+		batch.end();
+	}
+	
+	public void initTitleScreenSymbols(){
+		musicOffTexture = AssetInitializer.getTexture(AssetInitializer.music_off);
+		musicOffTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		TextureRegion musicOffRegion = new TextureRegion(musicOffTexture);
+		musicOffSprite = new Sprite(musicOffRegion);
+		
+		musicOnTexture = AssetInitializer.getTexture(AssetInitializer.music_on);
+		musicOnTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		TextureRegion musicOnRegion = new TextureRegion(musicOnTexture);
+		musicOnSprite = new Sprite(musicOnRegion);
+		
+		soundOffTexture = AssetInitializer.getTexture(AssetInitializer.sound_off);
+		soundOffTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		TextureRegion soundOffRegion = new TextureRegion(soundOffTexture);
+		soundOffSprite = new Sprite(soundOffRegion);
+		
+		soundOnTexture = AssetInitializer.getTexture(AssetInitializer.sound_on);
+		soundOnTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		TextureRegion soundOnRegion = new TextureRegion(soundOnTexture);
+		soundOnSprite = new Sprite(soundOnRegion);
+		
+		creditsTexture = AssetInitializer.getTexture(AssetInitializer.credits);
+		creditsTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		TextureRegion creditsRegion = new TextureRegion(creditsTexture);
+		creditsSprite = new Sprite(creditsRegion);
+	}
 
 	public void initMenuSprite(DrawMenu dm, Board curBoard, int curWorld,
 			int curOrdinalInWorld) {
 		menuBuffer = new FrameBuffer(Format.RGBA8888, Gdx.graphics.getWidth(),
 				Gdx.graphics.getHeight(), false);
 		menuBuffer.begin();
-		dm.draw(curBoard, curWorld, curOrdinalInWorld, false, 0);
+		dm.draw(curBoard, curWorld, curOrdinalInWorld, false, 0, true);
 		menuBuffer.end();
 
 		Texture mtex = menuBuffer.getColorBufferTexture();
@@ -239,12 +328,12 @@ public class DrawTitlescreen {
 	public void initFonts() {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
 				Gdx.files.internal(Constants.FONT_PATH));
-		int firstFontSize = (Gdx.graphics.getHeight() / 6)
-				- (Gdx.graphics.getHeight() / 6) % 2;
-		symbolFont = generator.generateFont(firstFontSize);
-		int secondFontSize = (Gdx.graphics.getHeight() / 24)
-				- (Gdx.graphics.getHeight() / 24) % 2;
-		moeFont = generator.generateFont(secondFontSize);
+		int firstFontSize = (Gdx.graphics.getHeight() / 6);
+		titleFont = generator.generateFont(firstFontSize);
+		int secondFontSize = (Gdx.graphics.getHeight() / 12);
+		optionFont = generator.generateFont(secondFontSize);
+		int creditsFontSize = (int)(Gdx.graphics.getHeight() / 24);
+		creditsFont = generator.generateFont(creditsFontSize);
 		generator.dispose();
 	}
 }
