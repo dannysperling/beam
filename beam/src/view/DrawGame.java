@@ -779,7 +779,7 @@ public class DrawGame {
 		Gdx.gl.glDisable(GL10.GL_BLEND);
 
 		int moves = GameEngine.getMoveCount();
-		String movesString = moves + "\n\nMoves";
+		String movesString = moves + "\nMoves";
 		String menuString = "Menu";
 		String refString = "00";
 		batch.begin();
@@ -1165,7 +1165,7 @@ public class DrawGame {
 		}
 		
 		if(GameEngine.bonusUnlocked){
-			levelEndMessage = "Bonus level unlocked!\n\nTap here to play!";
+			levelEndMessage = "Bonus level unlocked!\nTap here to play!";
 		}
 
 		drawPopUpBackground(boxAlpha);
@@ -1175,7 +1175,7 @@ public class DrawGame {
 		String nextString = isLast ? "Next World" : "Next Level";
 
 		if(isNextLocked){
-			nextString = "Get more stars to\n\nunlock next world";
+			nextString = "Get more stars to\nunlock next world";
 		}
 
 
@@ -1529,7 +1529,7 @@ public class DrawGame {
 			}
 			//System.out.println(s.substring(0, mostRecentSpace));
 			return s.substring(0, mostRecentSpace)
-					+ "\n\n"
+					+ "\n"
 					+ correctlyWrap(s.substring(mostRecentSpace + 1), font, tb,
 							wrapWidth);
 		}
@@ -1711,7 +1711,7 @@ public class DrawGame {
 
 		if(bestMoves != 0){
 			curHeight -= 3 * tb.height;
-			String yourBest = "Your Best:\n\n" + bestMoves + " Move" + (bestMoves==1?"":"s");
+			String yourBest = "Your Best:\n" + bestMoves + " Move" + (bestMoves==1?"":"s");
 			tb = starGoalFont.getMultiLineBounds(yourBest);
 			batch.begin();
 			starGoalFont.drawMultiLine(batch, yourBest, (int)((width - tb.width) / 2.0f), (int)(curHeight + upshift), (int)tb.width, HAlignment.CENTER);
@@ -1916,7 +1916,7 @@ public class DrawGame {
 
 		// Draw level loss reminder
 
-		String gameOverText = "You destroyed\n\n\na piece!\n\n\n\n\n\nPress Undo\n\n\nor Reset\n\n\nto try again.";
+		String gameOverText = "You destroyed\n\na piece!\n\n\nPress Undo\n\nor Reset\n\nto try again.";
 		BitmapFont curFont = introFont;
 		tb = curFont.getBounds("You destroyed");
 		if (tb.width * 1.2f >= tilesize * b.getNumHorizontalTiles()) {
