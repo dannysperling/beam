@@ -85,6 +85,7 @@ public class GameEngine implements ApplicationListener {
 	public static int timeSpentOnInfo = 0;
 	
 	public static boolean nextWorldUnlocked = false;
+	public static boolean bonusUnlocked = false;
 
 
 	/**
@@ -943,12 +944,19 @@ public class GameEngine implements ApplicationListener {
 				}
 				
 				boolean wasNextWorldUnlocked = progress.isWorldUnlocked(currentWorld + 1);
+				boolean wasBonusUnlocked = progress.isBonusLevelUnlocked(currentWorld);
 				progress.setLevelScore(currentWorld, currentOrdinalInWorld,
 						moveCounter, numStars);
 				if (!wasNextWorldUnlocked && progress.isWorldUnlocked(currentWorld + 1)){
 					GameEngine.nextWorldUnlocked = true;
 				} else {
 					GameEngine.nextWorldUnlocked = false;
+				}
+				
+				if (!wasBonusUnlocked && progress.isBonusLevelUnlocked(currentWorld)){
+					GameEngine.bonusUnlocked = true;
+				} else {
+					GameEngine.bonusUnlocked = false;
 				}
 			}
 		}
