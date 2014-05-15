@@ -20,7 +20,7 @@ END TUTORIAL
 
 TUTORIAL FOR LEVEL UNIQUE ID: 1.
 Beams destroy pieces of other colors!
-IMAGE: 6 frames, 512 side, beamtutorial.png
+IMAGE: 7 frames, 512 side, beamtutorial.png
 END TUTORIAL
 
 TUTORIAL FOR LEVEL UNIQUE ID: 45.
