@@ -844,7 +844,7 @@ glass,glass,2,glass
 e,e,e,2
 </level>
 
-<level id=122 par=13 perfect=9>
+<level id=122 par=13 perfect=10>
 <attribution name="Ode to Conway" author="Reese"/>
 e,1:goal_2,1
 2:goal_1,2:goal_2,1:goal_2

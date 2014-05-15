@@ -5,8 +5,10 @@ Drag your finger to create a path for the piece to follow.
 END TUTORIAL
 
 TUTORIAL FOR LEVEL UNIQUE ID: 38.
-Each path you draw is one move.
-IMAGE: 1 frames, 350 side, startutorial.png
+ 
+
+Fewer Moves earns More Stars
+IMAGE: 1 frames, 512 side, stars.png
 END TUTORIAL
 
 TUTORIAL FOR LEVEL UNIQUE ID: 53.
@@ -25,6 +27,7 @@ END TUTORIAL
 
 TUTORIAL FOR LEVEL UNIQUE ID: 45.
 Lining up pieces of the same color forms beams!
+IMAGE: 4 frames, 512 side, beamtutorial2.png
 END TUTORIAL
 
 TUTORIAL FOR LEVEL UNIQUE ID: 8.

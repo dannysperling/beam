@@ -1017,6 +1017,7 @@ public class GameEngine implements ApplicationListener {
 				
 				if (!wasBonusUnlocked && progress.isBonusLevelUnlocked(currentWorld)){
 					GameEngine.bonusUnlocked = true;
+					dm.updateBoardSprite(currentWorld, menu.worldSizes.get(currentWorld - 1));
 				} else {
 					GameEngine.bonusUnlocked = false;
 				}

@@ -87,7 +87,7 @@ public class Constants {
 	/**
 	 * FONT CONSTANTS
 	 */
-	public static final String FONT_PATH = "data/fonts/swanse.ttf";
+	public static final String FONT_PATH = "data/fonts/weblysleekuil.ttf";
 	
 	
 	/**
