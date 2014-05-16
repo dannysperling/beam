@@ -896,15 +896,6 @@ public class GameEngine implements ApplicationListener {
 		if (Constants.LOGGING) {
 			Logger.enteredLevel(currentWorld, currentOrdinalInWorld);
 		}
-
-		// No levels remaining - go back to the main menu
-		else {
-			currentWorld--;
-			currentOrdinalInWorld = levelOrderer.getWorldSize(currentWorld);
-			menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
-			mainMenuShowing = true;
-		}
-
 		// Reset animations
 		prepAnimationBeginning();
 	}

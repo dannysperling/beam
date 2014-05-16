@@ -14,7 +14,7 @@ public class Constants {
 	 */
 	public static final boolean DEBUG_MODE = false;
 	public static boolean UNLOCK_MODE = false;
-	public static final boolean LOGGING = true;
+	public static final boolean LOGGING = false;
 	
 	
 	/**
