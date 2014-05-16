@@ -326,12 +326,15 @@ public class DrawGame {
 	 * Draws the path indicating user input
 	 */
 	private void drawPaths(int bx, int by, int tilesize, List<Tile> path,
-			AnimationState aState, GameState state, float moveAnimateTime, Board b, float paintAnimateTime, boolean isBlack) {
+			AnimationState aState, GameState state, float moveAnimateTime, Board b, float paintAnimateTime, boolean isBlack, boolean halfWeight) {
+		Gdx.gl.glEnable(GL10.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+
 		if (aState != AnimationState.DESTRUCTION) {
 			shapes.begin(ShapeType.Filled);
 			float shiftingDegree = (isBlack?(0.025f * tilesize):0);
 			if(isBlack){
-				shapes.setColor(Color.BLACK);
+				shapes.setColor(halfWeight?Color.LIGHT_GRAY:Color.BLACK);
 			} else {
 				if(path.size() > 0){
 					if(state == GameState.MOVING && aState == AnimationState.PAINTING){
@@ -346,7 +349,7 @@ public class DrawGame {
 						shapes.setColor(new Color(Constants.translateColorLight(p.getColor()).r
 								+ rshift, Constants.translateColorLight(p.getColor()).g + gshift,
 								Constants.translateColorLight(p.getColor()).b + bshift, 1));
-					} else if (state == GameState.MOVING && aState == AnimationState.FORMING && path.get(1).getPainterColor() != GameEngine.Color.NONE){ 
+					} else if (state == GameState.MOVING && aState == AnimationState.FORMING && !halfWeight && path.get(1).getPainterColor() != GameEngine.Color.NONE ){ 
 						shapes.setColor(Constants.translateColorLight(path.get(1).getPainterColor()));
 					} else {
 						shapes.setColor(Constants.translateColorLight(b.getPieceOnTile(path.get(0)).getColor()));
@@ -364,7 +367,7 @@ public class DrawGame {
 				if (i != path.size() - 1) {
 					float shiftX = 0;
 					float shiftY = 0;
-					if (i == 0 && path.size() > 1 && state == GameState.MOVING) {
+					if (i == 0 && path.size() > 1 && state == GameState.MOVING && !halfWeight) {
 						shiftX = (path.get(1).getXCoord() - GameEngine.movingPiece
 								.getXCoord()) * moveAnimateTime;
 						shiftY = (path.get(1).getYCoord() - GameEngine.movingPiece
@@ -424,6 +427,8 @@ public class DrawGame {
 			}
 			shapes.end();
 		}
+		Gdx.gl.glDisable(GL10.GL_BLEND);
+
 	}
 
 	/**
@@ -1834,11 +1839,20 @@ public class DrawGame {
 
 		// Draw Paths
 		drawPaths((int) (bx + transitionPart), by, tilesize, path, aState,
-				state, moveAnimateTime, b, paintAnimateTime, true);
+				state, moveAnimateTime, b, paintAnimateTime, true, false);
 
 		// Draw Paths
 		drawPaths((int) (bx + transitionPart), by, tilesize, path, aState,
-				state, moveAnimateTime, b, paintAnimateTime, false);
+				state, moveAnimateTime, b, paintAnimateTime, false, false);
+		
+		List<Tile> path2 = GameEngine.movePath2;
+		// Draw Paths
+		drawPaths((int) (bx + transitionPart), by, tilesize, path2, aState,
+				state, moveAnimateTime, b, paintAnimateTime, true, true);
+
+		// Draw Paths
+		drawPaths((int) (bx + transitionPart), by, tilesize, path2, aState,
+				state, moveAnimateTime, b, paintAnimateTime, false, true);
 
 		// Draw the pieces
 		drawPieces((int) (bx + transitionPart), by, tilesize, path, paintColor,
