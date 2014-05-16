@@ -1703,6 +1703,11 @@ public class GameEngine implements ApplicationListener {
 		// Check if there's data for to read before doing anything
 		if (!tempFile.exists())
 			return;
+		
+		if (dg == null || dm == null || dt == null){
+			tempFile.delete();
+			return;
+		}
 
 		// Reinitialize the fonts
 		dg.initFonts();
