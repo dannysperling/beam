@@ -779,7 +779,8 @@ public class DrawGame {
 		Gdx.gl.glDisable(GL10.GL_BLEND);
 
 		int moves = GameEngine.getMoveCount();
-		String movesString = moves + "\nMoves";
+		String movesString = moves + "";
+		String moveWordString = "Moves";
 		String menuString = "Menu";
 		String refString = "00";
 		batch.begin();
@@ -811,7 +812,8 @@ public class DrawGame {
 		nonGameNLButtonFont.draw(batch, perfectString, (int)(width - (2 * arrowWidth) - 2 * numWidth - (starsHeight / 2.0f) + ((numWidth - tb.width) / 2.0f)), (int)((height - barHeight) + ((barHeight - tb.height)/2.0f) + tb.height));
 		tb = nonGameNLButtonFont.getMultiLineBounds(movesString);
 		float movesX = movesXBase + (((width - (2 * arrowWidth) - (2 * numWidth) - (starsHeight * 1.5f) - movesXBase) - tb.width)/2.0f);
-		nonGameNLButtonFont.drawMultiLine(batch, movesString, (int)movesX, (int)((height - barHeight) + ((barHeight - tb.height) / 2.0f) + tb.height), (int)tb.width, HAlignment.CENTER);
+		nonGameNLButtonFont.drawMultiLine(batch, movesString, (int)movesX, (int)((height - barHeight) + ((barHeight - (tb.height)) / 2.0f) + (tb.height * 1.6f)), (int)tb.width, HAlignment.CENTER);
+		nonGameNLButtonFont.drawMultiLine(batch, moveWordString, (int)movesX, (int)((height - barHeight) + ((barHeight - (tb.height)) / 2.0f) + (tb.height * 0.4f)), (int)tb.width, HAlignment.CENTER);
 		batch.end();
 
 	}
