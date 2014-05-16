@@ -482,8 +482,8 @@ public class InputHandler {
 		// Ties go to vertical first path.
 		Tile verticalIntervening = b.getTileAtBoardPosition(source.getXCoord(),
 				destination.getYCoord());
-		if (isEmptyTile(b, verticalIntervening)
-				|| wholeMoves.contains(verticalIntervening)
+		if ((isEmptyTile(b, verticalIntervening)
+				|| wholeMoves.contains(verticalIntervening))
 				&& !isOnPathEnd(verticalIntervening)) {
 			return verticalIntervening;
 		}
@@ -491,8 +491,8 @@ public class InputHandler {
 		// Then check horizontal path
 		Tile horizontalIntervening = b.getTileAtBoardPosition(
 				destination.getXCoord(), source.getYCoord());
-		if (isEmptyTile(b, horizontalIntervening) 
-				|| wholeMoves.contains(horizontalIntervening)
+		if ((isEmptyTile(b, horizontalIntervening) 
+				|| wholeMoves.contains(horizontalIntervening))
 				&& !isOnPathEnd(horizontalIntervening)) {
 			return horizontalIntervening;
 		}
