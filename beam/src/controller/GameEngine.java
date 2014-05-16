@@ -1700,19 +1700,26 @@ public class GameEngine implements ApplicationListener {
 	 */
 	@Override
 	public void resume() {
-		// Check if there's data for to read before doing anything
-		if (!tempFile.exists())
-			return;
+		
+		//Init fonts for existing objects first
+		if (dg != null){
+			dg.initFonts();
+		}
+		if (dm != null){
+			dm.initFonts();
+		}
+		if (dt != null){
+			dt.initFonts();
+		}
 		
 		if (dg == null || dm == null || dt == null){
 			tempFile.delete();
 			return;
 		}
-
-		// Reinitialize the fonts
-		dg.initFonts();
-		dm.initFonts();
-		dt.initFonts();
+		
+		// Check if there's data for to read before doing anything else
+		if (!tempFile.exists())
+			return;
 
 		String fromTemp = tempFile.readString();
 		debug("Read " + fromTemp);
