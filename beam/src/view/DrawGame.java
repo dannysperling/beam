@@ -352,6 +352,8 @@ public class DrawGame {
 					} else if (state == GameState.MOVING && aState == AnimationState.FORMING && !halfWeight && path.get(1).getPainterColor() != GameEngine.Color.NONE ){ 
 						shapes.setColor(Constants.translateColorLight(path.get(1).getPainterColor()));
 					} else {
+						if(b.getPieceOnTile(path.get(0)).getColor() == GameEngine.Color.NONE)
+							System.out.println("fuckshitassballs");
 						shapes.setColor(Constants.translateColorLight(b.getPieceOnTile(path.get(0)).getColor()));
 					}
 				} 
