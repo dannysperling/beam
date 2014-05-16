@@ -111,6 +111,24 @@ public class DrawMenu {
 			}
 		}
 	}
+	
+	
+	public void updateBoardSprite(int world, int ordinal){
+		Board b = allBoards.get(world - 1).get(ordinal - 1);
+		int tileSize = (int)(menu.boardHeightPercent * menu.getWorldHeight() / b.getNumVerticalTiles());
+		boolean locked = (menu.isBonus(world, ordinal) && !menu.isBonusLevelUnlocked(world));
+		int bWidth = tileSize * b.getNumHorizontalTiles();
+		int bHeight = tileSize * b.getNumVerticalTiles();
+		if(menuBoardBuffer != null){
+			menuBoardBuffer.dispose();
+		}
+		menuBoardBuffer = new FrameBuffer(Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+		menuBoardBuffer.begin();
+		dg.drawBoard(b, 0, 0, tileSize, locked, false);
+		TextureRegion boardTex = ScreenUtils.getFrameBufferTexture(0, 0, bWidth, bHeight);
+		menuBoardBuffer.end();
+		boardSprites[world][ordinal] = new Sprite(boardTex);
+	}
 
 	/**
 	 * This is the primary method to draw the menu. Based on the current board, world,
@@ -500,6 +518,7 @@ public class DrawMenu {
 		boolean locked = (menu.isBonus(world, ordinalInWorld) && !menu.isBonusLevelUnlocked(world));
 		Sprite curSprite = (noSprite?curBoardSprite:boardSprites[world][ordinalInWorld]);
 		curSprite = (pSprite?transBoardSprite:curSprite);
+		
 		//Draw the board in the appropriate location		
 		curSprite.setPosition(bx, by);
 		curSprite.setSize(tilesize * b.getNumHorizontalTiles(), tilesize * b.getNumVerticalTiles());

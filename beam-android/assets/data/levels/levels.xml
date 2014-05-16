@@ -844,9 +844,28 @@ glass,glass,2,glass
 e,e,e,2
 </level>
 
-<level id=122 par=13 perfect=9>
+<level id=122 par=13 perfect=10>
 <attribution name="Ode to Conway" author="Reese"/>
 e,1:goal_2,1
 2:goal_1,2:goal_2,1:goal_2
 goal_1,2:goal_1,e
+</level>
+
+<level id=123 par=9 perfect=6>
+<attribution name="beamsbox" author="Ryan Kozerok"/>
+<beamGoal color=1 count=4/>
+<beamGoal color=2 count=4/>
+1,glass,glass,2
+e,2,1,e
+e,2,1,e
+1,e,e,2
+</level>
+
+
+
+<level id=124 par=6 perfect=5>
+<attribution name="Screw This Level" author="Danny"/>
+e,1:goal_2,glass
+2:goal_1,e,2:goal_1
+glass,1:goal_2,e
 </level>

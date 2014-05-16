@@ -785,6 +785,7 @@ public class GameEngine implements ApplicationListener {
 					}
 					break;
 				case MENU:
+					SoundPlayer.playSound(SoundType.CLICK);
 					SoundPlayer.playSound(SoundType.TRANSITION);
 					// Reset the level if going to menu when destroyed
 					if (state == GameState.DESTROYED || state == GameState.WON) {
@@ -988,8 +989,9 @@ public class GameEngine implements ApplicationListener {
 		totalTimeForThisAnimation = AnimationState
 				.getTime(currentAnimationState);
 
-		if (currentAnimationState == AnimationState.FORMING) {
-			SoundPlayer.playSound(SoundPlayer.SoundType.BEAM_FORM);
+		
+		if (currentAnimationState == AnimationState.PAINTING){
+			SoundPlayer.playSound(SoundPlayer.SoundType.PAINTER);
 		}
 
 		// Check to see if that will be destruction, and update accordingly
@@ -1062,6 +1064,7 @@ public class GameEngine implements ApplicationListener {
 				if (!wasBonusUnlocked
 						&& progress.isBonusLevelUnlocked(currentWorld)) {
 					GameEngine.bonusUnlocked = true;
+					dm.updateBoardSprite(currentWorld, menu.worldSizes.get(currentWorld - 1));
 				} else {
 					GameEngine.bonusUnlocked = false;
 				}

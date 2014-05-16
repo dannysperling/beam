@@ -13,7 +13,7 @@ public class Constants {
 	 * the final game version.
 	 */
 	public static final boolean DEBUG_MODE = false;
-	public static boolean UNLOCK_MODE = false;
+	public static boolean UNLOCK_MODE = true;
 	public static final boolean LOGGING = true;
 	
 	
@@ -87,7 +87,7 @@ public class Constants {
 	/**
 	 * FONT CONSTANTS
 	 */
-	public static final String FONT_PATH = "data/fonts/swanse.ttf";
+	public static final String FONT_PATH = "data/fonts/weblysleekuil.ttf";
 	
 	
 	/**
