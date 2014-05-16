@@ -337,7 +337,7 @@ public class DrawGame {
 				shapes.setColor(halfWeight?Color.LIGHT_GRAY:Color.BLACK);
 			} else {
 				if(path.size() > 0){
-					if(state == GameState.MOVING && aState == AnimationState.PAINTING){
+					if(state == GameState.MOVING && aState == AnimationState.PAINTING && !halfWeight){
 						Piece p = b.getPieceOnTile(path.get(0));
 						Color paintColor = Constants.translateColorLight(path.get(1).getPainterColor());
 						float rshift = (paintColor.r - Constants.translateColorLight(p.getColor()).r)
@@ -1936,7 +1936,7 @@ public class DrawGame {
 
 		// Draw level loss reminder
 
-		String gameOverText = "You destroyed\n\na piece!\n\n\nPress Undo\n\nor Reset\n\nto try again.";
+		String gameOverText = "You destroyed\na piece!\n\nPress Undo\nor Reset\nto try again.";
 		BitmapFont curFont = introFont;
 		tb = curFont.getBounds("You destroyed");
 		if (tb.width * 1.2f >= tilesize * b.getNumHorizontalTiles()) {
@@ -1963,7 +1963,7 @@ public class DrawGame {
 				curFont.drawMultiLine(
 						batch,
 						gameOverText,
-						(int)bx,
+						(int)(bx),
 						(int)(by
 						+ ((tilesize * b.getNumVerticalTiles() + tb.height) / 2.0f)),
 						(int)(tilesize * b.getNumHorizontalTiles()), HAlignment.CENTER);
