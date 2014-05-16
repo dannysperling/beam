@@ -773,6 +773,8 @@ public class GameEngine implements ApplicationListener {
 
 					movingPiece = null;
 					movePath.clear();
+					movingPiece2 = null;
+					movePath2.clear();
 					prepAnimationBeginning();
 					initializeLasers(b);
 					break;
@@ -797,6 +799,8 @@ public class GameEngine implements ApplicationListener {
 						b.resetPieces(boardStack.get(moveCounter));
 						movingPiece = null;
 						movePath.clear();
+						movingPiece2 = null;
+						movePath2.clear();
 						prepAnimationBeginning();
 						initializeLasers(b);
 					}
@@ -1181,6 +1185,8 @@ public class GameEngine implements ApplicationListener {
 		b.resetPieces(boardStack.get(moveCounter));
 		movingPiece = null;
 		movePath.clear();
+		movingPiece2 = null;
+		movePath2.clear();
 		prepAnimationBeginning();
 		initializeLasers(b);
 		boardStack = newStack;
@@ -1206,6 +1212,9 @@ public class GameEngine implements ApplicationListener {
 		// Clean out all the inits
 		movingPiece = null;
 		movePath.clear();
+		
+		movingPiece2 = null;
+		movePath2.clear();
 
 		// Clear the board stack
 		boardStack.clear();
