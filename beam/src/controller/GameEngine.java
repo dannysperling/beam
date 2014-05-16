@@ -1020,6 +1020,7 @@ public class GameEngine implements ApplicationListener {
 		// transition there.
 		if (wasPieceDestroyed) {
 			state = GameState.DESTROYED;
+			movePath2.clear();
 
 			// Push move onto the stack
 			boardStack.add(moveCounter, (b.encodePieces()));
