@@ -794,7 +794,7 @@ public class GameEngine implements ApplicationListener {
 						resetCurrentLevel();
 					}
 					// Always clean up certain things if we're animating
-					if (currentAnimationState != AnimationState.NOTANIMATING) {
+					if (state == GameState.MOVING) {
 						moveCounter--;
 						b.resetPieces(boardStack.get(moveCounter));
 						movingPiece = null;
