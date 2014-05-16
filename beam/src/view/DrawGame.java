@@ -443,7 +443,8 @@ public class DrawGame {
 		batch.begin();
 		curSprite.setSize(tilesize, tilesize);
 		for (Piece p : pieces) {
-
+			//if(moveAnimateTime != 0)
+			//System.out.println(p.getColor());
 			curSprite = pieceSprite;
 
 			if(p.equals(GameEngine.movingPiece) && moveAnimateTime != 0 && moveAnimateTime < 1.1 && GameEngine.getLaserMovedAlong() != null){
@@ -487,6 +488,8 @@ public class DrawGame {
 				curSprite.draw(batch);
 			}
 		}
+		//if(moveAnimateTime != 0)
+		//System.out.println("------");
 		batch.end();
 		Gdx.gl.glDisable(GL10.GL_BLEND);
 

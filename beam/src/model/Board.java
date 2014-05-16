@@ -239,7 +239,7 @@ public class Board {
 
 	/**
 	 * Sets the tile at (X,Y) to either be or not be glass, according to the
-	 * input argument is Glass. Suppying valid coordinates is YOUR PROBLEM NOT
+	 * input argument is Glass. Supplying valid coordinates is YOUR PROBLEM NOT
 	 * MINE.
 	 * 
 	 * @param isGlass

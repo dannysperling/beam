@@ -27,7 +27,6 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 
-
 public class GameEngine implements ApplicationListener {
 
 	/**
@@ -35,12 +34,12 @@ public class GameEngine implements ApplicationListener {
 	 */
 	private Board b;
 	private Board nextBoard;
-	
+
 	/**
 	 * The current tutorial, if there is one, or null if there isn't
 	 */
 	private static Tutorial tutorial;
-	
+
 	private DrawGame dg;
 	private InputHandler inputHandler;
 	private LevelLoader levelLoader;
@@ -65,9 +64,10 @@ public class GameEngine implements ApplicationListener {
 	 */
 	private static int moveCounter = 0;
 	public static Piece movingPiece = null;
+	public static Piece movingPiece2 = null;
 	public static List<Tile> movePath = new ArrayList<Tile>();
+	public static List<Tile> movePath2 = new ArrayList<Tile>();
 	private static List<Collection<Short>> boardStack = new ArrayList<Collection<Short>>();
-	
 
 	/**
 	 * All the animation constants and counters
@@ -75,21 +75,20 @@ public class GameEngine implements ApplicationListener {
 	private static int timeSpentOnThisAnimation = 0;
 	private static int totalTimeForThisAnimation = 0;
 	private static int timeSpentOnIntro = 0;
-	private static int timeSpentOnTransition = 0; 
+	private static int timeSpentOnTransition = 0;
 	private static int timeSpentLeavingMenu = 0;
 	private static int timeSpentLeavingLevel = 0;
 	private static int timeDead = 0;
 	private static int timeWon = 0;
-	
+
 	public static int timeToStopTutorial = Integer.MAX_VALUE;
 	public static int timeSpentOnTutorial = 0;
 
 	public static int timeToStopInfo = Integer.MAX_VALUE;
 	public static int timeSpentOnInfo = 0;
-	
+
 	public static boolean nextWorldUnlocked = false;
 	public static boolean bonusUnlocked = false;
-
 
 	/**
 	 * Keep track of our current animation, and where it's going
@@ -111,13 +110,12 @@ public class GameEngine implements ApplicationListener {
 	public static Set<Laser> futureLasers = new HashSet<Laser>();
 
 	public boolean worldTransitioning = false;
-	
+
 	/**
 	 * Enumeration of each of the states the game can be in
 	 */
 	public enum GameState {
-		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO, TUTORIAL, INFO,
-		LEVEL_TRANSITION, MENU_TO_LEVEL_TRANSITION, LEVEL_TO_MENU_TRANSITION
+		IDLE, DECIDING, MOVING, DESTROYED, WON, INTRO, TUTORIAL, INFO, LEVEL_TRANSITION, MENU_TO_LEVEL_TRANSITION, LEVEL_TO_MENU_TRANSITION
 	}
 
 	/**
@@ -151,7 +149,7 @@ public class GameEngine implements ApplicationListener {
 	public enum ButtonPress {
 		UNDO, RESET, MENU, INFO, TUTORIAL, NEXT_LEVEL, SKIPWIN, BONUS, NONE
 	}
-	
+
 	/**
 	 * Enumeration of the various possibilities within the title screen
 	 */
@@ -221,7 +219,7 @@ public class GameEngine implements ApplicationListener {
 	 */
 	@Override
 	public void create() {
-		
+
 		AssetInitializer.initialize();
 
 		// Use GDX for both the orderer and the loader
@@ -229,9 +227,10 @@ public class GameEngine implements ApplicationListener {
 		levelLoader = new LevelLoader("data/levels/levels.xml", levelOrderer,
 				true);
 		progress = new GameProgress(levelOrderer);
-		
-		//Set up tutorials
-		tutorialLoader = new TutorialLoader("data/tutorials/tutorialDescriptions.txt", levelOrderer);
+
+		// Set up tutorials
+		tutorialLoader = new TutorialLoader(
+				"data/tutorials/tutorialDescriptions.txt", levelOrderer);
 
 		// Create the menu
 		menu = new Menu(levelOrderer.getWorldSizes(), progress);
@@ -242,8 +241,8 @@ public class GameEngine implements ApplicationListener {
 
 		// Set up restoration
 		tempFile = Gdx.files.local(tempData);
-		
-		//Set up the loading drawer
+
+		// Set up the loading drawer
 		dt = new DrawTitlescreen(progress);
 		dt.initFonts();
 
@@ -257,9 +256,10 @@ public class GameEngine implements ApplicationListener {
 	 */
 	@Override
 	public void dispose() {
-		//For now, avoid disposing
-		/*dg.dispose();
-		dm.dispose();*/
+		// For now, avoid disposing
+		/*
+		 * dg.dispose(); dm.dispose();
+		 */
 	}
 
 	/**
@@ -293,28 +293,29 @@ public class GameEngine implements ApplicationListener {
 
 		return allBoards;
 	}
-	
-	//Loading constants
+
+	// Loading constants
 	private boolean gameRunning = false;
 	private boolean finishedLoading = false;
 	private boolean drawingInitialized = false;
 	private int timeLoading = 0;
-	
+
 	/**
-	 * Initializes the various drawing screens. Needs to wait until after the assets are loaded
+	 * Initializes the various drawing screens. Needs to wait until after the
+	 * assets are loaded
 	 */
-	private void initializeDrawing(){
-		
+	private void initializeDrawing() {
+
 		// Create the game drawing
 		dg = new DrawGame(progress);
 		dg.initFonts();
-		
+
 		// Create the menu drawer
 		List<List<Board>> allBoards = initializeBoards();
 		dm = new DrawMenu(menu, dg, allBoards);
 		dm.initFonts();
-		
-		//Initialize title screen icons
+
+		// Initialize title screen icons
 		dt.initTitleScreenSymbols();
 		SoundPlayer.initSounds(progress);
 	}
@@ -325,29 +326,34 @@ public class GameEngine implements ApplicationListener {
 	 */
 	@Override
 	public void render() {
-		
-		//Start by loading
-		if (!gameRunning){
+
+		// Start by loading
+		if (!gameRunning) {
 			doInitialLoading();
-			dt.draw(true, timeLoading, Menu.colorOfWorld(progress.getHighestUnlockedWorld()), false, 0, false);
+			dt.draw(true, timeLoading,
+					Menu.colorOfWorld(progress.getHighestUnlockedWorld()),
+					false, 0, false);
 			return;
-		}	
-		//Otherwise, game loop!
-			
+		}
+		// Otherwise, game loop!
+
 		// Check for back pressed first
 		inputHandler.checkBackPressed();
-		
+
 		// First handle the title screen
-		if (titleScreenShowing){
+		if (titleScreenShowing) {
 			boolean wasTransitioning = transitioningToMenu;
 			handleTitleScreen();
-			dt.draw(false, -1, Menu.colorOfWorld(progress.getHighestUnlockedWorld()), wasTransitioning, transitionTicks, creditsShowing);
+			dt.draw(false, -1,
+					Menu.colorOfWorld(progress.getHighestUnlockedWorld()),
+					wasTransitioning, transitionTicks, creditsShowing);
 			return;
 		}
 
 		// Handle the menu separately
 		boolean wasMenuShowing = mainMenuShowing;
-		if (mainMenuShowing && state != GameState.MENU_TO_LEVEL_TRANSITION && state != GameState.LEVEL_TO_MENU_TRANSITION){
+		if (mainMenuShowing && state != GameState.MENU_TO_LEVEL_TRANSITION
+				&& state != GameState.LEVEL_TO_MENU_TRANSITION) {
 			timeSpentLeavingLevel = 0;
 			state = handleMainMenu(state);
 		}
@@ -363,244 +369,268 @@ public class GameEngine implements ApplicationListener {
 				GameState pastState = state;
 				state = inputHandler.handleGameInput(b, state);
 
-				//Do various actions depending on the state
-				//Most actions occur while moving
-				//Other states do nothing or increment counters
-				switch (state){
-					case DESTROYED:
-						timeDead++;
-						break;
-					case INTRO:
-						if(timeSpentOnIntro >= Constants.TIME_FOR_INTRO){
-							state = GameState.IDLE;
+				// Do various actions depending on the state
+				// Most actions occur while moving
+				// Other states do nothing or increment counters
+				switch (state) {
+				case DESTROYED:
+					timeDead++;
+					break;
+				case INTRO:
+					if (timeSpentOnIntro >= Constants.TIME_FOR_INTRO) {
+						state = GameState.IDLE;
+					} else {
+						timeSpentOnIntro++;
+					}
+					break;
+				case TUTORIAL:
+					if (timeSpentOnTutorial >= timeToStopTutorial) {
+						state = GameState.INTRO;
+						timeSpentOnIntro = 0;
+						timeSpentOnTutorial = 0;
+						timeToStopTutorial = Integer.MAX_VALUE;
+					} else {
+						timeSpentOnTutorial++;
+					}
+					break;
+				case INFO:
+					if (timeSpentOnInfo >= timeToStopInfo) {
+						state = GameState.IDLE;
+						timeSpentOnInfo = 0;
+						timeToStopInfo = Integer.MAX_VALUE;
+					} else {
+						timeSpentOnInfo++;
+					}
+					break;
+				case WON:
+					timeWon++;
+					break;
+				case LEVEL_TRANSITION:
+					if (timeSpentOnTransition >= Constants.TIME_FOR_LEVEL_TRANSITION) {
+						moveToNextLevel();
+					} else {
+						timeSpentOnTransition++;
+					}
+					break;
+				case MENU_TO_LEVEL_TRANSITION:
+					if (timeSpentLeavingMenu >= Constants.TIME_FOR_MENU_TRANSITION) {
+						mainMenuShowing = false;
+						if (tutorial != null) {
+							state = GameState.TUTORIAL;
 						} else {
-							timeSpentOnIntro++;
-						}
-						break;
-					case TUTORIAL:
-						if(timeSpentOnTutorial >= timeToStopTutorial){
 							state = GameState.INTRO;
-							timeSpentOnIntro = 0;
-							timeSpentOnTutorial = 0;
-							timeToStopTutorial = Integer.MAX_VALUE;
-						} else {
-							timeSpentOnTutorial++;
 						}
-						break;
-					case INFO:
-						if(timeSpentOnInfo >= timeToStopInfo){
+						dm.worldShift = false;
+					} else {
+						timeSpentLeavingMenu++;
+					}
+					break;
+				case LEVEL_TO_MENU_TRANSITION:
+					if (timeSpentLeavingLevel >= Constants.TIME_FOR_MENU_TRANSITION) {
+						if (!worldTransitioning) {
 							state = GameState.IDLE;
-							timeSpentOnInfo = 0;
-							timeToStopInfo = Integer.MAX_VALUE;
+							dm.updateBoardSprite(b);
 						} else {
-							timeSpentOnInfo++;
-						}
-						break;	
-					case WON:
-						timeWon++;
-						break;
-					case LEVEL_TRANSITION:
-						if(timeSpentOnTransition >= Constants.TIME_FOR_LEVEL_TRANSITION){
-							moveToNextLevel();
-						} else {
-							timeSpentOnTransition++;
-						}
-						break;
-					case MENU_TO_LEVEL_TRANSITION:
-						if(timeSpentLeavingMenu >= Constants.TIME_FOR_MENU_TRANSITION){
-							mainMenuShowing = false;
-							if(tutorial != null){
-								state = GameState.TUTORIAL;
-							} else {
-								state = GameState.INTRO;
-							}
-							dm.worldShift = false;
-						} else {
-							timeSpentLeavingMenu++;
-						}
-						break;
-					case LEVEL_TO_MENU_TRANSITION:
-						if(timeSpentLeavingLevel >= Constants.TIME_FOR_MENU_TRANSITION){
-							if(!worldTransitioning){
-								state = GameState.IDLE;
-								dm.updateBoardSprite(b);
-							} else {
-								// Log the change
-								if (Constants.LOGGING) {
-									if (currentWorld != -1) {
-										logEnd();
-									}
-									Logger.enteredLevel(currentWorld + 1,
-											1);
+							// Log the change
+							if (Constants.LOGGING) {
+								if (currentWorld != -1) {
+									logEnd();
 								}
-								dm.prevWorld = currentWorld;
-								dm.prevOrdinal = currentOrdinalInWorld;
-								dm.worldShift = true;
-								dm.prevBoard = b;
-								dm.updateTransBoardSprite(b);
-								//Change current and load the new level
-								currentWorld += 1;
-								currentOrdinalInWorld = 1;
-								inputHandler.setMostRecentlySelectedOrdinalInWorld(1);
-								inputHandler.setMostRecentlySelectedWorld(currentWorld);
-								dm.shiftBoardNew = true;
-								loadLevel(currentWorld, currentOrdinalInWorld);
-								SoundPlayer.playSound(SoundType.TRANSITION);
-								state = GameState.MENU_TO_LEVEL_TRANSITION;	
-								timeSpentLeavingMenu = 0;
-								worldTransitioning = false;
+								Logger.enteredLevel(currentWorld + 1, 1);
 							}
-						} else {
-							timeSpentLeavingLevel++;
+							dm.prevWorld = currentWorld;
+							dm.prevOrdinal = currentOrdinalInWorld;
+							dm.worldShift = true;
+							dm.prevBoard = b;
+							dm.updateTransBoardSprite(b);
+							// Change current and load the new level
+							currentWorld += 1;
+							currentOrdinalInWorld = 1;
+							inputHandler
+									.setMostRecentlySelectedOrdinalInWorld(1);
+							inputHandler
+									.setMostRecentlySelectedWorld(currentWorld);
+							dm.shiftBoardNew = true;
+							loadLevel(currentWorld, currentOrdinalInWorld);
+							SoundPlayer.playSound(SoundType.TRANSITION);
+							state = GameState.MENU_TO_LEVEL_TRANSITION;
+							timeSpentLeavingMenu = 0;
+							worldTransitioning = false;
 						}
-						break;
-					case MOVING:						
-						//Just started to move from deciding
-						if (pastState == GameState.DECIDING){
-							moveCounter++;
-							debug(moveCounter);
+					} else {
+						timeSpentLeavingLevel++;
+					}
+					break;
+				case MOVING:
+					// Just started to move from deciding
+					if (pastState == GameState.DECIDING) {
+						moveCounter++;
+						debug(moveCounter);
 
-							//Prep the animations
-							prepAnimationBeginning();
-						}
-						
-						//We're at the start of a move
-						if (currentAnimationState == AnimationState.NOTANIMATING){
-							
-							//In which case, precompute the move
-							precomputeMove();
-						}
-						
-						//Then, handle all animations of the move
-						handleAnimations();
-						break;
-					case IDLE:
-					case DECIDING:
-					default:
-						break;
+						// Prep the animations
+						prepAnimationBeginning();
+					}
+
+					// We're at the start of a move
+					if (currentAnimationState == AnimationState.NOTANIMATING) {
+
+						// In which case, precompute the move
+						precomputeMove();
+					}
+
+					// Then, handle all animations of the move
+					handleAnimations();
+					break;
+				case IDLE:
+				case DECIDING:
+				default:
+					break;
 				}
 			}
 		}
 
 		// Draw the game or menu
-		if (mainMenuShowing || wasMenuShowing){
-			if(state == GameState.MENU_TO_LEVEL_TRANSITION || state == GameState.INTRO || state == GameState.TUTORIAL){
-				dm.draw(b, currentWorld, currentOrdinalInWorld, true, (float)(timeSpentLeavingMenu) / Constants.TIME_FOR_MENU_TRANSITION, false);
-				if(wasMenuShowing && !mainMenuShowing){
+		if (mainMenuShowing || wasMenuShowing) {
+			if (state == GameState.MENU_TO_LEVEL_TRANSITION
+					|| state == GameState.INTRO || state == GameState.TUTORIAL) {
+				dm.draw(b, currentWorld, currentOrdinalInWorld, true,
+						(float) (timeSpentLeavingMenu)
+								/ Constants.TIME_FOR_MENU_TRANSITION, false);
+				if (wasMenuShowing && !mainMenuShowing) {
 					timeSpentLeavingMenu = 0;
 				}
-			} else if(state == GameState.LEVEL_TO_MENU_TRANSITION){
-				dm.draw(b, currentWorld, currentOrdinalInWorld, true, 1 - (((float)(timeSpentLeavingLevel)) / Constants.TIME_FOR_MENU_TRANSITION), false);
-			}else {
+			} else if (state == GameState.LEVEL_TO_MENU_TRANSITION) {
+				dm.draw(b,
+						currentWorld,
+						currentOrdinalInWorld,
+						true,
+						1 - (((float) (timeSpentLeavingLevel)) / Constants.TIME_FOR_MENU_TRANSITION),
+						false);
+			} else {
 				dm.draw(b, currentWorld, currentOrdinalInWorld, false, 0, false);
 			}
 		} else if (state == GameState.LEVEL_TRANSITION) {
-			float transitionMoment = Math.max(0, timeSpentOnTransition - Constants.TRANSITION_DELAY);
-			float transPart = transitionMoment / (Constants.TIME_FOR_LEVEL_TRANSITION - Constants.TRANSITION_DELAY);
+			float transitionMoment = Math.max(0, timeSpentOnTransition
+					- Constants.TRANSITION_DELAY);
+			float transPart = transitionMoment
+					/ (Constants.TIME_FOR_LEVEL_TRANSITION - Constants.TRANSITION_DELAY);
 			float totalTransPart = transPart * -1 * Gdx.graphics.getWidth();
-			com.badlogic.gdx.graphics.Color a = menu.colorOfLevel(currentWorld, currentOrdinalInWorld);
-			com.badlogic.gdx.graphics.Color cb = menu.colorOfLevel(nextLvWorld, nextOrdinal);
-			com.badlogic.gdx.graphics.Color mixed = new com.badlogic.gdx.graphics.Color(a.r + ((cb.r - a.r) * transPart), 
-					a.g + ((cb.g - a.g) * transPart), a.b + ((cb.b - a.b) * transPart), a.a + ((cb.a - a.a) * transPart));
-			
-			boolean isLast = menu.isLastLevelInWorld(currentWorld, currentOrdinalInWorld);
-			boolean isNextLocked = !menu.isNextLevelUnlocked(currentWorld, currentOrdinalInWorld);
+			com.badlogic.gdx.graphics.Color a = menu.colorOfLevel(currentWorld,
+					currentOrdinalInWorld);
+			com.badlogic.gdx.graphics.Color cb = menu.colorOfLevel(nextLvWorld,
+					nextOrdinal);
+			com.badlogic.gdx.graphics.Color mixed = new com.badlogic.gdx.graphics.Color(
+					a.r + ((cb.r - a.r) * transPart), a.g
+							+ ((cb.g - a.g) * transPart), a.b
+							+ ((cb.b - a.b) * transPart), a.a
+							+ ((cb.a - a.a) * transPart));
+
+			boolean isLast = menu.isLastLevelInWorld(currentWorld,
+					currentOrdinalInWorld);
+			boolean isNextLocked = !menu.isNextLevelUnlocked(currentWorld,
+					currentOrdinalInWorld);
 			dg.draw(b, state, currentAnimationState, currentWorld,
-					currentOrdinalInWorld, mixed, totalTransPart, false, isLast, isNextLocked, progress);
-			
+					currentOrdinalInWorld, mixed, totalTransPart, false,
+					isLast, isNextLocked, progress);
+
 			isLast = menu.isLastLevelInWorld(nextLvWorld, nextOrdinal);
 			isNextLocked = !menu.isNextLevelUnlocked(nextLvWorld, nextOrdinal);
 			dg.draw(nextBoard, state, currentAnimationState, nextLvWorld,
 					nextOrdinal, menu.colorOfLevel(nextLvWorld, nextOrdinal),
-					totalTransPart + Gdx.graphics.getWidth(), true, isLast, isNextLocked, progress);
+					totalTransPart + Gdx.graphics.getWidth(), true, isLast,
+					isNextLocked, progress);
 
 		} else {
-			boolean isLast = menu.isLastLevelInWorld(currentWorld, currentOrdinalInWorld);
-			boolean isNextLocked = !menu.isNextLevelUnlocked(currentWorld, currentOrdinalInWorld);
+			boolean isLast = menu.isLastLevelInWorld(currentWorld,
+					currentOrdinalInWorld);
+			boolean isNextLocked = !menu.isNextLevelUnlocked(currentWorld,
+					currentOrdinalInWorld);
 			dg.draw(b, state, currentAnimationState, currentWorld,
 					currentOrdinalInWorld,
 					menu.colorOfLevel(currentWorld, currentOrdinalInWorld), 0,
 					false, isLast, isNextLocked, progress);
 		}
 	}
-	
+
 	/**
 	 * Performs initial loading until the screen has been completely loaded
 	 */
-	private void doInitialLoading(){
-		//Load the art assets
-		if (!finishedLoading){
-			//Check if we're finished
-			if (AssetInitializer.isFinished()){
+	private void doInitialLoading() {
+		// Load the art assets
+		if (!finishedLoading) {
+			// Check if we're finished
+			if (AssetInitializer.isFinished()) {
 				finishedLoading = true;
-			};
+			}
+			;
 			timeLoading++;
-		} 
-		//Fade out the loading
-		else if (timeLoading < Constants.LOAD_SCREEN_TIME + Constants.LOAD_FADE_TIME){
+		}
+		// Fade out the loading
+		else if (timeLoading < Constants.LOAD_SCREEN_TIME
+				+ Constants.LOAD_FADE_TIME) {
 			timeLoading++;
-		} 
+		}
 		// Load all the drawing requirements
-		else if (!drawingInitialized){
+		else if (!drawingInitialized) {
 			initializeDrawing();
 			drawingInitialized = true;
 		}
-		//Otherwise we're done - let's start running!
+		// Otherwise we're done - let's start running!
 		else {
-			if (progress.isMusicPlaying()){
+			if (progress.isMusicPlaying()) {
 				SoundPlayer.playMusic();
 			}
 			gameRunning = true;
 		}
 	}
-	
+
 	/**
 	 * Does all the actions required if the title screen is showing
 	 */
-	private void handleTitleScreen(){
-		if (!transitioningToMenu){
-			TitleOption userChoice = inputHandler.checkForTitleOptionPress(creditsShowing);
-			switch (userChoice)
-			{
-				case EXIT:
-					if (creditsShowing)
-						creditsShowing = false;
-					else {
-						if (Constants.LOGGING) {
-							logEnd();
-						}
-						System.exit(0);
+	private void handleTitleScreen() {
+		if (!transitioningToMenu) {
+			TitleOption userChoice = inputHandler
+					.checkForTitleOptionPress(creditsShowing);
+			switch (userChoice) {
+			case EXIT:
+				if (creditsShowing)
+					creditsShowing = false;
+				else {
+					if (Constants.LOGGING) {
+						logEnd();
 					}
-					break;
-				case PLAY:
+					System.exit(0);
+				}
+				break;
+			case PLAY:
+				SoundPlayer.playSound(SoundType.CLICK);
+				transitioningToMenu = true;
+				transitionTicks = 0;
+				dt.initMenuSprite(dm, b, currentWorld, currentOrdinalInWorld);
+				break;
+			case SOUND_FX:
+				progress.setFX(!progress.isSoundPlaying());
+				if (progress.isSoundPlaying()) {
 					SoundPlayer.playSound(SoundType.CLICK);
-					transitioningToMenu = true;
-					transitionTicks = 0;
-					dt.initMenuSprite(dm, b, currentWorld, currentOrdinalInWorld);
-					break;
-				case SOUND_FX:
-					progress.setFX(!progress.isSoundPlaying());
-					if (progress.isSoundPlaying()){
-						SoundPlayer.playSound(SoundType.CLICK);
-					}
-					break;
-				case MUSIC:
-					boolean newMusicState = !progress.isMusicPlaying();
-					progress.setMusic(newMusicState);
-					if (newMusicState){
-						SoundPlayer.playMusic();
-					} else {
-						SoundPlayer.stopMusic();
-					}
-					break;
-				case CREDITS:
-					creditsShowing = !creditsShowing;
-				default:
-					break;
+				}
+				break;
+			case MUSIC:
+				boolean newMusicState = !progress.isMusicPlaying();
+				progress.setMusic(newMusicState);
+				if (newMusicState) {
+					SoundPlayer.playMusic();
+				} else {
+					SoundPlayer.stopMusic();
+				}
+				break;
+			case CREDITS:
+				creditsShowing = !creditsShowing;
+			default:
+				break;
 			}
 		} else {
 			transitionTicks++;
-			if (transitionTicks >= Constants.TRANS_TO_MENU_TIME){
+			if (transitionTicks >= Constants.TRANS_TO_MENU_TIME) {
 				titleScreenShowing = false;
 				transitioningToMenu = false;
 				dt.offLoadingScreen();
@@ -611,13 +641,13 @@ public class GameEngine implements ApplicationListener {
 	/**
 	 * Handles the main update loop for when the main menu is showing
 	 */
-	private GameState handleMainMenu(GameState state){
-		
-		if (state == GameState.MENU_TO_LEVEL_TRANSITION){
+	private GameState handleMainMenu(GameState state) {
+
+		if (state == GameState.MENU_TO_LEVEL_TRANSITION) {
 			return GameState.MENU_TO_LEVEL_TRANSITION;
 		}
-		
-		//Check to see what was pressed on the menu
+
+		// Check to see what was pressed on the menu
 		int selected = inputHandler.handleMainMenuInput(menu);
 
 		// Possibly reset logging if the user says to do so
@@ -637,15 +667,17 @@ public class GameEngine implements ApplicationListener {
 
 			// Figure out which level was selected
 			int selectedWorld = inputHandler.getMostRecentlySelectedWorld();
-			int selectedOrdinalInWorld = inputHandler.getMostRecentlySelectedOrdinalInWorld();
+			int selectedOrdinalInWorld = inputHandler
+					.getMostRecentlySelectedOrdinalInWorld();
 
-			//Check that it's unlocked
-			boolean unlocked = menu.isLevelUnlocked(selectedWorld, selectedOrdinalInWorld);
-			if (unlocked){
-				
+			// Check that it's unlocked
+			boolean unlocked = menu.isLevelUnlocked(selectedWorld,
+					selectedOrdinalInWorld);
+			if (unlocked) {
+
 				SoundPlayer.playSound(SoundType.TRANSITION);
-				//Enter the level if it's unlocked
-				//mainMenuShowing = false;
+				// Enter the level if it's unlocked
+				// mainMenuShowing = false;
 
 				// Only reset if different level
 				if (selectedOrdinalInWorld != currentOrdinalInWorld
@@ -659,7 +691,7 @@ public class GameEngine implements ApplicationListener {
 						Logger.enteredLevel(selectedWorld,
 								selectedOrdinalInWorld);
 					}
-					//Change current and load the new level
+					// Change current and load the new level
 					currentWorld = selectedWorld;
 					currentOrdinalInWorld = selectedOrdinalInWorld;
 					loadLevel(currentWorld, currentOrdinalInWorld);
@@ -669,7 +701,7 @@ public class GameEngine implements ApplicationListener {
 				}
 			}
 		}
-		
+
 		return GameState.IDLE;
 	}
 
@@ -684,15 +716,16 @@ public class GameEngine implements ApplicationListener {
 
 		// Make sure to not check for input if we're in the middle of inputing a
 		// move or transitioning between levels
-		if (state != GameState.DECIDING && state != GameState.LEVEL_TRANSITION && 
-				state != GameState.MENU_TO_LEVEL_TRANSITION && state != GameState.LEVEL_TO_MENU_TRANSITION
+		if (state != GameState.DECIDING && state != GameState.LEVEL_TRANSITION
+				&& state != GameState.MENU_TO_LEVEL_TRANSITION
+				&& state != GameState.LEVEL_TO_MENU_TRANSITION
 				&& state != GameState.TUTORIAL && state != GameState.INFO) {
 
 			// Get the button that was pressed
 			ButtonPress button = inputHandler.checkForButtonPress(state,
 					b.getTopYCoord(), bonusUnlocked);
 
-			//Check if it's skip win
+			// Check if it's skip win
 			if (state == GameState.WON && button != ButtonPress.NONE) {
 
 				// Check to see if not through the animation yet
@@ -707,13 +740,13 @@ public class GameEngine implements ApplicationListener {
 				}
 			}
 
-			//They pushed a button!
-			if (button != ButtonPress.NONE){
+			// They pushed a button!
+			if (button != ButtonPress.NONE) {
 
-				//Indicate as such
+				// Indicate as such
 				pushedButton = true;
-				
-				//GONNA CASCADE SOME WITCHES
+
+				// GONNA CASCADE SOME WITCHES
 				boolean goingToBonus = false;
 
 				// Determine what to do on the press
@@ -723,7 +756,7 @@ public class GameEngine implements ApplicationListener {
 					break;
 				case UNDO:
 					SoundPlayer.playSound(SoundType.CLICK);
-					
+
 					// Move back and reset the board
 					state = GameState.IDLE;
 					moveCounter = Math.max(moveCounter - 1, 0);
@@ -731,7 +764,7 @@ public class GameEngine implements ApplicationListener {
 						undoTimes++;
 					}
 					b.resetPieces(boardStack.get(moveCounter));
-					
+
 					// Remove the move just backtracked from
 					List<Collection<Short>> newStack = new ArrayList<Collection<Short>>();
 					for (int i = 0; i <= moveCounter; i++)
@@ -757,8 +790,8 @@ public class GameEngine implements ApplicationListener {
 					if (state == GameState.DESTROYED || state == GameState.WON) {
 						resetCurrentLevel();
 					}
-					//Always clean up certain things if we're animating
-					if (currentAnimationState != AnimationState.NOTANIMATING){
+					// Always clean up certain things if we're animating
+					if (currentAnimationState != AnimationState.NOTANIMATING) {
 						moveCounter--;
 						b.resetPieces(boardStack.get(moveCounter));
 						movingPiece = null;
@@ -775,34 +808,36 @@ public class GameEngine implements ApplicationListener {
 					break;
 				case BONUS:
 					goingToBonus = true;
-				case NEXT_LEVEL:					
-					//Make sure the next level is unlocked
+				case NEXT_LEVEL:
+					// Make sure the next level is unlocked
 					int nextLevelOrdinal;
 					int nextWorld;
 
-					if (!goingToBonus){
+					if (!goingToBonus) {
 						nextLevelOrdinal = currentOrdinalInWorld + 1;
 						nextWorld = currentWorld;
-						
-						//Will never go to the bonus level
-						if (nextLevelOrdinal >= levelOrderer.getWorldSize(currentWorld)){
+
+						// Will never go to the bonus level
+						if (nextLevelOrdinal >= levelOrderer
+								.getWorldSize(currentWorld)) {
 							nextLevelOrdinal = 1;
 							nextWorld++;
 						}
 					} else {
-						nextLevelOrdinal = levelOrderer.getWorldSize(currentWorld);
+						nextLevelOrdinal = levelOrderer
+								.getWorldSize(currentWorld);
 						nextWorld = currentWorld;
 					}
-					
+
 					if (!menu.isLevelUnlocked(nextWorld, nextLevelOrdinal))
 						break;
 					// Guess we're sick of this level already...
-					if(nextWorld == currentWorld){
+					if (nextWorld == currentWorld) {
 						state = GameState.LEVEL_TRANSITION;
 					} else {
 						state = GameState.LEVEL_TO_MENU_TRANSITION;
 						SoundPlayer.playSound(SoundType.TRANSITION);
-						
+
 						worldTransitioning = true;
 						dm.shiftBoardNew = true;
 						mainMenuShowing = true;
@@ -817,13 +852,13 @@ public class GameEngine implements ApplicationListener {
 					initializeLasers(nextBoard);
 					break;
 				case INFO:
-					if (state == GameState.IDLE){
+					if (state == GameState.IDLE) {
 						SoundPlayer.playSound(SoundType.CLICK);
 						state = GameState.INFO;
 					}
 					break;
 				case TUTORIAL:
-					if (state == GameState.IDLE){
+					if (state == GameState.IDLE) {
 						SoundPlayer.playSound(SoundType.CLICK);
 						state = GameState.TUTORIAL;
 					}
@@ -836,7 +871,7 @@ public class GameEngine implements ApplicationListener {
 
 		return pushedButton;
 	}
-	
+
 	/**
 	 * Moves to the next level. Should handle bonus and locked levels but
 	 * doesn't.
@@ -850,13 +885,13 @@ public class GameEngine implements ApplicationListener {
 		// Increment level and possibly world - won't move to bonus
 		currentOrdinalInWorld = nextOrdinal;
 		currentWorld = nextLvWorld;
-		
+
 		loadLevel(currentWorld, currentOrdinalInWorld);
 
 		if (Constants.LOGGING) {
 			Logger.enteredLevel(currentWorld, currentOrdinalInWorld);
 		}
-		
+
 		// No levels remaining - go back to the main menu
 		else {
 			currentWorld--;
@@ -894,7 +929,7 @@ public class GameEngine implements ApplicationListener {
 		futureBoard = b.encodePieces();
 		initializeLasers(b);
 		futureLasers.clear();
-		for(Laser l: b.lasers){
+		for (Laser l : b.lasers) {
 			futureLasers.add(l);
 		}
 
@@ -922,7 +957,8 @@ public class GameEngine implements ApplicationListener {
 			// Done animating - move on
 			else {
 				// Get the board where it should be now
-				if (currentAnimationState != AnimationState.DESTRUCTION && state != GameState.DESTROYED){
+				if (currentAnimationState != AnimationState.DESTRUCTION
+						&& state != GameState.DESTROYED) {
 					goBackToTheFuture();
 				}
 
@@ -951,8 +987,8 @@ public class GameEngine implements ApplicationListener {
 		currentAnimationState = animationStack.remove(0);
 		totalTimeForThisAnimation = AnimationState
 				.getTime(currentAnimationState);
-		
-		if (currentAnimationState == AnimationState.FORMING){
+
+		if (currentAnimationState == AnimationState.FORMING) {
 			SoundPlayer.playSound(SoundPlayer.SoundType.BEAM_FORM);
 		}
 
@@ -970,6 +1006,7 @@ public class GameEngine implements ApplicationListener {
 	private void handleMoveFinish() {
 
 		// At this point, nothing is moving anymore
+		inputHandler.wholeMoves.clear();
 		movingPiece = null;
 		movePath.clear();
 
@@ -977,8 +1014,8 @@ public class GameEngine implements ApplicationListener {
 		// transition there.
 		if (wasPieceDestroyed) {
 			state = GameState.DESTROYED;
-			
-			//Push move onto the stack
+
+			// Push move onto the stack
 			boardStack.add(moveCounter, (b.encodePieces()));
 		}
 		// Otherwise, we're still in a playable state
@@ -988,9 +1025,14 @@ public class GameEngine implements ApplicationListener {
 
 			// Push the move onto the stack
 			boardStack.add(moveCounter, (b.encodePieces()));
-
+			
 			// Check to see if we've beaten the level
 			if (b.isWon()) {
+
+				// If so, erase next move
+				inputHandler.secondMoveStarted = false;
+				movingPiece2 = null;
+				movePath2.clear();
 
 				// If so, indicate this fact
 				state = GameState.WON;
@@ -1003,23 +1045,61 @@ public class GameEngine implements ApplicationListener {
 				} else if (moveCounter <= b.par) {
 					numStars = 2;
 				}
-				
-				boolean wasNextWorldUnlocked = progress.isWorldUnlocked(currentWorld + 1);
-				boolean wasBonusUnlocked = progress.isBonusLevelUnlocked(currentWorld);
+
+				boolean wasNextWorldUnlocked = progress
+						.isWorldUnlocked(currentWorld + 1);
+				boolean wasBonusUnlocked = progress
+						.isBonusLevelUnlocked(currentWorld);
 				progress.setLevelScore(currentWorld, currentOrdinalInWorld,
 						moveCounter, numStars);
-				if (!wasNextWorldUnlocked && progress.isWorldUnlocked(currentWorld + 1)){
+				if (!wasNextWorldUnlocked
+						&& progress.isWorldUnlocked(currentWorld + 1)) {
 					GameEngine.nextWorldUnlocked = true;
 				} else {
 					GameEngine.nextWorldUnlocked = false;
 				}
-				
-				if (!wasBonusUnlocked && progress.isBonusLevelUnlocked(currentWorld)){
+
+				if (!wasBonusUnlocked
+						&& progress.isBonusLevelUnlocked(currentWorld)) {
 					GameEngine.bonusUnlocked = true;
 				} else {
 					GameEngine.bonusUnlocked = false;
 				}
+			} else if (!inputHandler.secondMoveStarted) {
+				if (movePath2.size() > 1) {
+					movingPiece = movingPiece2;
+					movePath.clear();
+					for (Tile next : movePath2) {
+						movePath.add(next);
+					}
+					for (Tile next : movePath) {
+						inputHandler.wholeMoves.add(next);
+					}
+					state = GameState.MOVING;
+					
+					//Clean up color and move counter side effects
+					originalColor = movingPiece.getColor();
+					moveCounter++;
+					
+				} else {
+					state = GameState.IDLE;
+				}
+
+			} else {
+				if (movePath2.size() > 1) {
+					movingPiece = movingPiece2;
+					movePath.clear();
+					for (Tile next : movePath2) {
+						movePath.add(next);
+					}
+					state = GameState.DECIDING;
+				} else {
+					state = GameState.IDLE;
+				}
+				inputHandler.secondMoveStarted = false;
 			}
+			movingPiece2 = null;
+			movePath2.clear();
 		}
 	}
 
@@ -1080,7 +1160,7 @@ public class GameEngine implements ApplicationListener {
 		}
 		piecesDestroyed = newDestroyed;
 		residualPiecesDestroyed.clear();
-		for(Piece p : piecesDestroyed){
+		for (Piece p : piecesDestroyed) {
 			residualPiecesDestroyed.add(p);
 		}
 
@@ -1116,7 +1196,7 @@ public class GameEngine implements ApplicationListener {
 			debug("No further levels exist.");
 			System.exit(1);
 		}
-		
+
 		// Load the tutorial
 		tutorial = tutorialLoader.getTutorial(world, ordinalInWorld);
 
@@ -1129,8 +1209,8 @@ public class GameEngine implements ApplicationListener {
 		boardStack.add(b.encodePieces());
 
 		// Set up the state and move counter
-		
-		if(tutorial != null){
+
+		if (tutorial != null) {
 			state = GameState.TUTORIAL;
 			timeSpentOnTutorial = 0;
 		} else {
@@ -1463,7 +1543,7 @@ public class GameEngine implements ApplicationListener {
 
 		if (!lasersCreated.isEmpty() && !addLasers) {
 			animationStack.add(AnimationState.FORMING);
-		}		
+		}
 		return destroyed;
 	}
 
@@ -1577,13 +1657,15 @@ public class GameEngine implements ApplicationListener {
 	public void pause() {
 		// Only save if there's something to save
 		if (currentWorld != -1) {
-			
+
 			List<Collection<Short>> saveStack = boardStack;
-			
-			// Store the current state, level number, move counter, whether the menu is
+
+			// Store the current state, level number, move counter, whether the
+			// menu is
 			// showing, and information about the boards in the stack
-			String toSave = state + ";" + currentWorld + ";" + currentOrdinalInWorld + ";"
-					+ moveCounter + ";" + mainMenuShowing + ";";
+			String toSave = state + ";" + currentWorld + ";"
+					+ currentOrdinalInWorld + ";" + moveCounter + ";"
+					+ mainMenuShowing + ";";
 			for (Collection<Short> curBoard : saveStack) {
 				for (Short s : curBoard) {
 					toSave += s + "--";
@@ -1608,7 +1690,7 @@ public class GameEngine implements ApplicationListener {
 		// Check if there's data for to read before doing anything
 		if (!tempFile.exists())
 			return;
-		
+
 		// Reinitialize the fonts
 		dg.initFonts();
 		dm.initFonts();
@@ -1623,8 +1705,8 @@ public class GameEngine implements ApplicationListener {
 			currentWorld = Integer.parseInt(parts[1]);
 			currentOrdinalInWorld = Integer.parseInt(parts[2]);
 			loadLevel(currentWorld, currentOrdinalInWorld);
-			
-			//Load the state
+
+			// Load the state
 			state = GameState.valueOf(parts[0]);
 
 			// Set up moves and menu
@@ -1647,17 +1729,17 @@ public class GameEngine implements ApplicationListener {
 				moveCounter--;
 			b.resetPieces(boardStack.get(moveCounter));
 			initializeLasers(b);
-			
-			//Figure out the state
-			if (state != GameState.WON && state != GameState.DESTROYED){
+
+			// Figure out the state
+			if (state != GameState.WON && state != GameState.DESTROYED) {
 				state = GameState.INTRO;
 			}
-			if (state == GameState.WON){
+			if (state == GameState.WON) {
 				timeWon = Constants.WON_ANIMATION_UNIT * 10;
-			} else if (state == GameState.DESTROYED){
+			} else if (state == GameState.DESTROYED) {
 				timeDead = Constants.TIME_BEFORE_DEATH_MESSAGE;
 			}
-			
+
 			menu.scrollToLevel(currentWorld, currentOrdinalInWorld);
 		}
 	}
@@ -1701,10 +1783,10 @@ public class GameEngine implements ApplicationListener {
 		return timeWon;
 	}
 
-	public static int getTransitionTime(){
+	public static int getTransitionTime() {
 		return timeSpentOnTransition;
 	}
-	
+
 	public static int getWonAnimationUnit() {
 		return Constants.WON_ANIMATION_UNIT;
 	}
@@ -1712,15 +1794,15 @@ public class GameEngine implements ApplicationListener {
 	public static List<Piece> getDestroyedPieces() {
 		return piecesDestroyed;
 	}
-	
+
 	public static List<Piece> getResidualDestroyedPieces() {
 		return residualPiecesDestroyed;
 	}
-	
-	public static Tutorial getTutorial(){
+
+	public static Tutorial getTutorial() {
 		return tutorial;
 	}
-	
+
 	/**
 	 * Debugging method. Prints anything given to it.
 	 * 
