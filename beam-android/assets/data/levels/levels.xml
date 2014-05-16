@@ -532,7 +532,7 @@ goal_3,glass,e,painter_1,3
 1,e,e,2
 </level>
 
-<level id=82 par=12 perfect=11>
+<level id=82 par=15 perfect=11>
 <attribution name="boringgoal" author="Mike"/>
 3,e,1,glass,2
 2,2,glass,2,glass

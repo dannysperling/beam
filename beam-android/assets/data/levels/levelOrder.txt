@@ -51,14 +51,16 @@
 ### WORLDSTART: Limitations ###
 18
 17
+90
 27
 16
-82
+57
 24
 ### WORLDEND ###
 
 ### WORLDSTART: CHALLENGE! ###
 28
+82
 30
 119
 20
