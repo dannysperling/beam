@@ -51,4 +51,14 @@ public class Tile {
 	 */
 	public boolean hasGlass(){return isGlass;}
 	public void setGlass(boolean isGlass){this.isGlass = isGlass;}
+	
+	public boolean equals(Tile t) {
+		boolean areSame = true;
+		areSame &= this.xCoord == t.getXCoord();
+		areSame &= this.yCoord == t.getYCoord();
+		areSame &= this.isGlass == t.hasGlass();
+		areSame &= this.goal == t.getGoalColor();
+		areSame &= this.painter == t.getPainterColor();
+		return areSame;
+	}
 }
